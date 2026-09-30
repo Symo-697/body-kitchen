@@ -97,6 +97,16 @@ details summary{cursor:pointer;font-weight:600;color:var(--plum)}
 .hscroll{display:flex;gap:.7rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:.1rem .1rem .7rem;-webkit-overflow-scrolling:touch}
 .mcard{all:unset;cursor:pointer;scroll-snap-align:start;flex:0 0 148px;min-height:128px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.8rem;display:flex;flex-direction:column;gap:.35rem;box-sizing:border-box}
 .mcard:focus-visible{outline:2px solid var(--plum)}
+.calrow{display:grid;grid-template-columns:repeat(7,1fr) 2.2rem;align-items:center;text-align:center}
+.calhead span{font-size:.8rem;color:var(--muted);padding:.2rem 0}
+.calday{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:.25rem 0;border-radius:10px}
+.calday:disabled{cursor:default;opacity:.5}
+.calday.sel{background:var(--plum-soft)}
+.cnum{width:2rem;height:2rem;line-height:2rem;border-radius:50%;font-weight:600;font-variant-numeric:tabular-nums}
+.calday.today .cnum{box-shadow:0 0 0 2px var(--plum)}
+.ndot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.wkmark{font-size:.75rem;color:var(--sage);font-weight:700}
+.dd{display:inline-block;min-width:1.6rem;padding:.05rem .35rem;border-radius:999px;color:#fff;font-weight:700;font-size:.8rem;text-align:center}
 .exname{all:unset;cursor:pointer;font-weight:700;text-decoration:underline dotted;text-underline-offset:3px}
 .exname.glute{color:var(--apricot)}
 .modal{position:fixed;inset:0;background:rgba(20,10,20,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
@@ -695,12 +705,13 @@ function suggestion(ex){const hist=S.core.lifts[ex.name];
  if(any_low&&S.core.phase.name!=="cut")return`Last time ${w} kg, some sets under ${bottom}. Stay at ${w} kg and get every set into range.`;
  return`Last time ${w} kg (${done.map(s=>s.r).join(", ")} reps). Same weight, aim for 1 more rep per set.`}
 function vTrain(){
- const tabsT=`<div class="chips" style="margin-bottom:.9rem">${[["plan","Plan & log"],["progress","Progress"]].map(([k,l])=>`<button class="chip ${trainView===k?"on":""}" onclick="trainView='${k}';render()">${l}</button>`).join("")}</div>`;
+ const tabsT=`<div class="chips" style="margin-bottom:.9rem">${[["plan","Plan & log"],["log","Calendar"],["progress","Progress"]].map(([k,l])=>`<button class="chip ${trainView===k?"on":""}" onclick="trainView='${k}';render()">${l}</button>`).join("")}</div>`;
  if(trainView==="progress")return tabsT+vProgress();
+ if(trainView==="log")return tabsT+vLog();
  const sch=schedule();const idx=(new Date().getDay()+6)%7;gymDay=gymDay||(sch[idx]!=="rest"?sch[idx]:"A");
  const ph=S.core.phase.name;const T=targets();
  let h=tabsT+`<div class="box"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Days per week</h3><div class="chips">${[4,5].map(n=>`<button class="chip ${S.core.days===n?"on":""}" onclick="S.core.days=${n};save('core');render()">${n}</button>`).join("")}</div></div>
- <div class="scroll" style="margin-top:.7rem"><table><tr>${DAYS.map((d,i)=>`<th style="${i===idx?"color:var(--plum)":""}">${d}</th>`).join("")}</tr><tr>${sch.map(s=>`<td>${s==="rest"?`<span class="muted">Rest</span>`:`<b>${s}</b>`}</td>`).join("")}</tr></table></div>
+ <div class="scroll" style="margin-top:.7rem"><table><tr>${DAYS.map((d,i)=>`<th style="${i===idx?"color:var(--plum)":""}">${d}</th>`).join("")}</tr><tr>${sch.map((s,i)=>{const d=weekDate(i);const done=(S.core.sessions||[]).filter(x=>x.date===d);return`<td>${done.length?`<span class="dd" style="background:${DAYCOL[done[0].day]||"var(--plum)"}" title="Done: day ${done.map(x=>x.day).join(", ")}">${done[0].day}✓</span>`:s==="rest"?`<span class="muted">Rest</span>`:`<b>${s}</b>`}</td>`}).join("")}</tr></table></div>
  <p class="muted" style="margin:.6rem 0 0">${ph==="cut"?"Fat loss: same heavy weights, sets as written, plus daily steps. Cardio: 2 × 20–30 min incline walk if progress stalls.":ph==="build"?"Build & define: +1 set on every glute exercise (orange). With 5 days, day E is a glute pump day.":"Maintain: one set fewer everywhere, same weights. Can drop to 3 days (A, B, C) and keep your results."} ${T?`Steps goal: ${T.steps.toLocaleString()} a day.`:""} Keep at least 2 rest days, never two lower-body days back to back.</p></div>`;
  const dl=deloadInfo();if(dl)h+=`<div class="note ${dl.due?"warn":""}">${dl.text}${dl.due?` <button class="small" style="margin-left:.4rem" onclick="S.core.lastDeload=today();save('core');render()">Deload done</button>`:""}</div>`;
  h+=`<div class="chips" style="margin:1rem 0">${Object.keys(S.core.workout).map(k=>`<button class="chip ${gymDay===k?"on":""}" onclick="gymDay='${k}';render()">${k} · ${esc(S.core.workout[k].title)}</button>`).join("")}</div>`;
@@ -712,6 +723,7 @@ function vTrain(){
  exMode(ex.name)==="t"?`<div class="sets">${Array.from({length:n},(_,s)=>`<div class="set"><input id="r-${i}-${s}" type="number" inputmode="numeric" placeholder="sec (set ${s+1})" aria-label="Set ${s+1} seconds"></div>`).join("")}</div>`:
  isCardio(ex)?`<div class="sets" style="grid-template-columns:repeat(2,minmax(0,9rem))"><div><label>Time (min)</label><input id="w-${i}-0" type="number" inputmode="decimal"></div><div><label>Average speed (km/h)</label><input id="r-${i}-0" type="number" inputmode="decimal" step="0.1"></div></div>`:`<div class="sets">${Array.from({length:n},(_,s)=>`<div class="set"><input id="w-${i}-${s}" type="number" inputmode="decimal" placeholder="${kgHint(ex.name)}" aria-label="Set ${s+1} weight"><input id="r-${i}-${s}" type="number" inputmode="numeric" placeholder="reps" aria-label="Set ${s+1} reps"></div>`).join("")}</div>`}</div>`}).join("")}
  <div style="margin-top:.9rem"><label>Add an exercise</label><input id="newex" type="search" autocomplete="off" placeholder="Search: hip thrust, plank, curl…" oninput="exQuery=this.value;paintExResults()" value="${esc(exQuery)}"><p class="muted" style="font-size:.78rem;margin:.3rem 0 0">Library: my exercises + 745 from <a href="https://wger.de" target="_blank" rel="noopener">wger.de</a> (CC-BY-SA). Tap ⓘ to see the muscles.</p><div id="exres">${exResultsHTML()}</div></div>
+ <div class="row" style="margin-top:.9rem"><div style="width:11rem"><label>Date</label><input id="sdate" type="date" value="${today()}" max="${today()}"></div><div style="width:8rem"><label>Duration (min)</label><input id="sdur" type="number" inputmode="numeric" placeholder="optional"></div></div>
  <button style="margin-top:.8rem;width:100%" onclick="saveSession()">Save workout</button></div>
  <p class="muted">Want your old 5-day program back instead? Replace the exercises here; the progression tips work for anything.</p>`;
   return h;
@@ -820,6 +832,66 @@ function lineChart(pts,unit,bars){if(pts.length<2)return`<p class="muted" style=
  g+=`<text x="${L}" y="${H-6}" font-size="9" fill="var(--muted)">${pts[0].date.slice(5)}</text><text x="${W-Rr}" y="${H-6}" font-size="9" text-anchor="end" fill="var(--muted)">${pts[pts.length-1].date.slice(5)}</text>`;
  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block" role="img" aria-label="Chart">${g}</svg>`}
 function sparkMini(vs){if(vs.length<2)return"";const lo=Math.min(...vs),hi=Math.max(...vs),sp=hi-lo||1;return`<svg viewBox="0 0 100 30" style="width:90px;height:28px" aria-hidden="true"><polyline fill="none" stroke="var(--apricot)" stroke-width="2" points="${vs.map((v,i)=>`${i*100/(vs.length-1)},${27-(v-lo)/sp*24}`).join(" ")}"/></svg>`}
+
+/* ---------- workout calendar & log ---------- */
+const DAYCOL={A:"#E0793A",B:"#6B2D5C",C:"#4F7A5A",D:"#5B7CE0",E:"#C28A1E"};
+function weekDate(i,base){const m=new Date(mondayOf(base||today())+"T12:00");m.setDate(m.getDate()+i);return m.toLocaleDateString("sv-SE")}
+let calOff=0,calSel=null,sessEdit=null;
+function weeklyTarget(){return schedule().filter(x=>x!=="rest").length}
+function trainedDates(){return new Set((S.core.sessions||[]).map(x=>x.date))}
+function weekDone(monday){const td=trainedDates();let n=0;for(let i=0;i<7;i++)if(td.has(weekDate(i,monday)))n++;return n}
+function streak(){const tgt=weeklyTarget();let m=mondayOf(today());let n=0;
+ if(weekDone(m)>=tgt)n++;
+ for(let k=1;k<200;k++){const d=new Date(m+"T12:00");d.setDate(d.getDate()-7*k);const mm=d.toLocaleDateString("sv-SE");if(weekDone(mm)>=tgt)n++;else break}return n}
+function sessionLifts(sess){const out=[];for(const [name,hist] of Object.entries(S.core.lifts||{}))hist.forEach(x=>{if(sess.id?x.sid===sess.id:(!x.sid&&x.date===sess.date))out.push({name,entry:x})});return out}
+function fmtSet(name,st){const md=exMode(name);if(md==="c")return`${st.min||0} min · ${st.speed||0} km/h`;if(md==="t")return`${st.sec||0} s`;if(md==="r")return`${st.r||0} reps`;return`${st.w||0} kg × ${st.r||0}`}
+function monthStats(y,m){const pre=`${y}-${String(m+1).padStart(2,"0")}`;const ss=(S.core.sessions||[]).filter(x=>x.date.startsWith(pre));let sets=0,vol=0;
+ for(const [name,hist] of Object.entries(S.core.lifts||{}))hist.filter(x=>x.date.startsWith(pre)).forEach(x=>{const st=sessionStats(name,x);if(!isCardio({name})){sets+=st.n||0;vol+=st.volume||0}});return{workouts:ss.length,sets,vol}}
+function vLog(){const now=new Date(today()+"T12:00");const first=new Date(now.getFullYear(),now.getMonth()-calOff,1,12);const y=first.getFullYear(),mo=first.getMonth();
+ const startMon=mondayOf(first.toLocaleDateString("sv-SE"));const last=new Date(y,mo+1,0,12);const tgt=weeklyTarget();
+ const sessByDate={};(S.core.sessions||[]).forEach(x=>{(sessByDate[x.date]=sessByDate[x.date]||[]).push(x)});
+ const T=targets();const st=streak();
+ let rows="";let wk=new Date(startMon+"T12:00");
+ while(wk<=last){const mon=wk.toLocaleDateString("sv-SE");const done=weekDone(mon);const isCur=mon===mondayOf(today());const met=done>=tgt;
+  rows+=`<div class="calrow">`+Array.from({length:7},(_,i)=>{const d=weekDate(i,mon);const inM=d.slice(5,7)===String(mo+1).padStart(2,"0");const ss=sessByDate[d]||[];
+   const sc=dayScore((S.logs[monthKey(d)]||{days:{}}).days?.[d],T,d===today());const dot=sc?`<span class="ndot" style="background:${sc.score>=70?"var(--sage)":sc.score>=50?"var(--apricot)":"var(--warn)"}" title="Nutrition ${sc.score}/100"></span>`:`<span class="ndot" style="background:transparent"></span>`;
+   const future=d>today();
+   return`<button class="calday ${d===today()?"today":""} ${calSel===d?"sel":""}" ${future?"disabled":""} onclick="calSel='${d}';sessEdit=null;render()" style="${inM?"":"opacity:.35"}" aria-label="${d}${ss.length?", trained":""}"><span class="cnum" style="${ss.length?`background:${DAYCOL[ss[0].day]||"var(--plum)"};color:#fff`:""}">${+d.slice(8)}</span>${dot}</button>`}).join("")
+   +`<span class="wkmark" title="${done} of ${tgt} sessions">${met?"✓":isCur?`${done}/${tgt}`:""}</span></div>`;
+  wk.setDate(wk.getDate()+7)}
+ const ms=monthStats(y,mo),pm=(()=>{const p=new Date(y,mo-1,1,12);return monthStats(p.getFullYear(),p.getMonth())})();
+ const delta=(a,b)=>b?`<div class="muted" style="font-size:.8rem">${a>=b?"+":"−"}${Math.abs(Math.round((a-b)/b*100))}% vs last month</div>`:"";
+ let h=`<div class="box">${st>0?`<div class="note good" style="margin-top:0">🔥 <b>${st}-week streak</b> of hitting your ${tgt} planned sessions.</div>`:""}
+ <div class="row" style="justify-content:space-between;margin-bottom:.5rem"><button class="ghost small" aria-label="Previous month" onclick="calOff++;calSel=null;render()">‹</button><h3 style="margin:0">${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</h3><button class="ghost small" aria-label="Next month" ${calOff===0?"disabled style='opacity:.4'":""} onclick="calOff=Math.max(0,calOff-1);calSel=null;render()">›</button></div>
+ <div class="calrow calhead">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}<span class="wkmark">Wk</span></div>${rows}
+ <div class="row" style="gap:.8rem;margin-top:.6rem;font-size:.78rem;color:var(--muted)">${Object.entries(DAYCOL).map(([k,c])=>`<span class="row" style="gap:.25rem"><span style="width:10px;height:10px;border-radius:50%;background:${c};display:inline-block"></span>${k}</span>`).join("")}<span class="row" style="gap:.25rem"><span class="ndot" style="background:var(--sage);position:static"></span>nutrition score</span></div>
+ <div class="grid3" style="margin-top:.9rem"><div><div class="muted">Workouts</div><b>${ms.workouts}</b>${delta(ms.workouts,pm.workouts)}</div><div><div class="muted">Sets</div><b>${r0(ms.sets)}</b>${delta(ms.sets,pm.sets)}</div><div><div class="muted">Volume</div><b>${r0(ms.vol).toLocaleString()} kg</b>${delta(ms.vol,pm.vol)}</div></div></div>`;
+ if(calSel){const ss=sessByDate[calSel]||[];const sc=dayScore((S.logs[monthKey(calSel)]||{days:{}}).days?.[calSel],T,calSel===today());
+  h+=`<h2>${new Date(calSel+"T12:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</h2>`;
+  if(sc)h+=`<p class="muted" style="margin:-.3rem 0 .6rem">Nutrition score: <b>${sc.score}/100</b></p>`;
+  if(!ss.length)h+=`<div class="box muted">No workout logged this day. To add one, pick this date under the Save workout button in Plan & log.</div>`;
+  ss.forEach((sess,si)=>{const key=sess.id||("legacy:"+sess.date);const L=sessionLifts(sess);const vol=L.reduce((a,x)=>a+(isCardio({name:x.name})?0:sessionStats(x.name,x.entry).volume||0),0);
+   const editing=sessEdit===key;
+   h+=`<div class="box"><div class="row" style="justify-content:space-between"><h3 style="margin:0"><span class="dd" style="background:${DAYCOL[sess.day]||"var(--plum)"}">${esc(sess.day)}</span> ${esc((S.core.workout[sess.day]||{}).title||"")}</h3>
+   <div class="row">${editing?"":`<button class="ghost small" onclick="sessEdit='${key}';render()">Edit</button>`}<button class="ghost small" onclick="delSession('${key}')">Delete</button></div></div>
+   <div class="muted" style="margin:.2rem 0 .4rem">${L.length} exercise${L.length===1?"":"s"}${vol?` · ${r0(vol).toLocaleString()} kg volume`:""}${sess.dur?` · ${sess.dur} min`:""}</div>
+   ${L.map((x,ei)=>`<div class="ex"><div class="row" style="justify-content:space-between"><button class="exname" onclick="showEx(${esc(JSON.stringify(x.name))})">${esc(x.name)}</button>${editing?`<button class="x" aria-label="Remove exercise from this session" onclick="rmSessEx('${key}',${ei})">×</button>`:""}</div>
+    ${editing?`<div class="sets">${x.entry.sets.map((st,k)=>editSetHTML(x.name,st,ei,k)).join("")}</div>`:`<div class="muted">${x.entry.sets.map(st=>fmtSet(x.name,st)).join(" · ")}</div>`}</div>`).join("")||`<p class="muted">No sets recorded.</p>`}
+   ${editing?`<div class="row" style="margin-top:.7rem"><div style="width:8rem"><label>Duration (min)</label><input id="edur" type="number" value="${sess.dur||""}"></div><span class="grow"></span><button class="ghost small" onclick="sessEdit=null;render()">Cancel</button><button onclick="saveSessEdit('${key}')">Save</button></div>`:""}</div>`})}
+ return h}
+function editSetHTML(name,st,ei,k){const md=exMode(name);const f=(fld,ph)=>`<input id="se-${ei}-${k}-${fld}" type="number" inputmode="decimal" value="${st[fld]??""}" placeholder="${ph}" aria-label="${ph}">`;
+ return`<div class="set">${md==="c"?f("min","min")+f("speed","km/h"):md==="t"?f("sec","sec"):md==="r"?f("r","reps"):f("w","kg")+f("r","reps")}</div>`}
+function findSess(key){return(S.core.sessions||[]).filter(x=>(x.id||("legacy:"+x.date))===key)}
+function saveSessEdit(key){const sess=findSess(key)[0];if(!sess)return;const L=sessionLifts(sess);
+ L.forEach((x,ei)=>{x.entry.sets.forEach((st,k)=>{Object.keys(st).forEach(fld=>{const el=document.getElementById(`se-${ei}-${k}-${fld}`);if(el)st[fld]=+el.value||0})});
+  x.entry.sets=x.entry.sets.filter(st=>Object.values(st).some(v=>v))});
+ L.forEach(x=>{if(!x.entry.sets.length)S.core.lifts[x.name]=S.core.lifts[x.name].filter(e=>e!==x.entry)});
+ const d=document.getElementById("edur");findSess(key).forEach(x=>x.dur=d&&+d.value||null);sessEdit=null;save("core");render()}
+function rmSessEx(key,ei){const sess=findSess(key)[0];if(!sess)return;const x=sessionLifts(sess)[ei];if(!x||!confirm(`Remove ${x.name} from this session?`))return;
+ S.core.lifts[x.name]=S.core.lifts[x.name].filter(e=>e!==x.entry);save("core");render()}
+function delSession(key){if(!confirm("Delete this whole workout and its sets?"))return;const ss=findSess(key);
+ ss.forEach(sess=>sessionLifts(sess).forEach(x=>{S.core.lifts[x.name]=S.core.lifts[x.name].filter(e=>e!==x.entry)}));
+ S.core.sessions=S.core.sessions.filter(x=>!ss.includes(x));sessEdit=null;save("core");render()}
 let trainView="plan",progKind="week",progOff=0,progEx=null;
 function vProgress(){
  const pr=periodRange(progKind,progOff);const M=muscleTotals(pr.from,pr.to);
@@ -920,10 +992,10 @@ function toggleNewMuscle(k){if(newEx.p.includes(k)){newEx.p=newEx.p.filter(x=>x!
 function saveNewEx(){const n=newEx;if(n.mode!=="c"&&!n.p.length){alert("Pick at least one main muscle so it shows on your muscle map.");return}
  S.core.customEx=S.core.customEx||{};S.core.customEx[n.name]={p:n.mode==="c"?[]:n.p,s:n.mode==="c"?[]:n.s,mode:n.mode,reps:n.reps,side:!!n.side};
  const e=EX(n.name,n.mode==="c"?1:n.sets,n.reps,n.p.includes("glutes"));S.core.workout[gymDay].ex.push(e);exQuery="";newEx=null;save("core");render()}
-function saveSession(){const day=S.core.workout[gymDay];let any=false;
+function saveSession(){const day=S.core.workout[gymDay];let any=false;const sid="s"+uidGen();const sdate=($("#sdate")&&$("#sdate").value)||today();const sdur=+(($("#sdur")||{}).value)||null;
  day.ex.forEach((ex,i)=>{const sets=[];for(let s=0;s<setsFor(ex);s++){const w=$(`#w-${i}-${s}`)?.value,r=$(`#r-${i}-${s}`)?.value;const md=exMode(ex.name);if(w||r)sets.push(isCardio(ex)?{min:+w||0,speed:+r||0}:md==="t"?{sec:+r||0}:md==="r"?{w:0,r:+r||0}:{w:+w||0,r:+r||0})}
-  if(sets.length){any=true;const h=S.core.lifts[ex.name]=S.core.lifts[ex.name]||[];h.push({date:today(),sets});if(h.length>60)h.shift()}});
- if(!any){alert("Enter at least one set.");return}S.core.sessions=(S.core.sessions||[]).concat([{date:today(),day:gymDay}]).slice(-300);save("core");render();alert("Workout saved.")}
+  if(sets.length){any=true;const h=S.core.lifts[ex.name]=S.core.lifts[ex.name]||[];h.push({date:sdate,sid,sets});h.sort((a,b)=>a.date.localeCompare(b.date));if(h.length>60)h.shift()}});
+ if(!any){alert("Enter at least one set.");return}S.core.sessions=(S.core.sessions||[]).concat([{id:sid,date:sdate,day:gymDay,dur:sdur}]).sort((a,b)=>a.date.localeCompare(b.date)).slice(-400);save("core");render();alert("Workout saved.")}
 
 /* me */
 function vMe(){
