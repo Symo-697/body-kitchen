@@ -30,4 +30,9 @@ On Android: open in Chrome → menu → **Add to Home screen / Install app**.
 
 Replace `index.html` in the repository with the new version. To make sure phones pick it up quickly, also change `body-kitchen-v1` to `body-kitchen-v2` (and so on) in `sw.js`.
 
+## Credits
+
+- Exercise library partly from [wger.de](https://wger.de) (exercise data under CC-BY-SA 4 / CC-BY-SA 3 / CC0; muscle mapping adjusted for this app). Material derived from it stays under CC-BY-SA.
+- Body figures: AI-generated illustrations, muscle mapping by this app.
+
 *Not medical advice. Calorie targets and exercise tips are general estimates.*
