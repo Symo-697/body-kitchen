@@ -94,6 +94,9 @@ nav.tabs button.on{color:var(--plum)}
 .status{font-size:.78rem;color:var(--muted)}
 .spark{width:100%;height:120px;display:block}
 details summary{cursor:pointer;font-weight:600;color:var(--plum)}
+.hscroll{display:flex;gap:.7rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:.1rem .1rem .7rem;-webkit-overflow-scrolling:touch}
+.mcard{all:unset;cursor:pointer;scroll-snap-align:start;flex:0 0 148px;min-height:128px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.8rem;display:flex;flex-direction:column;gap:.35rem;box-sizing:border-box}
+.mcard:focus-visible{outline:2px solid var(--plum)}
 .exname{all:unset;cursor:pointer;font-weight:700;text-decoration:underline dotted;text-underline-offset:3px}
 .exname.glute{color:var(--apricot)}
 .modal{position:fixed;inset:0;background:rgba(20,10,20,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
@@ -423,7 +426,7 @@ function render(){
  const view={today:vToday,kitchen:vKitchen,shop:vShop,train:vTrain,me:vMe}[tab]();
  $("#app").innerHTML=`<header class="top"><div><h1>${{today:"Today",kitchen:"Kitchen",shop:"Groceries",train:"Train",me:"Me"}[tab]}</h1><div class="status" id="status">${esc(status)}</div></div><div class="phase-pill">${esc(ph)}</div></header>`+view;
 }
-function go(t){tab=t;render();window.scrollTo(0,0)}
+function go(t){if(t==="me"&&tab==="me")meView=null;tab=t;render();window.scrollTo(0,0)}
 
 function vToday(){
  const T=targets();const L=dayLog(logDate);
@@ -667,7 +670,8 @@ function exDef(name){const c=(S.core.customEx||{})[name];if(c)return c;if(EX_LIB
  if(/treadmill|tapis|incline walk|bike|vélo|velo|elliptical|elliptique|rower|rameur|running|stairmaster|cardio/i.test(name))return{p:[],s:[],mode:"c"};
  for(const [re,p,s2] of MUSCLE_RULES)if(re.test(name))return{p,s:s2,mode:"w"};return null}
 const exMode=name=>(exDef(name)||{mode:"w"}).mode;
-const perSide=name=>!!((S.core.customEx||{})[name]||{}).side||!!(WGER[name]||{}).side||/per leg|per side|per arm|one-arm|single-leg|single arm/i.test(name);
+const perSide=name=>{const c=(S.core.customEx||{})[name];if(c&&c.side!==undefined)return!!c.side;return _perSide(name)};
+const _perSide=name=>!!(WGER[name]||{}).side||/per leg|per side|per arm|one-arm|single-leg|single arm/i.test(name);
 const kgHint=name=>perSide(name)?"kg (1 side)":/dumbbell|hammer curl|arnold|goblet/i.test(name)?"kg (1 dumbbell)":"kg";
 const ownExerciseNames=()=>new Set(Object.keys(EX_MUSCLES).concat(["Incline treadmill walk"],Object.keys(EX_LIB),Object.keys(S.core.customEx||{})));
 const allExerciseNames=()=>[...new Set([...ownExerciseNames(),...Object.keys(WGER)])].sort((a,b)=>a.localeCompare(b));
@@ -702,7 +706,7 @@ function vTrain(){
  h+=`<div class="chips" style="margin:1rem 0">${Object.keys(S.core.workout).map(k=>`<button class="chip ${gymDay===k?"on":""}" onclick="gymDay='${k}';render()">${k} · ${esc(S.core.workout[k].title)}</button>`).join("")}</div>`;
  const day=S.core.workout[gymDay];
  h+=`<div class="box"><h3>${gymDay} · ${esc(day.title)}</h3><p class="muted" style="margin:0 0 .3rem">Rest 2–3 min on big lifts, 60–90 s on the rest. Stop each set with 1–2 reps left in the tank. <span class="glute">Orange</span> = glute work. For one-side or dumbbell exercises, log the weight of one side or one dumbbell and the reps of one side; volume is doubled for you.</p>${norm(S.core.profile.injuries).trim()?`<p class="muted" style="margin:0 0 .3rem">Adjusted for what you noted in Me. Sharp pain, or pain that's worse the next day, is a reason to stop that exercise and see a physio.</p>`:""}
- ${day.ex.map((ex,i)=>{const n=setsFor(ex);return`<div class="ex"><div class="row" style="justify-content:space-between"><div><button class="exname ${ex.glute?"glute":""}" onclick="showEx(${esc(JSON.stringify(ex.name))})">${esc(ex.name)}</button> <span class="muted">${isCardio(ex)?esc(ex.reps)+" min":exMode(ex.name)==="t"?n+" × "+esc(ex.reps)+" s":n+" × "+esc(ex.reps)+(exMode(ex.name)==="r"?" reps":"")}</span></div><button class="x" aria-label="Remove exercise" onclick="rmEx(${i})">×</button></div>
+ ${day.ex.map((ex,i)=>{const n=setsFor(ex);return`<div class="ex"><div class="row" style="justify-content:space-between"><div><button class="exname ${ex.glute?"glute":""}" onclick="showEx(${esc(JSON.stringify(ex.name))},false,${i})">${esc(ex.name)}</button> <span class="muted">${isCardio(ex)?esc(ex.reps)+" min":exMode(ex.name)==="t"?n+" × "+esc(ex.reps)+" s":n+" × "+esc(ex.reps)+(exMode(ex.name)==="r"?" reps":"")}</span></div><button class="x" aria-label="Remove exercise" onclick="rmEx(${i})">×</button></div>
  <div class="muted">${esc(suggestion(ex))}</div>${injuryTips(ex).map(t=>`<div class="note warn" style="margin:.35rem 0">${esc(t)}</div>`).join("")}${CUES[ex.name.replace(" (minutes)","")]?`<details style="margin:.2rem 0"><summary style="font-size:.85rem">How to</summary><p class="muted" style="margin:.3rem 0 0">${esc(CUES[ex.name.replace(" (minutes)","")])}</p></details>`:""}
  ${exMode(ex.name)==="r"?`<div class="sets">${Array.from({length:n},(_,s)=>`<div class="set"><input id="r-${i}-${s}" type="number" inputmode="numeric" placeholder="reps (set ${s+1})" aria-label="Set ${s+1} reps"></div>`).join("")}</div>`:
  exMode(ex.name)==="t"?`<div class="sets">${Array.from({length:n},(_,s)=>`<div class="set"><input id="r-${i}-${s}" type="number" inputmode="numeric" placeholder="sec (set ${s+1})" aria-label="Set ${s+1} seconds"></div>`).join("")}</div>`:
@@ -868,12 +872,12 @@ function exResultsHTML(){
  const modeLabel=n=>({w:"weight × reps",r:"reps",t:"hold",c:"cardio"})[exMode(n)];
  return`<div style="margin-top:.4rem;border:1px solid var(--line);border-radius:10px;overflow:hidden">${names.map(n=>{const [P]=musclesD(n);const nn=esc(JSON.stringify(n));return`<div style="display:flex;align-items:center;border-bottom:1px solid var(--line)"><button onclick="addExByName(${nn})" style="all:unset;cursor:pointer;flex:1;padding:.55rem .7rem"><b>${esc(n)}</b><br><span class="muted">${P.length?esc(prettyList(P).join(", "))+" · ":""}${modeLabel(n)}</span></button><button class="x" style="margin-right:.4rem;font-size:1rem" aria-label="See the muscles for ${esc(n)}" onclick="showEx(${nn},true)">ⓘ</button></div>`}).join("")}
  ${exact?"":`<button onclick="startNewEx()" style="all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;padding:.55rem .7rem;color:var(--plum);font-weight:600">+ Add “${esc(exQuery.trim())}” as a new exercise</button>`}</div>`}
-function showEx(name,fromSearch){closeEx();const [P,Sx]=musclesD(name);const md=exMode(name);const cue=CUES[name.replace(" (minutes)","")];
+function showEx(name,fromSearch,idx){closeEx();const [P,Sx]=musclesD(name);const md=exMode(name);const cue=CUES[name.replace(" (minutes)","")];
  const how={w:perSide(name)?"weight × reps, one side at a time":"weight × reps",r:"reps only (bodyweight)",t:"timed hold, in seconds",c:"cardio: time + average speed"}[md];
  const list=(title,color,ks)=>ks.length?`<div style="margin-top:.8rem"><div class="row" style="gap:.4rem"><span style="width:10px;height:10px;border-radius:50%;background:${color};display:inline-block"></span><b>${title}</b></div><div class="muted" style="margin-top:.2rem">${prettyList(ks).map(esc).join("<br>")}</div></div>`:"";
  const ov=document.createElement("div");ov.className="modal";ov.id="exmodal";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");ov.setAttribute("aria-label",name);
  ov.onclick=e=>{if(e.target===ov)closeEx()};
- ov.innerHTML=`<div class="sheet"><div class="row" style="justify-content:space-between;align-items:flex-start"><h2 style="margin:0">${esc(name)}</h2><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeEx()">×</button></div>
+ ov.innerHTML=`<div class="sheet"><div class="row" style="justify-content:space-between;align-items:flex-start"><h2 style="margin:0">${esc(name)}</h2><div class="row" style="flex-wrap:nowrap"><button class="ghost small" onclick="openExEdit(${esc(JSON.stringify(name))},${idx==null?"null":idx},${fromSearch?"true":"false"})">Edit</button><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeEx()">×</button></div></div>
  <div class="muted" style="margin:.2rem 0 .8rem">Logged as ${how}</div>${bodySVG(null,{p:P,s:Sx})}
  ${md==="c"?`<p class="muted" style="margin:.8rem 0 0">Cardio trains your heart and burns energy; these muscles work along but don't count toward your weekly sets.</p>`:""}
  ${list(md==="c"?"Muscles involved":"Primary muscles",md==="c"?TGT_S:TGT_P,P)}${list(md==="c"?"":"Secondary muscles",TGT_S,Sx)}
@@ -881,6 +885,31 @@ function showEx(name,fromSearch){closeEx();const [P,Sx]=musclesD(name);const md=
  ${WGER[name]&&!ownExerciseNames().has(name)?`<p class="muted" style="font-size:.78rem;margin:.9rem 0 0">Exercise from <a href="https://wger.de" target="_blank" rel="noopener">wger.de</a>${WGER[name].src.auth?" by "+esc(WGER[name].src.auth):""}, licence ${esc(WGER[name].src.lic||"CC-BY-SA 4")}. Muscle mapping adjusted for this app.</p>`:""}
  ${fromSearch?`<button style="width:100%;margin-top:1rem" onclick="closeEx();addExByName(${esc(JSON.stringify(name))})">Add to day ${gymDay}</button>`:""}</div>`;
  document.body.appendChild(ov);ov.querySelector(".sheet button.x").focus()}
+let exEdit=null;
+function muscleChips(st,fn){const chip=k=>{const css=st.p.includes(k)?`background:${TGT_P};border-color:${TGT_P};color:#fff`:st.s.includes(k)?`background:${TGT_S};border-color:${TGT_S};color:#fff`:"";return`<button class="chip" style="${css}" onclick="${fn}('${k}')">${DMUS[k][0]}</button>`};
+ return`<p class="muted" style="margin:0 0 .3rem">Tap once for a <b style="color:${TGT_P}">main</b> muscle, twice for <b style="color:${TGT_S}">secondary</b>, a third time to remove.</p>
+ ${REGIONS.map(([r,ks])=>`<div style="margin-top:.45rem"><div class="muted" style="font-size:.8rem;margin-bottom:.2rem">${r}</div><div class="chips">${ks.map(chip).join("")}</div></div>`).join("")}`}
+const hasOriginal=n=>!!(EX_LIB[n]||EX_MUSCLES[n]||WGER[n]);
+function openExEdit(name,idx,fromSearch){const [P,Sx]=musclesD(name);const d=exDef(name)||{};const entry=idx!=null?S.core.workout[gymDay].ex[idx]:null;
+ exEdit={name,idx,fromSearch,p:P.slice(),s:Sx.slice(),mode:exMode(name),reps:entry?entry.reps:(d.reps||DEF_REPS[exMode(name)]),sets:entry?entry.sets:3,side:perSide(name)};paintExEdit()}
+function paintExEdit(){const e=exEdit;const sh=document.querySelector("#exmodal .sheet");if(!sh)return;
+ sh.innerHTML=`<div class="row" style="justify-content:space-between"><h2 style="margin:0">Edit ${esc(e.name)}</h2><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeEx()">×</button></div>
+ <label style="margin-top:.8rem">How do you want to log it?</label><div class="chips">${MODES.map(([k,l])=>`<button class="chip ${e.mode===k?"on":""}" onclick="exEdit.mode='${k}';exEdit.reps=DEF_REPS['${k}'];paintExEdit()">${l}</button>`).join("")}</div>
+ <label style="margin-top:.8rem">Muscles</label>${muscleChips(e,"edToggle")}
+ <div style="margin-top:.7rem">${bodySVG(null,{p:e.p,s:e.s})}</div>
+ ${e.mode==="c"?"":`<label class="check" style="margin-top:.7rem;color:inherit"><input type="checkbox" ${e.side?"checked":""} onchange="exEdit.side=this.checked">One side at a time (per leg / per arm)</label>`}
+ <div class="row" style="margin-top:.7rem">${e.idx!=null&&e.mode!=="c"?`<div style="width:6rem"><label>Sets</label><input type="number" min="1" max="8" value="${e.sets}" onchange="exEdit.sets=Math.max(1,+this.value||3)"></div>`:""}
+ <div style="width:9rem"><label>${e.mode==="c"?"Minutes":e.mode==="t"?"Seconds per set":"Reps per set"}</label><input value="${esc(e.reps)}" onchange="exEdit.reps=this.value.replace(/[^0-9-]/g,'')||exEdit.reps"></div></div>
+ ${e.idx!=null?`<p class="muted" style="margin:.4rem 0 0">Sets and reps apply to day ${gymDay}; muscles and logging mode apply everywhere.</p>`:""}
+ <div class="row" style="margin-top:1rem">${hasOriginal(e.name)&&(S.core.customEx||{})[e.name]?`<button class="ghost small" onclick="resetExEdit()">Reset to original</button>`:""}<span class="grow"></span><button class="ghost small" onclick="showEx(exEdit.name,exEdit.fromSearch,exEdit.idx)">Cancel</button><button onclick="saveExEdit()">Save</button></div>`;sh.scrollTop=0}
+function edToggle(k){const e=exEdit;if(e.p.includes(k)){e.p=e.p.filter(x=>x!==k);e.s.push(k)}else if(e.s.includes(k))e.s=e.s.filter(x=>x!==k);else e.p.push(k);const sh=document.querySelector("#exmodal .sheet");const y=sh?sh.scrollTop:0;paintExEdit();if(sh)sh.scrollTop=y}
+function saveExEdit(){const e=exEdit;if(e.mode!=="c"&&!e.p.length){alert("Pick at least one main muscle.");return}
+ S.core.customEx=S.core.customEx||{};S.core.customEx[e.name]={p:e.mode==="c"?[]:e.p,s:e.s,mode:e.mode,reps:e.reps,side:e.mode==="c"?false:!!e.side};
+ const isG=e.p.some(k=>DMUS[k]&&DMUS[k][1]==="glutes");
+ Object.values(S.core.workout).forEach(d=>d.ex.forEach(x=>{if(x.name===e.name){x.glute=isG;if(e.mode==="c")x.sets=1}}));
+ if(e.idx!=null){const x=S.core.workout[gymDay].ex[e.idx];if(x){x.reps=e.reps;if(e.mode!=="c")x.sets=e.sets}}
+ save("core");const n=e.name,f=e.fromSearch,i=e.idx;exEdit=null;render();showEx(n,f,i)}
+function resetExEdit(){if(!confirm("Go back to the original muscles and settings for this exercise?"))return;delete S.core.customEx[exEdit.name];save("core");const n=exEdit.name,f=exEdit.fromSearch,i=exEdit.idx;exEdit=null;render();showEx(n,f,i)}
 function closeEx(){const m=document.getElementById("exmodal");if(m)m.remove()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeEx()});
 function paintExResults(){const el=document.getElementById("exres");if(el)el.innerHTML=exResultsHTML()}
@@ -898,6 +927,7 @@ function saveSession(){const day=S.core.workout[gymDay];let any=false;
 
 /* me */
 function vMe(){
+ if(meView)return measPage();
  const p=S.core.profile;const T=targets();const ci=checkin();const I=ci.I;
  const wkSessions=(S.core.sessions||[]).filter(x=>x.date>daysAgo(7)).length;
  const wChange=ci.cur&&avgWeight(14,7)?ci.cur-avgWeight(14,7):null;
@@ -924,14 +954,7 @@ function vMe(){
  ${ci.out.map(([k,t])=>`<div class="note ${k}">${t}</div>`).join("")}
  <p class="muted" style="margin:.5rem 0 0">BMI can't tell muscle from fat, so waist and hip measurements matter more as you build glutes. Healthy guides: BMI 18.5–25, waist under 50% of height.</p></div>`;
  // measurements
- const E=sortedEntries();
- h+=`<h2>Log measurements</h2><div class="box"><div class="grid3">
- <div><label>Date</label><input id="m-date" type="date" value="${today()}"></div>
- ${[["weight","Weight (kg)"],["waist","Waist (cm)"],["hips","Hips (cm)"],["glutes","Glutes, fullest (cm)"],["thigh","Thigh (cm)"],["arm","Arm (cm)"],["bf","Body fat % (if known)"]].map(([k,l])=>`<div><label>${l}</label><input id="m-${k}" type="number" inputmode="decimal" step="0.1"></div>`).join("")}</div>
- <button style="margin-top:.7rem" onclick="addMeasure()">Save entry</button>
- <p class="muted" style="margin:.5rem 0 0">Weigh yourself most mornings; measure every 2 weeks, same time, tape snug not tight.</p></div>`;
- if(E.filter(e=>e.weight).length>1)h+=`<div class="box">${spark(E.filter(e=>e.weight))}</div>`;
- if(E.length)h+=`<div class="box scroll"><table><tr><th>Date</th><th class="n">kg</th><th class="n">Waist</th><th class="n">Hips</th><th class="n">Glutes</th><th class="n">Thigh</th><th class="n">Arm</th><th class="n">BF%</th><th></th></tr>${E.slice().reverse().map(e=>`<tr><td>${e.date.slice(5)}</td>${["weight","waist","hips","glutes","thigh","arm","bf"].map(k=>`<td class="n">${e[k]||""}</td>`).join("")}<td><button class="x" aria-label="Delete entry" onclick="rmMeasure('${e.id}')">×</button></td></tr>`).join("")}</table></div>`;
+ h+=measSection("Body measurements","body")+measSection("Other measurements","other")+measSection("Custom measurements","custom");
  // photos
  h+=`<h2>Progress photos</h2><div class="box"><label class="muted">Same light, same pose, every 2–4 weeks: front, side, back. Photos stay on this phone only.</label><input type="file" accept="image/*" onchange="uploadPhoto(this)" style="margin:.5rem 0">
  <div class="photos">${S.body.photos.slice().reverse().filter(ph=>photoCache[ph.id]).map(ph=>`<figure><img src="${photoCache[ph.id]}" alt="Progress photo ${esc(ph.date)}"><figcaption>${esc(ph.date)} <button class="x" aria-label="Delete photo" onclick="delPhoto('${ph.id}')">×</button></figcaption></figure>`).join("")}</div></div>`;
@@ -953,6 +976,56 @@ function importData(inp){const file=inp.files[0];if(!file)return;const rd=new Fi
   S.body.photos=(S.body.photos||[]).filter(ph=>o.photos&&o.photos[ph.id]);seedRecipes();
   save("core");save("body");Object.keys(S.logs).forEach(k=>save(k));status="Backup restored";render()}catch(e){alert("That file isn't a backup from this app.")}};
  rd.readAsText(file)}
+
+/* ---------- measurements ---------- */
+const MEAS_BODY=[["waist","Waist"],["chest","Chest"],["bicep_l","Left bicep"],["bicep_r","Right bicep"],["hips","Hips"],["glutes","Glutes (fullest point)"],["thigh_l","Left thigh"],["thigh_r","Right thigh"],["neck","Neck"],["shoulders","Shoulders"],["calf_l","Left calf"],["calf_r","Right calf"],["forearm_l","Left forearm"],["forearm_r","Right forearm"]];
+const MEAS_LEGACY=[["thigh","Thigh"],["arm","Arm"]];
+const MEAS_OTHER=[["weight","Body weight","kg"],["bf","Body fat","%"],["height","Height","cm"]];
+let meView=null,mRange="1y";
+function mSeries(key){return sortedEntries().filter(e=>e[key]!=null&&e[key]!=="").map(e=>({id:e.id,date:e.date,v:+e[key]}))}
+function measDefs(group){
+ if(group==="body")return MEAS_BODY.map(([k,n])=>({key:k,name:n,unit:"cm"})).concat(MEAS_LEGACY.filter(([k])=>mSeries(k).length).map(([k,n])=>({key:k,name:n,unit:"cm"})));
+ if(group==="other")return MEAS_OTHER.map(([k,n,u])=>({key:k,name:n,unit:u}));
+ return(S.body.customM||[]).map(c=>({key:c.key,name:c.name,unit:c.unit,custom:true}))}
+function mDef(key){for(const g of["body","other","custom"]){const d=measDefs(g).find(x=>x.key===key);if(d)return{...d,group:g}}return{key,name:key,unit:"",group:"body"}}
+const fmtV=v=>Number.isInteger(v)?String(v):String(r1(v));
+function mChange(ser){if(ser.length<2)return"";const d=ser[ser.length-1].v-ser[0].v;if(!d)return`<span class="muted">±0 since ${ser[0].date.slice(5)}</span>`;return`<span class="muted">${d>0?"+":"−"}${fmtV(Math.abs(r1(d)))} since ${ser[0].date.slice(5)}</span>`}
+function measSection(title,group){const defs=measDefs(group);
+ const cards=defs.map(d=>{const ser=mSeries(d.key);const last=ser[ser.length-1];
+  return`<button class="mcard" onclick="meView={page:'detail',key:'${d.key}'};render();window.scrollTo(0,0)"><b>${esc(d.name)}</b><div style="flex:1;display:flex;align-items:center">${sparkMini(ser.slice(-12).map(x=>x.v))||`<span class="muted" style="font-size:.85rem">${ser.length?"":"No data yet"}</span>`}</div>
+  <div style="border-top:1px solid var(--line);padding-top:.4rem">${last?`<b style="font-size:1.25rem">${fmtV(last.v)}</b> <span class="muted">${esc(d.unit)}</span>`:`<span style="color:var(--plum);font-weight:600">+ Add</span>`}</div></button>`}).join("");
+ const addCard=group==="custom"?`<button class="mcard" style="align-items:center;justify-content:center;text-align:center" onclick="meView={page:'newcustom'};render();window.scrollTo(0,0)"><span style="font-size:1.8rem;line-height:1">+</span><b>Add measurement</b></button>`:"";
+ const quick=group==="other"?`<div class="row" style="margin:.1rem 0 .6rem"><input id="qw" type="number" inputmode="decimal" step="0.1" placeholder="Today's weight (kg)" style="max-width:12rem"><button class="small" onclick="const v=+$('#qw').value;if(v)addMeas('weight',v,today())">Save</button></div>`:"";
+ return`<div class="row" style="justify-content:space-between;margin-top:1.6rem"><h2 style="margin:0">${title}</h2>${defs.length?`<button class="ghost small" style="border:0" onclick="meView={page:'list',group:'${group}'};render();window.scrollTo(0,0)">See all</button>`:""}</div>
+ ${quick}<div class="hscroll" style="margin-top:.6rem">${cards}${addCard}</div>`}
+function measPage(){const v=meView;const back=(to,label)=>`<button class="ghost small" onclick="meView=${to};render();window.scrollTo(0,0)">‹ ${label}</button>`;
+ if(v.page==="list"){const defs=measDefs(v.group);const title={body:"Body measurements",other:"Other measurements",custom:"Custom measurements"}[v.group];
+  return back("null","Me")+`<h2>${title}</h2><div class="box" style="padding:.2rem 1rem">${defs.map(d=>{const ser=mSeries(d.key);const last=ser[ser.length-1];
+   return`<button onclick="meView={page:'detail',key:'${d.key}'};render();window.scrollTo(0,0)" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:.7rem;width:100%;box-sizing:border-box;padding:.8rem 0;border-bottom:1px solid var(--line)"><span style="flex:1"><b>${esc(d.name)}</b><br>${last?`<b>${fmtV(last.v)}</b> <span class="muted">${esc(d.unit)}</span> ${mChange(ser)}`:`<span class="muted">No data yet</span>`}</span>${sparkMini(ser.slice(-12).map(x=>x.v))}<span class="muted" aria-hidden="true">›</span></button>`}).join("")||`<p class="muted">Nothing here yet.</p>`}</div>
+  ${v.group==="custom"?`<button onclick="meView={page:'newcustom'};render()">+ Add measurement</button>`:""}`}
+ if(v.page==="newcustom"){return back("null","Me")+`<h2>New measurement</h2><div class="box"><label>Name</label><input id="cm-name" placeholder="e.g. Upper thigh, Wrist, Resting heart rate">
+  <label style="margin-top:.7rem">Unit</label><select id="cm-unit" onchange="document.getElementById('cm-other').style.display=this.value==='other'?'block':'none'"><option value="cm">Length (cm)</option><option value="kg">Weight (kg)</option><option value="%">Percentage (%)</option><option value="kcal">Calories (kcal)</option><option value="other">Other (custom)</option></select>
+  <input id="cm-other" placeholder="Your unit, e.g. bpm" style="display:none;margin-top:.5rem">
+  <button style="margin-top:.9rem" onclick="addCustomMeas()">Create</button></div>`}
+ const d=mDef(v.key);const ser=mSeries(d.key);const last=ser[ser.length-1];
+ const days={"3m":92,"6m":183,"1y":366,"all":1e5}[mRange];const cut=daysAgo(Math.min(days,20000));const pts=ser.filter(x=>mRange==="all"||x.date>=cut);
+ return back(`{page:'list',group:'${d.group}'}`,{body:"Body measurements",other:"Other measurements",custom:"Custom measurements"}[d.group])+`
+ <h2>${esc(d.name)}</h2><div class="box">${last?`<div class="left-num" style="font-size:2.8rem">${fmtV(last.v)}<span style="font-size:1rem;font-weight:600"> ${esc(d.unit)}</span></div><div class="muted">${new Date(last.date+"T12:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})} ${mChange(ser)}</div>`:`<p class="muted" style="margin:0">No data yet. Add your first measurement below.</p>`}
+ ${ser.length?`<div style="margin-top:.6rem">${pts.length>=2?lineChart(pts,d.unit):pts.length?`<p class="muted">One measurement in this period. The chart starts after the second.</p>`:`<p class="muted">No measurements in this period.</p>`}</div>
+ <div class="chips" style="margin-top:.5rem">${[["3m","3M"],["6m","6M"],["1y","1Y"],["all","All"]].map(([k,l])=>`<button class="chip ${mRange===k?"on":""}" onclick="mRange='${k}';render()">${l}</button>`).join("")}</div>`:""}</div>
+ <div class="box"><h3>Add a measurement</h3><div class="row"><input id="mv" type="number" inputmode="decimal" step="0.1" placeholder="${esc(d.unit||"value")}" style="max-width:9rem"><input id="md" type="date" value="${today()}" style="max-width:11rem"><button onclick="const x=$('#mv').value;if(x!=='')addMeas('${d.key}',+x,$('#md').value||today())">Add</button></div>
+ ${d.key==="weight"?`<p class="muted" style="margin:.5rem 0 0">Weigh in the morning, after the toilet, before eating. The weekly check-in uses the average.</p>`:d.unit==="cm"?`<p class="muted" style="margin:.5rem 0 0">Measure every 2 weeks, same time of day, tape snug but not tight.</p>`:""}</div>
+ ${ser.length?`<details class="box"><summary>View all data (${ser.length})</summary><table style="margin-top:.4rem">${ser.slice().reverse().map(x=>`<tr><td>${x.date}</td><td class="n">${fmtV(x.v)} ${esc(d.unit)}</td><td style="width:2rem"><button class="x" aria-label="Delete" onclick="delMeasVal('${x.id}','${d.key}')">×</button></td></tr>`).join("")}</table></details>`:""}
+ ${d.custom?`<button class="ghost small" onclick="delCustomMeas('${d.key}')">Delete this measurement type</button>`:""}`}
+function addMeas(key,v,date){S.body.entries.push({id:uidGen(),date,[key]:v});
+ if(key==="waist"&&!S.core.phase.startWaist){S.core.phase.startWaist=v;save("core")}
+ if(key==="height"){S.core.profile.height=v;save("core")}
+ if(key==="weight"&&!S.core.profile.weight){S.core.profile.weight=v;save("core")}
+ save("body");status="Saved";render()}
+function delMeasVal(id,key){const e=S.body.entries.find(x=>x.id===id);if(!e)return;delete e[key];if(!Object.keys(e).some(k=>k!=="id"&&k!=="date"))S.body.entries=S.body.entries.filter(x=>x.id!==id);save("body");render()}
+function addCustomMeas(){const n=$("#cm-name").value.trim();if(!n){alert("Give it a name.");return}let u=$("#cm-unit").value;if(u==="other")u=$("#cm-other").value.trim()||"";
+ S.body.customM=S.body.customM||[];const key="c_"+uidGen();S.body.customM.push({key,name:n,unit:u});save("body");meView={page:"detail",key};render()}
+function delCustomMeas(key){if(!confirm("Delete this measurement and all its values?"))return;S.body.customM=(S.body.customM||[]).filter(c=>c.key!==key);S.body.entries.forEach(e=>delete e[key]);S.body.entries=S.body.entries.filter(e=>Object.keys(e).some(k=>k!=="id"&&k!=="date"));save("body");meView=null;render()}
 function spark(E){const pts=E.slice(-60);const ws=pts.map(e=>+e.weight);const lo=Math.min(...ws)-.5,hi=Math.max(...ws)+.5;const W=600,H=120;
  const xy=pts.map((e,i)=>[i/(pts.length-1)*W,H-(+e.weight-lo)/(hi-lo)*H]);
  return`<div class="muted" style="margin-bottom:.3rem">Weight trend (${r1(lo+.5)}–${r1(hi-.5)} kg)</div><svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Weight trend"><polyline fill="none" stroke="var(--plum)" stroke-width="3" vector-effect="non-scaling-stroke" points="${xy.map(p=>p.join(",")).join(" ")}"/></svg>`}
@@ -976,7 +1049,7 @@ async function uploadPhoto(inp){const file=inp.files[0];if(!file)return;status="
 async function delPhoto(id){if(!confirm("Delete this photo?"))return;await idbDel(id);delete photoCache[id];S.body.photos=S.body.photos.filter(p=>p.id!==id);save("body");render()}
 
 localLoad();seedRecipes();render();connect();loadPhotos();
-if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
 </script>
 </body>
 </html>
