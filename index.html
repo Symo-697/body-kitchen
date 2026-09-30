@@ -156,11 +156,11 @@ const BASE_FOODS=[
 ["pchiches","Pois chiches égouttés (chickpeas)",7,16,2.5,120,4,3],
 ["hrouges","Haricots rouges égouttés (kidney beans)",8,14,.5,95,4,3],
 ["tomconc","Tomates concassées (canned tomatoes)",1.2,4,.2,24,4,2],
-["patated","Patate douce (sweet potato)",1.6,20,.1,86,0,2.5],
+["patated","Patate douce (sweet potato)",1.6,20,.1,86,0,2.5,250],
 ["pdt","Pommes de terre (potatoes)",2,17,.1,77,0,1.5],
-["brocoli","Brocoli",2.8,4,.4,34,0,3.5],
+["brocoli","Brocoli",2.8,4,.4,34,0,3.5,400],
 ["epinards","Épinards frais (spinach)",2.9,1.4,.4,23,0,7],
-["courgette","Courgette",1.2,2.2,.3,17,0,2.5],
+["courgette","Courgette",1.2,2.2,.3,17,0,2.5,200],
 ["poivron","Poivron (bell pepper)",1,5,.3,26,0,4,160],
 ["tomate","Tomate",.9,3,.2,18,0,3,120],
 ["carotte","Carotte",.9,7,.2,36,0,1.5,80],
@@ -175,6 +175,9 @@ const BASE_FOODS=[
 ["fruitsr","Fruits rouges surgelés (berries)",1,9,.3,45,5,7],
 ["legwok","Légumes wok surgelés (stir-fry veg)",1.8,5,.3,32,5,3.5],
 ["plantain","Banane plantain (plantain)",1.3,32,.4,122,0,3.5,250],
+["alloco","Alloco – plantain frit (fried plantain)",1.5,40,9.5,250,0,4],
+["attieke","Attiéké (semoule de manioc / cassava couscous)",1,38,.4,160,3,5],
+["tilapia","Tilapia (poisson, cru)",20,0,1.7,96,1,10],
 ["persil","Persil frais (parsley)",3,6,.8,36,0,30],
 ["moutarde","Moutarde de Dijon (mustard)",7,5,11,150,3,6],
 ["tomconcentre","Concentré de tomate (tomato paste)",4.3,15,.5,82,4,5],
@@ -581,6 +584,7 @@ function vToday(){
    const hk=(S.core.prefs||{}).hideKcal;return`<div class="box scroll"><div class="row" style="justify-content:space-between;margin-bottom:.3rem"><h3 style="margin:0">${l} <span class="muted" style="font-weight:500;font-size:.9rem">${hk?"":r0(kc)+" kcal · "}${r0(pp)} g protein</span></h3>${k!=="o"?`<button class="ghost small" onclick="saveMeal('${k}')">Save as meal</button>`:""}</div>
    <table><tr><th>Food</th><th class="n">kcal</th><th class="n">P</th><th class="n">C</th><th class="n">F</th><th></th></tr>${items.map(([x,i])=>`<tr><td>${esc(x.label)}</td><td class="n">${r0(x.kcal)}</td><td class="n">${r0(x.p)}</td><td class="n">${r0(x.c)}</td><td class="n">${r0(x.f)}</td><td style="white-space:nowrap">${x.spec?`<button class="x" aria-label="Favourite" title="Favourite" onclick="toggleFav(${i})" style="color:${(S.core.favs||[]).some(f=>specKey(f)===specKey(x.spec))?"var(--apricot)":"var(--muted)"}">★</button>`:""}<button class="x" aria-label="Remove" onclick="rmLog(${i})">×</button></td></tr>`).join("")}</table></div>`}).join("")}
  const water=L.water||0;
+ h+=suppToday();
  h+=`<h2>Habits</h2><div class="box"><div class="row" style="justify-content:space-between"><div><b>Water</b> <span class="muted">${r1(water/1000)} L of 2–2.5 L</span></div><div class="row"><button class="ghost small" onclick="addWater(-250)">−</button><button class="small" onclick="addWater(250)">+ 250 ml</button></div></div>
  <div class="grid3" style="margin-top:.8rem"><div><label>Steps${T?` (goal ${T.steps.toLocaleString()})`:""}</label><input type="number" inputmode="numeric" value="${esc(L.steps)}" onchange="setDay('steps',this.value)"></div>
  <div><label>Sleep (hours)</label><input type="number" inputmode="decimal" step="0.25" value="${esc(L.sleep)}" onchange="setDay('sleep',this.value)"></div>
@@ -686,6 +690,8 @@ const BANK=[
   ["Brown the beef with the chopped onion in the oil.","Add tomatoes, broth and chili, simmer 10 min.","Add the okra (sliced) and spinach, cook 15 min more until thick. Serve with rice."]),
  RB("jollof","One-pot jollof rice with chicken",4,[["riz",280],["poulet",500],["tomconc",400],["tomconcentre",50],["poivron",160],["oignon",150],["ail",10],["gingembre",10],["huile",20],["bouillon",600],["curry",3],["piment",2],["sel",4]],{cui:"westafrican",time:50,eq:["stovetop"],keeps:3,batch:true},
   ["Blend the tomatoes, pepper, half the onion, garlic and ginger.","Brown the diced chicken with the rest of the onion in the oil, then fry the tomato paste 2 min.","Add the blended sauce, curry and chili; simmer 10 min until thicker.","Stir in the rinsed rice and broth, cover tightly and cook on low 25 min without stirring. Rest 5 min."]),
+ RB("attieke-tilapia","Attiéké, alloco & grilled tilapia",2,[["attieke",300],["plantain",250],["tilapia",400],["oignon",100],["tomate",200],["carotte",100],["citron",60],["huile",20],["ail",10],["piment",1],["sel",4],["poivre",1]],{cui:"westafrican",time:35,eq:["oven|airfryer"],keeps:1,note:"Alloco here is air-fried or oven-baked (about 150 kcal per 100 g instead of 250 when deep-fried). Frying it the classic way adds roughly 150–200 kcal per portion."},
+  ["Mix the garlic, half the lemon juice, the chili, salt and 5 g of oil; rub it over the tilapia and leave 10 min.","Cut the plantain into thick slices, toss with 1 tsp of oil and a pinch of salt; air-fry at 200 °C for 15–18 min (or bake 25 min), turning once, until golden.","Grill the fish in the air fryer at 200 °C for 10–12 min (or oven 15 min, or a hot grill pan 4–5 min per side) until it flakes.","Mini vinaigrette: finely dice the onion and tomato, grate the carrot, mix with the rest of the lemon juice and oil, salt and pepper.","Warm the attiéké (1–2 min in the microwave with a splash of water, then fluff with a fork). Serve with the alloco, fish and vinaigrette on top."]),
  RB("plantain-eggs","Plantain & egg scramble",1,[["plantain",120],["oeuf",110],["blancoeuf",60],["oignon",40],["tomate",60],["huile",5],["piment",.5],["sel",1]],{meal:"b",cui:"westafrican",time:15,eq:["stovetop"],keeps:0},
   ["Dice the plantain and fry it in the oil 6–8 min until golden.","Add onion and tomato for 2 min, then the beaten eggs and whites; stir until just set."]),
  RB("lentil-turkey","Turkey & green lentil stew",4,[["dinde",500],["lentvertes",240],["carotte",250],["oignon",150],["ail",10],["tomconc",200],["bouillon",900],["huile",10],["sel",4],["poivre",1]],{cui:"french",time:45,eq:["stovetop"],keeps:4,batch:true},
@@ -777,7 +783,7 @@ function discListHTML(){const a=(S.core.setup||{}).answers;const q=norm(discQuer
   <button class="${mine?"ghost ":""}small" ${mine?"disabled":""} onclick="addBankRecipe('${r.id}')">${mine?"Added ✓":"+ Add"}</button></div>
   <div style="margin-top:.35rem">${(S.core.prefs||{}).hideKcal?"":`<b>${r0(m.kcal)} kcal</b> · `}P ${r0(m.p)} g · C ${r0(m.c)} g · F ${r0(m.f)} g <span class="muted">per portion${hasSides(r)?" with "+esc(sidesText(r)):""}</span></div>
   ${why.length?`<div class="chips" style="margin-top:.4rem">${why.map(w=>`<span class="chip" style="font-size:.78rem;padding:.2rem .6rem;background:var(--plum-soft);border-color:transparent">${esc(w)}</span>`).join("")}</div>`:""}
-  <details style="margin-top:.4rem"><summary>Ingredients & method</summary><table style="margin-top:.3rem">${r.items.map(it=>{const f=food(it.food);return`<tr><td>${esc(f?f.name:it.food)}</td><td class="n">${r1(it.g)} g</td></tr>`}).join("")}</table>
+  <details style="margin-top:.4rem"><summary>Ingredients & method</summary><table style="margin-top:.3rem">${r.items.map(it=>{const f=food(it.food);return`<tr><td>${esc(f?f.name:it.food)}</td><td class="n">${itemCell(it)}</td></tr>`}).join("")}</table>
   <ol style="margin:.5rem 0 0;padding-left:1.2rem">${r.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>${r.note?`<p class="muted" style="margin:.4rem 0 0">${esc(r.note)}</p>`:""}<p class="muted" style="margin:.4rem 0 0">${r.portions} portion${r.portions>1?"s":""}.</p></details></div>`}).join("")||`<div class="box muted">No recipe matches${discQuery.trim()?" “"+esc(discQuery.trim())+"”":" these filters"}.</div>`;
  return h}
 function paintDisc(){const el=document.getElementById("dlist");if(el)el.innerHTML=discListHTML()}
@@ -821,6 +827,27 @@ function applyWeek(){const w=weekDraft;if(!w)return;const has=Object.keys(S.core
  if(has&&!confirm("Replace this week's planner?"))return;w.ids.forEach(id=>addBankRecipe(id,true));
  S.core.plan={week:mondayOf(today()),slots:{...w.slots},extras:{}};S.core.checked={};weekDraft=null;save("core");tab="shop";render();window.scrollTo(0,0)}
 let kView="discover";
+
+/* ---------- units: spoons, pieces, cans ---------- */
+const DENS={huile:.91,huileneutre:.91,huilesesame:.91,huilepiment:.91,miel:1.42,soja:1.07,x_sojanoir:1.1,x_oyster:1.2,x_hoisin:1.2,teriyaki:1.15,sriracha:1.1,chilidoux:1.2,x_ketchup:1.15,x_prune:1.2,mayo:.95,srirachamayo:.95,moutarde:1.05,
+ sucre:.85,sucreglace:.56,farine:.53,x_farineriz:.6,maizena:.55,x_fecule:.6,x_tempura:.5,sel:1.22,poivre:.46,paprika:.46,cumin:.5,curry:.45,ailpoudre:.63,oignonpoudre:.5,piment:.45,x_5epices:.5,levure:.9,x_bicarb:1.1,cacao:.45,
+ sesame:.6,avoine:.4,riz:.8,rizsushi:.8,semoule:.7,quinoa:.8,lentilles:.8,lentvertes:.8,vinriz:1,x_vinnoir:1,x_shaoxing:1,vanille:1,lait:1.03,cremeliq:1,creme:1,coco:1,x_laitcond:1.3,beurre:.96,cacahuete:1.08,x_tahini:1,bouillon:1,x_jusorange:1.04,whey:.4,parmesan:.4,emmental:.4,mozza:.45,tomconcentre:1.1};
+const CAN_G={tomconc:400,pchiches:240,hrouges:250,mais:285,thon:112,coco:400,x_crabe:0};
+const PANTRY=new Set(["huile","huileneutre","huilesesame","huilepiment","miel","soja","x_sojanoir","x_oyster","x_hoisin","teriyaki","sriracha","chilidoux","x_ketchup","x_prune","mayo","srirachamayo","moutarde","sucre","sucreglace","farine","x_farineriz","maizena","x_fecule","x_tempura","sel","poivre","paprika","cumin","curry","ailpoudre","oignonpoudre","piment","x_pimentsec","x_5epices","levure","x_bicarb","cacao","sesame","vinriz","x_vinnoir","x_shaoxing","vanille","bouillon","tomconcentre","x_tahini","x_laitcond"]);
+const UNITS=[["g","g"],["ml","ml"],["tbsp","tbsp"],["tsp","tsp"],["cup","cup"],["pc","piece"],["can","can"]];
+const isPantry=f=>f&&(PANTRY.has(f.id)||f.pantry);
+function toGrams(id,qty,unit){const f=food(id)||{};const d=DENS[id]||1;qty=+qty||0;
+ switch(unit){case"ml":return qty*d;case"tbsp":return qty*15*d;case"tsp":return qty*5*d;case"cup":return qty*240*d;case"pc":return qty*(f.pw||100);case"can":return qty*(CAN_G[id]||400);default:return qty}}
+const nice=n=>{const r=Math.round(n*4)/4;const w=Math.floor(r),fr=r-w;const fs={.25:"¼",.5:"½",.75:"¾"}[fr]||"";return(w?String(w):"")+fs||"¼"};
+function amountText(id,g,exactUnit,exactQty){const f=food(id)||{};
+ if(exactUnit&&exactUnit!=="g")return`${nice(exactQty)} ${(UNITS.find(u=>u[0]===exactUnit)||[0,exactUnit])[1]}${exactQty>1&&(exactUnit==="pc"||exactUnit==="can"||exactUnit==="cup")?"s":""}`;
+ if(CAN_G[id]&&g>=CAN_G[id]*.6)return`${nice(g/CAN_G[id])} can${g/CAN_G[id]>1.25?"s":""}`;
+ if(f.pw&&g>=f.pw*.4&&!isPantry(f))return`${nice(g/f.pw)} ${id==="ail"?"clove":"piece"}${g/f.pw>1.25?"s":""}`;
+ if(id==="bouillon")return g>=200?`${nice(g/500)} stock cube${g>600?"s":""} + ${r0(g)} ml water`:`${r0(g)} ml broth`;
+ if(isPantry(f)&&g<=90){const tb=g/(15*(DENS[id]||1));return tb>=1?`${nice(tb)} tbsp`:`${nice(tb*3)} tsp`}
+ return null}
+function itemCell(it){const t=amountText(it.food,it.g,it.unit,it.qty);return t?`${t} <span class="muted">(${r1(it.g)} g)</span>`:`${r1(it.g)} g`}
+
 let recipeQuery="";
 function paintRecipes(){const el=document.getElementById("rlist");if(el)el.innerHTML=recipeCards()}
 function recipeCards(){const q=norm(recipeQuery).trim();
@@ -831,14 +858,31 @@ function recipeCards(){const q=norm(recipeQuery).trim();
  ${hasSides(r)?(()=>{const w=portionWith(r,true);return`<div class="muted">With sides (${esc(sidesText(r))}): <b>${r0(w.kcal)} kcal</b> · P ${r0(w.p)} · C ${r0(w.c)} · F ${r0(w.f)}</div>`})():""}
  <div class="muted">${r.keeps===0?"Eat fresh, same day":`Keeps ${r.keeps} days in the fridge`}</div>
  ${recipeConflicts(r).length?`<div class="note warn">Contains ${esc(recipeConflicts(r).join(", "))}, which is on your avoid list. Swap it in Edit, or skip this recipe.</div>`:""}
- <details style="margin-top:.4rem"><summary>Ingredients</summary><table style="margin-top:.3rem">${r.items.map(it=>{const f=food(it.food);const pcs=f&&f.pw&&it.g>=f.pw?` <span class="muted">(${Math.round(it.g/f.pw)} pcs)</span>`:"";return`<tr><td>${esc(f?f.name:it.food)}${pcs}</td><td class="n">${r1(it.g)} g</td></tr>`}).join("")}</table>${(r.steps||[]).length?`<ol style="margin:.5rem 0 0;padding-left:1.2rem">${r.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}${r.note?`<p class="muted" style="margin:.4rem 0 0">${esc(r.note)}</p>`:""}</details></div>`}).join("")}
-function kitchenForm(){let h="";
+ <details style="margin-top:.4rem"><summary>Ingredients</summary><table style="margin-top:.3rem">${r.items.map(it=>{const f=food(it.food);const pcs=f&&f.pw&&it.g>=f.pw?` <span class="muted">(${Math.round(it.g/f.pw)} pcs)</span>`:"";return`<tr><td>${esc(f?f.name:it.food)}</td><td class="n">${itemCell(it)}</td></tr>`}).join("")}</table>${(r.steps||[]).length?`<ol style="margin:.5rem 0 0;padding-left:1.2rem">${r.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}${r.note?`<p class="muted" style="margin:.4rem 0 0">${esc(r.note)}</p>`:""}</details></div>`}).join("")}
+
+function importRecipes(inp){const file=inp.files[0];if(!file)return;const rd=new FileReader();
+ rd.onload=()=>{try{const o=JSON.parse(rd.result);if(o.app!=="serena-body-kitchen"||o.kind!=="recipes"||!Array.isArray(o.recipes))throw 0;
+  let nf=0,nr=0,skip=0;(o.foods||[]).forEach(f=>{if(f&&f.id&&!food(f.id)){S.core.customFoods.push(f);nf++}});
+  o.recipes.forEach(r=>{if(!r||!r.id||!Array.isArray(r.items))return;if(S.core.recipes.some(x=>x.id===r.id)){skip++;return}
+   const miss=r.items.concat(r.sides||[]).filter(it=>!food(it.food));if(miss.length){skip++;return}
+   S.core.recipes.push({keeps:3,sides:[],...r});nr++});
+  save("core");kView="mine";render();alert(`Imported ${nr} recipe${nr===1?"":"s"}${o.name?" from "+o.name:""} and ${nf} new ingredient${nf===1?"":"s"}.${skip?` ${skip} skipped (already there or missing ingredients).`:""}`)}
+ catch(e){alert("That file isn't a recipe file from this app.")}};rd.readAsText(file)}
+async function saveFile(name,data){const blob=new Blob([data],{type:"application/json"});
+ try{if(window.claude&&window.claude.use){const dl=await window.claude.use("downloads");if(dl){await dl.save({filename:name,data});return true}}}catch(e){}
+ try{const f=new File([blob],name,{type:"application/json"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return true}}catch(e){if(e&&e.name==="AbortError")return false}
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);return true}
+function exportRecipes(){const rs=S.core.recipes.filter(r=>!(S.core.seeded||[]).includes(r.id)&&!BANK.some(b=>b.id===r.id));if(!rs.length){alert("You haven't added recipes of your own yet.");return}
+ const ids=new Set(rs.flatMap(r=>r.items.concat(r.sides||[]).map(it=>it.food)));const foods=S.core.customFoods.filter(f=>ids.has(f.id));
+ const data=JSON.stringify({app:"serena-body-kitchen",kind:"recipes",name:(S.core.profile.name||"My")+"'s recipes",foods,recipes:rs},null,1);saveFile(`recipes-${today()}.json`,data)}
+function kitchenForm(){let h=`<div class="box"><h3>Share recipes</h3><p class="muted" style="margin:0 0 .6rem">Import a recipe file (for example one I prepared for you, or a friend's export), or export your recipes to share them. Importing adds recipes and never replaces yours.</p>
+ <div class="row"><label class="ghost small" style="margin:0;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:.35rem .7rem;color:var(--plum);font-weight:600;cursor:pointer">Import recipe file<input type="file" accept=".json,application/json" onchange="importRecipes(this)" style="display:none"></label><button class="ghost small" onclick="exportRecipes()">Export my recipes</button></div></div>`;
  const r=editing||{id:null,name:"",portions:4,items:[{food:"",g:""}],sides:[],keeps:3};r.sides=r.sides||[];if(r.keeps===undefined)r.keeps=3;
  editing=r;
  const opts=allFoods().map(f=>`<option value="${esc(f.name)}">`).join("");
  h+=`<h2>${r.id?"Edit recipe":"New recipe"}</h2><div class="box"><div class="row"><div class="grow" style="flex-basis:200px"><label>Name</label><input value="${esc(r.name)}" onchange="editing.name=this.value"></div><div style="width:7rem"><label>Portions</label><input type="number" min="1" value="${esc(r.portions)}" onchange="editing.portions=+this.value"></div></div>
  <datalist id="fl2">${opts}</datalist>
- ${r.items.map((it,i)=>`<div class="row" style="margin-top:.5rem"><input class="grow" style="flex-basis:200px" list="fl2" placeholder="Ingredient" value="${esc(food(it.food)?.name||it.raw||"")}" onchange="setItem(${i},'food',this.value)"><input style="width:6rem" type="number" inputmode="decimal" placeholder="g" value="${esc(it.g)}" onchange="setItem(${i},'g',this.value)"><button class="x" aria-label="Remove ingredient" onclick="editing.items.splice(${i},1);render()">×</button></div>`).join("")}
+ ${r.items.map((it,i)=>`<div class="row" style="margin-top:.5rem"><input class="grow" style="flex-basis:200px" list="fl2" placeholder="Ingredient" value="${esc(food(it.food)?.name||it.raw||"")}" onchange="setItem(${i},'food',this.value)"><input style="width:5rem" type="number" inputmode="decimal" placeholder="qty" value="${esc(it.qty??it.g)}" onchange="setItem(${i},'qty',this.value)"><select style="width:5.2rem" onchange="setItem(${i},'unit',this.value)" aria-label="Unit">${UNITS.map(([u,l])=>`<option value="${u}" ${(it.unit||"g")===u?"selected":""}>${l}</option>`).join("")}</select><button class="x" aria-label="Remove ingredient" onclick="editing.items.splice(${i},1);render()">×</button></div>`).join("")}
  <div class="row" style="margin-top:.8rem"><button class="ghost small" onclick="editing.items.push({food:'',g:''});render()">+ Ingredient</button></div>
  <h3 style="margin-top:1.1rem">Served with (per portion)</h3><p class="muted" style="margin:0">Sides like rice or veggies, counted in macros and groceries but kept separate from the recipe.</p>
  ${r.sides.map((it,i)=>`<div class="row" style="margin-top:.5rem"><input class="grow" style="flex-basis:200px" list="fl2" placeholder="Side, e.g. Riz basmati" value="${esc(food(it.food)?.name||it.raw||"")}" onchange="setSide(${i},'food',this.value)"><input style="width:6rem" type="number" inputmode="decimal" placeholder="g" value="${esc(it.g)}" onchange="setSide(${i},'g',this.value)"><button class="x" aria-label="Remove side" onclick="editing.sides.splice(${i},1);render()">×</button></div>`).join("")}
@@ -857,14 +901,15 @@ function kitchenForm(){let h="";
  return h;
 }
 function setSide(i,k,v){if(k==="food"){const f=foodByName(v);editing.sides[i].food=f?f.id:"";editing.sides[i].raw=v}else editing.sides[i].g=+v}
-function setItem(i,k,v){if(k==="food"){const f=foodByName(v);editing.items[i].food=f?f.id:"";editing.items[i].raw=v}else editing.items[i].g=+v}
+function setItem(i,k,v){const it=editing.items[i];if(k==="food"){const f=foodByName(v);it.food=f?f.id:"";it.raw=v}else if(k==="qty")it.qty=+v;else if(k==="unit")it.unit=v;else it.g=+v;
+ if(it.qty==null&&it.g)it.qty=it.g;if(it.food&&it.qty)it.g=r1(toGrams(it.food,it.qty,it.unit||"g"))}
 function editRecipe(id){editing=JSON.parse(JSON.stringify(S.core.recipes.find(r=>r.id===id)));render();window.scrollTo(0,document.body.scrollHeight)}
 function delRecipe(id){if(!confirm("Delete this recipe?"))return;S.core.recipes=S.core.recipes.filter(r=>r.id!==id);save("core");render()}
 function saveRecipe(){const r=editing;if(!r.name.trim()){alert("Give the recipe a name.");return}
  const bad=r.items.filter(i=>i.raw&&!i.food);if(bad.length){alert(`Not found: ${bad.map(b=>b.raw).join(", ")}. Add it under My ingredients first.`);return}
  const badS=(r.sides||[]).filter(i=>i.raw&&!i.food);if(badS.length){alert(`Side not found: ${badS.map(b=>b.raw).join(", ")}.`);return}
  r.sides=(r.sides||[]).filter(i=>i.food&&i.g).map(i=>({food:i.food,g:+i.g}));
- r.items=r.items.filter(i=>i.food&&i.g).map(i=>({food:i.food,g:+i.g}));if(!r.items.length){alert("Add at least one ingredient with grams.");return}
+ r.items=r.items.filter(i=>i.food&&i.g).map(i=>i.unit&&i.unit!=="g"?{food:i.food,g:+i.g,qty:+i.qty,unit:i.unit}:{food:i.food,g:+i.g});if(!r.items.length){alert("Add at least one ingredient with grams.");return}
  r.portions=Math.max(1,+r.portions||1);
  if(r.id){S.core.recipes=S.core.recipes.map(x=>x.id===r.id?r:x)}else{r.id=uidGen();S.core.recipes.push(r)}
  editing=null;save("core");render()}
@@ -896,15 +941,18 @@ function vShop(){
  // grocery list
  const need={};for(const id in counts){const r=R.find(x=>x.id===id);if(!r)continue;const k=counts[id]/r.portions;r.items.forEach(it=>{need[it.food]=(need[it.food]||0)+it.g*k});(r.sides||[]).forEach(it=>{need[it.food]=(need[it.food]||0)+it.g*counts[id]})}
  const ids=Object.keys(need);let total=0;
- const rows=ids.map(id=>{const f=food(id);if(!f)return null;const g=need[id];const cost=S.core.pantry[id]?0:g/1000*priceOf(f);total+=cost;return{f,g,cost}}).filter(Boolean);
+ const rows=ids.map(id=>{const f=food(id);if(!f)return null;const g=need[id];const cost=S.core.pantry[id]||(isPantry(f)&&!(S.core.buyPantry||{})[id])?0:g/1000*priceOf(f);total+=cost;return{f,g,cost}}).filter(Boolean);
  const budget=+S.core.budget||0;
  h+=`<h2>Grocery list</h2><div class="box"><div class="row"><div style="width:9rem"><label>Budget this week (€)</label><input type="number" inputmode="decimal" value="${budget}" onchange="S.core.budget=+this.value;save('core');render()"></div><div class="grow"><div class="left-num" style="font-size:2.2rem;${budget&&total>budget?"color:var(--warn)":""}">${total.toFixed(2)} €</div><div class="muted">${budget?(total>budget?`${(total-budget).toFixed(2)} € over budget`:`${(budget-total).toFixed(2)} € left`):"estimated"}</div></div></div>`;
  if(budget&&total>budget){const top=rows.filter(r=>r.cost).sort((a,b)=>b.cost-a.cost).slice(0,3);h+=`<div class="note warn">Biggest costs: ${top.map(t=>`${esc(t.f.name.split(" (")[0])} (${t.cost.toFixed(2)} €)`).join(", ")}. Cheaper protein swaps: chicken → turkey or eggs, salmon → frozen cod or canned tuna, Greek yogurt → skyr or fromage blanc 0%. Intermarché's own brand (Top Budget, Pâturages, Chabrior) is usually the cheapest.</div>`}
  h+=`<p class="muted" style="margin:.6rem 0 0">Tick "have it" for things already at home: they stay on the list but leave the budget.</p></div>`;
+ const pantryRows=rows.filter(r=>isPantry(r.f));rows.splice(0,rows.length,...rows.filter(r=>!isPantry(r.f)));
  AISLES.forEach(a=>{const list=rows.filter(r=>r.f.aisle===a);if(!list.length)return;
-  h+=`<div class="box"><h3>${a}</h3>${list.map(({f,g,cost})=>{const got=S.core.checked[f.id];const qty=f.pw?`${Math.ceil(g/f.pw)} pcs (~${r0(g)} g)`:g>=1000?`${r1(g/1000)} kg`:g<50?`${Math.ceil(g)} g`:`${Math.ceil(g/10)*10} g`;
+  h+=`<div class="box"><h3>${a}</h3>${list.map(({f,g,cost})=>{const got=S.core.checked[f.id];const qty=CAN_G[f.id]?`${Math.ceil(g/CAN_G[f.id]-.15)||1} can${Math.ceil(g/CAN_G[f.id]-.15)>1?"s":""} (${r0(g)} g)`:f.pw?`${Math.ceil(g/f.pw)} ${f.id==="ail"?"clove":"piece"}${Math.ceil(g/f.pw)>1?"s":""} (~${r0(g)} g)`:g>=1000?`${r1(g/1000)} kg`:g<50?`${Math.ceil(g)} g`:`${Math.ceil(g/10)*10} g`;
    return`<div class="row" style="justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--line)"><label class="check ${got?"done":""}" style="margin:0;color:inherit;font-size:.95rem"><input type="checkbox" ${got?"checked":""} onchange="toggle('checked','${f.id}')">${restrictedFoods()[f.id]?"⚠ ":""}${esc(f.name.split(" (")[0])} · <b>${qty}</b></label><span class="row"><span class="muted">${cost.toFixed(2)} €</span><label class="check" style="margin:0;font-size:.8rem"><input type="checkbox" ${S.core.pantry[f.id]?"checked":""} onchange="toggle('pantry','${f.id}')">have it</label></span></div>`}).join("")}</div>`});
- if(!rows.length)h+=`<div class="box muted">Choose recipes in the planner and your list appears here.</div>`;
+ if(pantryRows.length)h+=`<div class="box"><h3>Pantry: check you have</h3><p class="muted" style="margin:0 0 .4rem;font-size:.85rem">Sauces, oils, spices and basics you usually buy by the bottle or pack. Amounts are what this week's recipes use. Tick "need to buy" to add one to the budget.</p>
+ ${pantryRows.map(({f,g})=>{const t=amountText(f.id,g)||(g>=1000?`${r1(g/1000)} kg`:`${r0(g)} g`);const need=(S.core.buyPantry||{})[f.id];return`<div class="row" style="justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--line)"><span>${esc(f.name.split(" (")[0])} · <b>${t}</b></span><label class="check" style="margin:0;font-size:.8rem"><input type="checkbox" ${need?"checked":""} onchange="S.core.buyPantry=S.core.buyPantry||{};S.core.buyPantry['${f.id}']=this.checked;save('core');render()">need to buy</label></div>`}).join("")}</div>`;
+ if(!rows.length&&!pantryRows.length)h+=`<div class="box muted">Choose recipes in the planner and your list appears here.</div>`;
  return h;
 }
 function setSlot(k,v){if(v)S.core.plan.slots[k]=v;else delete S.core.plan.slots[k];save("core");render()}
@@ -1196,6 +1244,7 @@ function vLog(){const now=new Date(today()+"T12:00");const first=new Date(now.ge
  if(calSel){const ss=sessByDate[calSel]||[];const sc=dayScore((S.logs[monthKey(calSel)]||{days:{}}).days?.[calSel],T,calSel===today());
   h+=`<h2>${new Date(calSel+"T12:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</h2>`;
   if(sc)h+=`<p class="muted" style="margin:-.3rem 0 .6rem">Nutrition score: <b>${sc.score}/100</b></p>`;
+  {const Ld=(S.logs[monthKey(calSel)]||{days:{}}).days?.[calSel]||{};const dd=suppsDue(calSel).filter(x=>x.due);if(dd.length)h+=`<p class="muted" style="margin:-.3rem 0 .6rem">Supplements: <b>${dd.filter(x=>(Ld.supps||{})[x.s.id]).length}/${dd.length}</b> taken${dd.some(x=>!(Ld.supps||{})[x.s.id])?` (missed: ${dd.filter(x=>!(Ld.supps||{})[x.s.id]).map(x=>esc(x.s.name)).join(", ")})`:""}</p>`}
   if(!ss.length)h+=`<div class="box muted">No workout logged this day. To add one, pick this date under the Save workout button in Plan & log.</div>`;
   ss.forEach((sess,si)=>{const key=sess.id||("legacy:"+sess.date);const L=sessionLifts(sess);const vol=L.reduce((a,x)=>a+(isCardio({name:x.name})?0:sessionStats(x.name,x.entry).volume||0),0);
    const editing=sessEdit===key;
@@ -1310,6 +1359,91 @@ function applyProgram(){const g=progDraft||genProgram(progSeed);if(!g)return;if(
 function dismissProgram(){S.core.programFor=progKey();progDraft=null;trainView="plan";save("core");render()}
 function restorePrevPlan(){const p=S.core.prevWorkout;if(!p||!confirm("Go back to your previous plan?"))return;const cur={workout:S.core.workout,schedule:S.core.schedule||null,days:S.core.days};
  S.core.workout=p.workout;S.core.schedule=p.schedule;S.core.days=p.days;S.core.prevWorkout=cur;gymDay=null;progDraft=null;trainView="plan";save("core");render()}
+/* ---------- supplements & medication ---------- */
+const SUP_TAGS=[["caffeine","Caffeine"],["creatine","Creatine"],["protein","Protein"],["vitD","Vitamin D"],["omega3","Omega-3"],["magnesium","Magnesium"],["calcium","Calcium"],["sodium","Sodium"],["potassium","Potassium"],["iron","Iron"],["zinc","Zinc"],["citrulline","Citrulline"],["betaalanine","Beta-alanine"],["melatonin","Melatonin"],["stjohn","St John's wort"],["vitA","Vitamin A"],["vitK","Vitamin K"]];
+const SUP_WHEN=[["morning","Breakfast"],["pre","Before training"],["during","During / after training"],["post","After training"],["lunch","Lunch"],["evening","Evening"],["any","Any time"]];
+const SUP_DAYS=[["daily","Every day"],["training","Training days"],["asneeded","As needed"]];
+const SUP_TEMPLATES=[
+ {name:"Creatine monohydrate",dose:"3 g in 200 ml water",when:"morning",days:"daily",tags:["creatine"],kcal:0},
+ {name:"Pre-workout (tropical)",dose:"1 scoop (8 g) in 250 ml water · 80 mg caffeine",when:"pre",days:"training",tags:["caffeine","citrulline","betaalanine"],kcal:10,note:"Not within 6 h of bedtime. Max 1 scoop a day."},
+ {name:"Electrolytes (lemon)",dose:"1 scoop (8 g) in 500 ml water",when:"during",days:"asneeded",tags:["sodium","magnesium","calcium"],kcal:25,note:"Long, sweaty or hot sessions."},
+ {name:"Vitamin D3",dose:"800–1000 IU",when:"morning",days:"daily",tags:["vitD"],kcal:0,note:"With a meal containing some fat. Most useful October–March."},
+ {name:"Omega-3",dose:"250–500 mg EPA+DHA",when:"lunch",days:"daily",tags:["omega3"],kcal:10},
+ {name:"Magnesium",dose:"Up to 250 mg",when:"evening",days:"daily",tags:["magnesium"],kcal:0},
+ {name:"Whey protein",dose:"1 scoop (~25 g protein)",when:"post",days:"asneeded",tags:["protein"],kcal:120,note:"Log it as food too when you take it."},
+ {name:"Iron (only if prescribed)",dose:"As prescribed",when:"morning",days:"daily",tags:["iron"],kcal:0,note:"Away from coffee, tea and dairy; with vitamin C."}];
+const SUP_AUTO=[[/pre.?work|caf|coffee|café|guarana/i,"caffeine"],[/creatin/i,"creatine"],[/whey|protein|prot[ée]in/i,"protein"],[/vit(amin|amine)?\.?\s*d|\bd3\b/i,"vitD"],[/omega|fish oil|huile de poisson/i,"omega3"],[/magn[eé]s/i,"magnesium"],[/calci/i,"calcium"],[/electrol|[ée]lectrol/i,"sodium"],[/potass/i,"potassium"],[/\biron\b|\bfer\b|ferr/i,"iron"],[/zinc/i,"zinc"],[/citrull/i,"citrulline"],[/beta.?alan/i,"betaalanine"],[/melaton|m[ée]laton/i,"melatonin"],[/st.?john|millepertuis|hypericum/i,"stjohn"],[/vit(amin|amine)?\.?\s*a\b|retinol|r[ée]tinol/i,"vitA"],[/vit(amin|amine)?\.?\s*k\b/i,"vitK"]];
+const MED_RULES=[
+ {k:["levothyrox","levothyroxin","thyroxin","euthyrox","tcaps","thyrofix"],label:"thyroid medication",r:[[["calcium","iron","magnesium","zinc"],"warn","Take it at least 4 hours apart from your thyroid pill: it blocks absorption."],[["caffeine"],"warn","Coffee or pre-workout within an hour of levothyroxine lowers its absorption. Take the pill first and wait."]]},
+ {k:["doxycyclin","minocyclin","lymecyclin","tetralysal","tolexine","tetracyclin"],label:"a tetracycline antibiotic",r:[[["calcium","iron","magnesium","zinc"],"warn","Keep it at least 2–3 hours apart from the antibiotic, or it won't work properly."]]},
+ {k:["ciprofloxacin","ciflox","levofloxacin","tavanic","ofloxacin","moxifloxacin","norfloxacin"],label:"a quinolone antibiotic",r:[[["calcium","iron","magnesium","zinc"],"warn","Take the antibiotic 2 hours before or 6 hours after this."],[["caffeine"],"warn","This antibiotic slows caffeine breakdown: skip or halve pre-workout and coffee during the course."]]},
+ {k:["warfarin","coumadine","fluindione","previscan","acenocoumarol","sintrom","apixaban","eliquis","rivaroxaban","xarelto","dabigatran","pradaxa","clopidogrel","plavix","ticagrelor","brilique","kardegic"],label:"a blood thinner",r:[[["omega3"],"warn","Fish oil can add to bleeding risk. Ask your doctor before taking it."],[["vitK"],"warn","Vitamin K changes how warfarin-type blood thinners work. Don't start or stop it without your doctor."]]},
+ {k:["methylphenidat","ritalin","concerta","medikinet","quasym","lisdexamfetamin","elvanse","vyvanse","amphetamin","adderall","dexamfetamin"],label:"a stimulant (ADHD) medication",r:[[["caffeine"],"warn","Caffeine adds to stimulant effects (heart rate, anxiety, sleep). Skip or halve the pre-workout and ask your doctor."]]},
+ {k:["furosemid","lasilix","hydrochlorothiazid","esidrex","indapamid","fludex","spironolacton","aldactone","bumetanid","burinex"],label:"a diuretic",r:[[["creatine"],"warn","With a diuretic, ask your doctor before creatine and stay well hydrated (kidney load)."],[["sodium","potassium"],"warn","Diuretics change your electrolyte balance: ask before using electrolyte drinks."],[["vitD","calcium"],"info","Some diuretics (thiazides) raise calcium: keep vitamin D and calcium at normal doses."]]},
+ {k:["lithium","teralithe"],label:"lithium",r:[[["creatine","sodium","caffeine"],"warn","Lithium levels shift with sodium, caffeine and hydration. Tell your psychiatrist before starting or stopping this."]]},
+ {k:["ibuprofen","advil","nurofen","spedifen","ketoprofen","profenid","diclofenac","voltaren","naproxen","apranax"],label:"an anti-inflammatory (NSAID)",r:[[["creatine"],"info","Fine for occasional use. With daily high doses, drink plenty of water while on creatine."],[["omega3"],"info","Regular NSAIDs plus fish oil slightly add to bleeding risk."]]},
+ {k:["omeprazol","mopral","esomeprazol","inexium","pantoprazol","eupantol","inipomp","lansoprazol","lanzor","rabeprazol","pariet"],label:"a stomach-acid reducer",r:[[["iron"],"info","These lower iron absorption: take iron with vitamin C, and ask if your levels stay low."],[["magnesium"],"info","Long-term use can lower magnesium; a supplement is sometimes recommended."]]},
+ {k:["amlodipin","ramipril","triatec","perindopril","coversyl","lisinopril","enalapril","losartan","cozaar","valsartan","tareg","candesartan","irbesartan","aprovel","bisoprolol","nebivolol","atenolol","propranolol","avlocardyl"],label:"a blood-pressure medication",r:[[["citrulline"],"info","Citrulline slightly lowers blood pressure: watch for dizziness."],[["sodium"],"info","Electrolyte drinks add sodium; check with your doctor if you have high blood pressure."],[["potassium"],"warn","Potassium supplements with some blood-pressure drugs (ACE inhibitors, ARBs) can raise potassium too high. Ask first."]]},
+ {k:["sildenafil","viagra","tadalafil","cialis","trinitrine","isosorbid","nitroglycerin","risordan","monicor"],label:"a nitrate / PDE5 medication",r:[[["citrulline"],"warn","Citrulline boosts nitric oxide; with these it can drop blood pressure. Avoid unless your doctor agrees."]]},
+ {k:["sertralin","zoloft","fluoxetin","prozac","paroxetin","deroxat","escitalopram","seroplex","citalopram","venlafaxin","effexor","duloxetin","cymbalta","mirtazapin","norset"],label:"an antidepressant",r:[[["stjohn"],"warn","St John's wort with antidepressants can cause serotonin syndrome. Don't combine."],[["melatonin"],"info","Melatonin can add drowsiness; generally fine, but mention it to your doctor."]]},
+ {k:["fluvoxamin","floxyfral"],label:"fluvoxamine",r:[[["caffeine"],"warn","Fluvoxamine strongly slows caffeine breakdown: skip or greatly reduce pre-workout and coffee."]]},
+ {k:["moclobemid","selegilin","rasagilin","azilect","phenelzin"],label:"an MAOI",r:[[["caffeine"],"warn","Stimulants with MAOIs can raise blood pressure: ask your doctor before any pre-workout."]]},
+ {k:["pilule","contracept","ethinylestradiol","levonorgestrel","desogestrel","drospirenon","norgestimat","leeloo","optilova","jasminelle","minidril","optimizette","cerazette","slinda","nexplanon","implant","nuvaring","anneau","patch evra"],label:"hormonal contraception",r:[[["stjohn"],"warn","St John's wort makes the pill, implant and ring less effective: real pregnancy risk. Don't combine."],[["caffeine"],"info","The pill slows caffeine breakdown a little: you may feel pre-workout longer, so avoid late doses."]]},
+ {k:["isotretinoin","roaccutane","curacne","contracne","procuta"],label:"isotretinoin",r:[[["vitA"],"warn","Never combine isotretinoin with vitamin A supplements."]]},
+ {k:["theophyllin","dilatrane","xanthium"],label:"theophylline",r:[[["caffeine"],"warn","Caffeine adds to theophylline side effects: avoid pre-workout."]]},
+ {k:["alendron","fosamax","risedron","actonel","ibandron","bonviva"],label:"a bisphosphonate",r:[[["calcium","iron","magnesium"],"warn","Take the bisphosphonate on an empty stomach and wait at least 30–60 min before these."]]},
+ {k:["prednison","cortancyl","prednisolon","solupred","methylprednisolon","medrol"],label:"a corticosteroid",r:[[["vitD","calcium"],"info","On long courses, vitamin D and calcium are often recommended: ask your doctor."]]},
+ {k:["zolpidem","stilnox","zopiclon","imovane","alprazolam","xanax","bromazepam","lexomil","diazepam","valium","lorazepam","temesta","hydroxyzin","atarax"],label:"a sedative / sleep medication",r:[[["melatonin"],"info","Melatonin adds to drowsiness."]]}];
+function suppTags(sp){const t=new Set(sp.tags||[]);SUP_AUTO.forEach(([re,tag])=>{if(re.test(sp.name||""))t.add(tag)});if(t.has("sodium")&&/electrol/i.test(sp.name||"")){t.add("magnesium");t.add("calcium")}return[...t]}
+function medMatch(m){const n=norm(m.name||"");return MED_RULES.filter(r=>r.k.some(k=>n.includes(norm(k))))}
+function interactions(){const out=[];const sups=(S.core.supps||[]).filter(s=>s.active!==false);
+ (S.core.meds||[]).forEach(m=>medMatch(m).forEach(rule=>rule.r.forEach(([tags,sev,text])=>sups.forEach(s=>{const hit=suppTags(s).filter(t=>tags.includes(t));if(hit.length)out.push({med:m.name,medLabel:rule.label,sup:s.name,sev,text})}))));
+ const tags=sups.flatMap(s=>suppTags(s).map(t=>[t,s.name]));const has=t=>tags.filter(x=>x[0]===t).map(x=>x[1]);
+ if(has("iron").length&&(has("calcium").length||has("magnesium").length||has("zinc").length))out.push({med:null,sup:has("iron")[0],sev:"info",text:`Take iron at least 2 hours apart from ${[...has("calcium"),...has("magnesium"),...has("zinc")].filter((v,i,a)=>a.indexOf(v)===i).join(", ")}: they compete for absorption.`});
+ if(has("caffeine").length>1)out.push({med:null,sup:has("caffeine").join(" + "),sev:"info",text:"Several products contain caffeine: keep the day's total under 400 mg (and 200 mg at once)."});
+ if(has("stjohn").length)out.push({med:null,sup:has("stjohn")[0],sev:"warn",text:"St John's wort interacts with many medicines (the pill, antidepressants, blood thinners…). Check with a pharmacist before taking it."});
+ return out}
+function unknownMeds(){return(S.core.meds||[]).filter(m=>!medMatch(m).length)}
+function suppsDue(d){const trainDay=schedule()[(new Date(d+"T12:00").getDay()+6)%7]!=="rest"||(S.core.sessions||[]).some(x=>x.date===d);
+ return(S.core.supps||[]).filter(s=>s.active!==false).map(s=>({s,due:s.days==="daily"||(s.days==="training"&&trainDay),optional:s.days==="asneeded"||(s.days==="training"&&!trainDay)}))}
+function suppToday(){const L=dayLog(logDate);L.supps=L.supps||{};const list=suppsDue(logDate);if(!list.length)return`<h2>Supplements</h2><div class="box muted">No supplements set up. Add yours in Me › Supplements & medication.</div>`;
+ const warns=interactions().filter(x=>x.sev==="warn");
+ const order=Object.fromEntries(SUP_WHEN.map((w,i)=>[w[0],i]));const rows=list.slice().sort((a,b)=>(order[a.s.when]??9)-(order[b.s.when]??9));
+ const due=rows.filter(x=>x.due),opt=rows.filter(x=>!x.due);const taken=due.filter(x=>L.supps[x.s.id]).length;
+ const row=({s,due})=>`<label class="check" style="margin:0;padding:.45rem 0;border-bottom:1px solid var(--line);color:inherit;align-items:flex-start"><input type="checkbox" ${L.supps[s.id]?"checked":""} onchange="toggleSupp('${s.id}',this.checked)" style="margin-top:.2rem"><span><b class="${L.supps[s.id]?"done":""}">${esc(s.name)}</b> <span class="muted">· ${esc((SUP_WHEN.find(w=>w[0]===s.when)||[0,""])[1])}</span><br><span class="muted" style="font-size:.85rem">${esc(s.dose||"")}${s.note?" · "+esc(s.note):""}</span></span></label>`;
+ return`<h2>Supplements <span class="muted" style="font-size:.9rem;font-weight:500">${due.length?`${taken}/${due.length} taken`:""}</span></h2><div class="box">${warns.length?`<div class="note warn" style="margin-top:0">${warns.length} possible interaction${warns.length>1?"s":""} with your medication. <button class="small ghost" onclick="tab='me';meView={page:'supps'};render();window.scrollTo(0,0)">See</button></div>`:""}
+ ${due.map(row).join("")}${opt.length?`<div class="muted" style="font-size:.8rem;margin-top:.6rem">Optional today</div>${opt.map(row).join("")}`:""}</div>`}
+function toggleSupp(id,on){const L=dayLog(logDate);L.supps=L.supps||{};if(on)L.supps[id]=1;else delete L.supps[id];save(monthKey(logDate))}
+let suppEdit=null;
+function suppPage(){const sups=S.core.supps||[],meds=S.core.meds||[];const inter=interactions();
+ let h=`<button class="ghost small" onclick="meView=null;suppEdit=null;render();window.scrollTo(0,0)">‹ Me</button><h2>Supplements & medication</h2>`;
+ if(inter.length||meds.length)h+=`<div class="box"><h3>Interaction check</h3>${inter.length?inter.map(x=>`<div class="note ${x.sev==="warn"?"warn":""}"><b>${esc(x.sup)}</b>${x.med?` + <b>${esc(x.med)}</b> <span class="muted">(${esc(x.medLabel)})</span>`:""}: ${esc(x.text)}</div>`).join(""):`<p class="muted" style="margin:0">No known interaction between your supplements and medication in the app's list.</p>`}
+  ${unknownMeds().length?`<p class="muted" style="margin:.5rem 0 0">Not recognised by the app: ${unknownMeds().map(m=>esc(m.name)).join(", ")}. Ask your pharmacist whether they're fine with your supplements.</p>`:""}
+  <p class="muted" style="font-size:.8rem;margin:.6rem 0 0">This check covers common interactions only and isn't medical advice. Always tell your doctor or pharmacist which supplements you take.</p></div>`;
+ h+=`<h3 style="margin-top:1.2rem">My supplements</h3>`+(sups.length?sups.map(s=>`<div class="box" style="${s.active===false?"opacity:.55":""}"><div class="row" style="justify-content:space-between;align-items:flex-start"><div style="flex:1"><b>${esc(s.name)}</b><div class="muted" style="font-size:.85rem">${esc(s.dose||"")} · ${esc((SUP_WHEN.find(w=>w[0]===s.when)||[0,""])[1])} · ${esc((SUP_DAYS.find(w=>w[0]===s.days)||[0,""])[1])}${s.kcal?` · ~${s.kcal} kcal`:""}</div>${suppTags(s).length?`<div class="muted" style="font-size:.8rem">Contains: ${suppTags(s).map(t=>(SUP_TAGS.find(x=>x[0]===t)||[0,t])[1]).join(", ")}</div>`:""}${s.note?`<div class="muted" style="font-size:.8rem">${esc(s.note)}</div>`:""}</div>
+  <div class="row" style="flex-wrap:nowrap"><button class="ghost small" onclick="suppEdit=JSON.parse(JSON.stringify(S.core.supps.find(x=>x.id==='${s.id}')));render()">Edit</button></div></div></div>`).join(""):`<div class="box muted">None yet. Pick from the list below or add your own.</div>`);
+ if(suppEdit)h+=suppFormHTML();else h+=`<button onclick="suppEdit={id:null,name:'',dose:'',when:'morning',days:'daily',tags:[],kcal:0,note:''};render()">+ Add a supplement</button>`;
+ const avail=SUP_TEMPLATES.filter(t=>!sups.some(s=>s.name===t.name));
+ if(avail.length)h+=`<div class="box" style="margin-top:.8rem"><h3>Quick add</h3><div class="chips">${avail.map(t=>`<button class="chip" onclick="addSuppTemplate(${esc(JSON.stringify(t.name))})">+ ${esc(t.name)}</button>`).join("")}</div><p class="muted" style="font-size:.8rem;margin:.5rem 0 0">Pre-workout, creatine and electrolytes match the labels you showed me. Edit anything to fit yours.</p></div>`;
+ h+=`<h3 style="margin-top:1.2rem">My medication</h3><div class="box">${meds.length?meds.map(m=>`<div class="row" style="justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--line)"><span><b>${esc(m.name)}</b>${m.note?` <span class="muted">· ${esc(m.note)}</span>`:""}${medMatch(m).length?` <span class="muted" style="font-size:.8rem">(${esc(medMatch(m).map(r=>r.label).join(", "))})</span>`:""}</span><button class="x" aria-label="Remove" onclick="delMed('${m.id}')">×</button></div>`).join(""):`<p class="muted" style="margin:0 0 .4rem">Add any medication you take (including the pill) so the app can flag combinations to be careful with.</p>`}
+ <div class="row" style="margin-top:.6rem"><input id="medname" class="grow" placeholder="Medication name, e.g. Levothyrox, Doxycycline, the pill"><input id="mednote" style="max-width:9rem" placeholder="When (optional)"><button class="small" onclick="addMed()">Add</button></div></div>`;
+ return h}
+function suppFormHTML(){const e=suppEdit;return`<div class="box" style="margin-top:.6rem"><h3>${e.id?"Edit":"New"} supplement</h3>
+ <label>Name</label><input value="${esc(e.name)}" onchange="suppEdit.name=this.value" placeholder="e.g. Vitamin D3">
+ <label style="margin-top:.6rem">Dose</label><input value="${esc(e.dose)}" onchange="suppEdit.dose=this.value" placeholder="e.g. 1 capsule, 3 g, 1 scoop">
+ <label style="margin-top:.6rem">When</label><div class="chips">${SUP_WHEN.map(([k,l])=>`<button class="chip ${e.when===k?"on":""}" onclick="suppEdit.when='${k}';render()">${l}</button>`).join("")}</div>
+ <label style="margin-top:.6rem">Which days</label><div class="chips">${SUP_DAYS.map(([k,l])=>`<button class="chip ${e.days===k?"on":""}" onclick="suppEdit.days='${k}';render()">${l}</button>`).join("")}</div>
+ <label style="margin-top:.6rem">Contains (for the interaction check)</label><div class="chips">${SUP_TAGS.map(([k,l])=>`<button class="chip ${(e.tags||[]).includes(k)?"on":""}" onclick="suppEdit.tags=(suppEdit.tags||[]).includes('${k}')?suppEdit.tags.filter(x=>x!=='${k}'):(suppEdit.tags||[]).concat('${k}');render()">${l}</button>`).join("")}</div>
+ <div class="row" style="margin-top:.6rem"><div style="width:7rem"><label>kcal / dose</label><input type="number" value="${esc(e.kcal||"")}" onchange="suppEdit.kcal=+this.value||0"></div><div class="grow"><label>Note</label><input value="${esc(e.note||"")}" onchange="suppEdit.note=this.value"></div></div>
+ ${e.id?`<label class="check" style="margin-top:.6rem;color:inherit"><input type="checkbox" ${e.active===false?"checked":""} onchange="suppEdit.active=!this.checked">Paused (not taking it right now)</label>`:""}
+ <div class="row" style="margin-top:.9rem">${e.id?`<button class="ghost small" onclick="delSupp('${e.id}')">Delete</button>`:""}<span class="grow"></span><button class="ghost small" onclick="suppEdit=null;render()">Cancel</button><button onclick="saveSupp()">Save</button></div></div>`}
+function saveSupp(){const e=suppEdit;if(!e.name.trim()){alert("Give it a name.");return}S.core.supps=S.core.supps||[];
+ if(e.id)S.core.supps=S.core.supps.map(x=>x.id===e.id?e:x);else{e.id="sp"+uidGen();S.core.supps.push(e)}suppEdit=null;save("core");render();afterSuppChange()}
+function addSuppTemplate(n){const t=SUP_TEMPLATES.find(x=>x.name===n);if(!t)return;S.core.supps=(S.core.supps||[]).concat([{id:"sp"+uidGen(),...JSON.parse(JSON.stringify(t)),active:true}]);save("core");render();afterSuppChange()}
+function delSupp(id){if(!confirm("Delete this supplement?"))return;S.core.supps=S.core.supps.filter(x=>x.id!==id);suppEdit=null;save("core");render()}
+function addMed(){const n=($("#medname")||{}).value;if(!n||!n.trim())return;S.core.meds=(S.core.meds||[]).concat([{id:"md"+uidGen(),name:n.trim(),note:(($("#mednote")||{}).value||"").trim()}]);save("core");render();afterSuppChange()}
+function delMed(id){if(!confirm("Remove this medication?"))return;S.core.meds=S.core.meds.filter(x=>x.id!==id);save("core");render()}
+function afterSuppChange(){const w=interactions().filter(x=>x.sev==="warn");if(w.length)setTimeout(()=>alert("Heads up: "+w.map(x=>`${x.sup}${x.med?" + "+x.med:""}: ${x.text}`).join("\n\n")+"\n\nCheck with your doctor or pharmacist."),50)}
 let trainView="plan",progKind="week",progOff=0,progEx=null;
 function vProgress(){
  const pr=periodRange(progKind,progOff);const M=muscleTotals(pr.from,pr.to);
@@ -1425,7 +1559,7 @@ function vMe(){
  const summary=`<h2 style="margin-top:0">This week</h2><div class="box"><div class="grid3">
  ${cell("Food logged",I.days+" / 7 days")}${cell("Avg calories",I.kcal!=null?r0(I.kcal):"—",T?"target "+r0(T.kcal):"")}${cell("Avg protein",I.p!=null?r0(I.p)+" g":"—",T?"target "+r0(T.p)+" g":"")}
  ${cell("Avg steps",I.steps!=null?r0(I.steps).toLocaleString():"—",T?"goal "+T.steps.toLocaleString():"")}${cell("Avg sleep",I.sleep!=null?r1(I.sleep)+" h":"—")}${cell("Avg energy",I.energy!=null?r1(I.energy)+" / 5":"—")}
- ${cell("Nutrition score",(()=>{const sc=[];for(let i=0;i<7;i++){const d=daysAgo(i);const x=dayScore((S.logs[monthKey(d)]||{days:{}}).days?.[d],T);if(x)sc.push(x.score)}return sc.length?r0(sc.reduce((a,b)=>a+b,0)/sc.length)+" / 100":"—"})(),"7-day average")}${cell("Workouts",wkSessions)}${cell("Weight change",wChange!=null?(wChange>0?"+":"")+r1(wChange)+" kg":"—","vs last week's average")}</div></div>`;
+ ${cell("Nutrition score",(()=>{const sc=[];for(let i=0;i<7;i++){const d=daysAgo(i);const x=dayScore((S.logs[monthKey(d)]||{days:{}}).days?.[d],T);if(x)sc.push(x.score)}return sc.length?r0(sc.reduce((a,b)=>a+b,0)/sc.length)+" / 100":"—"})(),"7-day average")}${cell("Supplements",(()=>{let due=0,tk=0;for(let i=0;i<7;i++){const d=daysAgo(i);const L=(S.logs[monthKey(d)]||{days:{}}).days?.[d]||{};suppsDue(d).filter(x=>x.due).forEach(x=>{due++;if((L.supps||{})[x.s.id])tk++})}return due?`${tk}/${due}`:"—"})(),"doses taken")}${cell("Workouts",wkSessions)}${cell("Weight change",wChange!=null?(wChange>0?"+":"")+r1(wChange)+" kg":"—","vs last week's average")}</div></div>`;
  const f=(k,lab,type="number",extra="")=>`<div><label>${lab}</label><input type="${type}" inputmode="decimal" value="${esc(p[k])}" onchange="setProf('${k}',this.value)" ${extra}></div>`;
  let h=(!S.core.setup?`<div class="note" style="margin-top:0"><b>New: personal setup.</b> Answer a few questions so the app fits your goals, training and food. <button class="small" style="margin-left:.3rem" onclick="startSetup()">Start</button></div>`:"")+summary+`<h2>My body</h2><div class="box"><div class="grid2">
  <div><label>Sex (for the calorie formula)</label><select onchange="setProf('sex',this.value)"><option value="f" ${p.sex==="f"?"selected":""}>Female</option><option value="m" ${p.sex==="m"?"selected":""}>Male</option></select></div>
@@ -1448,6 +1582,7 @@ function vMe(){
  // photos
  h+=`<h2>Progress photos</h2><div class="box"><label class="muted">Same light, same pose, every 2–4 weeks: front, side, back. Photos stay on this phone only.</label><input type="file" accept="image/*" onchange="uploadPhoto(this)" style="margin:.5rem 0">
  <div class="photos">${S.body.photos.slice().reverse().filter(ph=>photoCache[ph.id]).map(ph=>`<figure><img src="${photoCache[ph.id]}" alt="Progress photo ${esc(ph.date)}"><figcaption>${esc(ph.date)} <button class="x" aria-label="Delete photo" onclick="delPhoto('${ph.id}')">×</button></figcaption></figure>`).join("")}</div></div>`;
+ h+=`<h2>Supplements & medication</h2><div class="box"><p class="muted" style="margin:0 0 .6rem">${(S.core.supps||[]).length} supplement${(S.core.supps||[]).length===1?"":"s"} · ${(S.core.meds||[]).length} medication${(S.core.meds||[]).length===1?"":"s"}${interactions().some(x=>x.sev==="warn")?" · <b style='color:var(--warn)'>check interactions</b>":""}</p><button class="ghost" onclick="meView={page:'supps'};render();window.scrollTo(0,0)">Manage</button></div>`;
  h+=`<h2>Setup</h2><div class="box"><p class="muted" style="margin:0 0 .6rem">${S.core.setup?`Last updated ${esc(S.core.setup.date)}. Change your goals, training or food preferences.`:"Not done yet."}</p><button class="ghost" onclick="startSetup()">${S.core.setup?"Redo setup":"Start setup"}</button></div>
  <h2>Backup</h2><div class="box"><p class="muted" style="margin:0 0 .6rem">Saves everything (profile, recipes, logs, workouts, measurements, photos) into one file. Do this every couple of weeks: if the browser clears its storage, the backup is your only copy.</p>
  <div class="row"><button onclick="exportData()">Download backup</button><label class="ghost small" style="margin:0;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:.35rem .7rem;color:var(--plum);font-weight:600;cursor:pointer">Restore from backup<input type="file" accept=".json,application/json" onchange="importData(this)" style="display:none"></label></div></div>`;
@@ -1489,7 +1624,7 @@ function measSection(title,group){const defs=measDefs(group);
  const quick=group==="other"&&(S.core.prefs||{}).weigh!=="never"?`<div class="row" style="margin:.1rem 0 .6rem"><input id="qw" type="number" inputmode="decimal" step="0.1" placeholder="Today's weight (kg)" style="max-width:12rem"><button class="small" onclick="const v=+$('#qw').value;if(v)addMeas('weight',v,today())">Save</button></div>`:"";
  return`<div class="row" style="justify-content:space-between;margin-top:1.6rem"><h2 style="margin:0">${title}</h2>${defs.length?`<button class="ghost small" style="border:0" onclick="meView={page:'list',group:'${group}'};render();window.scrollTo(0,0)">See all</button>`:""}</div>
  ${quick}<div class="hscroll" style="margin-top:.6rem">${cards}${addCard}</div>`}
-function measPage(){const v=meView;const back=(to,label)=>`<button class="ghost small" onclick="meView=${to};render();window.scrollTo(0,0)">‹ ${label}</button>`;
+function measPage(){const v=meView;if(v.page==="supps")return suppPage();const back=(to,label)=>`<button class="ghost small" onclick="meView=${to};render();window.scrollTo(0,0)">‹ ${label}</button>`;
  if(v.page==="list"){const defs=measDefs(v.group);const title={body:"Body measurements",other:"Other measurements",custom:"Custom measurements"}[v.group];
   return back("null","Me")+`<h2>${title}</h2><div class="box" style="padding:.2rem 1rem">${defs.map(d=>{const ser=mSeries(d.key);const last=ser[ser.length-1];
    return`<button onclick="meView={page:'detail',key:'${d.key}'};render();window.scrollTo(0,0)" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:.7rem;width:100%;box-sizing:border-box;padding:.8rem 0;border-bottom:1px solid var(--line)"><span style="flex:1"><b>${esc(d.name)}</b><br>${last?`<b>${fmtV(last.v)}</b> <span class="muted">${esc(d.unit)}</span> ${mChange(ser)}`:`<span class="muted">No data yet</span>`}</span>${sparkMini(ser.slice(-12).map(x=>x.v))}<span class="muted" aria-hidden="true">›</span></button>`}).join("")||`<p class="muted">Nothing here yet.</p>`}</div>
