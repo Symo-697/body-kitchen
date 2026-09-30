@@ -26,6 +26,12 @@ On Android: open in Chrome → menu → **Add to Home screen / Install app**.
 - Use **Me → Download backup** every couple of weeks. If you change phone or the browser clears its storage, use **Restore from backup**.
 - Moving from the claude.ai version: in the claude.ai tracker, tap **Me → Download backup**, then in this app tap **Me → Restore from backup** and pick that file. Your recipes, logs and measurements come across (photos from claude.ai don't; add them again here).
 
+## Private beta
+
+- The site asks for a passcode the first time it's opened on each device (it's remembered afterwards).
+- `robots.txt` and a "noindex" tag ask search engines not to list the site.
+- This keeps casual visitors out; it isn't strong security, since the code is public. Personal data never leaves each phone anyway.
+
 ## Updating the app
 
 Replace `index.html` in the repository with the new version. To make sure phones pick it up quickly, also change `body-kitchen-v1` to `body-kitchen-v2` (and so on) in `sw.js`.
