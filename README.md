@@ -1,45 +1,53 @@
 # Body & Kitchen
 
-A personal tracker for macros, recipes, weekly meal plans + grocery lists, and glute-focused training.
-Everything is stored **on your own phone** (no account, no server). Each person who opens the link has their own separate data.
+A personal app for nutrition, cooking, groceries and training, built around your own goals. Each person sets it up with a short questionnaire, and the app adapts its targets, workouts and recipes to them.
 
-## Put it online (GitHub Pages, free)
+## What it does
 
-1. Create a GitHub account at github.com if you don't have one.
-2. Click **+ → New repository**. Name it e.g. `body-kitchen`. Leave it **Public** (required for free Pages), then **Create repository**.
-3. Click **uploading an existing file**, drag in all the files from this folder
-   (`index.html`, `manifest.webmanifest`, `sw.js`, `icon-180.png`, `icon-192.png`, `icon-512.png`, `README.md`), then **Commit changes**.
-4. Go to **Settings → Pages**. Under *Build and deployment*, choose **Deploy from a branch**, branch **main**, folder **/ (root)**, then **Save**.
-5. After 1–2 minutes your app is live at `https://YOUR-USERNAME.github.io/body-kitchen/`.
+- **Nutrition:** calories, protein, carbs, fat and fibre, a daily nutrition score, meals by time of day, planned meals, Crous meals, supermarket search and barcodes, and "describe your meal" estimates.
+- **Kitchen:** your own recipes (amounts in grams, spoons or pieces), a bank of recipes to discover, recipe import/export, and prices per shop.
+- **Groceries:** a weekly meal planner, meal-prep sessions, home stock with low-stock alerts, and a shopping list in real packs that you can share as a checklist.
+- **Training:** generated programs, live workouts with rest timers and set types, an exercise library with muscle maps, a calendar, and progress charts.
+- **Body & goals:** measurements, progress photos, phases and phase plans (fat loss, mini-cut, maintain, build, weight gain), weekly check-ins, and maintenance calories learned from your own data.
+- **Health:** supplements with daily totals and safe maximums, medication interaction checks, conditions taken into account, and doctor-guided targets.
 
-## Install it on iPhone
+## Your data
 
-1. Open the link in **Safari**.
-2. Tap **Share → Add to Home Screen**.
-3. Open it from the home-screen icon from now on (it works offline too).
+- Everything is stored **on your own phone**, in the browser. There's no account and no server, and each person who opens the link has their own separate data.
+- The app only goes online for optional features: supermarket product search (Open Food Facts) and, if you add your own key, AI meal estimates (Anthropic). Your logs are never uploaded.
+- Use **⚙︎ Settings › Backup** regularly: deleting the app or clearing the browser erases the data on that phone.
+- Never upload backups or personal files to this repository: it is public.
 
-On Android: open in Chrome → menu → **Add to Home screen / Install app**.
+## Install it on your phone
 
-## Important: your data
-
-- Data lives in the browser of the phone you use. It does **not** sync between devices.
-- Use **Me → Download backup** every couple of weeks. If you change phone or the browser clears its storage, use **Restore from backup**.
-- Moving from the claude.ai version: in the claude.ai tracker, tap **Me → Download backup**, then in this app tap **Me → Restore from backup** and pick that file. Your recipes, logs and measurements come across (photos from claude.ai don't; add them again here).
+1. Open the link and enter the passcode (once per phone).
+2. **iPhone (Safari):** Share › **Add to Home Screen**.
+   **Android (Chrome):** ⋮ menu › **Add to Home screen / Install app**.
+3. Open it from the icon. It works offline and updates itself when a new version is uploaded.
 
 ## Private beta
 
-- The site asks for a passcode the first time it's opened on each device (it's remembered afterwards).
-- `robots.txt` and a "noindex" tag ask search engines not to list the site.
-- This keeps casual visitors out; it isn't strong security, since the code is public. Personal data never leaves each phone anyway.
+- A passcode screen keeps casual visitors out, and `robots.txt` plus a "noindex" tag ask search engines not to list the site.
+- This isn't strong security, since the code is public, but personal data never leaves each phone anyway.
+
+## Put it online (GitHub Pages)
+
+1. Upload `index.html`, `sw.js`, `manifest.webmanifest`, `robots.txt`, the icons, `README.md` and `CHANGELOG.md` to the root of a public repository.
+2. **Settings › Pages:** deploy from branch `main`, folder `/ (root)`.
+3. The app is live at `https://YOUR-USERNAME.github.io/REPOSITORY/` after 1–2 minutes.
 
 ## Updating the app
 
-Replace `index.html` in the repository with the new version. To make sure phones pick it up quickly, also change `body-kitchen-v1` to `body-kitchen-v2` (and so on) in `sw.js`.
+Upload the new files (usually `index.html` and `sw.js`) and commit. Phones pick up the new version the next time the app is opened.
+
+## Versions
+
+See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 
 ## Credits
 
-- Exercise library partly from [wger.de](https://wger.de) (exercise data under CC-BY-SA 4 / CC-BY-SA 3 / CC0; muscle mapping adjusted for this app). Material derived from it stays under CC-BY-SA.
-- Product search and barcodes: [Open Food Facts](https://world.openfoodfacts.org) (ODbL database).
-- Body figures: AI-generated illustrations, muscle mapping by this app.
+- Part of the exercise library comes from [wger.de](https://wger.de) (CC-BY-SA; muscle mapping adjusted for this app).
+- Product search and barcodes: [Open Food Facts](https://world.openfoodfacts.org) (ODbL).
+- Body figures: AI-generated illustrations, with muscle mapping done for this app.
 
-*Not medical advice. Calorie targets and exercise tips are general estimates.*
+*Not medical advice. Calorie targets, supplement limits and exercise tips are general estimates: check with a professional for your situation.*
