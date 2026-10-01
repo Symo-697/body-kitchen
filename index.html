@@ -1164,7 +1164,7 @@ function paintRecipes(){const el=document.getElementById("rlist");if(el)el.inner
 let allRQ="";
 function openAllRecipes(){allRQ="";openSheet(`<div class="row" style="justify-content:space-between"><h3 style="margin:0">All my recipes (${S.core.recipes.length})</h3><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeSheet()">×</button></div><input type="search" placeholder="Search recipes or ingredients…" oninput="allRQ=this.value;const el=document.getElementById('allrl');if(el)el.innerHTML=recipeCards(allRQ)" style="margin:.6rem 0"><div id="allrl">${recipeCards("")}</div>`)}
 function recipeCards(qArg,limit){const q=norm(qArg!==undefined?qArg:recipeQuery).trim();
- let list=S.core.recipes.filter(r=>!q||norm(r.name).includes(q)||r.items.concat(r.sides||[]).some(it=>norm(food(it.food)?.name).includes(q))).slice().reverse();const more=limit&&list.length>limit?list.length-limit:0;if(limit)list=list.slice(0,limit);
+ let list=S.core.recipes.filter(r=>!q||searchMatch(r.name+" "+r.items.concat(r.sides||[]).map(it=>(food(it.food)||{}).name||"").join(" "),q)).slice().reverse();const more=limit&&list.length>limit?list.length-limit:0;if(limit)list=list.slice(0,limit);
  if(!list.length)return`<div class="box muted">${S.core.recipes.length?"No recipe matches “"+esc(recipeQuery)+"”.":"No recipes yet. Add your first one below."}</div>`;
  return list.map(r=>{const m=perPortion(r);return`<div class="box"><div class="row" style="justify-content:space-between"><h3>${esc(r.name)}</h3><div class="row"><button class="ghost small" onclick="editRecipe('${r.id}')">Edit</button><button class="x" aria-label="Delete recipe" onclick="delRecipe('${r.id}')">×</button></div></div>
  <div class="muted">${r.portions} portion${r.portions>1?"s":""} · per portion ${r0(m.kcal)} kcal · P ${r0(m.p)} g · C ${r0(m.c)} g · F ${r0(m.f)} g · Fibre ${r0(m.fib)} g</div>
@@ -1475,7 +1475,7 @@ function vTrain(){
   return h;
 }
 function deloadInfo(){const ss=S.core.sessions||[];if(!ss.length)return null;
- const from=S.core.lastDeload||ss.map(x=>x.date).sort()[0];const wk=Math.floor((new Date(today())-new Date(from))/6048e5);
+ const ds=[...new Set(ss.map(x=>x.date))].sort();let from=ds[0];for(let i=1;i<ds.length;i++){if((new Date(ds[i])-new Date(ds[i-1]))/864e5>=14)from=ds[i]}if(S.core.lastDeload&&S.core.lastDeload>from)from=S.core.lastDeload;const wk=Math.floor((new Date(today())-new Date(from))/6048e5);
  if(wk>=7)return{due:true,text:`<b>Deload week due</b> (${wk} weeks of training). This week: same exercises, half the sets, about 60% of your usual weights. You come back stronger.`};
  if(wk>=6)return{due:false,text:"Deload next week: plan one lighter week (half the sets, ~60% weight) to let joints and muscles recover."};
  return null}
@@ -2164,7 +2164,7 @@ function vLibrary(){const q=norm(libQ).trim();const words=q.split(/\s+/).filter(
 async function libNew(){const n=await askText("Name of the new exercise",libQ.trim());if(!n||!n.trim())return;if(allExerciseNames().some(x=>norm(x)===norm(n.trim()))){toast("That exercise already exists: search for it in the library.");return}
  trainView="plan";exQuery=n.trim();newEx={name:n.trim().replace(/\s+/g," "),p:[],s:[],mode:"w",sets:3,reps:"8-12"};render();setTimeout(()=>{const el=document.getElementById("exres");el&&el.scrollIntoView({behavior:"smooth"})},60)}
 function libBody(){const q=norm(libQ).trim();const words=q.split(/\s+/).filter(Boolean);
- if(words.length){const hits=allExerciseNames().filter(n=>{const x=norm(n);return words.every(w=>x.includes(w))}).slice(0,60);return`<div class="box">${hits.map(libRow).join("")||'<p class="muted">No exercise found.</p>'}</div>`}
+ if(words.length){const own=ownExerciseNames();const hits=allExerciseNames().filter(n=>searchMatch(n+" "+muscleWords(n)+" "+(EQUIP.find(e=>e[0]===equipOf(n))||[0,""])[1],libQ)).sort((a,b)=>(norm(b).includes(norm(libQ).trim())-norm(a).includes(norm(libQ).trim()))||(own.has(b)-own.has(a))||a.localeCompare(b)).slice(0,80);return`<div class="box">${hits.map(libRow).join("")||'<p class="muted">No exercise found.</p>'}</div>`}
  return libGroups().map(([k,l,list])=>`<details class="box" ontoggle="if(this.open&&!this.dataset.f){this.querySelector('.lb').innerHTML=libList('${k}');this.dataset.f=1}"><summary>${esc(l)} <span class="muted" style="font-weight:400">(${list.length})</span></summary><div class="lb"></div></details>`).join("")}
 function libList(k){const g=libGroups().find(x=>x[0]===k);if(!g)return"";const own=ownExerciseNames();return g[2].slice().sort((a,b)=>(own.has(b)-own.has(a))||a.localeCompare(b)).map(libRow).join("")}
 let trainView="plan",progKind="week",progOff=0,progEx=null;
@@ -2192,11 +2192,18 @@ function vProgress(){
    +card("Volume (weight × reps, all sets)",r0(last.volume),"kg",st.map(x=>({date:x.date,v:x.volume})),true)+card("Best set reps",r0(last.reps),"reps",st.map(x=>({date:x.date,v:x.reps})))
    +`<p class="muted">Estimated strength uses the Epley formula: weight × (1 + reps ÷ 30), from your best set of the session.</p>`}
   return h}
- h+=`<div class="box" style="padding:.3rem 1rem">${names.map(n=>{const hist=S.core.lifts[n];const st=hist.map(x=>sessionStats(n,x));const last=st[st.length-1];
+ h+=`<input type="search" placeholder="Search your ${names.length} exercises…" value="${esc(progQ)}" oninput="progQ=this.value;const el=document.getElementById('proglist');if(el)el.innerHTML=progListHTML()" style="margin-bottom:.7rem"><div id="proglist">${progListHTML()}</div>`;
+ return h}
+let progQ="";
+const muscleWords=n=>{const [P,S2]=musclesD(n);return[...prettyList(P),...new Set(P.concat(S2).map(k=>MUSCLES[DMUS[k][1]]||DMUS[k][1]))].join(" ")};
+const searchMatch=(text,q)=>{const words=norm(q).trim().split(/\s+/).filter(Boolean);const t=norm(text);return words.every(w=>t.includes(w))};
+function progListHTML(){let names=Object.keys(S.core.lifts||{}).filter(n=>(S.core.lifts[n]||[]).length).sort((a,b)=>{const la=S.core.lifts[a].slice(-1)[0].date,lb=S.core.lifts[b].slice(-1)[0].date;return lb.localeCompare(la)});
+ if(progQ.trim())names=names.filter(n=>{const [P]=musclesD(n);return searchMatch(n+" "+muscleWords(n)+" "+(EQUIP.find(e=>e[0]===equipOf(n))||[0,""])[1],progQ)});
+ if(!names.length)return`<div class="box muted">No exercise matches “${esc(progQ)}”.</div>`;
+ return `<div class="box" style="padding:.3rem 1rem">${names.map(n=>{const hist=S.core.lifts[n];const st=hist.map(x=>sessionStats(n,x));const last=st[st.length-1];
   const series=last.time?st.map(x=>x.best):last.repsOnly?st.map(x=>x.reps):last.cardio?st.map(x=>x.km):st.map(x=>x.e1rm);
   const sub=last.time?`Best hold: ${r0(last.best)} s`:last.repsOnly?`Best set: ${r0(last.reps)} reps`:last.cardio?`Last: ${r1(last.km)} km`:`Est. 1RM: ${r1(last.e1rm)} kg`;
-  return`<button onclick="progEx=${esc(JSON.stringify(n))};render()" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:.6rem;width:100%;padding:.65rem 0;border-bottom:1px solid var(--line)"><span><b>${esc(n)}</b><br><span class="muted">${sub}</span></span>${sparkMini(series)}</button>`}).join("")}</div>`;
- return h}
+  return`<button onclick="progEx=${esc(JSON.stringify(n))};render()" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:.6rem;width:100%;padding:.65rem 0;border-bottom:1px solid var(--line)"><span><b>${esc(n)}</b><br><span class="muted">${sub}</span></span>${sparkMini(series)}</button>`}).join("")}</div>`}
 
 async function rmEx(i){if(!await ask("Remove this exercise from the plan?"))return;S.core.workout[gymDay].ex.splice(i,1);save("core");render()}
 let exQuery="",newEx=null;const DEF_REPS={w:"8-12",r:"10-15",t:"30-60",c:"20-30"};
@@ -2372,7 +2379,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.32 beta";
+const APP_VERSION="0.33 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

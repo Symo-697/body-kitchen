@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.33 beta
+- **Search everywhere works the same way:** type several words in any order, accents and capitals don't matter. Train › Progress now has a search bar for your exercises (by name, muscle or equipment, e.g. "leg curl", "hamstring", "machine abduction"); the Library and My recipes search also look at muscles/equipment and ingredients.
+- **Deload reminder:** weeks of training now count from your last deload or your last break of 2+ weeks (imported history from long ago no longer triggers it).
+
 ## 0.32 beta: home stock gauges
 - **Two gauges per ingredient in Home stock:** the dark bar is what you have **now** (it only goes down when you log a meal); the light bar on top is what will be left **at the end of the week** if you eat the meals still planned and not yet logged. The light bar turns red, with a message, when the week's plan would leave you almost empty or short ("buy at least …").
 - **Already at home:** untick an item to put it back on the grocery list (1 pack, marked "added by you" with an undo).
