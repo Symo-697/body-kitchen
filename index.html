@@ -1275,8 +1275,8 @@ function vShop(){
  const ids=[...new Set([...Object.keys(need),...lowIds])];let total=0;
  const rows=ids.map(id=>{const f=food(id);if(!f)return null;const g=need[id]||0;const tracked=!!st[id];const have=stockQty(id);const pack=packOf(id);
   if(isPantry(f)&&!tracked&&!(S.core.buyPantry||{})[id])return{f,g,have,pack,packs:0,cost:0,pantryUnknown:true};
-  const short=Math.max(0,g-have);let packs=short>0?Math.ceil(short/pack-.02):0;if(!packs&&lowIds.includes(id))packs=1;if((S.core.buyPantry||{})[id]&&!packs)packs=1;
-  const cost=packs*pack/1000*priceOf(f);total+=cost;return{f,g,have,pack,packs,cost,low:lowIds.includes(id),tracked}}).filter(Boolean);
+  const short=Math.max(0,g-have);let packs=short>0?Math.ceil(short/pack-.02):0;if(!packs&&lowIds.includes(id))packs=1;const forced=!!(S.core.forceBuy||{})[id];if(forced&&!packs)packs=1;if((S.core.buyPantry||{})[id]&&!packs)packs=1;
+  const cost=packs*pack/1000*priceOf(f);total+=cost;return{f,g,have,pack,packs,cost,low:lowIds.includes(id),tracked,forced}}).filter(Boolean);
  const toBuy=rows.filter(r=>r.packs>0),covered=rows.filter(r=>!r.packs&&r.g>0&&!r.pantryUnknown),pantryQ=rows.filter(r=>r.pantryUnknown);
  groceryRows=toBuy;
  const budget=+S.core.budget||0;
@@ -1289,8 +1289,8 @@ function vShop(){
   AISLES.forEach(aisle=>{const list=toBuy.filter(r=>r.f.aisle===aisle&&shopOf(r.f.id)===sh);if(!list.length)return;
    h+=`<div class="box"><h3>${aisle}</h3>${list.map(r=>{const f=r.f;const got=(S.core.bought||{})[f.id];const packTxt=f.pw&&!isPantry(f)&&r.pack<=f.pw*1.01?`${r.packs} ${fmtQ(f.id,f.pw).replace(/^1 /,"")}`:`${r.packs} × ${fmtQ(f.id,r.pack)} pack`;
     return`<div style="padding:.35rem 0;border-bottom:1px solid var(--line)"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><label class="check ${got?"done":""}" style="margin:0;color:inherit;font-size:.95rem"><input type="checkbox" ${got?"checked":""} onchange="toggleBought('${f.id}',${r.packs*r.pack},this.checked)">${restrictedFoods()[f.id]?"⚠ ":""}${esc(f.name.split(" (")[0])} · <b>${packTxt}</b></label><span class="muted">${r.cost.toFixed(2)} €</span></div>
-    <div class="muted" style="font-size:.78rem;margin-left:1.6rem">${r.g?`needed this week ${fmtQ(f.id,r.g)} · `:""}at home ${r.tracked?fmtQ(f.id,r.have):"unknown"}${r.low?" · running low":""}</div></div>`}).join("")}</div>`})});
- if(covered.length)h+=`<details class="box"><summary>Already at home (${covered.length})</summary>${covered.map(r=>`<div class="row" style="justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--line)"><span>${esc(r.f.name.split(" (")[0])}</span><span class="muted">need ${fmtQ(r.f.id,r.g)} · have ${fmtQ(r.f.id,r.have)}</span></div>`).join("")}</details>`;
+    <div class="muted" style="font-size:.78rem;margin-left:1.6rem">${r.g?`needed this week ${fmtQ(f.id,r.g)} · `:""}at home ${r.tracked?fmtQ(f.id,r.have):"unknown"}${r.low?" · running low":""}${r.forced?` · added by you <button class="x" style="font-size:.78rem;color:var(--plum)" onclick="setForce('${f.id}',false)">undo</button>`:""}</div></div>`}).join("")}</div>`})});
+ if(covered.length)h+=`<details class="box" ${S.core.coveredOpen?"open":""} ontoggle="S.core.coveredOpen=this.open"><summary>Already at home (${covered.length})</summary><p class="muted" style="font-size:.8rem;margin:.3rem 0">Untick an item to put it back on the grocery list (1 pack).</p>${covered.map(r=>`<div class="row" style="justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--line);flex-wrap:nowrap"><label class="check" style="margin:0;color:inherit"><input type="checkbox" checked onchange="setForce('${r.f.id}',!this.checked)">${esc(r.f.name.split(" (")[0])}</label><span class="muted" style="font-size:.85rem">need ${fmtQ(r.f.id,r.g)} · have ${fmtQ(r.f.id,r.have)}</span></div>`).join("")}</details>`;
  if(pantryQ.length)h+=`<div class="box"><h3>Pantry: check you have</h3><p class="muted" style="margin:0 0 .4rem;font-size:.85rem">Sauces, oils, spices and basics not in your home stock yet. Tick "need to buy" to add one, or add it to your stock below.</p>
  ${pantryQ.map(({f,g})=>`<div class="row" style="justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--line)"><span>${esc(f.name.split(" (")[0])} · <b>${amountText(f.id,g)||fmtQ(f.id,g)}</b></span><label class="check" style="margin:0;font-size:.8rem"><input type="checkbox" onchange="S.core.buyPantry=S.core.buyPantry||{};S.core.buyPantry['${f.id}']=this.checked;save('core');render()">need to buy</label></div>`).join("")}</div>`;
  if(!toBuy.length&&!covered.length&&!pantryQ.length)h+=`<div class="box muted">Choose recipes in the planner and your list appears here.</div>`;
@@ -1299,14 +1299,21 @@ function vShop(){
 }
 
 let groceryRows=[];
+function setForce(id,on){S.core.forceBuy=S.core.forceBuy||{};if(on)S.core.forceBuy[id]=true;else delete S.core.forceBuy[id];save("core");render()}
 function toggleBought(id,grams,on){S.core.bought=S.core.bought||{};const prev=+S.core.bought[id]||0;
  if(on){S.core.bought[id]=grams;setStock(id,{qty:stockQty(id)+grams})}else{delete S.core.bought[id];setStock(id,{qty:Math.max(0,stockQty(id)-prev)})}render()}
-function stockHTML(need){const st=S.core.stock||{};const ids=Object.keys(st).filter(id=>food(id)).sort((a,b)=>food(a).name.localeCompare(food(b).name));
+function remainingNeed(){const out={};const mon=mondayOf(today());if(S.core.plan.week!==mon)return out;const t=today();
+ for(let i=0;i<7;i++){const d=weekDate(i,mon);if(d<t)continue;const L=((S.logs[monthKey(d)]||{}).days||{})[d]||{};const done=L.slotsDone||{};
+  SLOTS.forEach(([k])=>{const id=S.core.plan.slots[i+"-"+k];if(!id||id==="crous"||done[k])return;const r=S.core.recipes.find(x=>x.id===id);if(!r)return;Object.entries(recipeUse(r,1,hasSides(r))).forEach(([f,g])=>out[f]=(out[f]||0)+g)})}
+ return out}
+function stockHTML(need){const st=S.core.stock||{};const rem=remainingNeed();const ids=Object.keys(st).filter(id=>food(id)).sort((a,b)=>food(a).name.localeCompare(food(b).name));
  const opts=allFoods().map(f=>`<option value="${esc(f.name)}">`).join("");
- return`<h2>Home stock</h2><div class="box"><p class="muted" style="margin:0 0 .5rem;font-size:.85rem">What you have at home. It goes down when you log meals and up when you tick items as bought, and it carries over from week to week.</p>
- ${ids.map(id=>{const q=stockQty(id),n=(need||{})[id]||0,pk=packOf(id),max=Math.max(n,pk,q);const low=q<lowOf(id);
-  return`<div style="padding:.45rem 0;border-bottom:1px solid var(--line)"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:.92rem">${esc(food(id).name.split(" (")[0])}</b><span class="row" style="flex-wrap:nowrap"><span style="${low?"color:var(--warn);font-weight:700":""}">${fmtQ(id,q)}</span><button class="ghost small" onclick="setStock('${id}',{qty:Math.max(0,stockQty('${id}')-${pk})});render()" aria-label="Remove a pack">−</button><button class="ghost small" onclick="setStock('${id}',{qty:stockQty('${id}')+${pk}});render()" aria-label="Add a pack">+${fmtQ(id,pk)}</button></span></div>
-  <div class="track" style="margin:.3rem 0"><div class="fill" style="width:${Math.min(100,q/max*100)}%;background:${low?"var(--warn)":q>=n?"var(--sage)":"var(--apricot)"}"></div></div>
+ return`<h2>Home stock</h2><div class="box"><p class="muted" style="margin:0 0 .5rem;font-size:.85rem">What you have at home. It only goes down when you <b>log</b> a meal, goes up when you tick items as bought, and carries over from week to week.</p>
+ <div class="row" style="gap:1rem;font-size:.78rem;color:var(--muted);margin:0 0 .4rem"><span class="row" style="gap:.3rem"><span style="width:14px;height:8px;border-radius:3px;background:var(--plum);display:inline-block"></span>now</span><span class="row" style="gap:.3rem"><span style="width:14px;height:8px;border-radius:3px;background:color-mix(in srgb,var(--sage) 55%,white);display:inline-block"></span>end of week, if you eat the meals still planned</span></div>
+ ${ids.map(id=>{const q=stockQty(id),n=(need||{})[id]||0,pk=packOf(id),max=Math.max(n,pk,q);const low=q<lowOf(id);const rn=rem[id]||0;const end=q-rn;const endLow=rn>0&&end<lowOf(id);
+  return`<div style="padding:.45rem 0;border-bottom:1px solid var(--line)"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:.92rem">${esc(food(id).name.split(" (")[0])}</b><span class="row" style="flex-wrap:nowrap"><span style="${low?"color:var(--warn);font-weight:700":""}">${fmtQ(id,q)}${rn?` <span class="muted" style="font-weight:400;font-size:.8rem">→ ${end<0?"short "+fmtQ(id,-end):fmtQ(id,end)}</span>`:""}</span><button class="ghost small" onclick="setStock('${id}',{qty:Math.max(0,stockQty('${id}')-${pk})});render()" aria-label="Remove a pack">−</button><button class="ghost small" onclick="setStock('${id}',{qty:stockQty('${id}')+${pk}});render()" aria-label="Add a pack">+${fmtQ(id,pk)}</button></span></div>
+  <div class="track" style="margin:.3rem 0;position:relative;height:12px"><div class="fill" style="position:absolute;left:0;top:0;bottom:0;width:${Math.min(100,q/max*100)}%;background:${low?"var(--warn)":"var(--plum)"}"></div>${rn?`<div style="position:absolute;left:0;top:2px;bottom:2px;border-radius:999px;width:${Math.max(0,Math.min(100,end/max*100))}%;background:${endLow?"#F2A3A0":"color-mix(in srgb,var(--sage) 55%,white)"}"></div>`:""}</div>
+  ${endLow?`<div style="font-size:.78rem;color:var(--warn)">${end<0?`Not enough for the meals still planned: buy at least ${fmtQ(id,-end+lowOf(id))}.`:"Will be almost empty by the end of the week."}</div>`:""}
   <details><summary style="font-size:.8rem">Adjust${n?` · this week's recipes need ${fmtQ(id,n)}`:""}</summary><div class="row" style="margin-top:.3rem"><div style="width:6.5rem"><label style="font-size:.75rem">At home (g)</label><input type="number" value="${r0(q)}" onchange="setStock('${id}',{qty:+this.value||0});render()"></div><div style="width:6.5rem"><label style="font-size:.75rem">Pack size (g)</label><input type="number" value="${r0(pk)}" onchange="setStock('${id}',{pack:+this.value||0});render()"></div><div style="width:6.5rem"><label style="font-size:.75rem">Alert below (g)</label><input type="number" value="${r0(lowOf(id))}" onchange="setStock('${id}',{low:this.value===''?'':+this.value});render()"></div><button class="x" onclick="delete S.core.stock['${id}'];save('core');render()" aria-label="Stop tracking">×</button></div></details></div>`}).join("")||`<p class="muted" style="margin:0">Nothing tracked yet. Tick items as bought, or add what you already have below.</p>`}
  <div class="row" style="margin-top:.7rem"><input id="stkf" list="stkl" class="grow" placeholder="Add something you have, e.g. Riz basmati"><input id="stkg" type="number" placeholder="g or pcs" style="width:6rem"><button class="small" onclick="addStockItem()">Add</button></div><datalist id="stkl">${opts}</datalist>
  <p class="muted" style="font-size:.78rem;margin:.4rem 0 0">For eggs and other pieces you can type the number of pieces.</p></div>`}
@@ -1320,7 +1327,7 @@ async function shareGroceries(){const rows=groceryRows;if(!rows.length){toast("Y
 function setSlot(k,v){if(v==="__add"){tab="kitchen";kView="discover";render();window.scrollTo(0,0);return}if(v)S.core.plan.slots[k]=v;else delete S.core.plan.slots[k];save("core");render()}
 function setExtra(id,v){S.core.plan.extras[id]=+v||0;save("core");render()}
 function toggle(map,id){S.core[map][id]=!S.core[map][id];save("core");render()}
-async function newWeek(){if(!await ask("Clear the planner and the ticked items for a new week?"))return;S.core.plan={week:mondayOf(today()),slots:{},extras:{}};S.core.checked={};S.core.pantry={};S.core.bought={};S.core.buyPantry={};save("core");render()}
+async function newWeek(){if(!await ask("Clear the planner and the ticked items for a new week?"))return;S.core.plan={week:mondayOf(today()),slots:{},extras:{}};S.core.checked={};S.core.pantry={};S.core.bought={};S.core.buyPantry={};S.core.forceBuy={};save("core");render()}
 
 /* training */
 function schedule(mon){const o=(S.core.weekSched||{})[mon||mondayOf(today())];if(o&&o.length===7)return o;return baseSchedule()}
@@ -2365,7 +2372,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.31 beta";
+const APP_VERSION="0.32 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

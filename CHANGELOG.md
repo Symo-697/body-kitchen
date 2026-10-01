@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.32 beta: home stock gauges
+- **Two gauges per ingredient in Home stock:** the dark bar is what you have **now** (it only goes down when you log a meal); the light bar on top is what will be left **at the end of the week** if you eat the meals still planned and not yet logged. The light bar turns red, with a message, when the week's plan would leave you almost empty or short ("buy at least …").
+- **Already at home:** untick an item to put it back on the grocery list (1 pack, marked "added by you" with an undo).
+
 ## 0.31 beta: exercise library + workout history import
 - **124 new exercises:** every exercise from the imported history (Lever machines, Sled 45°, Smith, cable variants…), more machines with their free versions (e.g. Lever Standing Calf Raise / Calf Raise), and cable attachments and grips: Cable Seated Row (V-bar, wide bar, rope, single handle, underhand, MAG), Lat Pulldown (wide, normal, close V-bar, underhand, neutral wide, one arm, rope), Straight-Arm Pulldown, Triceps Pushdown and Cable Biceps Curl variants. Each one has its own muscles.
 - **Import workout history** (⚙︎ Settings): add past workouts from a CSV export (Lyfta, Hevy, Strong…). Workouts are added to your data, never replaced; importing the same file again skips what's already there. Set types (warm-up, drop, left/right, negative, partial), timed holds and cardio are kept; kg or lb is asked. Imported workouts appear in the Calendar (grey "H") with their original title, and in your progress charts. A **Remove imported workouts** button undoes an import (your own workouts are kept).
