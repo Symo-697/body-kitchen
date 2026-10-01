@@ -940,7 +940,7 @@ function vDiscover(){const a=(S.core.setup||{}).answers;
  let list=BANK.filter(r=>bankFits(r,a)).filter(r=>discMeal==="all"||r.meal.includes(discMeal)||(discMeal==="ld"&&(r.meal.includes("l")||r.meal.includes("d")))).filter(r=>discCui==="all"||r.cui===discCui);
  list=list.map(r=>({r,...bankScore(r,a)})).sort((x,y)=>y.sc-x.sc);
  const hidden=BANK.length-BANK.filter(r=>bankFits(r,a)).length;
- let h=`<div class="box"><h3 style="margin:0 0 .3rem">Plan my week</h3><p class="muted" style="margin:0 0 .6rem">${a?`Builds a week from these suggestions: ${a.meals} meals a day${a.snacks?" + snack":""}, ${a.batch?"batch cooking twice a week":"varied meals"}, around your ${a.budget} € budget.`:"Do the setup in Me for suggestions that fit your diet, time and budget."}</p><button onclick="weekDraft=buildWeek();render()">Plan my week</button></div>`;
+ let h=`<div class="box"><h3 style="margin:0 0 .3rem">Plan my week</h3><p class="muted" style="margin:0 0 .6rem">${a?`Builds a week from these suggestions: ${a.meals} meals a day${a.snacks?" + snack":""}, ${a.batch?(((S.core.prefs||{}).prepMode||"sunthu")==="sunthu"?"batch cooking Sunday and Thursday":"batch cooking Sunday and Wednesday"):"varied meals"}, around your ${a.budget} € budget.`:"Do the setup in Me for suggestions that fit your diet, time and budget."}</p><button onclick="weekDraft=buildWeek();render()">Plan my week</button></div>`;
  if(weekDraft)h+=weekPreviewHTML();
  h+=`<div class="chips" style="margin:.8rem 0 .4rem">${[["all","All"],["b","Breakfast"],["ld","Lunch & dinner"],["s","Snacks"]].map(([k,l])=>`<button class="chip ${discMeal===k?"on":""}" onclick="discMeal='${k}';render()">${l}</button>`).join("")}</div>
  <div class="chips" style="margin-bottom:.8rem">${[["all","All cuisines"],...SO_CUIS].map(([k,l])=>`<button class="chip ${discCui===k?"on":""}" onclick="discCui='${k}';render()">${l}</button>`).join("")}</div>`;
@@ -958,7 +958,7 @@ function buildWeek(){const a=(S.core.setup||{}).answers||{meals:3,snacks:true,ba
  if(!a.batch){const all=pickFrom(mains,6);g1=all.slice(0,3);g2=all.slice(3)}
  const bf=pickFrom(r=>r.meal.includes("b"),2),sn=pickFrom(r=>r.meal.includes("s"),2,bf);
  const slotsWanted={2:["l","d"],3:["b","l","d"],4:["b","l","d","s"]}[+a.meals||3].slice();if(a.snacks&&!slotsWanted.includes("s"))slotsWanted.push("s");
- const slots={};for(let d=0;d<7;d++){const grp=d<3?g1:g2;const pool=grp.length?grp:g1.concat(g2);
+ const slots={};for(let d=0;d<7;d++){const grp=((S.core.prefs||{}).prepMode||"sunthu")==="sunthu"?(d<3||d===6?g1:g2):(d<3?g1:g2);const pool=grp.length?grp:g1.concat(g2);
   if(slotsWanted.includes("b")&&bf.length)slots[d+"-b"]=bf[d%bf.length];
   if(slotsWanted.includes("l")&&pool.length)slots[d+"-l"]=pool[d%pool.length];
   if(slotsWanted.includes("d")&&pool.length)slots[d+"-d"]=pool[(d+1)%pool.length];
@@ -1263,11 +1263,13 @@ function vShop(){
  h+=`<div class="box"><h3>Portions to make</h3>${used.length?used.map(r=>`<div class="row" style="justify-content:space-between;padding:.25rem 0"><span>${esc(r.name)}</span><span class="row"><span class="muted">${slotC[r.id]||0} planned + extra</span><input style="width:4.2rem;padding:.3rem" type="number" min="0" value="${pl.extras[r.id]||0}" onchange="setExtra('${r.id}',this.value)" aria-label="Extra portions"><b style="min-width:2.5rem;text-align:right">= ${counts[r.id]||0}</b></span></div>`).join(""):`<p class="muted" style="margin:0">Choose recipes in the planner above and they appear here.</p>`}
  ${unused.length?`<div class="row" style="margin-top:.6rem"><select id="xr" class="grow"><option value="">Extra portions of another recipe…</option><option value="__add">＋ Add recipes…</option>${unused.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join("")}</select><button class="ghost small" onclick="const v=$('#xr').value;if(v==='__add'){tab='kitchen';kView='discover';render();return}if(v)setExtra(v,1)">Add</button></div>`:""}</div>`;
  // meal prep
- const sess=[{label:"Sunday cook (for Mon–Wed)",days:[0,1,2],cookIdx:-1},{label:"Wednesday evening cook (for Thu–Sun)",days:[3,4,5,6],cookIdx:2}];
- h+=`<h2>Meal prep</h2><p class="muted">The week is split into two cooking sessions, and each recipe is checked against how long it keeps.</p>`;
+ const pm=(S.core.prefs||{}).prepMode||"sunthu";
+ const sess=pm==="sunthu"?[{label:"Sunday cook (for Sunday + Mon–Wed)",days:[0,1,2],cookIdx:-1,note:"Cook on the Sunday before this week: eat the first portion that evening, the rest Mon–Wed."},{label:"Thursday cook (for Thu–Sat)",days:[3,4,5],cookIdx:3}]:[{label:"Sunday cook (for Mon–Wed)",days:[0,1,2],cookIdx:-1},{label:"Wednesday evening cook (for Thu–Sun)",days:[3,4,5,6],cookIdx:2}];
+ h+=`<h2>Meal prep</h2><div class="chips" style="margin-bottom:.5rem">${[["sunthu","Sun → Sun–Wed · Thu → Thu–Sat"],["sunwed","Sun → Mon–Wed · Wed → Thu–Sun"]].map(([k,l])=>`<button class="chip ${pm===k?"on":""}" onclick="prefs().prepMode='${k}';save('core');render()">${l}</button>`).join("")}</div><p class="muted">The week is split into two cooking sessions, and each recipe is checked against how long it keeps.${pm==="sunthu"?" Sunday is your prep day: Sunday's meals come from the fresh Sunday batch (shown with next week's Mon–Wed).":""}</p>`;
  const fresh={};DAYS.forEach((d,i)=>SLOTS.forEach(sl=>{const id=pl.slots[i+"-"+sl[0]];const r=R.find(x=>x.id===id);if(r&&r.keeps===0)(fresh[id]=fresh[id]||[]).push(d)}));
  h+=sess.map(s=>{const c={},warn=[];s.days.forEach(d=>SLOTS.forEach(sl=>{const id=pl.slots[d+"-"+sl[0]];const r=R.find(x=>x.id===id);if(!r||r.keeps===0)return;c[id]=(c[id]||0)+1;const after=d-s.cookIdx;if(after>r.keeps)warn.push(`${esc(r.name)} on ${DAYS[d]} would be ${after} days old (keeps ${r.keeps}). Freeze that portion right after cooking, or move it to a day closer to the cook.`)}));const ids=Object.keys(c);
-  return`<div class="box"><h3>${s.label}</h3>${ids.length?ids.map(id=>{const r=R.find(x=>x.id===id);return r?`<div>${esc(r.name)}: <b>${c[id]}</b> portion${c[id]>1?"s":""} <span class="muted">(${r1(c[id]/r.portions)}× the recipe)</span></div>`:""}).join(""):`<span class="muted">Nothing planned.</span>`}${warn.map(w=>`<div class="note warn">${w}</div>`).join("")}</div>`}).join("");
+  return`<div class="box"><h3>${s.label}</h3>${s.note?`<p class="muted" style="margin:-.2rem 0 .4rem;font-size:.82rem">${s.note}</p>`:""}${ids.length?ids.map(id=>{const r=R.find(x=>x.id===id);return r?`<div>${esc(r.name)}: <b>${c[id]}</b> portion${c[id]>1?"s":""} <span class="muted">(${r1(c[id]/r.portions)}× the recipe)</span></div>`:""}).join(""):`<span class="muted">Nothing planned.</span>`}${warn.map(w=>`<div class="note warn">${w}</div>`).join("")}</div>`}).join("");
+ if(pm==="sunthu"){const sun=SLOTS.map(sl=>pl.slots["6-"+sl[0]]).filter(id=>id&&id!=="crous").map(id=>R.find(x=>x.id===id)).filter(Boolean);if(sun.length)h+=`<div class="box"><h3>Sunday (prep day)</h3><p class="muted" style="margin:0 0 .3rem;font-size:.82rem">Eaten fresh while you prep. Cook these portions in the same Sunday batch as next week's Mon–Wed.</p>${[...new Set(sun.map(r=>r.id))].map(id=>{const r=R.find(x=>x.id===id);const n=sun.filter(x=>x.id===id).length;return`<div>${esc(r.name)}: <b>${n}</b> portion${n>1?"s":""}</div>`}).join("")}</div>`}
  const fk=Object.keys(fresh);if(fk.length)h+=`<div class="box"><h3>Make fresh on the day</h3>${fk.map(id=>{const r=R.find(x=>x.id===id);return`<div>${esc(r.name)} <span class="muted">(${fresh[id].join(", ")})</span></div>`}).join("")}</div>`;
  // grocery list (stock-aware)
  const need={};for(const id in counts){const r=R.find(x=>x.id===id);if(!r)continue;const k=counts[id]/r.portions;r.items.forEach(it=>{need[it.food]=(need[it.food]||0)+it.g*k});(r.sides||[]).forEach(it=>{need[it.food]=(need[it.food]||0)+it.g*counts[id]})}
@@ -2379,7 +2381,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.33 beta";
+const APP_VERSION="0.34 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

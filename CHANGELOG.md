@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.34 beta
+- **Meal prep schedule:** new default **Sunday → Sunday–Wednesday, Thursday → Thursday–Saturday** (fresher food: 3 days max in the fridge). The old Sunday + Wednesday split is still available as a choice. "Plan my week" follows the chosen schedule.
+
 ## 0.33 beta
 - **Search everywhere works the same way:** type several words in any order, accents and capitals don't matter. Train › Progress now has a search bar for your exercises (by name, muscle or equipment, e.g. "leg curl", "hamstring", "machine abduction"); the Library and My recipes search also look at muscles/equipment and ingredients.
 - **Deload reminder:** weeks of training now count from your last deload or your last break of 2+ weeks (imported history from long ago no longer triggers it).
