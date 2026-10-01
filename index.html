@@ -46,7 +46,13 @@ header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:1
 .row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
 .grow{flex:1 1 140px}
 label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:.2rem}
-input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:.55rem .65rem;width:100%;min-width:0}
+*,*::before,*::after{box-sizing:border-box}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:.55rem .65rem;width:100%;min-width:0;max-width:100%}
+.grid2>*,.grid3>*,.row>*{min-width:0}
+td input,td select{width:100%}
+table.fixed{table-layout:fixed;width:100%}
+table.fixed td{overflow:hidden;word-wrap:break-word}
+select{text-overflow:ellipsis}
 input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--plum);outline-offset:1px}
 button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:.55rem .9rem;background:var(--plum);color:var(--bg);cursor:pointer}
 button.ghost{background:transparent;color:var(--plum);border:1px solid var(--line)}
@@ -375,15 +381,18 @@ const r0=n=>Math.round(n||0),r1=n=>Math.round((n||0)*10)/10;
 const uidGen=()=>Math.random().toString(36).slice(2,9);
 const allFoods=()=>BASE_FOODS.concat(S.core.customFoods);
 const food=id=>allFoods().find(f=>f.id===id);
+const actFood=id=>{const v=(S.core.activeVar||{})[id];return(v&&food(v))||food(id)};
+const variantsOf=id=>S.core.customFoods.filter(f=>f.of===id);
+function setActiveVar(base,v){S.core.activeVar=S.core.activeVar||{};if(v)S.core.activeVar[base]=v;else delete S.core.activeVar[base];save("core")}
 const foodByName=n=>allFoods().find(f=>f.name.toLowerCase()===String(n).trim().toLowerCase());
-const priceOf=f=>S.core.prices[f.id]!=null?S.core.prices[f.id]:f.price;
+const priceOf=(f,shop)=>{const sp=S.core.shopPrices||{};const sh=shop||(typeof shopOf==="function"?shopOf(f.id):null);if(sh&&sp[sh]&&sp[sh][f.id]!=null)return sp[sh][f.id];if(!shop){for(const k in sp)if(sp[k][f.id]!=null&&S.core.prices[f.id]==null)return sp[k][f.id]}return S.core.prices[f.id]!=null?S.core.prices[f.id]:f.price};
 const FIB={tofu:1.5,riz:1.3,pates:3,avoine:10,quinoa:7,lentilles:11,pain:6,wrap:3,cacahuete:6,amandes:12.5,soja:.8,pchiches:5.5,hrouges:6.5,tomconc:1.2,patated:3,pdt:2,brocoli:2.6,epinards:2.2,courgette:1.1,poivron:1.9,tomate:1.2,carotte:2.8,oignon:1.7,ail:2.1,champi:1,avocat:6.7,banane:2.6,pomme:2.4,citron:2.8,hverts:3.4,fruitsr:3,legwok:2.5,plantain:2.3,alloco:2.5,attieke:1.8,persil:3.3,moutarde:3.5,tomconcentre:4,coco:.5,curry:33,cumin:10.5,mais:2.5,nouilles:3.5,semoule:4.5,gombo:3.2,epsurg:2.5,lentvertes:11,farine:3,panko:3.5,ailpoudre:9,oignonpoudre:15,paprika:35,poivre:25,maizena:.9,piment:34,chocolat:9,cacao:30,rizsushi:.8,sriracha:2,srirachamayo:.5,chilidoux:.5,teriyaki:.3,nori:30,sesame:12,concombre:.5,gingembre:2,cebette:2.6,coriandre:2.8,
  x_celeri:1.6,x_chou:2.5,x_shiitake:2.5,x_oyster:.3,x_farineriz:2.4,x_hoisin:2.8,x_noix:6.7,x_tempura:2.5,x_pimentsec:30,x_jusorange:.2,x_orange:2.4,x_ketchup:.3,x_prune:.7,x_aubergine:3,x_5epices:20,x_tteok:.5,x_bokchoy:1,x_germes:1.8,x_nouilleriz:.9,x_tahini:9,x_cacahuetes:8.5,x_chowmein:2.5,x_wonton:1.5};
 const fibOf=f=>f?(f.fib!=null?+f.fib:(FIB[f.id]||0)):0;
 function macrosFood(f,g){const k=g/100;return{kcal:f.kcal*k,p:f.p*k,c:f.c*k,f:f.f*k,fib:fibOf(f)*k}}
-function recipeTotals(r){const t={kcal:0,p:0,c:0,f:0,fib:0};r.items.forEach(it=>{const fd=food(it.food);if(!fd)return;const m=macrosFood(fd,it.g);for(const k in t)t[k]+=m[k]});return t}
+function recipeTotals(r){const t={kcal:0,p:0,c:0,f:0,fib:0};r.items.forEach(it=>{const fd=actFood(it.food);if(!fd)return;const m=macrosFood(fd,it.g);for(const k in t)t[k]+=m[k]});return t}
 function perPortion(r){const t=recipeTotals(r),n=Math.max(1,+r.portions||1);for(const k in t)t[k]/=n;return t}
-function sidesMacros(r){const t={kcal:0,p:0,c:0,f:0,fib:0};(r.sides||[]).forEach(it=>{const fd=food(it.food);if(!fd)return;const m=macrosFood(fd,it.g);for(const k in t)t[k]+=m[k]});return t}
+function sidesMacros(r){const t={kcal:0,p:0,c:0,f:0,fib:0};(r.sides||[]).forEach(it=>{const fd=actFood(it.food);if(!fd)return;const m=macrosFood(fd,it.g);for(const k in t)t[k]+=m[k]});return t}
 function portionWith(r,withSides){const m=perPortion(r);if(withSides){const sm=sidesMacros(r);for(const k in m)m[k]+=sm[k]}return m}
 const hasSides=r=>(r.sides||[]).length>0;
 const sidesText=r=>(r.sides||[]).map(it=>{const f=food(it.food);return f?`${it.g} g ${f.name.split(" (")[0].toLowerCase()}`:""}).filter(Boolean).join(" + ");
@@ -711,11 +720,7 @@ function vToday(){
  h+=crousCounterHTML();
  const pbar=planBarHTML(L);const showForm=!pbar||(logMode==="other");
  h+=`<h2>Log food</h2><div class="box">${pbar}${showForm?quick:""}<div class="row" style="${showForm?"":"display:none"}"><div class="grow" style="flex-basis:220px"><label>Ingredient</label><input id="lf" list="fl" placeholder="Start typing…"></div><div style="width:6rem"><label>Grams</label><input id="lg" type="text" inputmode="decimal" min="0"></div><button onclick="logFood()" style="align-self:flex-end">Add</button></div><datalist id="fl">${opts}</datalist>
- <details id="offbox" style="margin-top:.6rem;${showForm?"":"display:none"}" ${offOpen?"open":""} ontoggle="offOpen=this.open"><summary>Search supermarket products / barcode</summary>
- <div class="row" style="margin-top:.5rem"><input id="offq" type="search" placeholder="e.g. skyr Siggi's, Pâturages fromage blanc" class="grow" onkeydown="if(event.key==='Enter')offSearch()"><button class="small" onclick="offSearch()">Search</button></div>
- <div class="row" style="margin-top:.4rem"><input id="offc" type="text" inputmode="numeric" placeholder="Barcode number" class="grow" onkeydown="if(event.key==='Enter')offCode()"><button class="small ghost" onclick="offCode()">Look up</button><button class="small ghost" onclick="offScan()">📷 Scan</button></div>
- <div id="offres">${offResHTML}</div>
- <p class="muted" style="font-size:.78rem;margin:.4rem 0 0">Data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> (ODbL). Check the label if something looks off.</p></details>
+ ${offPanelHTML(showForm)}
  ${S.core.recipes.length&&showForm?`<div class="row" style="margin-top:.6rem"><div class="grow" style="flex-basis:220px"><label>Recipe</label><select id="lr">${ropts}</select></div><div style="width:6rem"><label>Portions</label><input id="lp" type="text" inputmode="decimal" value="1" step="0.5" min="0"></div><button onclick="logRecipe()" style="align-self:flex-end">Add</button></div>
  <label class="check" style="margin:.4rem 0 0;color:inherit;font-size:.9rem"><input id="ls" type="checkbox" checked>Include the recipe's sides (rice, veggies…) when it has some</label>`:""}
  ${plannedToday().length&&showForm?`<button class="ghost small" style="margin-top:.7rem" onclick="logPlanned()">Add all today's planned meals (${plannedToday().length})</button>`:""}</div>`;
@@ -749,6 +754,11 @@ function dayScore(L,T,live){if(!L||!L.food||!L.food.length||!T)return null;
 const scoreWord=s=>s>=85?"Excellent":s>=70?"Good":s>=50?"Getting there":"Needs attention";
 
 /* ---------- Open Food Facts ---------- */
+function offPanelHTML(show=true){return`<details id="offbox" style="margin-top:.6rem;${show?"":"display:none"}" ${offOpen?"open":""} ontoggle="offOpen=this.open"><summary>${tab==="kitchen"?"📷 Add from a supermarket product / barcode":"Search supermarket products / barcode"}</summary>
+ <div class="row" style="margin-top:.5rem"><input id="offq" type="search" placeholder="e.g. skyr Siggi's, Pâturages fromage blanc" class="grow" onkeydown="if(event.key==='Enter')offSearch()"><button class="small" onclick="offSearch()">Search</button></div>
+ <div class="row" style="margin-top:.4rem"><input id="offc" type="text" inputmode="numeric" placeholder="Barcode number" class="grow" onkeydown="if(event.key==='Enter')offCode()"><button class="small ghost" onclick="offCode()">Look up</button><button class="small ghost" onclick="offScan()">📷 Scan</button></div>
+ <div id="offres">${offResHTML}</div>
+ <p class="muted" style="font-size:.78rem;margin:.4rem 0 0">Data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> (ODbL). Check the label if something looks off.</p></details>`}
 let offOpen=false,offResHTML="",offList=[],offStream=null;
 const OFF_FIELDS="code,product_name,product_name_fr,brands,nutriments,serving_quantity,categories_tags,quantity";
 function offParse(p){const n=p.nutriments||{};const kcal=n["energy-kcal_100g"]!=null?+n["energy-kcal_100g"]:n["energy_100g"]!=null?n["energy_100g"]/4.184:null;
@@ -767,8 +777,11 @@ async function offCode(code){code=String(code||($("#offc")||{}).value||"").repla
  try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}?fields=${OFF_FIELDS}`);const j=await r.json();const x=j&&j.product?offParse({...j.product,code}):null;
   offList=x?[x]:[];offPaint(x?offListHTML():`<p class="muted" style="margin:.5rem 0 0">Barcode ${code} isn't in Open Food Facts yet. You can add the product by hand in Kitchen › My ingredients.</p>`)}catch(e){offFail(e)}}
 function offPick(i){const x=offList[i];if(!x)return;const id="off_"+x.code;
+ if(tab==="kitchen"){const name=`${x.name}${x.brand?" – "+x.brand:""}`.replace(/[()]/g,"");if(!food(id)){const of=matchFood(x.name);S.core.customFoods.push({id,name,kcal:x.kcal,p:x.p,c:x.c,f:x.f,fib:x.fib,price:0,aisle:x.aisle,pw:x.pw&&x.pw<1000?x.pw:0,src:"off",...(of&&!food(of).of?{of}:{})});if(of)setActiveVar(of,id)}
+  let msg=`Added “${name}” to your ingredients${food(id).of?` as a product of ${food(food(id).of).name.split(" (")[0]} (your recipes now use its values)`:""}.`;if(editing){const g=x.pw&&x.pw<1000?x.pw:100;const empty=editing.items.findIndex(it=>!it.food&&!it.raw);const row={food:id,g,qty:g,raw:name};if(empty>=0)editing.items[empty]=row;else editing.items.push(row);msg+=` Also added to “${editing.name||"the recipe"}” (${g} g: adjust the amount).`}
+  save("core");offOpen=true;offResHTML=`<p class="muted" style="margin:.5rem 0 0">${esc(msg)}</p>`;render();return}
  const name=`${x.name}${x.brand?" – "+x.brand:""}`.replace(/[()]/g,"");
- if(!food(id))S.core.customFoods.push({id,name,kcal:x.kcal,p:x.p,c:x.c,f:x.f,fib:x.fib,price:0,aisle:x.aisle,pw:x.pw&&x.pw<1000?x.pw:0,src:"off"});
+ if(!food(id)){const of=matchFood(x.name);S.core.customFoods.push({id,name,kcal:x.kcal,p:x.p,c:x.c,f:x.f,fib:x.fib,price:0,aisle:x.aisle,pw:x.pw&&x.pw<1000?x.pw:0,src:"off",...(of&&!food(of).of?{of}:{})});if(of)setActiveVar(of,id)}
  save("core");offOpen=true;offResHTML=`<p class="muted" style="margin:.5rem 0 0">Added <b>${esc(name)}</b> to your ingredients. Enter the grams above and tap Add.${x.pw?` One serving is ${x.pw} g.`:""}</p>`;
  render();const lf=$("#lf"),lg=$("#lg");if(lf){lf.value=food(id).name}if(lg){lg.value=x.pw&&x.pw<1000?x.pw:"";lg.focus&&lg.focus()}}
 function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`))return res();const sc=document.createElement("script");sc.src=src;sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
@@ -1016,10 +1029,11 @@ function aiItemMacros(it){if(it.recipe){const r=S.core.recipes.find(x=>x.id===it
 const KEYSTORE="bk-anthropic-key";
 function apiKey(){try{return localStorage.getItem(KEYSTORE)||""}catch(e){return""}}
 async function aiEngine(){const s=await getSample();if(s)return"claude";if(apiKey())return"api";return"local"}
-async function callApi(prompt){const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":apiKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
- body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1500,messages:[{role:"user",content:prompt}]})});
+async function callApi(prompt,imgs){const content=imgs&&imgs.length?[...imgs.map(i=>({type:"image",source:{type:"base64",media_type:i.type,data:i.data}})),{type:"text",text:prompt}]:prompt;
+ const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":apiKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+ body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:3000,messages:[{role:"user",content}]})});
  if(!r.ok){const t=await r.text().catch(()=>"");throw{code:r.status===401?"badkey":r.status===429?"rate_limited":r.status===400&&/credit/i.test(t)?"credit":"api",message:t}}
- const j=await r.json();const txt=(j.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("");const m=txt.replace(/```json|```/g,"").trim();return JSON.parse(m.slice(m.indexOf("["),m.lastIndexOf("]")+1))}
+ const j=await r.json();const txt=(j.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("");const m=txt.replace(/```json|```/g,"").trim();const o=m.indexOf("{"),a=m.indexOf("[");if(o>=0&&(a<0||o<a))return JSON.parse(m.slice(o,m.lastIndexOf("}")+1));return JSON.parse(m.slice(a,m.lastIndexOf("]")+1))}
 /* offline estimator */
 const NUMW={half:.5,demi:.5,"demie":.5,"½":.5,quarter:.25,"¼":.25,a:1,an:1,one:1,un:1,une:1,two:2,deux:2,three:3,trois:3,four:4,quatre:4,some:1,quelques:3};
 const UNITW=[[/\b(kg)\b/,"kg"],[/\b(g|gr|grammes?|grams?)\b/,"g"],[/\b(ml)\b/,"ml"],[/\b(cl)\b/,"cl"],[/\b(l|litres?|liters?)\b/,"l"],[/\b(tbsp|tablespoons?|cuill[eè]res? [àa] soupe|cas|c\. ?[àa] s)\b/,"tbsp"],[/\b(tsp|teaspoons?|cuill[eè]res? [àa] caf[eé]|cac|c\. ?[àa] c)\b/,"tsp"],
@@ -1157,7 +1171,8 @@ function packOf(id){const r=stockRec(id),f=food(id)||{};return +(r&&r.pack)||PAC
 function lowOf(id){const r=stockRec(id);return r&&r.low!=null&&r.low!==""?+r.low:packOf(id)*.25}
 function fmtQ(id,g){const f=food(id)||{};if(f.pw&&!isPantry(f)){const n=g/f.pw;return`${Math.round(n*10)/10} ${id==="oeuf"?"egg":id==="ail"?"clove":"pc"}${n>=1.5?"s":""}`}return g>=1000?`${r1(g/1000)} kg`:`${r0(g)} g`}
 function setStock(id,patch){S.core.stock=S.core.stock||{};S.core.stock[id]=Object.assign(S.core.stock[id]||{qty:0},patch);save("core")}
-function stockUse(used,sign){if(!used)return;Object.entries(used).forEach(([id,g])=>{const r=stockRec(id);if(r){r.qty=Math.max(0,(+r.qty||0)-sign*g)}});save("core")}
+function stockUse(used,sign){if(!used)return;Object.entries(used).forEach(([id0,g])=>{const base=(food(id0)||{}).of||id0;const r=stockRec(base);if(!r)return;r.qty=Math.max(0,(+r.qty||0)-sign*g);
+ if(r.byProd){const order=[id0!==base?id0:null,(S.core.activeVar||{})[base],...Object.keys(r.byProd)].filter((v,i,a)=>v&&a.indexOf(v)===i&&r.byProd[v]!=null);let left=sign*g;if(left>0){for(const v of order){const take=Math.min(left,r.byProd[v]);r.byProd[v]-=take;left-=take;if(r.byProd[v]<=0)delete r.byProd[v];if(left<=0)break}}else if(order[0])r.byProd[order[0]]=(r.byProd[order[0]]||0)-left}});save("core")}
 function recipeUse(r,qty,sides){const n=Math.max(1,+r.portions||1);const u={};r.items.forEach(it=>u[it.food]=(u[it.food]||0)+it.g/n*qty);if(sides)(r.sides||[]).forEach(it=>u[it.food]=(u[it.food]||0)+it.g*qty);return u}
 let recipeQuery="";
 function paintRecipes(){const el=document.getElementById("rlist");if(el)el.innerHTML=recipeCards(undefined,recipeQuery.trim()?undefined:5)}
@@ -1204,17 +1219,19 @@ function kitchenForm(){let h=`<div class="box"><h3>Share recipes</h3><p class="m
  <div style="margin-top:1rem;max-width:16rem"><label>Keeps in the fridge (days, 0 = eat fresh)</label><input type="number" min="0" max="7" value="${esc(r.keeps)}" onchange="editing.keeps=Math.max(0,+this.value||0)"></div>
  <div class="row" style="margin-top:.8rem"><span class="grow"></span>${r.id?`<button class="ghost small" onclick="editing=null;render()">Cancel</button>`:""}<button onclick="saveRecipe()">Save recipe</button></div>
  <p class="muted" style="margin:.6rem 0 0">For eggs, bananas and other pieces, enter grams (1 egg ≈ 55 g, 1 banana ≈ 120 g). Cooked-weight tip: weigh rice and pasta dry.</p></div>`;
- h+=`<details class="box"><summary>My ingredients (add anything missing)</summary><p class="muted">Copy the values per 100 g from the packet, or search supermarket products and barcodes from Today › Log food.</p>
+ h+=`<div class="box" style="padding:.6rem 1rem">${offPanelHTML(true)}${editing?`<p class="muted" style="font-size:.8rem;margin:.3rem 0 0">Products you pick are also added to the recipe you're editing.</p>`:""}</div>
+ <details class="box" ${S.core.ingOpen?"open":""} ontoggle="S.core.ingOpen=this.open"><summary>My ingredients (${myIngredientIds().length})</summary><p class="muted">Ingredients you added, imported or used in your recipes. Copy values per 100 g from the packet, or scan / search a product above.</p>
  <div class="grid2"><div style="grid-column:1/-1"><label>Name</label><input id="cf-name"></div>
  <div><label>kcal / 100 g</label><input id="cf-kcal" type="text" inputmode="decimal"></div><div><label>Protein g</label><input id="cf-p" type="text" inputmode="decimal"></div>
  <div><label>Carbs g</label><input id="cf-c" type="text" inputmode="decimal"></div><div><label>Fat g</label><input id="cf-f" type="text" inputmode="decimal"></div>
  <div><label>Fibre g</label><input id="cf-fib" type="text" inputmode="decimal"></div><div><label>Price € / kg</label><input id="cf-price" type="text" inputmode="decimal"></div><div><label>Aisle</label><select id="cf-aisle">${AISLES.map(a=>`<option>${a}</option>`).join("")}</select></div></div>
- <button style="margin-top:.7rem" onclick="addFood()">Add ingredient</button>
- ${S.core.customFoods.length?`<table style="margin-top:.8rem">${S.core.customFoods.map(f=>`<tr><td>${esc(f.name)}</td><td class="n">${f.kcal} kcal</td><td><button class="x" aria-label="Delete" onclick="delFood('${f.id}')">×</button></td></tr>`).join("")}</table>`:""}</details>`;
+ <div class="row" style="margin-top:.7rem"><button onclick="addFood()">${cfEdit?"Save changes":"Add ingredient"}</button>${cfEdit?`<button class="ghost small" onclick="cfEdit=null;render()">Cancel</button>`:""}</div>
+ <input type="search" placeholder="Search my ingredients…" value="${esc(ingQ)}" oninput="ingQ=this.value;const el=document.getElementById('inglist');if(el)el.innerHTML=ingListHTML()" style="margin-top:.9rem"><div id="inglist">${ingListHTML()}</div></details>`;
  h+=`<details class="box"><summary>Prices & where you buy</summary><p class="muted">Starting prices are rough supermarket estimates. Replace them with what you pay (€ per kg) and pick the shop for each ingredient, e.g. meat at your butcher. The grocery list is then split by shop.</p>
  <div class="chips" style="margin:.3rem 0 .5rem">${shopsList().map(n=>`<span class="chip on">${esc(n)}${shopsList().length>1?` <button class="x" style="color:inherit;font-size:.9rem;padding:0 .1rem" onclick="delShop(${esc(JSON.stringify(n))})" aria-label="Remove shop">×</button>`:""}</span>`).join("")}</div>
  <div class="row" style="margin-bottom:.6rem"><input id="newshop" class="grow" placeholder="Add a shop, e.g. Halal butcher, market"><button class="small ghost" onclick="addShop()">Add shop</button></div>
- <div class="scroll"><table>${allFoods().map(f=>`<tr><td>${esc(f.name)}</td><td style="width:6rem"><input type="text" inputmode="decimal" step="0.1" value="${priceOf(f)}" onchange="setPrice('${f.id}',this.value)" aria-label="Price per kg"></td><td style="width:7.5rem">${shopsList().length>1?`<select onchange="setFoodShop('${f.id}',this.value)" aria-label="Shop">${shopsList().map(n=>`<option ${shopOf(f.id)===n?"selected":""}>${esc(n)}</option>`).join("")}</select>`:`<span class="muted" style="font-size:.8rem">${esc(shopsList()[0])}</span>`}</td></tr>`).join("")}</table></div></details>`;
+ <div id="pricelist">${priceRowsHTML(myPriceIds().slice(0,10))}</div>
+ <button class="ghost" style="width:100%;margin-top:.6rem" onclick="openAllPrices()">See all ${allFoods().length} ingredients</button><p class="muted" style="font-size:.75rem;margin:.3rem 0 0">Showing up to 10: ingredients you've bought or have at home first.</p></details>`;
  return h;
 }
 let recBusy=false,recErr="";
@@ -1236,18 +1253,41 @@ function setItem(i,k,v){const it=editing.items[i];if(k==="food"){const f=foodByN
  if(it.qty==null&&it.g)it.qty=it.g;if(it.food&&it.qty)it.g=r1(toGrams(it.food,it.qty,it.unit||"g"))}
 function editRecipe(id){closeSheet();kView="mine";editing=JSON.parse(JSON.stringify(S.core.recipes.find(r=>r.id===id)));render();window.scrollTo(0,0);if(0)window.scrollTo(0,document.body.scrollHeight)}
 async function delRecipe(id){if(!await ask("Delete this recipe?"))return;S.core.recipes=S.core.recipes.filter(r=>r.id!==id);save("core");render()}
-function saveRecipe(){const r=editing;if(!r.name.trim()){toast("Give the recipe a name.");return}
- const bad=r.items.filter(i=>i.raw&&!i.food);if(bad.length){toast(`Not found: ${bad.map(b=>b.raw).join(", ")}. Add it under My ingredients first.`);return}
+async function saveRecipe(){const r=editing;if(!r.name.trim()){toast("Give the recipe a name.");return}
+ const bad=r.items.concat(r.sides||[]).filter(i=>i.raw&&i.raw.trim()&&!i.food);
+ if(bad.length){const names=[...new Set(bad.map(b=>b.raw.trim()))];const ok=await ask(`${names.join(", ")} ${names.length>1?"aren't":"isn't"} in your ingredients yet. Create ${names.length>1?"them":"it"} now?`);if(!ok)return;
+  const made=await createIngredients(names);if(!made)return;r.items.concat(r.sides||[]).forEach(it=>{if(!it.food&&it.raw&&made[it.raw.trim()]){it.food=made[it.raw.trim()];if(it.qty&&it.unit)it.g=r1(toGrams(it.food,it.qty,it.unit))}})}
  const badS=(r.sides||[]).filter(i=>i.raw&&!i.food);if(badS.length){toast(`Side not found: ${badS.map(b=>b.raw).join(", ")}.`);return}
  r.sides=(r.sides||[]).filter(i=>i.food&&i.g).map(i=>({food:i.food,g:+i.g}));
  r.items=r.items.filter(i=>i.food&&i.g).map(i=>i.unit&&i.unit!=="g"?{food:i.food,g:+i.g,qty:+i.qty,unit:i.unit}:{food:i.food,g:+i.g});if(!r.items.length){toast("Add at least one ingredient with grams.");return}
  r.portions=Math.max(1,+r.portions||1);
  if(r.id){S.core.recipes=S.core.recipes.map(x=>x.id===r.id?r:x)}else{r.id=uidGen();S.core.recipes.push(r)}
  editing=null;save("core");render()}
-function addFood(){const v=id=>$("#cf-"+id).value;if(!v("name").trim()||v("kcal")===""){toast("Name and kcal are needed.");return}
+
+async function createIngredients(names){const eng=await aiEngine();const made={};
+ if(eng!=="local"){status="Estimating ingredients…";paintStatus();
+  const prompt=`Give typical nutrition values per 100 g (as sold / raw) for these ingredients, in the same order: ${names.map(n=>`"${n}"`).join(", ")}.\nReply with ONLY a JSON array like [{"name":"...","kcal":0,"p":0,"c":0,"f":0,"fib":0,"aisle":"Épicerie","pieceGrams":0}]. aisle must be one of: ${AISLES.join(", ")}. pieceGrams is the weight of one piece if it is usually counted in pieces, else 0.`;
+  try{const sample=await getSample();let arr;if(eng==="claude")arr=await sample.json(prompt,{modelTier:"quick"});else arr=await callApi(prompt);
+   names.forEach((n,i)=>{const x=(arr||[])[i]||{};const id="c"+uidGen();S.core.customFoods.push({id,name:n,kcal:+x.kcal||0,p:+x.p||0,c:+x.c||0,f:+x.f||0,fib:+x.fib||0,price:0,aisle:AISLES.includes(x.aisle)?x.aisle:"Épicerie",pw:+x.pieceGrams||0,est:true});made[n]=id});
+   status="";save("core");toast(`${names.length} ingredient${names.length>1?"s":""} created with estimated values. Check them in My ingredients (Edit) when you have the packet.`);return made}catch(e){status="";paintStatus()}}
+ return new Promise(res=>{openSheet(`<h3>New ingredient${names.length>1?"s":""}</h3><p class="muted" style="margin:0 0 .5rem;font-size:.85rem">Values per 100 g from the packet (or scan the product in Kitchen › My ingredients later).</p>
+  ${names.map((n,i)=>`<div class="box" style="background:var(--bg)"><b>${esc(n)}</b><div class="grid2" style="margin-top:.3rem">${[["kcal","kcal"],["p","Protein g"],["c","Carbs g"],["f","Fat g"],["fib","Fibre g"]].map(([k,l])=>`<div><label style="font-size:.78rem">${l}</label><input id="ni-${i}-${k}" type="text" inputmode="decimal"></div>`).join("")}</div></div>`).join("")}
+  <div class="row"><button class="ghost small" id="ni-cancel">Cancel</button><span class="grow"></span><button id="ni-ok">Create and save recipe</button></div>`);
+  document.getElementById("ni-cancel").onclick=()=>{closeSheet();res(null)};
+  document.getElementById("ni-ok").onclick=()=>{names.forEach((n,i)=>{const v=k=>+(String((document.getElementById(`ni-${i}-${k}`)||{}).value||"").replace(",","."))||0;const id="c"+uidGen();S.core.customFoods.push({id,name:n,kcal:v("kcal"),p:v("p"),c:v("c"),f:v("f"),fib:v("fib"),price:0,aisle:"Épicerie",pw:0});made[n]=id});save("core");closeSheet();res(made)}})}
+let cfEdit=null,ingQ="";
+function myIngredientIds(){const used=new Set();S.core.recipes.forEach(r=>r.items.concat(r.sides||[]).forEach(it=>used.add(it.food)));S.core.customFoods.forEach(f=>{used.add(f.id);if(f.of)used.add(f.of)});Object.keys(S.core.stock||{}).forEach(i=>used.add(i));return[...used].filter(id=>food(id))}
+function ingListHTML(all){let ids=myIngredientIds().filter(id=>!food(id).of).filter(id=>!ingQ.trim()||searchMatch(food(id).name+" "+variantsOf(id).map(v=>v.name).join(" "),ingQ)).sort((a,b)=>food(a).name.localeCompare(food(b).name));const total=ids.length;if(!all&&!ingQ.trim())ids=ids.slice(0,10);const useN=id=>S.core.recipes.filter(r=>r.items.concat(r.sides||[]).some(it=>it.food===id)).length;
+ if(!ids.length)return`<p class="muted">Nothing here yet.</p>`;
+ const more=!all&&!ingQ.trim()&&total>10?`<button class="ghost" style="width:100%;margin-top:.6rem" onclick="openAllIngredients()">See all ${total} ingredients</button>`:"";
+ return`<table class="fixed" style="margin-top:.4rem"><colgroup><col><col style="width:4.6rem"></colgroup>${ids.map(id=>{const f=food(id);const own=S.core.customFoods.some(x=>x.id===id);const n=useN(id);return`<tr><td>${esc(f.name)}${f.est?' <span class="muted" style="font-size:.75rem">(estimated)</span>':""}<br><span class="muted" style="font-size:.75rem">${r0(f.kcal)} kcal · P ${r1(f.p)} · C ${r1(f.c)} · F ${r1(f.f)}${n?` · in ${n} recipe${n>1?"s":""}`:""}${own?"":" · built-in"}</span>${variantsOf(id).length?`<div style="margin-top:.3rem">${[{id:null,name:"Generic values"},...variantsOf(id)].map(v=>{const on=((S.core.activeVar||{})[id]||null)===v.id;const vf=v.id?food(v.id):f;return`<div class="row" style="flex-wrap:nowrap;gap:.4rem;font-size:.8rem;padding:.15rem 0"><button class="chip ${on?"on":""}" style="font-size:.72rem;padding:.1rem .45rem" onclick="setActiveVar('${id}',${v.id?`'${v.id}'`:"null"});rePaintIng()">${on?"✓ used":"use"}</button><span style="min-width:0">${esc(v.name)}${vf.est?" (estimated)":""} · ${r0(vf.kcal)} kcal · P ${r1(vf.p)}</span>${v.id?`<button class="x" style="font-size:.75rem;color:var(--plum)" onclick="editFood('${v.id}')">Edit</button>`:""}</div>`}).join("")}</div>`:""}</td><td style="white-space:nowrap">${own?`<button class="x" style="font-size:.85rem;color:var(--plum)" onclick="editFood('${id}')">Edit</button>${n?"":`<button class="x" aria-label="Delete" onclick="delFood('${id}')">×</button>`}`:""}</td></tr>`}).join("")}</table>${more}`}
+function rePaintIng(){const a=document.getElementById("inglist");if(a)a.innerHTML=ingListHTML();const b=document.getElementById("allil");if(b)b.innerHTML=ingListHTML(true)}
+function openAllIngredients(){const q0=ingQ;ingQ="";openSheet(`<div class="row" style="justify-content:space-between"><h3 style="margin:0">My ingredients</h3><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeSheet();ingQ='';render()">×</button></div><input type="search" placeholder="Search my ingredients…" oninput="ingQ=this.value;document.getElementById('allil').innerHTML=ingListHTML(true)" style="margin:.6rem 0"><div id="allil">${ingListHTML(true)}</div>`);ingQ=q0}
+function editFood(id){closeSheet();const f=S.core.customFoods.find(x=>x.id===id);if(!f)return;cfEdit=id;S.core.ingOpen=true;render();const set=(k,v)=>{const el=$("#cf-"+k);if(el)el.value=v??""};set("name",f.name);set("kcal",f.kcal);set("p",f.p);set("c",f.c);set("f",f.f);set("fib",f.fib);set("price",f.price);const a=$("#cf-aisle");if(a)a.value=f.aisle;const n=$("#cf-name");n&&n.scrollIntoView&&n.scrollIntoView({block:"center"})}
+function addFood(){if(cfEdit){const f=S.core.customFoods.find(x=>x.id===cfEdit);const v=k=>{const el=$("#cf-"+k);return el?el.value:""};if(f){f.name=v("name").trim()||f.name;["kcal","p","c","f","fib","price"].forEach(k=>{const x=v(k);if(x!=="")f[k]=+x||0});f.aisle=v("aisle")||f.aisle;delete f.est}cfEdit=null;save("core");render();return}const v=id=>$("#cf-"+id).value;if(!v("name").trim()||v("kcal")===""){toast("Name and kcal are needed.");return}
  S.core.customFoods.push({id:"c"+uidGen(),name:v("name").trim(),kcal:+v("kcal"),p:+v("p")||0,c:+v("c")||0,f:+v("f")||0,fib:+v("fib")||0,price:+v("price")||0,aisle:v("aisle"),pw:0});save("core");render()}
 function delFood(id){S.core.customFoods=S.core.customFoods.filter(f=>f.id!==id);save("core");render()}
-function setPrice(id,v){S.core.prices[id]=+v;save("core")}
+function setPrice(id,v,shop){v=+String(v).replace(",",".");if(isNaN(v))return;const sh=shop||shopOf(id);S.core.shopPrices=S.core.shopPrices||{};S.core.shopPrices[sh]=S.core.shopPrices[sh]||{};S.core.shopPrices[sh][id]=v;S.core.prices[id]=v;save("core")}
 
 /* groceries + planner */
 function planCounts(){const c={};Object.values(S.core.plan.slots).forEach(id=>{if(id)c[id]=(c[id]||0)+1});for(const id in S.core.plan.extras){c[id]=(c[id]||0)+(+S.core.plan.extras[id]||0)}return c}
@@ -1285,7 +1325,7 @@ function vShop(){
  {const cw=crousStats(mondayOf(today()),today());const planned=Object.values(pl.slots).filter(x=>x==="crous").length;if(cw.n||planned)h+=`<div class="note" style="margin-top:1.2rem">🍽 Crous: ${planned?`${planned} meal${planned>1?"s":""} planned this week (not in groceries)`:""}${planned&&cw.n?" · ":""}${cw.n?`${cw.cost.toFixed(2)} € spent so far this week`:""}</div>`}
  h+=`<h2>Grocery list</h2><div class="box"><div class="row"><div style="width:9rem"><label>Budget this week (€)</label><input type="text" inputmode="decimal" value="${budget}" onchange="S.core.budget=+this.value;save('core');render()"></div><div class="grow"><div class="left-num" style="font-size:2.2rem;${budget&&total>budget?"color:var(--warn)":""}">${total.toFixed(2)} €</div><div class="muted">${budget?(total>budget?`${(total-budget).toFixed(2)} € over budget`:`${(budget-total).toFixed(2)} € left`):"estimated"} · real packs, minus what you have at home</div></div></div>
  ${lowIds.length?`<div class="note warn">Running low: ${lowIds.map(id=>`${esc(food(id).name.split(" (")[0])} (${fmtQ(id,stockQty(id))} left)`).join(", ")}. Added to the list.</div>`:""}
- <div class="row" style="margin-top:.6rem"><button onclick="if(groceryRows.length)openSheet(shopModeHTML());else toast('Your list is empty this week.')">🛒 Shopping mode</button><button class="ghost" onclick="shareGroceries()">⬇ Share list</button><span class="muted" style="font-size:.82rem">A checklist to tick at the store.</span></div></div>`;
+ <div class="row" style="margin-top:.6rem"><label class="ghost small" style="margin:0;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:.4rem .7rem;color:var(--plum);font-weight:600;cursor:pointer">${rcBusy?"Reading…":"🧾 Add a receipt"}<input type="file" accept="image/*,application/pdf,.pdf" onchange="receiptFile(this)" style="display:none"></label><button onclick="if(groceryRows.length)openSheet(shopModeHTML());else toast('Your list is empty this week.')">🛒 Shopping mode</button><button class="ghost" onclick="shareGroceries()">⬇ Share list</button><span class="muted" style="font-size:.82rem">A checklist to tick at the store.</span></div></div>`;
  if(budget&&total>budget){const top=toBuy.slice().sort((a,b)=>b.cost-a.cost).slice(0,3);h+=`<div class="note warn">Biggest costs: ${top.map(t=>`${esc(t.f.name.split(" (")[0])} (${t.cost.toFixed(2)} €)`).join(", ")}. Cheaper protein swaps: chicken → turkey or eggs, salmon → frozen cod or canned tuna, Greek yogurt → skyr or fromage blanc 0%.</div>`}
  const shopsUsed=[...new Set(toBuy.map(r=>shopOf(r.f.id)))];shopsUsed.forEach(sh=>{if(shopsUsed.length>1){const stt=toBuy.filter(r=>shopOf(r.f.id)===sh).reduce((a,r)=>a+r.cost,0);h+=`<h3 style="margin:1.1rem 0 .5rem">🏪 ${esc(sh)} <span class="muted" style="font-weight:500">· ${stt.toFixed(2)} €</span></h3>`}
   AISLES.forEach(aisle=>{const list=toBuy.filter(r=>r.f.aisle===aisle&&shopOf(r.f.id)===sh);if(!list.length)return;
@@ -1300,6 +1340,63 @@ function vShop(){
  return h;
 }
 
+
+/* ---------- receipts ---------- */
+let rcDraft=null,rcBusy=false;
+async function pdfText(file){await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");const lib=window.pdfjsLib;lib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ const doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;let out="";for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const tc=await pg.getTextContent();let lastY=null;tc.items.forEach(it=>{const y=Math.round(it.transform[5]);if(lastY!==null&&Math.abs(y-lastY)>2)out+="\n";else if(lastY!==null)out+=" ";out+=it.str;lastY=y});out+="\n"}return out}
+function fileB64(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(blob)})}
+function matchFood(name){const t=norm(name).replace(/[^a-z0-9 ]/g," ");const words=t.split(/\s+/).filter(w=>w.length>2);for(const w of words){if(ALIAS[w]&&food(ALIAS[w]))return ALIAS[w]}
+ const FR={oeufs:"oeuf",oeuf:"oeuf",skyr:"skyr",oignon:"oignon",tomate:"tomate",champignon:"champi",moutarde:"moutarde",poulet:"poulet",riz:"riz",lait:"lait",pates:"pates",avoine:"avoine",banane:"banane",pomme:"pomme",carotte:"carotte",courgette:"courgette",poivron:"poivron",brocoli:"brocoli",epinards:"epinards",thon:"thon",saumon:"saumon",dinde:"dinde",boeuf:"boeuf5",steak:"boeuf5",cuisse:"cuisses",fromage:"fblanc",blanc:"fblanc",citron:"citron",ail:"ail",beurre:"beurre",miel:"miel",huile:"huile",farine:"farine",sucre:"sucre",concombre:"concombre",avocat:"avocat",plantain:"plantain",attieke:"attieke",gombo:"gombo",crevettes:"crevettes"};
+ for(const w of words){if(FR[w]&&food(FR[w]))return FR[w]}let best=null,bs=0;allFoods().forEach(f=>{const fw=norm(f.name).split(/[^a-z0-9]+/).filter(x=>x.length>3);const sc=words.filter(w=>fw.some(x=>x.startsWith(w.slice(0,5))&&w.length>3)).length;if(sc>bs){bs=sc;best=f.id}});return bs?best:null}
+function parseReceiptText(txt){const lines=txt.split(/\n/).map(x=>x.trim()).filter(Boolean);const items=[];let pending=null;
+ for(const l of lines){if(/MONTANT|TOTAL|CB |ESPECES|A RENDRE|TVA|VIGN|CARTE|SOLDE/i.test(l))continue;
+  const w=l.match(/(\d+[.,]\d+)\s*kg\s*X\s*(\d+[.,]\d+)\s*EUR\S*\/kg\s+(\d+[.,]\d{2})/i);if(w&&pending){items.push({receipt:pending,grams:Math.round(+w[1].replace(",",".")*1000),price:+w[3].replace(",","."),count:1});pending=null;continue}
+  const m=l.match(/^(.*?[A-Za-z].*?)\s+(\d+[.,]\d{2})\s*(EUR|€)/i);if(m){let g=0,c=1;const n=m[1];const mm=n.match(/(\d+)\s*X\s*(\d+)\s*(G|ML)\b/i);const sz=n.match(/(\d+(?:[.,]\d+)?)\s*(KG|G|L|CL|ML)\b/i);const eg=n.match(/(\d+)\s*OEUFS/i);
+   if(mm)g=+mm[1]*+mm[2];else if(sz){const v=+sz[1].replace(",",".");g=/KG|^L$/i.test(sz[2])?v*1000:/CL/i.test(sz[2])?v*10:v}if(eg)c=+eg[1];
+   items.push({receipt:n,grams:g,price:+m[2].replace(",","."),count:c});pending=null;continue}
+  if(/^[A-Z][A-Z .'-]{3,}$/.test(l))pending=l}
+ return items}
+async function receiptFile(inp){const file=inp.files[0];inp.value="";if(!file)return;rcBusy=true;status="Reading the receipt…";paintStatus();render();
+ try{const isPdf=/pdf/i.test(file.type)||/\.pdf$/i.test(file.name);let text="";if(isPdf){try{text=await pdfText(file)}catch(e){text=""}}
+  const eng=await aiEngine();let res=null;
+  const prompt=`This is a supermarket or shop receipt${text?" (text below)":" (image)"}. List every item bought.\nFor each item give: the receipt label, a clear name in French, whether it is food, the total grams bought (from the label size, weight line, or count × usual piece weight; eggs ≈ 55 g each), the number of pieces or packs, the price paid in euros, and the matching id from this ingredient list if one fits (else null with typical values per 100 g).\nIngredients: ${allFoods().map(f=>f.id+"="+f.name.split(" (")[0]).join("; ")}\nAlso give the shop name and the date (YYYY-MM-DD) if visible.\nReply with ONLY JSON: {"shop":"","date":"","items":[{"receipt":"PAT SKYR NAT 850G","name":"Skyr nature","food":true,"grams":850,"count":1,"price":3.11,"id":"skyr","kcal100":63,"p100":11,"c100":4,"f100":0.2,"fib100":0}]}
+For kcal100…fib100: give the values for THAT exact product and brand when you know them (even when an id matches), else typical values.${text?"\n\nRECEIPT:\n"+text:""}`;
+  if(eng==="claude"){const sample=await getSample();res=await sample.json(prompt,isPdf&&text?{modelTier:"default"}:{modelTier:"default",images:[file]})}
+  else if(eng==="api"){if(isPdf&&text)res=await callApi(prompt);else res=await callApi(prompt,[{type:file.type||"image/jpeg",data:await fileB64(file)}])}
+  else if(text){res={shop:/intermarch/i.test(text)?"Intermarché":"",items:parseReceiptText(text).map(x=>({...x,name:x.receipt,food:true,id:matchFood(x.receipt)}))}}
+  else{rcBusy=false;status="";toast("Reading a photo of a receipt needs Claude: open the app in claude.ai, or add your API key in ⚙︎ Settings. PDF receipts (like Intermarché's) work without it.");render();return}
+  const items=(res.items||[]).map(x=>{const id=x.id&&food(String(x.id))?String(x.id):null;const isNew=!id&&x.food!==false&&x.kcal100!=null&&x.kcal100!=="";if(eng==="local")x.kcal100=null;return{receipt:String(x.receipt||x.name||""),name:String(x.name||x.receipt||""),food:x.food!==false,grams:Math.round(+x.grams||0),count:+x.count||1,price:+x.price||0,id,new:isNew,per:{kcal:+x.kcal100||0,p:+x.p100||0,c:+x.c100||0,f:+x.f100||0,fib:+x.fib100||0},on:x.food!==false&&(!!id||isNew)}});
+  const shops=shopsList();const shop=shops.find(sh=>res.shop&&norm(res.shop).includes(norm(sh).split(" ")[0]))||(res.shop||"").trim()||shops[0];
+  rcDraft={shop,date:res.date||today(),items};rcBusy=false;status="";openSheet(rcHTML())}
+ catch(e){rcBusy=false;status="";toast("Couldn't read this receipt. Try a sharper photo, or the PDF version if the shop gives one.");render()}}
+function rcHTML(){const d=rcDraft;const opts=allFoods().map(f=>`<option value="${esc(f.name)}">`).join("");const sel=d.items.filter(x=>x.on);
+ return`<div class="row" style="justify-content:space-between"><h3 style="margin:0">🧾 Receipt · ${d.items.length} items</h3><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeSheet()">×</button></div>
+ <div class="row" style="margin:.5rem 0"><label style="margin:0">Shop</label><input value="${esc(d.shop)}" list="rcshops" onchange="rcDraft.shop=this.value" style="width:12rem"><datalist id="rcshops">${shopsList().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></div>
+ <p class="muted" style="font-size:.8rem;margin:0 0 .4rem">Ticked items go into your home stock, save the price per kg <b>for this shop</b> (a new shop is added to your list), and are ticked on this week's grocery list. Check the matches and grams: the price per kg is only saved when the grams are filled in (orange boxes are missing).</p>
+ ${d.items.map((it,i)=>`<div style="padding:.45rem 0;border-bottom:1px solid var(--line)"><div class="row" style="flex-wrap:nowrap"><input type="checkbox" style="width:1.1rem;flex:none" ${it.on?"checked":""} onchange="rcDraft.items[${i}].on=this.checked"><span class="grow" style="min-width:0"><b style="font-size:.9rem">${esc(it.receipt)}</b> <span class="muted" style="font-size:.8rem">${it.price?it.price.toFixed(2)+" €":""}</span></span></div>
+  <div class="row" style="margin:.3rem 0 0 1.6rem;flex-wrap:nowrap"><input list="rcfl" style="flex:1;min-width:0" placeholder="${it.food?"Match an ingredient…":"Not food"}" value="${esc(it.id?food(it.id).name:it.new?it.name+" (new)":"")}" onchange="rcMatch(${i},this.value)"><input type="text" inputmode="decimal" style="width:4.8rem;${it.on&&!it.grams?"border-color:var(--apricot)":""}" value="${it.grams||""}" placeholder="g?" onchange="rcDraft.items[${i}].grams=+this.value||0"><span class="muted">g</span></div></div>`).join("")}<datalist id="rcfl">${opts}</datalist>
+ <button style="width:100%;margin-top:.8rem" onclick="rcSave()">Add ${sel.length} item${sel.length===1?"":"s"} to my stock</button>`}
+function rcMatch(i,v){const it=rcDraft.items[i];const f=foodByName(v);if(f){it.id=f.id;it.new=false;if(f.of){it.id=f.id;it.matched=false}}else if(v.trim()){it.id=null;it.new=true;it.name=v.replace(/ \(new\)$/,"").trim()}}
+function rcSave(){const d=rcDraft;let n=0,created=0,newProd=0;const shop=(d.shop||"").trim()||shopsList()[0];if(!shopsList().includes(shop))S.core.shops=[...new Set(shopsList().concat([shop]))];
+ d.items.filter(x=>x.on).forEach(it=>{let id=it.id;if(!id&&it.new){id="c"+uidGen();S.core.customFoods.push({id,name:it.name,kcal:it.per.kcal,p:it.per.p,c:it.per.c,f:it.per.f,fib:it.per.fib,price:0,aisle:"Épicerie",pw:0,est:true});created++}
+  if(!id)return;const base=food(id).of||id;let vid=null;
+  if(it.receipt&&it.matched!==false&&base===id){const key=norm(it.receipt).replace(/\s+/g," ").trim();let v=S.core.customFoods.find(f=>f.of===base&&(f.rkey===key||(it.name&&norm(f.name)===norm(it.name))));
+   if(!v){const pf=food(base);const has=it.per&&it.per.kcal>0;newProd++;v={id:"v"+uidGen(),of:base,rkey:key,name:`${(it.name&&norm(it.name)!==norm(pf.name)?it.name:it.receipt).replace(/[()]/g,"")}`,kcal:has?it.per.kcal:pf.kcal,p:has?it.per.p:pf.p,c:has?it.per.c:pf.c,f:has?it.per.f:pf.f,fib:has?it.per.fib:fibOf(pf),price:0,aisle:pf.aisle,pw:pf.pw||0,est:!has};S.core.customFoods.push(v)}
+   vid=v.id;setActiveVar(base,vid)}
+  const g=it.grams||(food(id).pw||100)*(it.count||1);setStock(base,{qty:stockQty(base)+g});if(vid){const r=stockRec(base);r.byProd=r.byProd||{};r.byProd[vid]=(r.byProd[vid]||0)+g}S.core.foodShop=S.core.foodShop||{};const had=(S.core.shopPrices||{})[shopOf(id)]&&(S.core.shopPrices||{})[shopOf(id)][id]!=null;
+  if(it.price&&it.grams>0){const pk=Math.round(it.price/(it.grams/1000)*100)/100;setPrice(base,pk,shop);if(vid)setPrice(vid,pk,shop)}if(!S.core.foodShop[id]||!had)S.core.foodShop[id]=shop;
+  if(groceryRows.some(r=>r.f.id===id)){S.core.bought=S.core.bought||{};S.core.bought[id]=(+S.core.bought[id]||0)+g}n++});
+ save("core");closeSheet();rcDraft=null;render();toast(`${n} item${n===1?"":"s"} added to your home stock${created?`, ${created} new ingredient${created>1?"s":""} created (estimated values: check them in My ingredients)`:""}${newProd?`, ${newProd} new brand/product${newProd>1?"s":""} saved under ${newProd>1?"their":"its"} ingredient`:""}. Prices per kg updated.`)}
+
+function myPriceIds(){const ids=new Set();const rank=id=>(Object.values(S.core.shopPrices||{}).some(m=>m[id]!=null)?0:1)+((S.core.stock||{})[id]?0:1);S.core.recipes.forEach(r=>r.items.concat(r.sides||[]).forEach(it=>ids.add(it.food)));Object.keys(S.core.stock||{}).forEach(i=>ids.add(i));Object.values(S.core.shopPrices||{}).forEach(m=>Object.keys(m).forEach(i=>ids.add(i)));Object.keys(S.core.foodShop||{}).forEach(i=>ids.add(i));S.core.customFoods.forEach(f=>ids.add(f.id));
+ return[...ids].filter(id=>food(id)).sort((a,b)=>rank(a)-rank(b)||food(a).name.localeCompare(food(b).name))}
+function priceRowsHTML(ids){if(!ids.length)return`<p class="muted">Ingredients from your recipes, stock and receipts appear here.</p>`;const sp=S.core.shopPrices||{};
+ return`<table class="fixed"><colgroup><col><col style="width:5.2rem"><col style="width:7.6rem"></colgroup>${ids.map(id=>{const f=food(id);const sh=shopOf(id);const others=Object.keys(sp).filter(k=>sp[k][id]!=null&&k!==sh);
+  return`<tr><td>${esc(f.name.split(" (")[0])}${others.length?`<br><span class="muted" style="font-size:.75rem">${others.map(k=>`${esc(k)} ${(+sp[k][id]).toFixed(2)} €`).join(" · ")}</span>`:""}</td><td><input type="text" inputmode="decimal" value="${(+priceOf(f)).toFixed(2)}" onchange="setPrice('${id}',this.value)" aria-label="Price per kg at ${esc(sh)}"></td><td><select onchange="setFoodShop('${id}',this.value);rePaintPrices()" aria-label="Shop">${shopsList().map(n=>`<option ${sh===n?"selected":""}>${esc(n)}${sp[n]&&sp[n][id]!=null?" · "+(+sp[n][id]).toFixed(2)+"€":""}</option>`).join("")}</select></td></tr>`}).join("")}</table><p class="muted" style="font-size:.75rem;margin:.4rem 0 0">€ per kg at the selected shop. Each shop keeps its own price; receipts update them automatically.</p>`}
+let allPQ="";
+function openAllPrices(){allPQ="";openSheet(`<div class="row" style="justify-content:space-between"><h3 style="margin:0">All ingredients · prices</h3><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeSheet();render()">×</button></div><input type="search" placeholder="Search…" oninput="allPQ=this.value;document.getElementById('allpl').innerHTML=priceRowsHTML(allFoods().filter(f=>!allPQ.trim()||searchMatch(f.name,allPQ)).map(f=>f.id))" style="margin:.6rem 0"><div id="allpl">${priceRowsHTML(allFoods().map(f=>f.id))}</div>`)}
+function rePaintPrices(){const a=document.getElementById("pricelist");if(a)a.innerHTML=priceRowsHTML(myPriceIds().slice(0,10));const b=document.getElementById("allpl");if(b)b.innerHTML=priceRowsHTML(allFoods().filter(f=>!allPQ.trim()||searchMatch(f.name,allPQ)).map(f=>f.id))}
 let groceryRows=[];
 function setForce(id,on){S.core.forceBuy=S.core.forceBuy||{};if(on)S.core.forceBuy[id]=true;else delete S.core.forceBuy[id];save("core");render()}
 function toggleBought(id,grams,on){S.core.bought=S.core.bought||{};const prev=+S.core.bought[id]||0;
@@ -1316,6 +1413,7 @@ function stockHTML(need){const st=S.core.stock||{};const rem=remainingNeed();con
   return`<div style="padding:.45rem 0;border-bottom:1px solid var(--line)"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:.92rem">${esc(food(id).name.split(" (")[0])}</b><span class="row" style="flex-wrap:nowrap"><span style="${low?"color:var(--warn);font-weight:700":""}">${fmtQ(id,q)}${rn?` <span class="muted" style="font-weight:400;font-size:.8rem">→ ${end<0?"short "+fmtQ(id,-end):fmtQ(id,end)}</span>`:""}</span><button class="ghost small" onclick="setStock('${id}',{qty:Math.max(0,stockQty('${id}')-${pk})});render()" aria-label="Remove a pack">−</button><button class="ghost small" onclick="setStock('${id}',{qty:stockQty('${id}')+${pk}});render()" aria-label="Add a pack">+${fmtQ(id,pk)}</button></span></div>
   <div class="track" style="margin:.3rem 0;position:relative;height:12px"><div class="fill" style="position:absolute;left:0;top:0;bottom:0;width:${Math.min(100,q/max*100)}%;background:${low?"var(--warn)":"var(--plum)"}"></div>${rn?`<div style="position:absolute;left:0;top:2px;bottom:2px;border-radius:999px;width:${Math.max(0,Math.min(100,end/max*100))}%;background:${endLow?"#F2A3A0":"color-mix(in srgb,var(--sage) 55%,white)"}"></div>`:""}</div>
   ${endLow?`<div style="font-size:.78rem;color:var(--warn)">${end<0?`Not enough for the meals still planned: buy at least ${fmtQ(id,-end+lowOf(id))}.`:"Will be almost empty by the end of the week."}</div>`:""}
+  ${st[id].byProd&&Object.keys(st[id].byProd).length?`<div class="muted" style="font-size:.75rem">${Object.entries(st[id].byProd).filter(([v,g])=>food(v)&&g>0).map(([v,g])=>`${esc(food(v).name.split(" (")[0])} ${fmtQ(id,g)}`).join(" · ")}</div>`:""}
   <details><summary style="font-size:.8rem">Adjust${n?` · this week's recipes need ${fmtQ(id,n)}`:""}</summary><div class="row" style="margin-top:.3rem"><div style="width:6.5rem"><label style="font-size:.75rem">At home (g)</label><input type="number" value="${r0(q)}" onchange="setStock('${id}',{qty:+this.value||0});render()"></div><div style="width:6.5rem"><label style="font-size:.75rem">Pack size (g)</label><input type="number" value="${r0(pk)}" onchange="setStock('${id}',{pack:+this.value||0});render()"></div><div style="width:6.5rem"><label style="font-size:.75rem">Alert below (g)</label><input type="number" value="${r0(lowOf(id))}" onchange="setStock('${id}',{low:this.value===''?'':+this.value});render()"></div><button class="x" onclick="delete S.core.stock['${id}'];save('core');render()" aria-label="Stop tracking">×</button></div></details></div>`}).join("")||`<p class="muted" style="margin:0">Nothing tracked yet. Tick items as bought, or add what you already have below.</p>`}
  <div class="row" style="margin-top:.7rem"><input id="stkf" list="stkl" class="grow" placeholder="Add something you have, e.g. Riz basmati"><input id="stkg" type="number" placeholder="g or pcs" style="width:6rem"><button class="small" onclick="addStockItem()">Add</button></div><datalist id="stkl">${opts}</datalist>
  <p class="muted" style="font-size:.78rem;margin:.4rem 0 0">For eggs and other pieces you can type the number of pieces.</p></div>`}
@@ -2169,11 +2267,27 @@ function libBody(){const q=norm(libQ).trim();const words=q.split(/\s+/).filter(B
  if(words.length){const own=ownExerciseNames();const hits=allExerciseNames().filter(n=>searchMatch(n+" "+muscleWords(n)+" "+(EQUIP.find(e=>e[0]===equipOf(n))||[0,""])[1],libQ)).sort((a,b)=>(norm(b).includes(norm(libQ).trim())-norm(a).includes(norm(libQ).trim()))||(own.has(b)-own.has(a))||a.localeCompare(b)).slice(0,80);return`<div class="box">${hits.map(libRow).join("")||'<p class="muted">No exercise found.</p>'}</div>`}
  return libGroups().map(([k,l,list])=>`<details class="box" ontoggle="if(this.open&&!this.dataset.f){this.querySelector('.lb').innerHTML=libList('${k}');this.dataset.f=1}"><summary>${esc(l)} <span class="muted" style="font-weight:400">(${list.length})</span></summary><div class="lb"></div></details>`).join("")}
 function libList(k){const g=libGroups().find(x=>x[0]===k);if(!g)return"";const own=ownExerciseNames();return g[2].slice().sort((a,b)=>(own.has(b)-own.has(a))||a.localeCompare(b)).map(libRow).join("")}
-let trainView="plan",progKind="week",progOff=0,progEx=null;
+let trainView="plan",progKind="week",progRange="3m",progMetric="vol",progOff=0,progEx=null;
+
+function rangeFrom(r){if(r==="all"){const ds=(S.core.sessions||[]).map(x=>x.date).sort();return ds[0]||today()}const d=new Date(today()+"T12:00");d.setMonth(d.getMonth()-({"3m":3,"6m":6,"1y":12}[r]||3));return d.toLocaleDateString("sv-SE")}
+function progOverviewHTML(){const from=mondayOf(rangeFrom(progRange));const weeks=[];let d=new Date(from+"T12:00");const end=mondayOf(today());
+ while(d.toLocaleDateString("sv-SE")<=end){weeks.push(d.toLocaleDateString("sv-SE"));d.setDate(d.getDate()+7)}
+ const wEnd=m=>{const x=new Date(m+"T12:00");x.setDate(x.getDate()+6);return x.toLocaleDateString("sv-SE")};
+ const val=m=>{const e=wEnd(m);const ss=(S.core.sessions||[]).filter(x=>x.date>=m&&x.date<=e);
+  if(progMetric==="wk")return ss.filter(x=>x.day!=="CARDIO").length;if(progMetric==="dur")return ss.reduce((a,x)=>a+(+x.dur||0),0);
+  let v=0;for(const [n,h] of Object.entries(S.core.lifts||{})){if(isCardio({name:n}))continue;h.forEach(x=>{if(x.date>=m&&x.date<=e)v+=sessionStats(n,x).volume||0})}return v};
+ const pts=weeks.map(m=>({date:m,v:val(m)}));const cur=pts.length?pts[pts.length-1].v:0;const avg=pts.length?pts.reduce((a,p)=>a+p.v,0)/pts.length:0;
+ const fmtV=v=>progMetric==="dur"?(v>=60?Math.floor(v/60)+" h "+String(Math.round(v%60)).padStart(2,"0"):r0(v)+" min"):progMetric==="wk"?r1(v)+"":r0(v).toLocaleString()+" kg";
+ const unit=progMetric==="dur"?"min":progMetric==="wk"?"":"kg";
+ return`<div class="box"><div class="seg" style="margin-bottom:.6rem">${[["3m","3M"],["6m","6M"],["1y","Year"],["all","All"]].map(([k,l])=>`<button class="${progRange===k?"on":""}" onclick="progRange='${k}';render()">${l}</button>`).join("")}</div>
+ <div class="muted" style="font-size:.85rem">This week</div><div class="left-num" style="font-size:2rem">${fmtV(cur)}${progMetric==="wk"?` <span style="font-size:1rem;font-weight:600">workout${cur===1?"":"s"}</span>`:""}</div>
+ <div class="muted" style="font-size:.8rem;margin-bottom:.3rem">Weekly average over this period: ${fmtV(avg)}${progMetric==="wk"?" workouts":""}</div>
+ ${lineChart(pts,unit,progMetric==="vol")}
+ <div class="chips" style="margin-top:.6rem">${[["dur","⏱ Duration"],["vol","📊 Volume"],["wk","📈 Workouts"]].map(([k,l])=>`<button class="chip ${progMetric===k?"on":""}" onclick="progMetric='${k}';render()">${l}</button>`).join("")}</div></div>`}
 function vProgress(){
  const pr=periodRange(progKind,progOff);const M=muscleTotals(pr.from,pr.to);
  const nav=`<div class="row" style="justify-content:space-between;margin:.2rem 0 .6rem"><button class="ghost small" aria-label="Previous" onclick="progOff++;render()">‹</button><b>${pr.label}</b><button class="ghost small" aria-label="Next" ${progOff===0?"disabled style='opacity:.4'":""} onclick="progOff=Math.max(0,progOff-1);render()">›</button></div>`;
- let h=`<div class="chips" style="margin-bottom:.6rem">${[["week","This week"],["month","Month"]].map(([k,l])=>`<button class="chip ${progKind===k?"on":""}" onclick="progKind='${k}';progOff=0;render()">${l}</button>`).join("")}</div>`+nav;
+ let h=progOverviewHTML()+`<h2>Muscles</h2><div class="chips" style="margin-bottom:.6rem">${[["week","This week"],["month","Month"]].map(([k,l])=>`<button class="chip ${progKind===k?"on":""}" onclick="progKind='${k}';progOff=0;render()">${l}</button>`).join("")}</div>`+nav;
  if(progKind==="week"){const m=new Date(pr.from+"T12:00");h+=`<div class="box"><div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:.85rem">${DAYS.map((d,i)=>{const x=new Date(m);x.setDate(x.getDate()+i);const on=M.days.has(x.toLocaleDateString("sv-SE"));return`<div><div class="muted">${d}</div><div style="width:10px;height:10px;border-radius:50%;margin:.3rem auto 0;background:${on?"var(--apricot)":"var(--line)"}"></div></div>`}).join("")}</div></div>`}
  h+=`<div class="box"><h3>Muscles trained</h3>${bodySVG(M.d)}
  <div class="row" style="justify-content:center;gap:.8rem;margin-top:.5rem;font-size:.8rem">${[["0",0],["1–5",1],["6–10",2],["11–15",3],["16+",4]].map(([l,i])=>`<span class="row" style="gap:.25rem"><span style="width:12px;height:12px;border-radius:3px;background:${HEAT[i]};display:inline-block"></span>${l}</span>`).join("")}</div>
@@ -2184,9 +2298,9 @@ function vProgress(){
  const names=Object.keys(S.core.lifts||{}).filter(n=>(S.core.lifts[n]||[]).length).sort((a,b)=>{const la=S.core.lifts[a].slice(-1)[0].date,lb=S.core.lifts[b].slice(-1)[0].date;return lb.localeCompare(la)});
  h+=`<h2>Exercises</h2>`;
  if(!names.length)return h+`<div class="box muted">Save a workout in Plan & log and each exercise gets its own progress curves here.</div>`;
- if(progEx&&names.includes(progEx)){const hist=S.core.lifts[progEx];const st=hist.map(x=>({date:x.date,...sessionStats(progEx,x)}));const last=st[st.length-1];
+ if(progEx&&names.includes(progEx)){const fromR=rangeFrom(progRange);let hist=S.core.lifts[progEx].filter(x=>x.date>=fromR);if(!hist.length)hist=S.core.lifts[progEx].slice(-1);const st=hist.map(x=>({date:x.date,...sessionStats(progEx,x)}));const last=st[st.length-1];
   const card=(title,val,unit,pts,bars)=>`<div class="box"><div class="muted">${title}</div><div class="left-num" style="font-size:2.2rem">${val}<span style="font-size:1rem;font-weight:600"> ${unit}</span></div>${lineChart(pts,unit,bars)}</div>`;
-  h+=`<button class="ghost small" onclick="progEx=null;render()">‹ All exercises</button><h3 style="margin:.8rem 0">${esc(progEx)}</h3>`;
+  h+=`<button class="ghost small" onclick="progEx=null;render()">‹ All exercises</button><h3 style="margin:.8rem 0">${esc(progEx)}</h3><div class="seg" style="margin-bottom:.6rem">${[["3m","3M"],["6m","6M"],["1y","Year"],["all","All"]].map(([k,l])=>`<button class="${progRange===k?"on":""}" onclick="progRange='${k}';render()">${l}</button>`).join("")}</div>`;
   if(last.time){h+=card("Longest hold",r0(last.best),"s",st.map(x=>({date:x.date,v:x.best})))+card("Total time (all sets)",r0(last.total),"s",st.map(x=>({date:x.date,v:x.total})),true)}
   else if(last.repsOnly){h+=card("Best set reps",r0(last.reps),"reps",st.map(x=>({date:x.date,v:x.reps})))+card("Total reps (all sets)",r0(last.total),"reps",st.map(x=>({date:x.date,v:x.total})),true)}
   else if(last.cardio){h+=card("Distance",r1(last.km),"km",st.map(x=>({date:x.date,v:x.km})))+card("Time",r0(last.min),"min",st.map(x=>({date:x.date,v:x.min})))+card("Average speed",r1(last.speed),"km/h",st.map(x=>({date:x.date,v:x.speed})))}
@@ -2381,7 +2495,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.34 beta";
+const APP_VERSION="0.40 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

@@ -2,6 +2,29 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.40 beta
+- **Progress over time** (Train › Progress): 3M / 6M / Year / All with weekly **Duration**, **Volume** and **Workouts** charts, this week's value and the weekly average; each exercise's charts follow the same period.
+- Prices and My ingredients now show 10 items before **See all**.
+
+## 0.39 beta
+- **Brands and products:** buying the same ingredient in another brand (e.g. two skyrs) creates a separate **product** under that ingredient, with its own name, macros and price per shop. Your recipes use the product you bought last (marked "✓ used" in My ingredients, changeable any time); home stock shows how much of each product you have; scanned barcodes are linked to their ingredient the same way. Logs keep the values of the moment, so past days don't change.
+
+## 0.38 beta
+- Prices and My ingredients show at most 20 items (bought / at home first), with **See all** pop-ups that have their own search.
+- Layout fix: input boxes no longer overlap on small screens (forms, price table, ingredient list).
+
+## 0.37 beta
+- **Prices per shop:** each shop keeps its own price per kg for each ingredient (e.g. chicken at Intermarché and at your butcher); the grocery list uses the price of the shop you buy it from. Receipts save prices for their shop and add the shop if it's new.
+- **Prices list is shorter:** only the ingredients you use (recipes, stock, receipts, your own), with the other shops' prices shown underneath; **See all** opens every ingredient with a search bar.
+
+## 0.36 beta
+- **🧾 Add a receipt** (Groceries): pick a PDF receipt (e.g. Intermarché e-receipt) or a photo of any receipt (butcher, African shop…). The app lists every item with its weight and price, matched to your ingredients; you check the matches, and the ticked items go into your **home stock**, update the **price per kg** and the **shop**, and are ticked on this week's grocery list. Photos need Claude (claude.ai or your API key); PDF receipts also work offline with a simpler reader.
+
+## 0.35 beta
+- **Scan or search products in Kitchen:** "📷 Add from a supermarket product / barcode" in Kitchen › My recipes adds the product to your ingredients, and to the recipe you're editing (with its serving size). Works in the GitHub app (the claude.ai preview can't reach Open Food Facts).
+- **New ingredients are created from your recipes:** typing an ingredient that doesn't exist yet no longer blocks saving: the app creates it (values estimated by Claude / your API key, or typed from the packet without AI) and marks it "estimated".
+- **My ingredients** now lists every ingredient you added, imported or used in a recipe, with its values per 100 g, how many recipes use it, a search bar and **Edit** for your own ingredients.
+
 ## 0.34 beta
 - **Meal prep schedule:** new default **Sunday → Sunday–Wednesday, Thursday → Thursday–Saturday** (fresher food: 3 days max in the fridge). The old Sunday + Wednesday split is still available as a choice. "Plan my week" follows the chosen schedule.
 
