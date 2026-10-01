@@ -2,6 +2,29 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.31 beta: exercise library + workout history import
+- **124 new exercises:** every exercise from the imported history (Lever machines, Sled 45°, Smith, cable variants…), more machines with their free versions (e.g. Lever Standing Calf Raise / Calf Raise), and cable attachments and grips: Cable Seated Row (V-bar, wide bar, rope, single handle, underhand, MAG), Lat Pulldown (wide, normal, close V-bar, underhand, neutral wide, one arm, rope), Straight-Arm Pulldown, Triceps Pushdown and Cable Biceps Curl variants. Each one has its own muscles.
+- **Import workout history** (⚙︎ Settings): add past workouts from a CSV export (Lyfta, Hevy, Strong…). Workouts are added to your data, never replaced; importing the same file again skips what's already there. Set types (warm-up, drop, left/right, negative, partial), timed holds and cardio are kept; kg or lb is asked. Imported workouts appear in the Calendar (grey "H") with their original title, and in your progress charts.
+
+## 0.30 beta: report #2, part 2
+- **Move workouts in your week:** long-press a day in the Plan & log week table and drag it onto another day (or release to get a "Move to…" menu). Two workouts switch places; a workout dropped on a rest day moves there. Each change asks: *this week only* or *every week*.
+- **Rest rules:** max 2 workouts in a row for a plan of 4 days or fewer, max 3 for 5–6 days, never 7 days. If a move or an addition breaks the rule, the workout goes to the next day that respects it, and the app tells you where.
+- **Routines not in your week** (e.g. created from the Library) are listed under the table: tap one to add it to a day. Adding to a rest day turns an x-day plan into x+1 days; adding onto a workout day replaces it.
+- **Shopping mode** in Groceries: a big tickable list by shop and aisle, works offline in the store; ticked items go into your home stock. "Share list" still sends the text version.
+
+## 0.29 beta: report #2, part 1
+- **New profiles:** male body figure until the profile is set; My recipes starts empty (breakfasts and snacks are in Discover); the phase pill shows **＋ Set up** until the setup is done.
+- **Calendar** is now its own tab (6 tabs): tap a day for the workout done, planned, missed or rest, the cardio, the meals logged with their totals, supplements and habits.
+- **Cardio add-ons:** add a 25-min cardio session to any day from the week table (this week only or every week); it doesn't count as a workout day. Today shows it in the afternoon with ▶ Start.
+- **Save as…** on a logged meal: save it as a quick meal or as a **recipe** in My recipes (AI estimates become ingredients).
+- **✨ Estimate from a description** in the new-recipe form (Claude, your API key or the offline estimator).
+- **Planner:** "＋ Add recipes…" option, and buttons to Discover or log a recipe when you have none.
+- **Library:** ＋ New exercise button next to the search; the selection bar stays pinned at the top.
+- **Timers:** a beep on each of the last 3 seconds of rest and countdown, louder sounds, and a message when you come back to the app after the rest ended.
+- **Live workout:** totals update as you type; the rest timer no longer hides "Add an exercise".
+- **Decimals** everywhere, and commas are accepted (62,5).
+- "Saved on this device" no longer shown on every page.
+
 ## 0.28 beta: report #1, part 2
 - **Planned meals ↔ log:** in Today, choose 📋 *Planned meal* (one tap logs today's breakfast/lunch/dinner/snack from your planner, marked ✓), ✎ *Modify planned* (edit the portion's ingredients, or describe the change and let Claude / the offline estimator apply it) or ＋ *Another meal* (the usual form).
 - **Home stock:** what you have at home, with a gauge per ingredient. Logging meals uses it up; ticking items as bought adds the real pack (1 kg rice, 6 eggs…). It carries over from week to week. Pack sizes and alert levels are editable.
