@@ -1616,6 +1616,8 @@ function parseCSV(t){const rows=[];let row=[],f="",q=false;for(let i=0;i<t.lengt
 const SET_MAP={normal_set:"",normal:"",warmup_set:"W",warmup:"W",drop_set:"D",dropset:"D",failure_set:"F",failure:"F",left_set:"L",right_set:"R",negative_reps_set:"N",partial_reps_set:"P"};
 const mmss=v=>{if(!v||v==="null")return 0;if(/^\d+(\.\d+)?$/.test(v))return+v;const p=v.split(":").map(Number);return p.length===3?p[0]*3600+p[1]*60+p[2]:p.length===2?p[0]*60+p[1]:0};
 const hashStr=t=>{let h=0;for(const c of t)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h).toString(36)};
+async function removeImported(){const n=(S.core.sessions||[]).filter(x=>x.imported).length;if(!n||!await ask(`Remove the ${n} imported workouts? Workouts you logged in this app are kept.`))return;
+ S.core.sessions=S.core.sessions.filter(x=>!x.imported);for(const k of Object.keys(S.core.lifts||{})){S.core.lifts[k]=S.core.lifts[k].filter(e=>!String(e.sid||"").startsWith("imp"));if(!S.core.lifts[k].length)delete S.core.lifts[k]}save("core");render();toast(`${n} imported workouts removed. You can import the corrected file now.`)}
 async function importWorkoutCSV(inp){const file=inp.files[0];if(!file)return;const text=await file.text();inp.value="";const rows=parseCSV(text.replace(/^\ufeff/,""));if(rows.length<2){toast("This file looks empty.");return}
  const hd=rows[0].map(x=>norm(x).trim());const col=(...names)=>hd.findIndex(h=>names.includes(h));
  const cT=col("title","workout name"),cD=col("date","start_time"),cE=col("exercise","exercise name","exercise_title"),cDur=col("duration"),cW=col("weight","weight_kg","weight (kg)"),cR=col("reps"),cDi=col("distance","distance_km"),cTi=col("time","seconds","duration_seconds"),cS=col("set type","set_type");
@@ -2388,7 +2390,7 @@ function vSettings(){const m=prefs().theme||"system",pal=prefs().palette||"plum"
  h+=profileBoxHTML();
  h+=`<h2>AI meal estimates</h2><div class="box" id="aikeybox">${aiKeyBoxHTML()}</div>`;
  h+=`<h2>Import workout history</h2><div class="box"><p class="muted" style="margin:0 0 .6rem;font-size:.88rem">Add past workouts from another app (CSV export from Lyfta, Hevy, Strong…). They're <b>added</b> to what you already have: nothing is replaced, and importing the same file twice skips what's already there.</p>
- <label class="ghost small" style="margin:0;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:.4rem .8rem;color:var(--plum);font-weight:600;cursor:pointer">Choose a CSV file<input type="file" accept=".csv,text/csv" onchange="importWorkoutCSV(this)" style="display:none"></label></div>`;
+ <div class="row"><label class="ghost small" style="margin:0;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:.4rem .8rem;color:var(--plum);font-weight:600;cursor:pointer">Choose a CSV file<input type="file" accept=".csv,text/csv" onchange="importWorkoutCSV(this)" style="display:none"></label>${(S.core.sessions||[]).some(x=>x.imported)?`<button class="ghost small" onclick="removeImported()">Remove imported workouts (${(S.core.sessions||[]).filter(x=>x.imported).length})</button>`:""}</div></div>`;
  h+=setupBackupHTML();
  h+=`<p class="muted" style="text-align:center;margin:1.5rem 0 0;font-size:.8rem">Body & Kitchen · version ${APP_VERSION}</p>`;
  return h}
