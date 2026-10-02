@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.49 beta
+- **Edit a logged entry:** tap any food in Today's log to change its name, meal, time, amount or portions (with or without sides), its **ingredients** (change grams, remove, add), or the macros of a quick add / Crous meal; Delete is there too. Home stock is corrected automatically.
+
 ## 0.48 beta
 - "Eaten at" time is also available when logging or modifying a **planned meal**.
 

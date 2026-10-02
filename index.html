@@ -736,7 +736,7 @@ function vToday(){
  if(L.food.length){const groups=MEALS.concat([["o","Other"]]).map(([k,l])=>[k,l,L.food.map((x,i)=>[x,i]).filter(([x])=>(x.meal||"o")===k)]).filter(g=>g[2].length);
   h+=groups.map(([k,l,items])=>{const kc=items.reduce((a,[x])=>a+(x.kcal||0),0),pp=items.reduce((a,[x])=>a+(x.p||0),0);
    const hk=(S.core.prefs||{}).hideKcal;return`<div class="box scroll"><div class="row" style="justify-content:space-between;margin-bottom:.3rem"><h3 style="margin:0">${l} <span class="muted" style="font-weight:500;font-size:.9rem">${hk?"":r0(kc)+" kcal · "}${r0(pp)} g protein</span></h3>${k!=="o"?`<button class="ghost small" onclick="saveMeal('${k}')">Save as…</button>`:""}</div>
-   <table><tr><th>Food</th><th class="n">kcal</th><th class="n">P</th><th class="n">C</th><th class="n">F</th><th></th></tr>${items.map(([x,i])=>`<tr><td>${esc(x.label)}${x.at?` <span class="muted" style="font-size:.78rem">· ${esc(x.at)}</span>`:""}</td><td class="n">${r0(x.kcal)}</td><td class="n">${r0(x.p)}</td><td class="n">${r0(x.c)}</td><td class="n">${r0(x.f)}</td><td style="white-space:nowrap">${x.spec?`<button class="x" aria-label="Favourite" title="Favourite" onclick="toggleFav(${i})" style="color:${(S.core.favs||[]).some(f=>specKey(f)===specKey(x.spec))?"var(--apricot)":"var(--muted)"}">★</button>`:""}<button class="x" aria-label="Remove" onclick="rmLog(${i})">×</button></td></tr>`).join("")}</table></div>`}).join("")}
+   <table><tr><th>Food</th><th class="n">kcal</th><th class="n">P</th><th class="n">C</th><th class="n">F</th><th></th></tr>${items.map(([x,i])=>`<tr><td><button style="all:unset;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px" onclick="editLog(${i})" aria-label="Edit this entry">${esc(x.label)}</button>${x.at?` <span class="muted" style="font-size:.78rem">· ${esc(x.at)}</span>`:""}</td><td class="n">${r0(x.kcal)}</td><td class="n">${r0(x.p)}</td><td class="n">${r0(x.c)}</td><td class="n">${r0(x.f)}</td><td style="white-space:nowrap">${x.spec?`<button class="x" aria-label="Favourite" title="Favourite" onclick="toggleFav(${i})" style="color:${(S.core.favs||[]).some(f=>specKey(f)===specKey(x.spec))?"var(--apricot)":"var(--muted)"}">★</button>`:""}<button class="x" aria-label="Remove" onclick="rmLog(${i})">×</button></td></tr>`).join("")}</table></div>`}).join("")}
  const water=L.water||0;
  if(S.core.phase.name==="gain")h+=`<div class="note"><b>Weight gain tips:</b> eat every 3–4 hours, add a snack or a milk-based shake, and use calorie-dense extras (olive oil, peanut butter, nuts, cheese). Drinking calories is easier than eating more on a small appetite.</div>`;
  if(period!=="morning")h+=suppToday();
@@ -1142,6 +1142,34 @@ function logModified(){const d=modDraft;if(!d)return;const t=modTotals();const u
  const L=dayLog(logDate);L.food.push({label:`${d.name.replace(/^(Breakfast|Snack) · /,"")} (modified)`,...t,veg:d.items.reduce((a,it)=>a+(it.food&&isProduce(food(it.food))?it.g:0),0),meal:d.k,slot:d.k,at:mealAt||(logDate===today()?nowHM():""),used});
  stockUse(used,1);L.slotsDone=Object.assign(L.slotsDone||{},{[d.k]:true});modDraft=null;commitLog()}
 
+
+/* ---------- edit a logged entry ---------- */
+let ed=null;
+function entryItems(e){if(e.ing)return e.ing.map(x=>({...x}));if(e.spec&&e.spec.type==="recipe"){const r=S.core.recipes.find(x=>x.id===e.spec.ref);if(r)return Object.entries(recipeUse(r,e.spec.qty,e.spec.sides&&hasSides(r))).map(([food,g])=>({food,g:r1(g)}))}
+ if(e.spec&&e.spec.type==="food")return[{food:e.spec.ref,g:+e.spec.qty}];if(e.used)return Object.entries(e.used).map(([food,g])=>({food,g:r1(g)}));return null}
+function editLog(i){const e=dayLog(logDate).food[i];if(!e)return;ed={i,name:e.label,meal:e.meal||mealNow(),at:e.at||"",items:entryItems(e),ingOpen:!!e.ing,qty:e.spec?e.spec.qty:null,sides:e.spec?!!e.spec.sides:false,type:e.spec?e.spec.type:null,m:{kcal:e.kcal,p:e.p,c:e.c,f:e.f,fib:e.fib||0}};openSheet(edHTML())}
+function edTotals(){const t={kcal:0,p:0,c:0,f:0,fib:0};(ed.items||[]).forEach(it=>{const f=food(it.food);if(!f)return;const m=macrosFood(f,+it.g||0);for(const k in t)t[k]+=m[k]||0});return t}
+function edHTML(){const opts=allFoods().map(f=>`<option value="${esc(f.name)}">`).join("");const hk=(S.core.prefs||{}).hideKcal;
+ let h=`<div class="row" style="justify-content:space-between"><h3 style="margin:0">Edit entry</h3><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeSheet()">×</button></div>
+ <label style="margin-top:.5rem">Name</label><input id="ed-name" value="${esc(ed.name)}">
+ <div class="row" style="margin-top:.5rem;align-items:flex-end"><div class="grow"><label>Meal</label><select id="ed-meal">${MEALS.map(([k,l])=>`<option value="${k}" ${ed.meal===k?"selected":""}>${l}</option>`).join("")}</select></div><div style="width:7rem"><label>Eaten at</label><input id="ed-at" type="time" value="${esc(ed.at)}"></div></div>`;
+ if(!ed.ingOpen&&ed.type==="food")h+=`<label style="margin-top:.5rem">Amount (g)</label><input id="ed-qty" type="text" inputmode="decimal" value="${esc(ed.qty)}">`;
+ if(!ed.ingOpen&&ed.type==="recipe")h+=`<div class="row" style="margin-top:.5rem;align-items:flex-end"><div style="width:7rem"><label>Portions</label><input id="ed-qty" type="text" inputmode="decimal" value="${esc(ed.qty)}"></div><label class="check" style="margin:0;color:inherit"><input type="checkbox" id="ed-sides" ${ed.sides?"checked":""}>with sides</label></div>`;
+ if(ed.items){if(!ed.ingOpen)h+=`<button class="ghost small" style="margin-top:.6rem" onclick="edSync();ed.ingOpen=true;openSheet(edHTML())">Edit ingredients</button>`;
+  else{const t=edTotals();h+=`<label style="margin-top:.6rem">Ingredients</label>${ed.items.map((it,j)=>`<div class="row" style="padding:.2rem 0;border-bottom:1px solid var(--line);flex-wrap:nowrap"><span class="grow" style="font-size:.88rem;min-width:0">${esc((food(it.food)||{name:"?"}).name.split(" (")[0])}</span><input type="text" inputmode="decimal" style="width:4.6rem" value="${r0(it.g)}" onchange="ed.items[${j}].g=+this.value.replace(',','.')||0;edSync();openSheet(edHTML())"><span class="muted">g</span><button class="x" aria-label="Remove" onclick="edSync();ed.items.splice(${j},1);openSheet(edHTML())">×</button></div>`).join("")}
+   <div class="row" style="margin-top:.4rem"><input id="ed-add" list="edfl" class="grow" placeholder="Add an ingredient"><input id="ed-addg" type="text" inputmode="decimal" placeholder="g" style="width:4.6rem"><button class="small ghost" onclick="edAddItem()">Add</button></div><datalist id="edfl">${opts}</datalist>
+   <p style="margin:.5rem 0 0"><b>${hk?"":r0(t.kcal)+" kcal · "}P ${r0(t.p)} · C ${r0(t.c)} · F ${r0(t.f)}</b></p>`}}
+ else{const f=(k,l)=>`<div><label style="font-size:.8rem">${l}</label><input id="ed-${k}" type="text" inputmode="decimal" value="${r1(ed.m[k]||0)}"></div>`;h+=`<div class="grid3" style="margin-top:.5rem">${f("kcal","kcal")}${f("p","Protein g")}${f("c","Carbs g")}${f("f","Fat g")}${f("fib","Fibre g")}</div>`}
+ return h+`<div class="row" style="margin-top:.9rem"><button class="ghost small" style="color:var(--warn)" onclick="closeSheet();rmLog(${ed.i})">Delete</button><span class="grow"></span><button class="ghost small" onclick="closeSheet()">Cancel</button><button onclick="edSave()">Save</button></div>`}
+function edSync(){const v=id=>{const el=document.getElementById(id);return el?el.value:null};if(v("ed-name")!=null)ed.name=v("ed-name");if(v("ed-meal"))ed.meal=v("ed-meal");if(v("ed-at")!=null)ed.at=v("ed-at");
+ if(v("ed-qty")!=null)ed.qty=+String(v("ed-qty")).replace(",",".")||ed.qty;const sd=document.getElementById("ed-sides");if(sd)ed.sides=sd.checked}
+function edAddItem(){edSync();const f=foodByName((document.getElementById("ed-add")||{}).value);const g=+String((document.getElementById("ed-addg")||{}).value||"").replace(",",".");if(!f||!g){toast("Pick an ingredient and the grams.");return}ed.items.push({food:f.id,g});openSheet(edHTML())}
+function edSave(){edSync();const L=dayLog(logDate);const e=L.food[ed.i];if(!e)return;const oldUsed=e.used;
+ if(ed.ingOpen&&ed.items){const t=edTotals();Object.assign(e,t);e.ing=ed.items.filter(x=>x.food&&x.g>0);const u={};e.ing.forEach(x=>u[x.food]=(u[x.food]||0)+ +x.g);e.used=u;e.veg=e.ing.reduce((a,x)=>a+(isProduce(food(x.food))?+x.g:0),0);delete e.spec}
+ else if(e.spec&&ed.type){const sp={...e.spec,qty:+ed.qty||e.spec.qty};if(sp.type==="recipe")sp.sides=ed.sides;const tmpLen=L.food.length;const ok=addEntry(sp,ed.meal);if(ok){const ne=L.food.pop();stockUse(ne.used,-1);["kcal","p","c","f","fib","veg","used","spec"].forEach(k=>e[k]=ne[k]);if((ed.name||"").trim()===e.label)ed.name=ne.label}}
+ else if(!ed.items){const v=k=>+String((document.getElementById("ed-"+k)||{}).value||0).replace(",",".")||0;e.kcal=v("kcal");e.p=v("p");e.c=v("c");e.f=v("f");e.fib=v("fib")}
+ if(oldUsed!==e.used){stockUse(oldUsed,-1);stockUse(e.used,1)}
+ e.label=(ed.name||"").trim()||e.label;e.meal=ed.meal;e.at=ed.at||"";ed=null;closeSheet();commitLog()}
 /* ---------- quick add (macros only) ---------- */
 let qaOpen=false;
 function qaHTML(){const f=(id,l,ph)=>`<div><label style="font-size:.8rem">${l}</label><input id="qa-${id}" type="text" inputmode="decimal" placeholder="${ph}"></div>`;
@@ -2678,7 +2706,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.48 beta";
+const APP_VERSION="0.49 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
