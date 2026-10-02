@@ -1556,16 +1556,20 @@ function vTrain(){
  if(trainView==="lib")return tabsT+vLibrary();
  if(trainView==="preview")return vPreview();
  if(trainView==="live"&&A())return vLive();
- const sch=schedule();const idx=(new Date().getDay()+6)%7;gymDay=gymDay||(sch[idx]!=="rest"?sch[idx]:"A");
+ const sch=schedule();const idx=(new Date().getDay()+6)%7;gymDay=gymDay&&S.core.workout[gymDay]?gymDay:(sch[idx]!=="rest"&&S.core.workout[sch[idx]]?sch[idx]:(sch.find(x=>x!=="rest"&&S.core.workout[x])||Object.keys(S.core.workout)[0]));
  const ph=S.core.phase.name;const T=targets();
  const progBanner=S.core.setup&&S.core.programFor!==progKey()?`<div class="note good" style="margin-top:0"><b>Your personalised program is ready</b>, built from your setup answers. <button class="small" style="margin-left:.3rem" onclick="trainView='preview';render();window.scrollTo(0,0)">Preview</button></div>`:"";
  let h=tabsT+progBanner+`<div class="box"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${S.core.schedule?"Your week":"Days per week"}</h3>${S.core.schedule?`<button class="ghost small" onclick="trainView='preview';render();window.scrollTo(0,0)">Program</button>`:`<div class="chips">${[4,5].map(n=>`<button class="chip ${S.core.days===n?"on":""}" onclick="S.core.days=${n};save('core');render()">${n}</button>`).join("")}</div>`}</div>
  <div class="scroll" style="margin-top:.7rem"><table><tr>${DAYS.map((d,i)=>`<th style="${i===idx?"color:var(--plum)":""}">${d}</th>`).join("")}</tr><tr>${sch.map((s,i)=>{const d=weekDate(i);const done=(S.core.sessions||[]).filter(x=>x.date===d&&x.day!=="CARDIO");return`<td data-wd="${i}" class="wcell" onpointerdown="wdDown(event,${i})">${done.length?`<span class="dd" style="background:${DAYCOL[done[0].day]||"var(--plum)"}" title="Done: day ${done.map(x=>x.day).join(", ")}">${done[0].day}✓</span>`:s==="rest"?`<span class="muted">Rest</span>`:`<b>${s}</b>`}</td>`}).join("")}</tr><tr>${DAYS.map((d,i)=>{const c=cardioFor(i);const did=(S.core.sessions||[]).some(x=>x.date===weekDate(i)&&x.day==="CARDIO");return`<td><button class="x" style="font-size:.78rem;padding:.1rem .2rem;color:${c?"#2BA3A3":"var(--muted)"}" onclick="cardioCell(${i})" aria-label="Cardio on ${d}">${c?`🏃${c.mins}${did?"✓":""}`:"＋🏃"}</button></td>`}).join("")}</tr></table></div>${weekExtrasHTML(sch)}
  <p class="muted" style="margin:.6rem 0 0">${ph==="cut"?"Fat loss: same heavy weights, sets as written, plus daily steps. Cardio: 2 × 20–30 min incline walk if progress stalls.":ph==="build"?"Build & define: +1 set on every glute exercise (orange). With 5 days, day E is a glute pump day.":"Maintain: one set fewer everywhere, same weights. Can drop to 3 days (A, B, C) and keep your results."} ${T?`Steps goal: ${T.steps.toLocaleString()} a day.`:""} Keep at least 2 rest days, never two lower-body days back to back.</p></div>`;
  const dl=deloadInfo();if(dl)h+=`<div class="note ${dl.due?"warn":""}">${dl.text}${dl.due?` <button class="small" style="margin-left:.4rem" onclick="S.core.lastDeload=today();save('core');render()">Deload done</button>`:""}</div>`;
- h+=`<div class="chips" style="margin:1rem 0">${Object.keys(S.core.workout).map(k=>`<button class="chip ${gymDay===k?"on":""}" onclick="gymDay='${k}';render()">${k} · ${esc(S.core.workout[k].title)}</button>`).join("")}</div>`;
+ {const inWeek=Object.keys(S.core.workout).filter(k=>sch.includes(k)||k===gymDay&&!showAllW&&!sch.includes(k)&&false);const others=Object.keys(S.core.workout).filter(k=>!sch.includes(k));
+ const chip=k=>`<button class="chip ${gymDay===k?"on":""}" onclick="gymDay='${k}';render()"><span class="dd" style="background:${DAYCOL[k]||"var(--plum)"};margin-right:.25rem">${k}</span>${esc(S.core.workout[k].title)}</button>`;
+ h+=`<div class="row" style="justify-content:space-between;margin:1rem 0 .4rem"><b>This week's workouts</b><button class="small" onclick="addWorkout()">＋ Add workout</button></div>
+ <div class="chips" style="margin-bottom:.4rem">${sch.filter((x,i,a)=>x!=="rest"&&S.core.workout[x]&&a.indexOf(x)===i).map(chip).join("")||'<span class="muted">No workout planned this week.</span>'}</div>
+ ${others.length?`<button class="x" style="font-size:.85rem;color:var(--plum);margin-bottom:.4rem" onclick="showAllW=!showAllW;render()">${showAllW?"Hide":"Show"} other workouts (${others.length})</button>${showAllW||others.includes(gymDay)?`<div class="chips" style="margin-bottom:.6rem;opacity:.85">${others.map(chip).join("")}</div>`:""}`:""}`}
  const day=S.core.workout[gymDay];
- h+=`<div class="box"><h3>${gymDay} · ${esc(day.title)}</h3><p class="muted" style="margin:0 0 .5rem">Stop each set with 1–2 reps left in the tank. <span class="glute">Orange</span> = glute work. Tap a name for its muscles and how-to.${norm(S.core.profile.injuries).trim()?` Tips are adjusted for what you noted in Me.`:""}</p>
+ h+=`<div class="box"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h3 style="margin:0">${gymDay} · ${esc(day.title)}</h3><span class="row" style="flex-wrap:nowrap">${!sch.includes(gymDay)?`<button class="ghost small" onclick="addSheet('${gymDay}')">Add to week</button>`:""}<button class="x" style="font-size:.85rem;color:var(--plum)" onclick="renameWorkout('${gymDay}')">Rename</button></span></div><div style="height:.5rem"></div><p class="muted" style="margin:0 0 .5rem">Stop each set with 1–2 reps left in the tank. <span class="glute">Orange</span> = glute work. Tap a name for its muscles and how-to.${norm(S.core.profile.injuries).trim()?` Tips are adjusted for what you noted in Me.`:""}</p>
  ${A()?`<button style="width:100%;margin-bottom:.4rem" onclick="trainView='live';render();window.scrollTo(0,0)">▶ Resume workout ${esc(A().day)}</button>`:`<button style="width:100%;margin-bottom:.4rem" onclick="startWorkout('${gymDay}')">▶ Start workout ${gymDay}</button>`}
  ${day.ex.map((ex,i)=>{const n=setsFor(ex);const [rs]=restSuggest(ex.name,ex.reps);const rr=(S.core.rest||{})[ex.name]??rs;return`<div class="ex"><div class="row" style="justify-content:space-between"><div><button class="exname ${ex.glute?"glute":""}" onclick="showEx(${esc(JSON.stringify(ex.name))},false,${i})">${esc(ex.name)}</button> <span class="muted">${isCardio(ex)?esc(ex.reps)+" min":exMode(ex.name)==="t"?n+" × "+esc(ex.reps)+" s":n+" × "+esc(ex.reps)+(exMode(ex.name)==="r"?" reps":"")}${rr?` · rest ${fmtRest(rr)}`:""}</span></div><button class="x" aria-label="Remove exercise" onclick="rmEx(${i})">×</button></div>
  <div class="muted">${esc(suggestion(ex))}</div>${injuryTips(ex).map(t=>`<div class="note warn" style="margin:.35rem 0">${esc(t)}</div>`).join("")}</div>`}).join("")}
@@ -2321,6 +2325,12 @@ function progListHTML(){let names=Object.keys(S.core.lifts||{}).filter(n=>(S.cor
   const sub=last.time?`Best hold: ${r0(last.best)} s`:last.repsOnly?`Best set: ${r0(last.reps)} reps`:last.cardio?`Last: ${r1(last.km)} km`:`Est. 1RM: ${r1(last.e1rm)} kg`;
   return`<button onclick="progEx=${esc(JSON.stringify(n))};render()" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:.6rem;width:100%;padding:.65rem 0;border-bottom:1px solid var(--line)"><span><b>${esc(n)}</b><br><span class="muted">${sub}</span></span>${sparkMini(series)}</button>`}).join("")}</div>`}
 
+let showAllW=false;
+async function addWorkout(){const name=await askText("Name of the new workout","e.g. Glutes & core");if(!name||!name.trim())return;const used=Object.keys(S.core.workout);const L="ABCDEFGHIJKL".split("").find(x=>!used.includes(x));if(!L){toast("You already have 12 workouts. Delete one first.");return}
+ S.core.workout[L]={title:name.trim(),ex:[]};if(!DAYCOL[L])DAYCOL[L]=["#8E44AD","#16A085","#D35400","#2C3E50","#C0392B","#27AE60"][used.length%6];gymDay=L;save("core");render();
+ setTimeout(()=>{const el=document.getElementById("newex");if(el){el.scrollIntoView({block:"center"});el.focus()}},80);
+ toast(`Workout ${L} “${name.trim()}” created. Add its exercises with the search below (or from Train › Library), then use “Add to week” to put it on a day.`)}
+async function renameWorkout(k){const n=await askText("Rename this workout",S.core.workout[k].title);if(!n||!n.trim())return;S.core.workout[k].title=n.trim();save("core");render()}
 async function rmEx(i){if(!await ask("Remove this exercise from the plan?"))return;S.core.workout[gymDay].ex.splice(i,1);save("core");render()}
 let exQuery="",newEx=null;const DEF_REPS={w:"8-12",r:"10-15",t:"30-60",c:"20-30"};
 const MODES=[["w","Weight × reps"],["r","Reps only (bodyweight)"],["t","Timed hold (seconds)"],["c","Cardio (time + speed)"]];
@@ -2495,7 +2505,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.40 beta";
+const APP_VERSION="0.41 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

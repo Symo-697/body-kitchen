@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.41 beta
+- **＋ Add workout** in Train › Plan & log: name a new workout, add its exercises, then **Add to week** to put it on a day. Workouts can be renamed.
+- Plan & log now only shows **this week's workouts**; the others are under "Show other workouts".
+
 ## 0.40 beta
 - **Progress over time** (Train › Progress): 3M / 6M / Year / All with weekly **Duration**, **Volume** and **Workouts** charts, this week's value and the weekly average; each exercise's charts follow the same period.
 - Prices and My ingredients now show 10 items before **See all**.
