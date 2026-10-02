@@ -2,6 +2,93 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.55 beta
+- **Workout type:** each workout is Upper, Lower, Full body or Cardio. The type is guessed from its exercises and shown as "(guessed)" until you tap one in the workout's plan. It's also shown in the Workouts list.
+- **🎯 Apply to my workouts:** after importing a scan, or from the scan page, a list shows what the scan asks for and where you already work it.
+  - It proposes exercises to add, aiming for each issue twice a week: upper issues go to upper or full-body days, lower issues to lower or full-body days, core/posture to any day (lower first). Never more than 2 added per workout.
+  - You tick what you keep.
+  - At the next scan, added exercises that are no longer needed are proposed for removal; the ones still needed stay.
+- **Badges:** "➕ Added" on added exercises and 🎯 on exercises you already do that help (plan and live).
+  - Tapping one shows why above the body figure: added after which scan and for what, what it helps with, and cues (soft knees for hyperextension, knees out for valgus, start with the weaker arm or leg).
+- **Glute highlight removed** from exercise names everywhere.
+
+## 0.54 beta
+- **Body scans follow your routine:** when you import a report, the app asks "before or after training" (you can change it on the scan page).
+- **New checks instead of "any evening scan is suspicious":**
+  - the time is more than 2 h away from your previous scan,
+  - one scan was before training and the other after,
+  - it's a different weekday.
+  - The first scan sets your routine.
+
+## 0.53 beta
+- **Set types reworked** (each one explains itself in the set-type sheet):
+  - **Warm-up / feeder:** count as sets + volume, never drive progression.
+  - **L / R:** ½ set each, weight of one side; progression follows the weaker side.
+  - **Drop set:** part of the set above (adds volume, not an extra set), weight pre-filled at −25 %.
+  - **Negative:** 1 set, ignored by progression.
+  - **Partials:** type 10+5 → 1 set, partials = half volume, progression on the full reps.
+  - **Myo-reps:** type 15+4+4+3 as one entry → 1 set, all reps in volume, progression on the activation reps.
+  - **Top set:** progression reference.
+  - **Back-off:** 1 set each, pre-filled ~12.5 % under the top set, progression follows the top set.
+- **Supersets:** A → B → (C…) is one round, and the rest timer starts after the full round, using the longest rest of the group. The message no longer says "no rest".
+- **Body composition (Me › Body composition):** "＋ Add a VisBody report" (PDF, or a screenshot via Claude).
+  - Reads all values: weight, body fat %, fat mass, muscle, skeletal muscle, lean mass, water, visceral fat, BMR, ECW/TBW, left/right segments and posture.
+  - Body fat % is also added to Other measurements.
+- **Accuracy checks:**
+  - It compares the scan with your scale average and the time of day.
+  - It flags impossible changes between scans: fat up while weight down, lean mass moving more than weight, big muscle loss while training, body-fat % jumps.
+  - It then asks for tape measurements (📏 Verify): if the tape disagrees, the scan is marked doubtful and left out of trends. You can also ignore or restore a scan by hand.
+- **What to prioritise:** rule-based advice from the scan and your phase.
+  - Rate of loss vs target, visceral fat, left/right differences (weaker side first).
+  - Posture: forward head, rounded shoulders, anterior pelvic shift, knee hyperextension, valgus.
+  - Exercise chips open the Library.
+- **"🤖 Full analysis with Claude"** combines scan history, tape, scale, food/steps/sleep averages, injuries and your workouts into a summary, priorities and exercises to add.
+
+## 0.52 beta (report #4, part 2)
+- **Warm-up and feeder sets count as sets and volume** (you still carry the weight). They still don't drive progression.
+- **"How was your workout?"** when you finish: tap your discomforts (profile areas ★ + common ones, or ＋ Other, which is also added to your profile). One tap = mild, two = painful.
+  - Next session, exercises loading that area won't increase (mild), or go ~15 % lighter with a pain-free range (painful).
+  - The 🎯 target says why. It clears once a later workout reports no discomfort there.
+- **Supersets:** ••• / long-press an exercise › "Superset with the next exercise" (in a workout or live). Grouped exercises get a coloured bar and label (Superset 1 · A/B).
+  - Live: no rest between A and B, the app jumps to the next exercise. The rest timer runs after the last one, then back to A.
+- **Morning check-in:** the first time you open the app before 2 pm, a quick sheet asks your sleep, energy and morning supplements. It feeds today's training targets, and it can be turned off in Settings.
+- **Sport water (Settings › My gym):** choose your gym (On Air, Basic-Fit, Fitness Park), tick "I have access". Defaults: 500 ml per refill, wait 30 min, ~3 kcal.
+  - During a workout, 💧 Refilled counts refills, adds the water to today, shows the countdown and beeps when you can refill again.
+  - The refills are logged as a 0-macro entry when you finish.
+- **Running low:** the first time you open Kitchen each day, a pop-up lists ingredients running low (or that will be short by the end of the week). Tick the ones to add to the grocery list.
+  - Low items are no longer added automatically. The grocery list shows the others with an "add" link.
+- **Receipts:**
+  - Receipt lines are remembered (✓ recognised next time, same ingredient/brand, so stock isn't split).
+  - New products are looked up in Open Food Facts and saved with their barcode, so scanning the same barcode later finds the same ingredient.
+  - Grocery items are ticked by their main ingredient.
+- **Recipes:** the side ("Served with", e.g. rice for chicken yassa) now shows under the ingredients with the total for the whole batch, plus a final method step "Serve each portion with…".
+
+## 0.51 beta (report #4, part 1)
+- **Set types now have rules** (shown in the set-type sheet):
+  - Not counted at all: warm-up and feeder sets.
+  - **L / R:** ½ set each, so a left + right pair = 1 set, and only that side's volume (no ×2).
+  - Drop set: ½ set, volume counted. Partial reps: ½ set, ½ volume.
+  - Ignored by progression: drop, negative, partial, myo-rep and back-off sets.
+  - **Top set:** the reference for progression.
+  - These rules apply everywhere: live stats, weekly sets per muscle, volume charts and progression.
+- **L → R automatically:** marking a set L turns the next one into R (and the reverse). "+ Add set" keeps alternating L/R, and the pair shares a number (1L, 1R, 2L…).
+- **New set defaults:** a new set is pre-filled from the same set of your last workout, otherwise from the set just above.
+- **Add an exercise during a workout:** results appear as you type (EN/FR, muscle, machine), like the other search bars.
+- **Durations over an hour** show as 1h17min (calendar, summaries, cardio, charts).
+- **Finish / edit a workout:** changing the start moves the end (duration kept). Changing the end changes the duration (start kept). Changing the minutes moves the end. Start/end can now also be edited on past sessions.
+- **Supplements:** the time taken is saved and editable (time box next to each ticked supplement).
+- **Crous counter:** when the week started last month, it now says "This week (since Mon 28 Sep)" and the month name, so the numbers no longer look contradictory.
+- **Portions to make:** new "already have" field for portions already cooked. They're removed from cooking sessions and groceries; sides still count.
+- **"I have it":** on every grocery item and pantry item, asks how much you have and puts it in home stock. This replaces the "need to buy" checkbox, which removed pantry items from the "check you have" list and added them to the grocery list (the chili-flakes problem).
+
+## 0.50 beta
+- **Exercise database v3 in the Library: 4,352 exercises** (was 967), every one a real exercise. Duplicates are merged: when two names mean the same exercise, you see the one you already use.
+- **Three views:** Muscle, Equipment, Movement (49 families such as Hip Thrust / Glute Bridge, Row, Lateral Raise). New groups for Neck, Stretching & mobility and Cardio.
+- **Two filters:** equipment category (Lyfta-style: Leverage machine, Sled machine, Smith machine, Band (tube), Resistance band (loop), Bosu ball, Battling rope…) and target muscle.
+- **French search:** "développé couché", "fessiers poulie", "tirage vertical prise serrée", "étirement ischio" all work. Search also matches aliases and tolerates plurals, and the best matches come first.
+- **Alternatives:** an exercise's info sheet lists up to 8 exercises with the same movement (same target muscle first). From a workout, **Swap** replaces the exercise in place: sets, reps and progression method are kept, and the old exercise's history stays.
+- Your existing exercise names, history and workouts are unchanged.
+
 ## 0.49 beta
 - **Edit a logged entry:** tap any food in Today's log to change its name, meal, time, amount or portions (with or without sides), its **ingredients** (change grams, remove, add), or the macros of a quick add / Crous meal; Delete is there too. Home stock is corrected automatically.
 
