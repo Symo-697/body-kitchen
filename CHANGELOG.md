@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.43 beta
+- **Products are no longer linked to the wrong ingredient:** a scanned compote, juice, biscuit… is never treated as a brand of the raw fruit/ingredient anymore; when a product could be a brand of an ingredient, the app asks first. Existing wrong links are fixed automatically, and each product in My ingredients has a "Not a …" button to separate it.
+- **Real nutrition values instead of empty estimates:** new ingredients from the recipe AI, "Describe your meal" and the recipe editor are first looked up in **Open Food Facts** (label values, GitHub app), then completed by Claude; no more ingredients with 0 kcal.
+- **Recipes have a meal type** (breakfast, lunch, dinner, snack); in the planner, matching recipes come first with a ★.
+
 ## 0.42 beta: report #3
 - **Long-press** a workout (chip or card) to edit, add exercises, rename, duplicate, add to week or **delete** it; long-press an exercise in a workout to see its muscles, move it or **delete** it.
 - **Workouts** tab in Train: all your workouts with their exercises and days, ＋ Add workout, and **"From my imported history"** to rebuild workouts from your old app's sessions (exercises, usual sets and rep ranges).
