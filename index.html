@@ -1550,10 +1550,11 @@ function suggestion(ex){const hist=S.core.lifts[ex.name];
  if(any_low&&S.core.phase.name!=="cut")return`Last time ${w} kg, some sets under ${bottom}. Stay at ${w} kg and get every set into range.`;
  return`Last time ${w} kg (${done.map(s=>s.r).join(", ")} reps). Same weight, aim for 1 more rep per set.`}
 function vTrain(){
- const tabsT=`<div class="chips" style="margin-bottom:.9rem">${[["plan","Plan & log"],["lib","Library"],["progress","Progress"]].map(([k,l])=>`<button class="chip ${trainView===k?"on":""}" onclick="trainView='${k}';render()">${l}</button>`).join("")}</div>`;
+ const tabsT=`<div class="chips" style="margin-bottom:.9rem">${[["plan","Plan & log"],["workouts","Workouts"],["lib","Library"],["progress","Progress"]].map(([k,l])=>`<button class="chip ${trainView===k?"on":""}" onclick="trainView='${k}';render()">${l}</button>`).join("")}</div>`;
  if(trainView==="progress")return tabsT+vProgress();
  if(trainView==="log")return tabsT+vLog();
  if(trainView==="lib")return tabsT+vLibrary();
+ if(trainView==="workouts")return tabsT+vWorkouts();
  if(trainView==="preview")return vPreview();
  if(trainView==="live"&&A())return vLive();
  const sch=schedule();const idx=(new Date().getDay()+6)%7;gymDay=gymDay&&S.core.workout[gymDay]?gymDay:(sch[idx]!=="rest"&&S.core.workout[sch[idx]]?sch[idx]:(sch.find(x=>x!=="rest"&&S.core.workout[x])||Object.keys(S.core.workout)[0]));
@@ -1564,15 +1565,16 @@ function vTrain(){
  <p class="muted" style="margin:.6rem 0 0">${ph==="cut"?"Fat loss: same heavy weights, sets as written, plus daily steps. Cardio: 2 × 20–30 min incline walk if progress stalls.":ph==="build"?"Build & define: +1 set on every glute exercise (orange). With 5 days, day E is a glute pump day.":"Maintain: one set fewer everywhere, same weights. Can drop to 3 days (A, B, C) and keep your results."} ${T?`Steps goal: ${T.steps.toLocaleString()} a day.`:""} Keep at least 2 rest days, never two lower-body days back to back.</p></div>`;
  const dl=deloadInfo();if(dl)h+=`<div class="note ${dl.due?"warn":""}">${dl.text}${dl.due?` <button class="small" style="margin-left:.4rem" onclick="S.core.lastDeload=today();save('core');render()">Deload done</button>`:""}</div>`;
  {const inWeek=Object.keys(S.core.workout).filter(k=>sch.includes(k)||k===gymDay&&!showAllW&&!sch.includes(k)&&false);const others=Object.keys(S.core.workout).filter(k=>!sch.includes(k));
- const chip=k=>`<button class="chip ${gymDay===k?"on":""}" onclick="gymDay='${k}';render()"><span class="dd" style="background:${DAYCOL[k]||"var(--plum)"};margin-right:.25rem">${k}</span>${esc(S.core.workout[k].title)}</button>`;
+ const chip=k=>`<button class="chip ${gymDay===k?"on":""}" ${lpAttrs("wm",k)} onclick="if(lpFired){lpFired=false;return}gymDay='${k}';render()"><span class="dd" style="background:${DAYCOL[k]||"var(--plum)"};margin-right:.25rem">${k}</span>${esc(S.core.workout[k].title)}</button>`;
  h+=`<div class="row" style="justify-content:space-between;margin:1rem 0 .4rem"><b>This week's workouts</b><button class="small" onclick="addWorkout()">＋ Add workout</button></div>
  <div class="chips" style="margin-bottom:.4rem">${sch.filter((x,i,a)=>x!=="rest"&&S.core.workout[x]&&a.indexOf(x)===i).map(chip).join("")||'<span class="muted">No workout planned this week.</span>'}</div>
  ${others.length?`<button class="x" style="font-size:.85rem;color:var(--plum);margin-bottom:.4rem" onclick="showAllW=!showAllW;render()">${showAllW?"Hide":"Show"} other workouts (${others.length})</button>${showAllW||others.includes(gymDay)?`<div class="chips" style="margin-bottom:.6rem;opacity:.85">${others.map(chip).join("")}</div>`:""}`:""}`}
  const day=S.core.workout[gymDay];
  h+=`<div class="box"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h3 style="margin:0">${gymDay} · ${esc(day.title)}</h3><span class="row" style="flex-wrap:nowrap">${!sch.includes(gymDay)?`<button class="ghost small" onclick="addSheet('${gymDay}')">Add to week</button>`:""}<button class="x" style="font-size:.85rem;color:var(--plum)" onclick="renameWorkout('${gymDay}')">Rename</button></span></div><div style="height:.5rem"></div><p class="muted" style="margin:0 0 .5rem">Stop each set with 1–2 reps left in the tank. <span class="glute">Orange</span> = glute work. Tap a name for its muscles and how-to.${norm(S.core.profile.injuries).trim()?` Tips are adjusted for what you noted in Me.`:""}</p>
+ ${day.ex.some(ex=>injuryTips(ex).length)?`<button class="ghost small" style="margin-bottom:.5rem" onclick="showWarn=!showWarn;render()">${showWarn?"Hide warnings":`⚠ Warnings (${day.ex.filter(ex=>injuryTips(ex).length).length})`}</button>`:""}
  ${A()?`<button style="width:100%;margin-bottom:.4rem" onclick="trainView='live';render();window.scrollTo(0,0)">▶ Resume workout ${esc(A().day)}</button>`:`<button style="width:100%;margin-bottom:.4rem" onclick="startWorkout('${gymDay}')">▶ Start workout ${gymDay}</button>`}
- ${day.ex.map((ex,i)=>{const n=setsFor(ex);const [rs]=restSuggest(ex.name,ex.reps);const rr=(S.core.rest||{})[ex.name]??rs;return`<div class="ex"><div class="row" style="justify-content:space-between"><div><button class="exname ${ex.glute?"glute":""}" onclick="showEx(${esc(JSON.stringify(ex.name))},false,${i})">${esc(ex.name)}</button> <span class="muted">${isCardio(ex)?esc(ex.reps)+" min":exMode(ex.name)==="t"?n+" × "+esc(ex.reps)+" s":n+" × "+esc(ex.reps)+(exMode(ex.name)==="r"?" reps":"")}${rr?` · rest ${fmtRest(rr)}`:""}</span></div><button class="x" aria-label="Remove exercise" onclick="rmEx(${i})">×</button></div>
- <div class="muted">${esc(suggestion(ex))}</div>${injuryTips(ex).map(t=>`<div class="note warn" style="margin:.35rem 0">${esc(t)}</div>`).join("")}</div>`}).join("")}
+ ${day.ex.map((ex,i)=>{const n=setsFor(ex);const [rs]=restSuggest(ex.name,ex.reps);const rr=(S.core.rest||{})[ex.name]??rs;return`<div class="ex" ${lpAttrs("em",i)}><div class="row" style="justify-content:space-between"><div><button class="exname ${ex.glute?"glute":""}" onclick="showEx(${esc(JSON.stringify(ex.name))},false,${i})">${esc(ex.name)}</button> <span class="muted">${isCardio(ex)?esc(ex.reps)+" min":exMode(ex.name)==="t"?n+" × "+esc(ex.reps)+" s":n+" × "+esc(ex.reps)+(exMode(ex.name)==="r"?" reps":"")}${rr?` · rest ${fmtRest(rr)}`:""}</span></div><button class="x" aria-label="Remove exercise" onclick="rmEx(${i})">×</button></div>
+ <div class="muted">${esc(suggestion(ex))}</div>${showWarn?injuryTips(ex).map(t=>`<div class="note warn" style="margin:.35rem 0">${esc(t)}</div>`).join(""):""}</div>`}).join("")}
  <div style="margin-top:.9rem"><label>Add an exercise to day ${gymDay}</label><input id="newex" type="search" autocomplete="off" placeholder="Search: hip thrust, plank, curl…" oninput="exQuery=this.value;paintExResults()" value="${esc(exQuery)}"><p class="muted" style="font-size:.78rem;margin:.3rem 0 0">Library: my exercises + 745 from <a href="https://wger.de" target="_blank" rel="noopener">wger.de</a> (CC-BY-SA). Tap ⓘ to see the muscles.</p><div id="exres">${exResultsHTML()}</div></div>
  <p class="muted" style="margin:.8rem 0 0;font-size:.85rem">Logging a past workout? Start it, tick the sets, and change the date when you finish.</p></div>
  <p class="muted">Want your old 5-day program back instead? Replace the exercises here; the progression tips work for anything.</p>`;
@@ -1704,7 +1706,7 @@ function addToWeek(letter,j){applyWeek(arr=>{if(arr.includes(letter)){toast(`Day
 function removeFromWeek(i){applyWeek(arr=>{if(arr[i]==="rest")return null;const l=arr[i];arr[i]="rest";return{arr,msg:`Day ${l} removed from ${DAYS[i]}.`}})}
 function weekExtrasHTML(sch){const out=Object.keys(S.core.workout).filter(k=>!sch.includes(k));
  return`<p class="muted" style="font-size:.78rem;margin:.4rem 0 0">Long-press a day to drag it to another day, or to move or remove it.${(S.core.weekSched||{})[mondayOf(today())]?" This week has been changed.":""}</p>
- ${out.length?`<div style="margin-top:.5rem"><span class="muted" style="font-size:.85rem">Not in your week:</span> ${out.map(k=>`<button class="chip" onclick="addSheet('${k}')"><span class="dd" style="background:${DAYCOL[k]||"var(--plum)"}">${k}</span> ${esc(S.core.workout[k].title)}</button>`).join(" ")}</div>`:""}`}
+ ${out.length?`<div style="margin-top:.5rem"><span class="muted" style="font-size:.82rem">Not in your week:</span> ${out.map(k=>`<button class="dd" style="background:${DAYCOL[k]||"var(--plum)"};border:0;margin:0 .15rem" onclick="addSheet('${k}')" aria-label="Add workout ${k} to the week">${k}</button>`).join("")}</div>`:""}`}
 function addSheet(letter){const sch=schedule();openSheet(`<h3>Add Day ${letter} · ${esc(S.core.workout[letter].title)} to…</h3>${DAYS.map((d,j)=>`<button class="sheetbtn" onclick="closeSheet();addToWeek('${letter}',${j})"><span class="sheeticon">${d}</span>${sch[j]==="rest"?"Rest day":`Day ${sch[j]} (will be replaced)`}</button>`).join("")}`)}
 function moveSheet(i){const sch=schedule();const l=sch[i];openSheet(`<h3>${l==="rest"?`${DAYS[i]}: rest day`:`Move Day ${l} (${DAYS[i]}) to…`}</h3>${DAYS.map((d,j)=>j===i?"":`<button class="sheetbtn" onclick="closeSheet();moveDay(${i},${j})"><span class="sheeticon">${d}</span>${sch[j]==="rest"?(l==="rest"?"Rest day":"Rest day"):`Day ${sch[j]}${l!=="rest"?" (switch)":""}`}</button>`).join("")}${l!=="rest"?sheetBtn("🛌","Make it a rest day",`closeSheet();removeFromWeek(${i})`,true):""}`)}
 let wd=null;
@@ -2259,7 +2261,7 @@ function libBarHTML(){if(!libSel.size)return"";return`<div class="box" style="po
  <button class="x" style="margin-top:.3rem;font-size:.85rem" onclick="libSel.clear();render()">Clear selection</button></div>`}
 function libEx(n){const d=exDef(n)||{};const md=exMode(n);return EX(n,md==="c"?1:3,d.reps||DEF_REPS[md],musclesD(n)[0].some(k=>DMUS[k][1]==="glutes"))}
 function libAddTo(){const k=($("#libday")||{}).value;const d=S.core.workout[k];if(!d)return;libSel.forEach(n=>{if(!d.ex.some(e=>e.name===n))d.ex.push(libEx(n))});const c=libSel.size;libSel.clear();save("core");toast(`${c} exercise${c>1?"s":""} added to day ${k}.`);render()}
-function libNewRoutine(){const name=(($("#libname")||{}).value||"").trim()||"New routine";const used=Object.keys(S.core.workout);const L="ABCDEFGHIJKL".split("").find(x=>!used.includes(x));if(!L){toast("You already have 12 routines.");return}
+function libNewRoutine(){const name=(($("#libname")||{}).value||"").trim()||"New routine";const used=Object.keys(S.core.workout);const L="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").find(x=>!used.includes(x));if(!L){toast("You already have 12 routines.");return}
  S.core.workout[L]={title:name,ex:[...libSel].map(libEx)};DAYCOL[L]=DAYCOL[L]||["#8E44AD","#16A085","#D35400","#2C3E50","#C0392B","#27AE60"][used.length%6];const c=libSel.size;libSel.clear();save("core");gymDay=L;trainView="plan";toast(`Routine ${L} “${name}” created with ${c} exercises. Start it any day from Plan & log.`);render()}
 function vLibrary(){const q=norm(libQ).trim();const words=q.split(/\s+/).filter(Boolean);
  let h=`<div class="seg"><button class="${libBy==="muscle"?"on":""}" onclick="libBy='muscle';render()">By muscle</button><button class="${libBy==="equip"?"on":""}" onclick="libBy='equip';render()">By equipment</button></div>
@@ -2274,20 +2276,32 @@ function libList(k){const g=libGroups().find(x=>x[0]===k);if(!g)return"";const o
 let trainView="plan",progKind="week",progRange="3m",progMetric="vol",progOff=0,progEx=null;
 
 function rangeFrom(r){if(r==="all"){const ds=(S.core.sessions||[]).map(x=>x.date).sort();return ds[0]||today()}const d=new Date(today()+"T12:00");d.setMonth(d.getMonth()-({"3m":3,"6m":6,"1y":12}[r]||3));return d.toLocaleDateString("sv-SE")}
+let progSel=null;
+function niceMax(v){if(v<=0)return 1;const e=Math.pow(10,Math.floor(Math.log10(v)));const f=v/e;return(f<=1?1:f<=2?2:f<=2.5?2.5:f<=3?3:f<=5?5:f<=6?6:10)*e}
+function axisLab(v){if(progMetric==="dur")return v>=60?Math.floor(v/60)+"h"+(v%60?String(Math.round(v%60)).padStart(2,"0"):""):Math.round(v)+"m";if(progMetric==="wk")return String(Math.round(v*10)/10);return v>=1000?(Math.round(v/100)/10).toString().replace(/\.0$/,"")+"k":String(Math.round(v))}
+function overviewChart(pts,bars,sel){if(!pts.length)return"";const W=340,H=170,L=4,R=42,T=10,B=20;const max=niceMax(Math.max(...pts.map(p=>p.v),progMetric==="wk"?1:0));const n=pts.length;const cw=(W-L-R)/n;
+ const Y=v=>T+(1-v/max)*(H-T-B);const X=i=>L+cw*i+cw/2;let g="";
+ [0,.5,1].forEach(q=>{const v=max*q;g+=`<line x1="${L}" x2="${W-R+4}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${W-R+8}" y="${Y(v)+3}" font-size="10" fill="var(--muted)">${axisLab(v)}</text>`});
+ if(bars)pts.forEach((p,i)=>{const bw=Math.max(2,cw*.7);g+=`<rect x="${X(i)-bw/2}" y="${Y(p.v)}" width="${bw}" height="${Math.max(1,Y(0)-Y(p.v))}" rx="2" fill="var(--plum)" opacity="${i===sel?1:.55}"/>`});
+ else{g+=`<polygon points="${X(0)},${Y(0)} ${pts.map((p,i)=>X(i)+","+Y(p.v)).join(" ")} ${X(n-1)},${Y(0)}" fill="var(--plum)" opacity=".12"/><polyline fill="none" stroke="var(--plum)" stroke-width="2" stroke-linejoin="round" points="${pts.map((p,i)=>X(i)+","+Y(p.v)).join(" ")}"/>`+pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="${i===sel?4.5:n>30?1.8:3}" fill="${i===sel?"var(--plum)":"var(--card)"}" stroke="var(--plum)" stroke-width="1.6"/>`).join("")}
+ g+=`<line x1="${X(sel)}" x2="${X(sel)}" y1="${T}" y2="${Y(0)}" stroke="var(--ink)" stroke-width="1" opacity=".35"/>`;
+ g+=pts.map((p,i)=>`<rect x="${L+cw*i}" y="0" width="${cw}" height="${H}" fill="transparent" style="cursor:pointer" onclick="progSel=${i};render()"><title>${p.date}</title></rect>`).join("");
+ g+=`<text x="${L}" y="${H-5}" font-size="9" fill="var(--muted)">${new Date(pts[0].date+"T12:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</text><text x="${W-R}" y="${H-5}" font-size="9" text-anchor="end" fill="var(--muted)">this week</text>`;
+ return`<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block;touch-action:pan-y" role="img" aria-label="Weekly chart: tap a week to see its value">${g}</svg><p class="muted" style="font-size:.75rem;margin:.2rem 0 0">Tap a bar or point to see that week.</p>`}
 function progOverviewHTML(){const from=mondayOf(rangeFrom(progRange));const weeks=[];let d=new Date(from+"T12:00");const end=mondayOf(today());
  while(d.toLocaleDateString("sv-SE")<=end){weeks.push(d.toLocaleDateString("sv-SE"));d.setDate(d.getDate()+7)}
  const wEnd=m=>{const x=new Date(m+"T12:00");x.setDate(x.getDate()+6);return x.toLocaleDateString("sv-SE")};
  const val=m=>{const e=wEnd(m);const ss=(S.core.sessions||[]).filter(x=>x.date>=m&&x.date<=e);
   if(progMetric==="wk")return ss.filter(x=>x.day!=="CARDIO").length;if(progMetric==="dur")return ss.reduce((a,x)=>a+(+x.dur||0),0);
   let v=0;for(const [n,h] of Object.entries(S.core.lifts||{})){if(isCardio({name:n}))continue;h.forEach(x=>{if(x.date>=m&&x.date<=e)v+=sessionStats(n,x).volume||0})}return v};
- const pts=weeks.map(m=>({date:m,v:val(m)}));const cur=pts.length?pts[pts.length-1].v:0;const avg=pts.length?pts.reduce((a,p)=>a+p.v,0)/pts.length:0;
+ const pts=weeks.map(m=>({date:m,v:val(m)}));const selI=progSel!=null&&progSel<pts.length?progSel:pts.length-1;const cur=pts.length?pts[selI].v:0;const avg=pts.length?pts.reduce((a,p)=>a+p.v,0)/pts.length:0;
  const fmtV=v=>progMetric==="dur"?(v>=60?Math.floor(v/60)+" h "+String(Math.round(v%60)).padStart(2,"0"):r0(v)+" min"):progMetric==="wk"?r1(v)+"":r0(v).toLocaleString()+" kg";
  const unit=progMetric==="dur"?"min":progMetric==="wk"?"":"kg";
- return`<div class="box"><div class="seg" style="margin-bottom:.6rem">${[["3m","3M"],["6m","6M"],["1y","Year"],["all","All"]].map(([k,l])=>`<button class="${progRange===k?"on":""}" onclick="progRange='${k}';render()">${l}</button>`).join("")}</div>
- <div class="muted" style="font-size:.85rem">This week</div><div class="left-num" style="font-size:2rem">${fmtV(cur)}${progMetric==="wk"?` <span style="font-size:1rem;font-weight:600">workout${cur===1?"":"s"}</span>`:""}</div>
+ return`<div class="box"><div class="seg" style="margin-bottom:.6rem">${[["3m","3M"],["6m","6M"],["1y","Year"],["all","All"]].map(([k,l])=>`<button class="${progRange===k?"on":""}" onclick="progRange='${k}';progSel=null;render()">${l}</button>`).join("")}</div>
+ <div class="muted" style="font-size:.85rem">${selI===pts.length-1?"This week":"Week of "+new Date(pts[selI].date+"T12:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}</div><div class="left-num" style="font-size:2rem">${fmtV(cur)}${progMetric==="wk"?` <span style="font-size:1rem;font-weight:600">workout${cur===1?"":"s"}</span>`:""}</div>
  <div class="muted" style="font-size:.8rem;margin-bottom:.3rem">Weekly average over this period: ${fmtV(avg)}${progMetric==="wk"?" workouts":""}</div>
- ${lineChart(pts,unit,progMetric==="vol")}
- <div class="chips" style="margin-top:.6rem">${[["dur","⏱ Duration"],["vol","📊 Volume"],["wk","📈 Workouts"]].map(([k,l])=>`<button class="chip ${progMetric===k?"on":""}" onclick="progMetric='${k}';render()">${l}</button>`).join("")}</div></div>`}
+ ${overviewChart(pts,progMetric==="vol",selI,fmtV)}
+ <div class="chips" style="margin-top:.6rem">${[["dur","⏱ Duration"],["vol","📊 Volume"],["wk","📈 Workouts"]].map(([k,l])=>`<button class="chip ${progMetric===k?"on":""}" onclick="progMetric='${k}';progSel=null;render()">${l}</button>`).join("")}</div></div>`}
 function vProgress(){
  const pr=periodRange(progKind,progOff);const M=muscleTotals(pr.from,pr.to);
  const nav=`<div class="row" style="justify-content:space-between;margin:.2rem 0 .6rem"><button class="ghost small" aria-label="Previous" onclick="progOff++;render()">‹</button><b>${pr.label}</b><button class="ghost small" aria-label="Next" ${progOff===0?"disabled style='opacity:.4'":""} onclick="progOff=Math.max(0,progOff-1);render()">›</button></div>`;
@@ -2325,11 +2339,58 @@ function progListHTML(){let names=Object.keys(S.core.lifts||{}).filter(n=>(S.cor
   const sub=last.time?`Best hold: ${r0(last.best)} s`:last.repsOnly?`Best set: ${r0(last.reps)} reps`:last.cardio?`Last: ${r1(last.km)} km`:`Est. 1RM: ${r1(last.e1rm)} kg`;
   return`<button onclick="progEx=${esc(JSON.stringify(n))};render()" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:.6rem;width:100%;padding:.65rem 0;border-bottom:1px solid var(--line)"><span><b>${esc(n)}</b><br><span class="muted">${sub}</span></span>${sparkMini(series)}</button>`}).join("")}</div>`}
 
-let showAllW=false;
-async function addWorkout(){const name=await askText("Name of the new workout","e.g. Glutes & core");if(!name||!name.trim())return;const used=Object.keys(S.core.workout);const L="ABCDEFGHIJKL".split("").find(x=>!used.includes(x));if(!L){toast("You already have 12 workouts. Delete one first.");return}
- S.core.workout[L]={title:name.trim(),ex:[]};if(!DAYCOL[L])DAYCOL[L]=["#8E44AD","#16A085","#D35400","#2C3E50","#C0392B","#27AE60"][used.length%6];gymDay=L;save("core");render();
- setTimeout(()=>{const el=document.getElementById("newex");if(el){el.scrollIntoView({block:"center"});el.focus()}},80);
- toast(`Workout ${L} “${name.trim()}” created. Add its exercises with the search below (or from Train › Library), then use “Add to week” to put it on a day.`)}
+
+/* ---------- long press, workout & exercise menus ---------- */
+let lpT=null,lpFired=false;const LP={wm:k=>workoutMenu(k),em:i=>exerciseMenu(+i)};
+function lpStart(e,kind,arg){lpFired=false;clearTimeout(lpT);const x=e.clientX,y=e.clientY;lpT=setTimeout(()=>{lpFired=true;try{navigator.vibrate&&navigator.vibrate(15)}catch(_){};LP[kind](arg)},500);
+ const mv=ev=>{if(Math.hypot(ev.clientX-x,ev.clientY-y)>10){clearTimeout(lpT);document.removeEventListener("pointermove",mv)}};document.addEventListener("pointermove",mv)}
+function lpEnd(){clearTimeout(lpT)}
+const lpAttrs=(kind,arg)=>`onpointerdown="lpStart(event,'${kind}','${arg}')" onpointerup="lpEnd()" onpointercancel="lpEnd()" oncontextmenu="event.preventDefault()"`;
+function workoutMenu(k){const w=S.core.workout[k];if(!w)return;const inW=schedule().includes(k);
+ openSheet(`<h3><span class="dd" style="background:${DAYCOL[k]||"var(--plum)"}">${k}</span> ${esc(w.title)}</h3>
+ ${sheetBtn("✎","Edit exercises",`closeSheet();gymDay='${k}';trainView='plan';render()`)}${sheetBtn("＋","Add exercises",`closeSheet();pickExercises('${k}')`)}${sheetBtn("Aa","Rename",`closeSheet();renameWorkout('${k}')`)}${sheetBtn("⧉","Duplicate",`closeSheet();dupWorkout('${k}')`)}
+ ${inW?"":sheetBtn("📅","Add to week",`closeSheet();addSheet('${k}')`)}${sheetBtn("🗑","Delete workout",`deleteWorkout('${k}')`,true)}`)}
+async function deleteWorkout(k){const w=S.core.workout[k];if(!w||!await ask(`Delete workout ${k} “${w.title}”? Days where it's planned become rest days. Your past workouts and charts are kept.`))return;
+ delete S.core.workout[k];const strip=a=>a&&a.map(x=>x===k?"rest":x);if(S.core.schedule)S.core.schedule=strip(S.core.schedule);Object.keys(S.core.weekSched||{}).forEach(m=>S.core.weekSched[m]=strip(S.core.weekSched[m]));
+ if(!S.core.schedule&&baseSchedule().includes(k))S.core.schedule=strip(baseSchedule());if(gymDay===k)gymDay=null;closeSheet();save("core");render();toast(`Workout ${k} deleted.`)}
+function nextLetter(){const used=Object.keys(S.core.workout);return"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").find(x=>!used.includes(x))}
+function dupWorkout(k){const L=nextLetter();if(!L)return;S.core.workout[L]=JSON.parse(JSON.stringify(S.core.workout[k]));S.core.workout[L].title+=" (copy)";gymDay=L;save("core");render();toast(`Copied as workout ${L}.`)}
+function exerciseMenu(i){const d=S.core.workout[gymDay];const ex=d&&d.ex[i];if(!ex)return;
+ openSheet(`<h3>${esc(ex.name)}</h3>${sheetBtn("ⓘ","Muscles & how-to",`closeSheet();showEx(${esc(JSON.stringify(ex.name))},false,${i})`)}${i>0?sheetBtn("↑","Move up",`moveEx(${i},-1)`):""}${i<d.ex.length-1?sheetBtn("↓","Move down",`moveEx(${i},1)`):""}${sheetBtn("🗑","Delete from this workout",`closeSheet();rmEx(${i})`,true)}`)}
+function moveEx(i,dlt){const x=S.core.workout[gymDay].ex;[x[i],x[i+dlt]]=[x[i+dlt],x[i]];save("core");closeSheet();render()}
+let pickSel=new Set(),pickQ="",pickFor=null;
+function pickExercises(k){pickFor=k;pickSel=new Set();pickQ="";openSheet(pickHTML())}
+function pickList(){const own=ownExerciseNames();const q=pickQ.trim();let names=allExerciseNames();
+ names=q?names.filter(n=>searchMatch(n+" "+muscleWords(n)+" "+(EQUIP.find(e=>e[0]===equipOf(n))||[0,""])[1],q)):names.filter(n=>own.has(n));
+ names=names.sort((a,b)=>(own.has(b)-own.has(a))||a.localeCompare(b)).slice(0,60);
+ return names.map(n=>`<label class="check" style="margin:0;padding:.45rem 0;border-bottom:1px solid var(--line);color:inherit;display:flex"><input type="checkbox" ${pickSel.has(n)?"checked":""} onchange="this.checked?pickSel.add(${esc(JSON.stringify(n))}):pickSel.delete(${esc(JSON.stringify(n))});document.getElementById('pickbtn').textContent='Add '+pickSel.size+' exercise'+(pickSel.size===1?'':'s')"><span><b style="font-weight:600">${esc(n)}</b><br><span class="muted" style="font-size:.78rem">${esc(prettyList(musclesD(n)[0]).slice(0,3).join(", "))}</span></span></label>`).join("")||`<p class="muted">No exercise found. Try other words, or create it with ＋ New in the Library.</p>`}
+function pickHTML(){const w=S.core.workout[pickFor];return`<h3 style="margin:0 0 .4rem">Add exercises to <span class="dd" style="background:${DAYCOL[pickFor]||"var(--plum)"}">${pickFor}</span> ${esc(w.title)}</h3>
+ <input type="search" placeholder="Search ${allExerciseNames().length} exercises: name, muscle, machine…" oninput="pickQ=this.value;document.getElementById('picklist').innerHTML=pickList()">
+ <div id="picklist" style="max-height:55vh;overflow:auto;margin-top:.4rem">${pickList()}</div>
+ <div class="row" style="margin-top:.7rem"><button class="ghost small" onclick="closeSheet();render()">Done</button><span class="grow"></span><button id="pickbtn" onclick="pickAdd()">Add 0 exercises</button></div>`}
+function pickAdd(){const w=S.core.workout[pickFor];if(!w||!pickSel.size)return;pickSel.forEach(n=>{if(!w.ex.some(e=>e.name===n))w.ex.push(libEx(n))});const n=pickSel.size;pickSel=new Set();save("core");gymDay=pickFor;closeSheet();render();toast(`${n} exercise${n>1?"s":""} added to ${w.title}.${schedule().includes(pickFor)?"":" Use “Add to week” to put it on a day."}`)}
+function vWorkouts(){const sch=schedule();const imp=(S.core.sessions||[]).some(x=>x.imported);
+ let h=`<div class="row" style="margin-bottom:.7rem"><button onclick="addWorkout()">＋ Add workout</button>${imp?`<button class="ghost small" onclick="historySheet()">From my imported history</button>`:""}</div>`;
+ h+=Object.keys(S.core.workout).map(k=>{const w=S.core.workout[k];const days=sch.map((x,i)=>x===k?DAYS[i]:null).filter(Boolean);
+  return`<div class="box" ${lpAttrs("wm",k)}><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b><span class="dd" style="background:${DAYCOL[k]||"var(--plum)"}">${k}</span> ${esc(w.title)}</b><button class="iconbtn" aria-label="Workout options" onclick="workoutMenu('${k}')">•••</button></div>
+  <div class="muted" style="font-size:.82rem;margin:.2rem 0 .3rem">${w.ex.length} exercise${w.ex.length===1?"":"s"} · ${days.length?"this week: "+days.join(", "):"not in this week"}</div>
+  <div style="font-size:.88rem">${w.ex.slice(0,6).map(e=>esc(e.name)).join(" · ")}${w.ex.length>6?` · +${w.ex.length-6}`:""}</div>
+  <div class="row" style="margin-top:.5rem"><button class="ghost small" onclick="gymDay='${k}';trainView='plan';render();window.scrollTo(0,0)">Edit</button><button class="ghost small" onclick="pickExercises('${k}')">＋ Exercises</button>${days.length?"":`<button class="ghost small" onclick="addSheet('${k}')">Add to week</button>`}</div></div>`}).join("");
+ return h+`<p class="muted" style="font-size:.8rem">Long-press a workout (or tap •••) to rename, duplicate or delete it.</p>`}
+function historyGroups(){const g={};(S.core.sessions||[]).filter(x=>x.imported).forEach(x=>{const k=norm(x.title||"").trim();if(!k)return;(g[k]=g[k]||{title:x.title,ss:[]}).ss.push(x)});return Object.values(g).sort((a,b)=>b.ss.length-a.ss.length)}
+function historySheet(){const gs=historyGroups();const have=new Set(Object.values(S.core.workout).map(w=>norm(w.title)));
+ openSheet(`<h3>Workouts from your history</h3><p class="muted" style="font-size:.85rem;margin:0 0 .5rem">Each one is rebuilt from your logged sessions with that name: the exercises you did, their usual number of sets and rep range.</p>
+ ${gs.map((g,i)=>`<label class="check" style="margin:0;padding:.4rem 0;border-bottom:1px solid var(--line);color:inherit;display:flex"><input type="checkbox" class="hg" data-i="${i}" ${have.has(norm(g.title))?"disabled":"checked"}><span><b style="font-weight:600">${esc(g.title)}</b><br><span class="muted" style="font-size:.78rem">${g.ss.length} session${g.ss.length>1?"s":""} · ${historyExercises(g).length} exercises${have.has(norm(g.title))?" · already added":""}</span></span></label>`).join("")}
+ <div class="row" style="margin-top:.7rem"><button class="ghost small" onclick="closeSheet()">Cancel</button><span class="grow"></span><button onclick="createFromHistory()">Create selected</button></div>`)}
+function historyExercises(g){const ids=new Set(g.ss.map(x=>x.id));const out=[];for(const [n,h] of Object.entries(S.core.lifts||{})){const es=h.filter(e=>ids.has(e.sid));if(!es.length)continue;
+  const last=es[es.length-1];const work=last.sets.filter(x=>x.t!=="W");const sets=Math.min(5,Math.max(1,Math.round(es.map(e=>e.sets.filter(x=>!["W","L","D","N","P"].includes(x.t)).length||e.sets.length).sort((a,b)=>a-b)[Math.floor(es.length/2)])));
+  const md=exMode(n);const reps=md==="c"?String(Math.round(work[0]&&work[0].min||20)):md==="t"?(()=>{const v=work.map(x=>x.sec||0).filter(Boolean);return v.length?Math.min(...v)+"-"+Math.max(...v):"30-60"})():(()=>{const v=work.map(x=>x.r||0).filter(Boolean);return v.length?(Math.min(...v)===Math.max(...v)?String(v[0]):Math.min(...v)+"-"+Math.max(...v)):"8-12"})();
+  out.push({name:n,sets:md==="c"?1:sets,reps,glute:musclesD(n)[0].some(k=>DMUS[k][1]==="glutes"),n:es.length})}return out.sort((a,b)=>b.n-a.n).map(({n,...e})=>e)}
+function createFromHistory(){const gs=historyGroups();let made=0;document.querySelectorAll("#sheetmodal .hg").forEach(cb=>{if(!cb.checked||cb.disabled)return;const g=gs[+cb.dataset.i];const L=nextLetter();if(!L)return;S.core.workout[L]={title:g.title,ex:historyExercises(g)};made++});
+ save("core");closeSheet();trainView="workouts";render();toast(`${made} workout${made===1?"":"s"} created. Add the ones you want to your week with “Add to week”.`)}
+let showAllW=false,showWarn=false;
+async function addWorkout(){const name=await askText("Name of the new workout (for example Upper body, Full body, Legs, Push…)","");if(!name||!name.trim())return;const used=Object.keys(S.core.workout);const L="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").find(x=>!used.includes(x));if(!L){toast("You already have 12 workouts. Delete one first.");return}
+ S.core.workout[L]={title:name.trim(),ex:[]};if(!DAYCOL[L])DAYCOL[L]=["#8E44AD","#16A085","#D35400","#2C3E50","#C0392B","#27AE60"][used.length%6];gymDay=L;save("core");render();pickExercises(L)}
 async function renameWorkout(k){const n=await askText("Rename this workout",S.core.workout[k].title);if(!n||!n.trim())return;S.core.workout[k].title=n.trim();save("core");render()}
 async function rmEx(i){if(!await ask("Remove this exercise from the plan?"))return;S.core.workout[gymDay].ex.splice(i,1);save("core");render()}
 let exQuery="",newEx=null;const DEF_REPS={w:"8-12",r:"10-15",t:"30-60",c:"20-30"};
@@ -2505,7 +2566,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.41 beta";
+const APP_VERSION="0.42 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

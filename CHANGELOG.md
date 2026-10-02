@@ -2,6 +2,15 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.42 beta: report #3
+- **Long-press** a workout (chip or card) to edit, add exercises, rename, duplicate, add to week or **delete** it; long-press an exercise in a workout to see its muscles, move it or **delete** it.
+- **Workouts** tab in Train: all your workouts with their exercises and days, ＋ Add workout, and **"From my imported history"** to rebuild workouts from your old app's sessions (exercises, usual sets and rep ranges).
+- **＋ Add workout** opens an exercise picker right away (search by name, muscle or machine, tick several, add).
+- Injury **warnings** are hidden behind a "⚠ Warnings" button.
+- Week table: workouts not in your week are shown as letters only.
+- Progress charts: rounded axes (30k, 2h30) and **tap a bar or point** to see that week's value.
+- Up to 26 workouts (A–Z).
+
 ## 0.41 beta
 - **＋ Add workout** in Train › Plan & log: name a new workout, add its exercises, then **Add to week** to put it on a day. Workouts can be renamed.
 - Plan & log now only shows **this week's workouts**; the others are under "Show other workouts".
