@@ -2,6 +2,23 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.48 beta
+- "Eaten at" time is also available when logging or modifying a **planned meal**.
+
+## 0.47 beta
+- **⚡ Quick add** in Today › Log food: log a meal with just its calories and macros (protein, carbs, fat, fibre), no ingredients. Only calories are required. Tick "Save it for next time" to get a one-tap ⚡ chip.
+
+## 0.46 beta: progression methods
+- **6 progression methods + Maintain:** Linear, Double progression, Volume (add sets), Undulating (rotates heavy 4×5 / moderate 3×10 / light 3×15 each time you do the exercise, weights from your estimated max), Pyramid 12/10/8/6 (+9% per set on compound lifts, +5% on isolation; longer rest each set) and Reverse pyramid 6/8/10/12 (−10% per set; rest shorter each set). **Tempo** (3-second lowering) is an option on any exercise and suggested on plateaus.
+- **Choose per exercise, workout or phase** (exercise › workout › phase › default): long-press an exercise or a workout › Progression method, or Me › Phase › Change; each phase-plan step can have its own method. Defaults: Linear for beginners, Double progression otherwise, Maintain = no increases.
+- Live workouts follow the method: number of sets, a different weight and reps per set for pyramids, and rest times.
+
+## 0.45 beta: progression engine
+- **Next-session targets for every exercise** (rule-based double progression): hit the top of your rep range on every set → the weight goes up (2.5 kg, 5 kg on heavy lower-body lifts, next dumbbell); otherwise same weight and +1 rep; two sessions under range → −10% and build back. Example: 30×10, 30×9, 32.5×7 at 3×8 → next 32.5 kg for 3×8, then 35 kg once you get 8/8/8.
+- **Readiness:** low energy (≤2/5) or under 6 h of sleep today → no weight increase that day.
+- **Plateau detection:** 3 sessions without progress → suggests a lighter week, a new rep range or a variation.
+- Targets show in Plan & log, in each exercise card during the workout (🎯), and pre-fill the weight and reps boxes. After **Finish** (now with an energy rating), a **"Next time"** summary lists every exercise's next target.
+
 ## 0.44 beta
 - **Repairs empty ingredients:** ingredients created by older versions with "(estimate)" and 0 kcal are fixed automatically when the app opens (Open Food Facts label values, or Claude with your API key); a "Find real values" button in My ingredients does it on demand. Ingredients show "(label)", "(estimated)" or "(no values)".
 

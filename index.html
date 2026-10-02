@@ -724,7 +724,7 @@ function vToday(){
  const repeat=Yd&&Yd.food.length?MEALS.filter(([k])=>Yd.food.some(x=>x.meal===k)&&!L.food.some(x=>x.meal===k)).map(([k,l])=>`<button class="chip" onclick="copyYesterday('${k}')">↺ Same ${l.toLowerCase()} as yesterday</button>`).join("")+(L.food.length?"":`<button class="chip" onclick="copyYesterday()">↺ Copy all of yesterday (${Yd.food.length})</button>`):"";
  const saved=(S.core.meals||[]).length?`<div style="margin-bottom:.6rem"><div class="muted" style="margin-bottom:.3rem">Saved meals</div><div class="chips">${S.core.meals.map((m,i)=>`<span class="chip" style="display:inline-flex;gap:.3rem;align-items:center;padding-right:.35rem"><button style="all:unset;cursor:pointer" onclick="addSavedMeal(${i})">+ ${esc(m.name)} <span class="muted">(${m.items.length})</span></button><button class="x" style="font-size:.9rem;padding:0 .2rem" aria-label="Delete saved meal" onclick="delSavedMeal(${i})">×</button></span>`).join("")}</div></div>`:"";
  const mealChips=`<div class="row" style="margin-bottom:.7rem;justify-content:space-between"><div class="chips" role="group" aria-label="Meal">${MEALS.map(([k,l])=>`<button class="chip ${mealNow()===k?"on":""}" onclick="curMeal='${k}';render()">${l}</button>`).join("")}</div><label class="row" style="margin:0;gap:.3rem;font-size:.85rem">Eaten at <input type="time" value="${esc(mealAt||(logDate===today()?nowHM():""))}" onchange="mealAt=this.value" style="width:6.5rem;padding:.3rem"></label></div>`;
- const crousBtn=`<div style="margin-bottom:.7rem"><div class="row"><button class="ghost small" onclick="crousOpen=!crousOpen;CR=null;aiOpen=false;render()">🍽 ${crousOpen?"Close Crous meal":"Ate at the Crous"}</button><button class="ghost small" onclick="aiOpen=!aiOpen;crousOpen=false;render()">✨ Describe your meal</button></div><div id="crousbox">${crousOpen?crousFormHTML():""}</div><div id="aibox">${aiBoxHTML()}</div></div>`;
+ const crousBtn=`<div style="margin-bottom:.7rem"><div class="row"><button class="ghost small" onclick="crousOpen=!crousOpen;CR=null;aiOpen=false;qaOpen=false;render()">🍽 ${crousOpen?"Close Crous meal":"Ate at the Crous"}</button><button class="ghost small" onclick="aiOpen=!aiOpen;crousOpen=false;qaOpen=false;render()">✨ Describe your meal</button><button class="ghost small" onclick="qaOpen=!qaOpen;aiOpen=false;crousOpen=false;render()">⚡ Quick add</button></div>${qaOpen?qaHTML():""}${(S.core.quick||[]).length?`<div class="chips" style="margin-top:.5rem">${S.core.quick.map((q,i)=>`<span class="chip" style="display:inline-flex;gap:.3rem;align-items:center;padding-right:.35rem"><button style="all:unset;cursor:pointer" onclick="qaLogSaved(${i})">⚡ ${esc(q.name)} <span class="muted">${(S.core.prefs||{}).hideKcal?r0(q.p)+" g P":r0(q.kcal)+" kcal"}</span></button><button class="x" style="font-size:.9rem;padding:0 .2rem" aria-label="Delete" onclick="qaDel(${i})">×</button></span>`).join("")}</div>`:""}<div id="crousbox">${crousOpen?crousFormHTML():""}</div><div id="aibox">${aiBoxHTML()}</div></div>`;
  const quick=mealChips+crousBtn+(repeat?`<div class="chips" style="margin-bottom:.7rem">${repeat}</div>`:"")+saved+chipRow("favs","Favourites")+chipRow("recent","Recent");
  h+=crousCounterHTML();
  const pbar=planBarHTML(L);const showForm=!pbar||(logMode==="other");
@@ -1105,6 +1105,7 @@ function plannedSlots(d){const idx=(new Date(d+"T12:00").getDay()+6)%7;if(S.core
 function slotName(id){if(id==="crous")return"🍽 Crous";const r=S.core.recipes.find(x=>x.id===id);return r?r.name.replace(/^(Breakfast|Snack) · /,""):"?"}
 function planBarHTML(L){const pt=plannedSlots(logDate);if(!pt.length)return"";const mode=logMode||"planned";const done=L.slotsDone||{};
  let h=`<div class="seg" style="margin-bottom:.7rem">${[["planned","📋 Planned meal"],["modify","✎ Modify planned"],["other","＋ Another meal"]].map(([k,l])=>`<button class="${mode===k?"on":""}" onclick="logMode='${k}';modDraft=null;render()">${l}</button>`).join("")}</div>`;
+ if(mode!=="other")h+=`<div class="row" style="justify-content:flex-end;margin:-.2rem 0 .5rem"><label class="row" style="margin:0;gap:.3rem;font-size:.85rem">Eaten at <input type="time" value="${esc(mealAt||(logDate===today()?nowHM():""))}" onchange="mealAt=this.value" style="width:6.5rem;padding:.3rem"></label></div>`;
  if(mode==="planned")h+=pt.map(([k,l,id])=>`<button class="sheetbtn" style="${done[k]?"opacity:.55":""}" onclick="logSlot('${k}')"><span class="sheeticon">${done[k]?"✓":{b:"🌅",l:"☀️",d:"🌙",s:"🍎"}[k]}</span><span style="text-align:left"><span class="muted" style="font-size:.78rem;display:block">${l}</span>${esc(slotName(id))}${done[k]?' <span class="muted" style="font-size:.8rem">(logged)</span>':""}</span></button>`).join("");
  if(mode==="modify"){if(!modDraft)h+=`<p class="muted" style="margin:0 0 .3rem">Which planned meal did you change?</p>`+pt.filter(x=>x[2]!=="crous").map(([k,l,id])=>`<button class="sheetbtn" onclick="startMod('${k}')"><span class="sheeticon">✎</span><span style="text-align:left"><span class="muted" style="font-size:.78rem;display:block">${l}</span>${esc(slotName(id))}</span></button>`).join("");else h+=modHTML()}
  return h}
@@ -1140,6 +1141,24 @@ async function modApplyText(){const t=(($("#modtext")||{}).value||"").trim();if(
 function logModified(){const d=modDraft;if(!d)return;const t=modTotals();const used={};d.items.forEach(it=>{if(it.food)used[it.food]=(used[it.food]||0)+it.g});
  const L=dayLog(logDate);L.food.push({label:`${d.name.replace(/^(Breakfast|Snack) · /,"")} (modified)`,...t,veg:d.items.reduce((a,it)=>a+(it.food&&isProduce(food(it.food))?it.g:0),0),meal:d.k,slot:d.k,at:mealAt||(logDate===today()?nowHM():""),used});
  stockUse(used,1);L.slotsDone=Object.assign(L.slotsDone||{},{[d.k]:true});modDraft=null;commitLog()}
+
+/* ---------- quick add (macros only) ---------- */
+let qaOpen=false;
+function qaHTML(){const f=(id,l,ph)=>`<div><label style="font-size:.8rem">${l}</label><input id="qa-${id}" type="text" inputmode="decimal" placeholder="${ph}"></div>`;
+ return`<div class="box" style="margin-top:.6rem;background:var(--bg)"><h3>⚡ Quick add · ${(MEALS.find(m=>m[0]===mealNow())||[0,""])[1]}</h3><p class="muted" style="margin:0 0 .5rem;font-size:.85rem">Just the totals, no ingredients: from a label, a restaurant menu or a guess.</p>
+ <label>Name</label><input id="qa-name" placeholder="e.g. Poke bowl, restaurant">
+ <div class="grid3" style="margin-top:.5rem">${f("kcal","kcal","500")}${f("p","Protein g","30")}${f("c","Carbs g","")}${f("f","Fat g","")}${f("fib","Fibre g","")}</div>
+ <label class="check" style="margin-top:.6rem;color:inherit"><input type="checkbox" id="qa-save">Save it for next time (one tap)</label>
+ <div class="row" style="margin-top:.6rem"><button class="ghost small" onclick="qaOpen=false;render()">Cancel</button><button onclick="qaAdd()">Add</button></div>
+ <p class="muted" style="font-size:.75rem;margin:.4rem 0 0">Only calories are required; leave the rest empty if you don't know (missing carbs/fat are estimated from the calories).</p></div>`}
+function qaVals(){const v=k=>{const el=$("#qa-"+k);return el?+String(el.value).replace(",",".")||0:0};const name=(($("#qa-name")||{}).value||"").trim()||"Quick add";
+ let kcal=v("kcal"),p=v("p"),c=v("c"),f=v("f");const fib=v("fib");if(!kcal&&(p||c||f))kcal=p*4+c*4+f*9;
+ if(kcal&&!c&&!f){const rest=Math.max(0,kcal-p*4);c=rest*.5/4;f=rest*.5/9}else if(kcal&&!c){c=Math.max(0,(kcal-p*4-f*9)/4)}else if(kcal&&!f){f=Math.max(0,(kcal-p*4-c*4)/9)}
+ return{name,kcal,p,c,f,fib}}
+function qaPush(q){dayLog(logDate).food.push({label:`⚡ ${q.name}`,kcal:q.kcal,p:q.p,c:q.c,f:q.f,fib:q.fib||0,veg:0,meal:mealNow(),at:mealAt||(logDate===today()?nowHM():""),quick:true});commitLog()}
+function qaAdd(){const q=qaVals();if(!q.kcal){toast("Enter at least the calories.");return}if(($("#qa-save")||{}).checked){S.core.quick=(S.core.quick||[]).concat([q]);save("core")}qaOpen=false;qaPush(q)}
+function qaLogSaved(i){const q=(S.core.quick||[])[i];if(q)qaPush(q)}
+async function qaDel(i){const q=S.core.quick[i];if(!await ask(`Remove “${q.name}” from your quick adds?`))return;S.core.quick.splice(i,1);save("core");render()}
 /* ---------- Crous meals ---------- */
 const CROUS_MAIN=[["meat","Meat or fish + starch + veg",650,35,70,22,150],["pasta","Pasta or rice dish",700,25,95,22,80],["veg","Vegetarian plate",600,20,75,22,150],["fried","Fried (fries, breaded, pizza)",850,28,85,42,50],["salad","Big salad / lighter plate",450,22,40,20,250]];
 const CROUS_ONE=[["none","Nothing",0,0,0,0,0],["starter","Starter (crudités, salad, soup)",120,3,12,7,100],["yogurt","Yogurt / fromage blanc",100,5,14,3,0],["fruit","Fresh fruit",80,1,20,0,120],["compote","Compote",90,0,22,0,80],["cheese","Cheese portion",110,7,0,9,0],["dessert","Classic dessert (flan, mousse, crème)",150,4,22,5,0]];
@@ -1563,23 +1582,65 @@ const ownExerciseNames=()=>new Set(Object.keys(EX_MUSCLES).concat(["Incline trea
 const allExerciseNames=()=>[...new Set([...ownExerciseNames(),...Object.keys(WGER)])].sort((a,b)=>a.localeCompare(b));
 const isCardio=ex=>exMode(ex.name)==="c";
 function setsFor(ex){if(isCardio(ex))return 1;if(exMode(ex.name)==="t"&&S.core.phase.name==="maintain")return Math.max(2,ex.sets-1);const ph=S.core.phase.name;if((ph==="build"||ph==="gain")&&ex.glute)return ex.sets+1;if(ph==="maintain")return Math.max(2,ex.sets-1);return ex.sets}
-function suggestion(ex){const hist=S.core.lifts[ex.name];
- if(isCardio(ex)){if(!hist||!hist.length)return"First time: pick a speed where you can talk but not sing.";
-  const l=hist[hist.length-1].sets[0]||{};if(!l.min)return"";const top=+String(ex.reps).split("-")[1]||+ex.reps;const km=l.min/60*(l.speed||0);
-  return`Last time ${l.min} min at ${l.speed||"?"} km/h (≈ ${r1(km)} km). `+(l.min<top?`Add 5 minutes today.`:`Keep ${l.min} min and go up 0.3 km/h (or +1% incline).`)}
- const md=exMode(ex.name);
- if(md==="t"){if(!hist||!hist.length)return"First time: hold with good form, stop before it breaks down.";const best=Math.max(0,...hist[hist.length-1].sets.map(s=>+s.sec||0));const top=+String(ex.reps).split("-")[1]||60;
-  return best>=top?`Last time ${best} s. Make it harder (lift a leg, add a plate) and restart at the low end.`:`Last time ${best} s. Aim for 5–10 s more per set.`}
- if(md==="r"){if(!hist||!hist.length)return"First time: stop each set 1–2 reps before failure.";const reps=hist[hist.length-1].sets.map(s=>+s.r||0);const top=+String(ex.reps).split("-")[1]||+ex.reps;
-  return reps.every(r=>r>=top)?`Last time ${reps.join(", ")} reps, all at the top. Make it harder: add a band, a weight or slow the lowering.`:`Last time ${reps.join(", ")} reps. Aim for 1 more rep per set.`}
- if(!hist||!hist.length)return"First time: pick a weight you could lift 2 more reps with.";
- const last=hist[hist.length-1];const top=+String(ex.reps).split("-")[1]||+ex.reps;const bottom=+String(ex.reps).split("-")[0];
- const done=last.sets.filter(s=>s.r&&s.t!=="W");if(!done.length)return"";
- const w=Math.max(...done.map(s=>+s.w||0));const allTop=done.every(s=>+s.r>=top);const any_low=done.some(s=>+s.r<bottom);
- const big=/hip thrust|squat|deadlift|leg press|row|pulldown/i.test(ex.name)?2.5:1;
- if(allTop)return`Last time ${w} kg, all sets at ${top}+. Go up to ${w+big} kg today.`;
- if(any_low&&S.core.phase.name!=="cut")return`Last time ${w} kg, some sets under ${bottom}. Stay at ${w} kg and get every set into range.`;
- return`Last time ${w} kg (${done.map(s=>s.r).join(", ")} reps). Same weight, aim for 1 more rep per set.`}
+/* ---------- progression engine (rule-based) ---------- */
+function repRange(reps){const p=String(reps||"8-12").split("-").map(Number);const lo=p[0]||8,hi=p[1]||lo;return[lo,hi]}
+function incFor(name,w){const n=name.toLowerCase();const lower=/squat|deadlift|rdl|hip thrust|leg press|lunge|split squat|hack|pendulum|belt|good morning|glute bridge/.test(n);const db=equipOf(name)==="dumbbell";
+ if(db)return w<10?1:2;if(lower&&w>=40)return 5;return 2.5}
+const roundTo=(v,st)=>Math.round(v/st)*st;
+function readiness(){const d=today();const L=((S.logs[monthKey(d)]||{}).days||{})[d]||{};const low=(L.energy&&+L.energy<=2)||(L.sleep&&+L.sleep<6);return{low,energy:L.energy,sleep:L.sleep}}
+function workSets(entry){return(entry.sets||[]).filter(x=>x.t!=="W")}
+function plateau(hist){if(hist.length<4)return false;const e=hist.map(h=>{const ws=workSets(h).filter(x=>x.w&&x.r);return ws.length?Math.max(...ws.map(x=>x.w*(1+x.r/30))):0});const n=e.length;const before=e[n-4];return before>0&&Math.max(e[n-1],e[n-2],e[n-3])<=before*1.005}
+const PROG=[["linear","Linear"],["double","Double progression"],["volume","Volume (add sets)"],["dup","Undulating (rotating)"],["pyramid","Pyramid 12/10/8/6"],["rpyramid","Reverse pyramid 6/8/10/12"],["hold","Maintain (no increase)"]];
+const PROG_INFO={linear:"Same sets and reps, the weight goes up every time you hit them all. Best for beginners.",double:"Work up the reps within the range, then add weight and start again at the bottom.",volume:"When reps and weight stall, add a set (up to 5); at 5 full sets, add weight and go back to your usual sets.",dup:"Rotates every time you do the exercise: heavy 4×5, moderate 3×10, light 3×15, with weights from your estimated max.",pyramid:"12, 10, 8, 6 reps with the weight going up each set; hit 6 on the last set → heavier next time. Rest gets longer each set.",rpyramid:"Heaviest set first (6 reps), then −10% per set for 8, 10, 12 reps. Progress is based on the first set.",hold:"Keep the same weights and reps: maintaining, not progressing."};
+const progLabel=k=>(PROG.find(p=>p[0]===k)||[0,k])[1];
+function defaultProg(){return((S.core.setup||{}).answers||{}).exp==="new"?"linear":"double"}
+function progSource(ex,day){if(ex&&ex.prog)return["exercise",ex.prog];const w=day&&S.core.workout[day];if(w&&w.prog)return["workout",w.prog];if(S.core.phase.prog)return["phase",S.core.phase.prog];if(S.core.phase.name==="maintain")return["phase","hold"];return["default",defaultProg()]}
+const methodFor=(ex,day)=>progSource(ex,day)[1];
+const isCompound=n=>/squat|deadlift|thrust|press|row|pull-?up|pulldown|lunge|split squat|leg press|bench|dip|chin|good morning|hack|pendulum|belt/i.test(n);
+function e1rmOf(name,n=3){const h=((S.core.lifts||{})[name]||[]).slice(-n);let best=0;h.forEach(e=>workSets(e).forEach(x=>{if(x.w&&x.r)best=Math.max(best,x.w*(1+x.r/30))}));return best}
+function nextTarget(ex,day){const name=ex.name;const hist=(S.core.lifts||{})[name]||[];const md=exMode(name);const [lo,hi]=repRange(ex.reps);const baseSets=setsFor?setsFor(ex):ex.sets||3;const R=readiness();
+ const method=md==="w"?methodFor(ex,day):"double";const tempo=ex.tempo?" Tempo: lower the weight over 3 seconds.":"";
+ if(md==="c"){if(!hist.length)return{text:"First time: pick a speed where you can talk but not sing.",method};const l=workSets(hist[hist.length-1])[0]||{};if(!l.min)return{text:"",method};const km=l.min/60*(l.speed||0);
+  return{method,min:l.min<hi?Math.min(hi,l.min+5):l.min,speed:l.min<hi?l.speed:r1((+l.speed||0)+.3),text:`Last time ${l.min} min at ${l.speed||"?"} km/h (≈ ${r1(km)} km). `+(R.low?"Low energy today: keep the same.":l.min<hi?"Add 5 minutes today.":`Keep ${l.min} min and go up 0.3 km/h (or +1% incline).`)}}
+ if(md==="t"){if(!hist.length)return{method,text:"First time: hold with good form, stop before it breaks down."};const best=Math.max(0,...workSets(hist[hist.length-1]).map(x=>+x.sec||0));
+  return{method,sec:best>=hi?lo:best+5,text:best>=hi?`Last time ${best} s. Make it harder (lift a leg, add a plate) and restart at ${lo} s.`:`Last time ${best} s. Target: ${baseSets} × ${best+5} s.`}}
+ if(md==="r"){if(!hist.length)return{method,text:"First time: stop each set 1–2 reps before failure."+tempo};const reps=workSets(hist[hist.length-1]).map(x=>+x.r||0);
+  if(reps.length&&reps.every(r=>r>=hi))return{method,r:lo,text:`Last time ${reps.join("/")} reps: all at the top. Make it harder (band, weight or slower lowering) and restart at ${baseSets}×${lo}.`};
+  const t=Math.min(hi,Math.max(lo,Math.min(...reps)+1));return{method,r:t,text:`Last time ${reps.join("/")} reps. Target: ${baseSets} × ${t}.${R.low?" Low energy today: matching last time is a win.":""}${tempo}`}}
+ const step=equipOf(name)==="dumbbell"?1:2.5;const rnd=v=>Math.max(step,roundTo(v,step));
+ const last=hist.length?hist[hist.length-1]:null;const ws=last?workSets(last).filter(x=>x.r&&x.w!=null):[];const lastTxt=ws.map(x=>`${x.w}×${x.r}`).join(", ");
+ const top=ws.length?Math.max(...ws.map(x=>+x.w||0)):0;const inc=incFor(name,top||20);const e1=e1rmOf(name);
+ const failedTwice=(target)=>hist.length>=2&&[hist[hist.length-1],hist[hist.length-2]].every(h=>{const w2=workSets(h).filter(x=>x.r);const t2=Math.max(...w2.map(x=>+x.w||0));return w2.filter(x=>+x.w===t2).some(x=>+x.r<target)});
+ let out;
+ if(method==="dup"){const Z=[["Heavy",4,5,.85],["Moderate",3,10,.75],["Light",3,15,.65]];const z=Z[hist.length%3];const nz=Z[(hist.length+1)%3];
+  if(!e1)out={sets:z[1],r:z[2],status:"",text:`${z[0]} day (${z[1]} × ${z[2]}): first time, pick a weight you could do 2 more reps with. Next time: ${nz[0].toLowerCase()} (${nz[1]} × ${nz[2]}).`};
+  else{const w=rnd(e1*z[3]);out={sets:z[1],r:z[2],w,status:"",text:`${z[0]} day: ${z[1]} × ${z[2]} at ${w} kg (≈${Math.round(z[3]*100)}% of your estimated max ${r1(e1)} kg). Beat the reps and your max goes up. Next time: ${nz[0].toLowerCase()} ${nz[1]} × ${nz[2]}.`}}}
+ else if(method==="pyramid"||method==="rpyramid"){const asc=method==="pyramid";const reps=asc?[12,10,8,6]:[6,8,10,12];const jump=isCompound(name)?.09:.05;
+  let wTop;let why="";if(ws.length){const key=asc?ws[ws.length-1]:ws[0];wTop=+key.w;if(+key.r>=6&&!R.low){wTop=rnd(wTop+inc);why=`You hit ${key.r} reps on your heaviest set: +${inc} kg.`}else why=R.low&&+key.r>=6?"Low energy today: same weights.":`Aim for 6 reps on the heaviest set.`}
+  else if(e1){wTop=rnd(e1/1.2);why="Weights from your estimated max."}
+  if(!wTop)out={sets:4,r:reps[0],perSet:reps.map(r=>({r})),text:`${asc?"Pyramid 12/10/8/6":"Reverse pyramid 6/8/10/12"}: first time, pick weights you could do 2 more reps with, going ${asc?"up":"down"} ${Math.round(jump*100)}% each set.`};
+  else{const ws2=asc?reps.map((r,i)=>rnd(wTop/Math.pow(1+jump,3-i))):reps.map((r,i)=>rnd(wTop*Math.pow(.9,i)));out={sets:4,r:reps[0],w:ws2[0],perSet:reps.map((r,i)=>({r,w:ws2[i]})),status:why.startsWith("You hit")?"up":"",text:`${reps.map((r,i)=>`${ws2[i]}×${r}`).join(" · ")}. ${why}`}}}
+ else if(!ws.length){out={sets:method==="linear"?baseSets:baseSets,r:lo,text:method==="linear"?`First time: pick a weight for ${baseSets} × ${lo} with 2 reps to spare.`:`First time: pick a weight you could lift 2 more reps with, ${baseSets} × ${lo}–${hi}.`}}
+ else if(method==="hold"){const r=Math.round(ws.reduce((a,x)=>a+(+x.r),0)/ws.length);out={sets:ws.length,w:top,r,status:"",text:`Maintain: keep ${top} kg for ${ws.length} × ${r}. Holding your strength is the goal right now.`}}
+ else if(method==="linear"){const atTop=ws.filter(x=>+x.w===top);if(atTop.every(x=>+x.r>=lo)&&atTop.length>=Math.min(baseSets,ws.length)&&!R.low)out={sets:baseSets,r:lo,w:rnd(top+inc),status:"up",text:`All sets done at ${top} kg: next ${rnd(top+inc)} kg, ${baseSets} × ${lo}.`};
+  else if(failedTwice(lo))out={sets:baseSets,r:lo,w:rnd(top*.9),status:"down",text:`Two sessions missing ${lo} reps at ${top} kg: drop to ${rnd(top*.9)} kg and build back up.`};
+  else out={sets:baseSets,r:lo,w:top,status:"hold",text:`Repeat ${top} kg for ${baseSets} × ${lo}${R.low?" (low energy today)":""}.`}}
+ else if(method==="volume"){const atTop=ws.filter(x=>+x.w===top);const n=atTop.length;const all=atTop.every(x=>+x.r>=lo);
+  if(all&&n>=5&&!R.low)out={sets:baseSets,r:lo,w:rnd(top+inc),status:"up",text:`5 full sets at ${top} kg: next ${rnd(top+inc)} kg, back to ${baseSets} × ${lo}.`};
+  else if(all&&!R.low)out={sets:Math.min(5,Math.max(n,baseSets)+1),r:lo,w:top,status:"up",text:`${n} × ${lo} done at ${top} kg: add a set, ${Math.min(5,Math.max(n,baseSets)+1)} × ${lo} next. At 5 × ${lo} → ${rnd(top+inc)} kg.`};
+  else if(failedTwice(lo))out={sets:Math.max(baseSets,n-1),r:lo,w:top,status:"down",text:`Two sessions short of ${lo} reps: one set fewer (${Math.max(baseSets,n-1)} × ${lo}) at ${top} kg.`};
+  else out={sets:Math.max(n,baseSets),r:lo,w:top,status:"hold",text:`Same ${Math.max(n,baseSets)} × ${lo} at ${top} kg until every set is complete.`}}
+ else{/* double */const atTop=ws.filter(x=>+x.w===top);let w=top,r=lo,status="",text="";
+  if(atTop.length>=Math.min(baseSets,ws.length)&&atTop.every(x=>+x.r>=hi)){w=rnd(top+inc);r=lo;status="up";text=`You hit ${hi}+ on every set at ${top} kg. Next: ${w} kg, ${baseSets} × ${lo}. When you reach ${baseSets} × ${hi} → ${rnd(w+incFor(name,w))} kg.`}
+  else if(atTop.length<ws.length&&atTop.some(x=>+x.r>=lo-1)){status="hold";text=`You reached ${top} kg on part of your sets. Next: ${top} kg for ${baseSets} × ${lo}. If you get ${Array(baseSets).fill(lo).join("/")} → ${rnd(top+inc)} kg.`}
+  else if(atTop.some(x=>+x.r<lo-1)&&failedTwice(lo)){w=rnd(top*.9);status="down";text=`Two sessions under ${lo} reps at ${top} kg: drop to ${w} kg (${baseSets} × ${lo}) and build back up. That's normal, not a step back.`}
+  else if(atTop.some(x=>+x.r<lo-1)){status="hold";text=`Some sets under ${lo} reps. Stay at ${top} kg and aim for ${baseSets} × ${lo}.`}
+  else{const mn=Math.min(...atTop.map(x=>+x.r));r=Math.min(hi,Math.max(lo,mn+1));status="reps";text=`Same weight (${top} kg), aim for ${baseSets} × ${r} (+1 rep). At ${baseSets} × ${hi} → ${rnd(top+inc)} kg.`}
+  if(R.low&&status==="up"){w=top;status="hold";text=`Ready to go up to ${rnd(top+inc)} kg, but ${R.energy&&R.energy<=2?"your energy is low":"you slept under 6 h"} today: stay at ${top} kg and make the reps clean.`}
+  out={sets:baseSets,w,r,status,text}}
+ let plat="";if(method!=="hold"&&method!=="dup"&&plateau(hist)&&out.status!=="up")plat=` Plateau: no progress in 3 sessions. Try ${ex.tempo?"":"a 3-second lowering (tempo), "}an extra set, a lighter week or another method.`;
+ return{...out,method,text:`${lastTxt?`Last: ${lastTxt}. `:""}${out.text}${tempo}${plat}`}}
+function suggestion(ex,day){return nextTarget(ex,day||gymDay).text||""}
 function vTrain(){
  const tabsT=`<div class="chips" style="margin-bottom:.9rem">${[["plan","Plan & log"],["workouts","Workouts"],["lib","Library"],["progress","Progress"]].map(([k,l])=>`<button class="chip ${trainView===k?"on":""}" onclick="trainView='${k}';render()">${l}</button>`).join("")}</div>`;
  if(trainView==="progress")return tabsT+vProgress();
@@ -1605,7 +1666,7 @@ function vTrain(){
  ${day.ex.some(ex=>injuryTips(ex).length)?`<button class="ghost small" style="margin-bottom:.5rem" onclick="showWarn=!showWarn;render()">${showWarn?"Hide warnings":`⚠ Warnings (${day.ex.filter(ex=>injuryTips(ex).length).length})`}</button>`:""}
  ${A()?`<button style="width:100%;margin-bottom:.4rem" onclick="trainView='live';render();window.scrollTo(0,0)">▶ Resume workout ${esc(A().day)}</button>`:`<button style="width:100%;margin-bottom:.4rem" onclick="startWorkout('${gymDay}')">▶ Start workout ${gymDay}</button>`}
  ${day.ex.map((ex,i)=>{const n=setsFor(ex);const [rs]=restSuggest(ex.name,ex.reps);const rr=(S.core.rest||{})[ex.name]??rs;return`<div class="ex" ${lpAttrs("em",i)}><div class="row" style="justify-content:space-between"><div><button class="exname ${ex.glute?"glute":""}" onclick="showEx(${esc(JSON.stringify(ex.name))},false,${i})">${esc(ex.name)}</button> <span class="muted">${isCardio(ex)?esc(ex.reps)+" min":exMode(ex.name)==="t"?n+" × "+esc(ex.reps)+" s":n+" × "+esc(ex.reps)+(exMode(ex.name)==="r"?" reps":"")}${rr?` · rest ${fmtRest(rr)}`:""}</span></div><button class="x" aria-label="Remove exercise" onclick="rmEx(${i})">×</button></div>
- <div class="muted">${esc(suggestion(ex))}</div>${showWarn?injuryTips(ex).map(t=>`<div class="note warn" style="margin:.35rem 0">${esc(t)}</div>`).join(""):""}</div>`}).join("")}
+ <div class="muted"><span class="chip" style="font-size:.7rem;padding:.05rem .45rem;margin-right:.3rem" onclick="progSheet('ex',${i})">${esc(progLabel(methodFor(ex,gymDay)))}${ex.tempo?" · tempo":""}</span>${esc(suggestion(ex))}</div>${showWarn?injuryTips(ex).map(t=>`<div class="note warn" style="margin:.35rem 0">${esc(t)}</div>`).join(""):""}</div>`}).join("")}
  <div style="margin-top:.9rem"><label>Add an exercise to day ${gymDay}</label><input id="newex" type="search" autocomplete="off" placeholder="Search: hip thrust, plank, curl…" oninput="exQuery=this.value;paintExResults()" value="${esc(exQuery)}"><p class="muted" style="font-size:.78rem;margin:.3rem 0 0">Library: my exercises + 745 from <a href="https://wger.de" target="_blank" rel="noopener">wger.de</a> (CC-BY-SA). Tap ⓘ to see the muscles.</p><div id="exres">${exResultsHTML()}</div></div>
  <p class="muted" style="margin:.8rem 0 0;font-size:.85rem">Logging a past workout? Start it, tick the sets, and change the date when you finish.</p></div>
  <p class="muted">Want your old 5-day program back instead? Replace the exercises here; the progression tips work for anything.</p>`;
@@ -2076,10 +2137,13 @@ function restSuggest(name,reps){const md=exMode(name);if(md==="c")return[0,"Card
 function restFor(e,type){if(type==="W")return((S.core.restW||{})[e.name]??60);return((S.core.rest||{})[e.name]??restSuggest(e.name,e.reps)[0])}
 function prevSet(name,i){const h=(S.core.lifts||{})[name];if(!h||!h.length)return null;const s=h[h.length-1].sets.filter(x=>x.t!=="W");return s[i]||s[s.length-1]||null}
 function liveFields(name){const md=exMode(name);return md==="c"?[["min","MIN"],["speed","KM/H"]]:md==="t"?[["sec","SEC"]]:md==="r"?[["r","REPS"]]:[["w",perSide(name)?"KG (1 SIDE)":"KG"],["r","REPS"]]}
-function phFor(e,k,fld){const p=prevSet(e.name,k);if(p&&p[fld]!=null&&p[fld]!=="")return p[fld];if(fld==="r"||fld==="sec"||fld==="min")return topReps(e.reps);return""}
+function liveDef(e){const d=A()&&S.core.workout[A().day];return(d&&d.ex.find(x=>x.name===e.name))||{name:e.name,reps:e.reps,sets:e.sets.filter(x=>x.t!=="W").length||3}}
+function phFor(e,k,fld){const t=nextTarget(liveDef(e),A()&&A().day);const wk=e.sets.slice(0,k).filter(x=>x.t!=="W").length;const ps=t.perSet&&t.perSet[wk];if(ps&&e.sets[k]&&e.sets[k].t!=="W"){if(fld==="w"&&ps.w!=null)return ps.w;if(fld==="r"&&ps.r!=null)return ps.r}if(e.sets[k]&&e.sets[k].t==="W"){const p=prevSet(e.name,k);return p&&p[fld]!=null?p[fld]:""}
+ if(fld==="w"&&t.w!=null)return t.w;if(fld==="r"&&t.r!=null)return t.r;if(fld==="sec"&&t.sec!=null)return t.sec;if(fld==="min"&&t.min!=null)return t.min;if(fld==="speed"&&t.speed!=null)return t.speed;
+ const p=prevSet(e.name,k);if(p&&p[fld]!=null&&p[fld]!=="")return p[fld];if(fld==="r"||fld==="sec"||fld==="min")return topReps(e.reps);return""}
 function newLiveEx(name,n,reps){return{name,reps:reps||(exDef(name)||{}).reps||DEF_REPS[exMode(name)],notes:"",open:false,sets:Array.from({length:exMode(name)==="c"?1:Math.max(1,n)},()=>({t:"",done:false}))}}
 async function startWorkout(day){if(A()&&!await ask("A workout is already in progress. Discard it and start this one?"))return;const d=S.core.workout[day];if(!d)return;
- S.core.active={day,start:Date.now(),notes:"",photo:null,rest:null,ex:d.ex.map(ex=>newLiveEx(ex.name,setsFor(ex),ex.reps))};if(S.core.active.ex[0])S.core.active.ex[0].open=true;
+ S.core.active={day,start:Date.now(),notes:"",photo:null,rest:null,ex:d.ex.map(ex=>{const t=exMode(ex.name)==="w"?nextTarget(ex,day):{};return newLiveEx(ex.name,t.sets||setsFor(ex),ex.reps)})};if(S.core.active.ex[0])S.core.active.ex[0].open=true;
  save("core");tab="train";trainView="live";render();window.scrollTo(0,0);startTicker()}
 function liveStats(){const a=A();let sets=0,vol=0;a.ex.forEach(e=>e.sets.forEach(s=>{if(s.done&&s.t!=="W"){sets++;if(exMode(e.name)==="w")vol+=(+s.w||0)*(+s.r||0)*(perSide(e.name)?2:1)}}));return{sets,vol}}
 function vLive(){const a=A();if(!a){trainView="plan";return vTrain()}const st=liveStats();const dur=(Date.now()-a.start)/1000;
@@ -2093,6 +2157,7 @@ function vLive(){const a=A();if(!a){trainView="plan";return vTrain()}const st=li
   <button style="all:unset;cursor:pointer;display:block" class="muted" onclick="A().ex[${i}].open=!A().ex[${i}].open;liveSave();render()">${done}/${e.sets.length} done ${e.open?"▴":"▾"}</button></div><button class="iconbtn" aria-label="Exercise options" onclick="exMenu(${i})">•••</button></div>`;
   if(e.open){const rs=restFor(e,"");
    h+=`<input class="plain" placeholder="Notes…" value="${esc(e.notes)}" onchange="A().ex[${i}].notes=this.value;liveSave()" style="margin-top:.5rem">
+   ${(()=>{const t=nextTarget(liveDef(e),A().day);return t.text?`<div class="note ${t.status==="up"?"good":t.status==="down"?"warn":""}" style="margin:.4rem 0;font-size:.85rem">🎯 ${esc(t.text)}</div>`:""})()}
    <button class="linkbtn" onclick="restSheet(${i})">⏱ Rest timer: ${fmtRest(rs)}</button>
    <div class="setgrid head" style="grid-template-columns:${g}"><span>SET</span><span>PREVIOUS</span>${f.map(x=>`<span>${x[1]}</span>`).join("")}<span></span></div>
    ${e.sets.map((s,k)=>{const ty=SET_TYPES.find(t=>t[0]===s.t);let n=0;for(let j=0;j<=k;j++)if(e.sets[j].t!=="W")n++;const p=prevSet(e.name,k);
@@ -2128,7 +2193,7 @@ function liveSave(){save("core")}
 function updLive(){const st=liveStats();const v=document.getElementById("livevol"),n=document.getElementById("livesets");if(v)v.textContent=r0(st.vol).toLocaleString()+" kg";if(n)n.textContent=st.sets}
 function toggleSetDone(i,k){const e=A().ex[i],s=e.sets[k];if(!s.done){liveFields(e.name).forEach(([fld])=>{if(s[fld]==null||s[fld]===""){const ph=phFor(e,k,fld);if(ph!=="")s[fld]=String(ph)}});
   if(!liveFields(e.name).some(([fld])=>+s[fld])){toast("Enter the weight or reps first.");return}
-  s.done=true;const r=restFor(e,s.t);if(r)A().rest={end:Date.now()+r*1000,total:r,name:e.name};
+  s.done=true;let r=restFor(e,s.t);const mth=methodFor(liveDef(e),A().day);if(s.t!=="W"&&(mth==="pyramid"||mth==="rpyramid")){const wk=e.sets.slice(0,k).filter(x=>x.t!=="W").length;r=mth==="pyramid"?90+30*wk:Math.max(90,180-30*wk)}if(r)A().rest={end:Date.now()+r*1000,total:r,name:e.name};
   if(e.sets.every(x=>x.done)){e.open=false;const nx=A().ex.find((x,j)=>j>i&&!x.sets.every(y=>y.done));if(nx)nx.open=true}}
  else s.done=false;liveSave();render();startTicker()}
 async function liveAddEx(){const v=($("#liveadd")||{}).value;if(!v||!v.trim())return;const n=allExerciseNames().find(x=>norm(x)===norm(v.trim()))||v.trim();
@@ -2204,6 +2269,7 @@ function tmrReset(){tmr.running=false;if(tmr.mode==="cd")tmr.left=tmr.cd;else tm
 function finishSheet(){const a=A();const st=liveStats();const dur=Math.max(1,Math.round((Date.now()-a.start)/60000));const any=a.ex.some(e=>e.sets.some(s=>s.done));
  openSheet(`<h3>Finish workout</h3>${any?`<p class="muted" style="margin:0 0 .6rem">${st.sets} sets · ${r0(st.vol).toLocaleString()} kg volume</p>`:`<div class="note warn">No set is ticked yet: sets where you entered numbers will be saved.</div>`}
  <div class="row"><div style="width:11rem"><label>Date</label><input id="fdate" type="date" value="${today()}" max="${today()}"></div><div style="width:7rem"><label>Started</label><input id="fstart" type="time" value="${new Date(a.start).toTimeString().slice(0,5)}" onchange="finDur()"></div><div style="width:7rem"><label>Ended</label><input id="fend" type="time" value="${nowHM()}" onchange="finDur()"></div><div style="width:6rem"><label>Minutes</label><input id="fdur" type="number" value="${dur}"></div></div>
+ <label style="margin-top:.6rem">How did you feel? (energy)</label><div class="chips" id="fenergy">${[1,2,3,4,5].map(n=>`<button class="chip" data-v="${n}" onclick="document.querySelectorAll('#fenergy .chip').forEach(c=>c.classList.toggle('on',c.dataset.v==='${n}'))">${["😫","😕","😐","🙂","💪"][n-1]} ${n}</button>`).join("")}</div>
  <label style="margin-top:.6rem">Private notes</label><textarea id="fnotes" rows="3" placeholder="Optional">${esc(a.notes||"")}</textarea>
  <div class="row" style="margin-top:.9rem"><button class="ghost small" onclick="closeSheet()">Keep going</button><span class="grow"></span><button onclick="saveLive()">Save workout</button></div>`)}
 function finDur(){const s0=($("#fstart")||{}).value,e0=($("#fend")||{}).value;if(!s0||!e0)return;let m=(+e0.slice(0,2)*60+ +e0.slice(3))-(+s0.slice(0,2)*60+ +s0.slice(3));if(m<0)m+=1440;const d=$("#fdur");if(d)d.value=m}
@@ -2214,7 +2280,10 @@ function saveLive(){const a=A();const anyDone=a.ex.some(e=>e.sets.some(s=>s.done
  a.ex.forEach(e=>{const md=exMode(e.name);const sets=e.sets.filter(s=>s.done).map(s=>{const o=md==="c"?{min:+s.min||0,speed:+s.speed||0}:md==="t"?{sec:+s.sec||0}:md==="r"?{w:0,r:+s.r||0}:{w:+s.w||0,r:+s.r||0};if(s.t)o.t=s.t;return o});
   if(!sets.length)return;const h=S.core.lifts[e.name]=S.core.lifts[e.name]||[];h.push({date,sid,sets});h.sort((x,y)=>x.date.localeCompare(y.date));if(h.length>60)h.shift()});
  S.core.sessions=(S.core.sessions||[]).concat([{id:sid,date,day:a.day,dur,startAt:($("#fstart")||{}).value||"",endAt:($("#fend")||{}).value||"",notes:a.notes||"",photo:a.photo||null}]).sort((x,y)=>x.date.localeCompare(y.date)).slice(-400);
- S.core.active=null;save("core");closeSheet();tab="cal";trainView="plan";calSel=date;calOff=0;render();window.scrollTo(0,0)}
+ const en=document.querySelector("#fenergy .chip.on");if(en){const ss=S.core.sessions[S.core.sessions.length-1];if(ss)ss.energy=+en.dataset.v;const Ld=dayLog(date);if(!Ld.energy)Ld.energy=+en.dataset.v;save(monthKey(date))}
+ const done=a.ex.filter(e=>e.sets.some(x=>x.done));S.core.active=null;save("core");closeSheet();tab="cal";trainView="plan";calSel=date;calOff=0;render();window.scrollTo(0,0);
+ const nx=done.map(e=>{const pe=(S.core.workout[a.day]||{ex:[]}).ex.find(x=>x.name===e.name)||{name:e.name,reps:e.reps,sets:e.sets.filter(x=>x.t!=="W").length};const t=nextTarget(pe,a.day);return t.text?`<div style="padding:.45rem 0;border-bottom:1px solid var(--line)"><b>${t.status==="up"?"⬆️ ":t.status==="down"?"⬇️ ":"➡️ "}${esc(e.name)}</b>${t.perSet&&t.perSet[0].w!=null?` · <b>${t.perSet.map(p=>p.w+"×"+p.r).join(" · ")}</b>`:t.w!=null?` · <b>${t.w} kg × ${t.sets}×${t.r}</b>`:""} <span class="muted" style="font-size:.75rem">${esc(progLabel(t.method))}</span><br><span class="muted" style="font-size:.85rem">${esc(t.text.replace(/^Last: [^.]*\. /,""))}</span></div>`:""}).join("");
+ if(nx)setTimeout(()=>openSheet(`<h3>🎯 Next time</h3><p class="muted" style="margin:0 0 .4rem;font-size:.85rem">Your targets for the next session of each exercise. They'll be pre-filled when you start it.</p>${nx}<button style="width:100%;margin-top:.8rem" onclick="closeSheet()">Got it</button>`),150)}
 function liveBarHTML(){const a=A();if(!a||(tab==="train"&&trainView==="live"))return"";return`<button class="livebar" onclick="tab='train';trainView='live';render();window.scrollTo(0,0)">🏋️ Workout ${esc(a.day)} in progress · <b id="livebardur">${fmtClock((Date.now()-a.start)/1000)}</b> · Resume</button>`}
 
 /* ---------- phase plan ---------- */
@@ -2238,7 +2307,7 @@ function planStatus(){const pp=S.core.phasePlan;if(!pp||pp.paused)return null;co
  if(due)out.push(["good",next?`Step complete${trigMet(st.trig)?" (target reached)":""}. Next: <b>${PHASES[next.phase].label}</b>${next.weeks?` for ${next.weeks} weeks`:""}. <button class="small" style="margin:.3rem .3rem 0 0" onclick="planNext()">Move on</button><button class="small ghost" style="margin-top:.3rem" onclick="planExtend()">Extend 2 weeks</button>`:`Your plan is complete. <button class="small ghost" onclick="meView={page:'plan'};render()">Add a step</button>`]);
  if(st.phase==="cut"||st.phase==="minicut"){const T=targets();if(T&&(T.under||S.core.profile.noDeficit))out.push(["warn","The plan asks for a deficit, but your BMI or health answers rule it out. The app stays at maintenance or above."])}
  return out}
-function planNext(){const pp=S.core.phasePlan;if(!pp)return;const i=pp.cur+1;if(!pp.steps[i])return;pp.cur=i;switchPhase(pp.steps[i].phase,pp.steps[i].pace);save("core");render()}
+function planNext(){const pp=S.core.phasePlan;if(!pp)return;const i=pp.cur+1;if(!pp.steps[i])return;pp.cur=i;switchPhase(pp.steps[i].phase,pp.steps[i].pace);if(pp.steps[i].prog)S.core.phase.prog=pp.steps[i].prog;save("core");render()}
 function planExtend(){const pp=S.core.phasePlan;const st=pp&&pp.steps[pp.cur];if(!st)return;st.weeks=Math.max(weeksIn()+2,(+st.weeks||0)+2);if(st.trig&&trigMet(st.trig))st.trig=null;save("core");render()}
 function planPage(){if(!planDraft)planDraft=S.core.phasePlan?JSON.parse(JSON.stringify(S.core.phasePlan.steps)):tplSteps(defaultTemplate());
  const pp=S.core.phasePlan;const mets=PLAN_METRICS();const T=targets();const blockDef=T&&(T.under||S.core.profile.noDeficit);
@@ -2248,6 +2317,7 @@ function planPage(){if(!planDraft)planDraft=S.core.phasePlan?JSON.parse(JSON.str
  if(blockDef)h+=`<div class="note warn">Fat loss and mini-cut steps won't set a deficit for you because of your BMI or health answers.</div>`;
  h+=planDraft.map((st,i)=>`<div class="box" style="border-left:5px solid ${PHASE_COL[st.phase]}"><div class="row" style="justify-content:space-between"><b>Step ${i+1}${pp&&!pp.paused&&pp.cur===i?" · current":""}</b><span class="row" style="flex-wrap:nowrap">${i>0?`<button class="x" aria-label="Move up" onclick="planMove(${i},-1)">↑</button>`:""}${i<planDraft.length-1?`<button class="x" aria-label="Move down" onclick="planMove(${i},1)">↓</button>`:""}<button class="x" aria-label="Delete step" onclick="planDraft.splice(${i},1);render()">×</button></span></div>
   <div class="grid2" style="margin-top:.4rem"><div><label>Phase</label><select onchange="planDraft[${i}].phase=this.value;render()">${PHASE_ORDER.map(k=>`<option value="${k}" ${st.phase===k?"selected":""}>${PHASES[k].label}</option>`).join("")}</select></div>
+  <div><label>Progression</label><select onchange="planDraft[${i}].prog=this.value||undefined;render()"><option value="">Default</option>${PROG.map(([k,l])=>`<option value="${k}" ${st.prog===k?"selected":""}>${l}</option>`).join("")}</select></div>
   <div><label>Pace</label><select ${st.phase==="maintain"?"disabled":""} onchange="planDraft[${i}].pace=this.value;render()"><option value="standard" ${st.pace!=="gentle"?"selected":""}>Standard</option><option value="gentle" ${st.pace==="gentle"?"selected":""}>Gentle</option></select></div></div>
   <div class="row" style="margin-top:.5rem;align-items:flex-end"><div style="width:7rem"><label>Weeks</label><input type="number" min="0" value="${st.weeks||""}" placeholder="open" onchange="planDraft[${i}].weeks=+this.value||0;render()"></div>
   <div class="grow"><label>Target (optional)</label><div class="row" style="flex-wrap:nowrap"><select onchange="planSetTrig(${i},'m',this.value)"><option value="">None</option>${mets.map(m=>`<option value="${m[0]}" ${st.trig&&st.trig.m===m[0]?"selected":""}>${esc(m[1])}</option>`).join("")}</select>
@@ -2380,14 +2450,25 @@ const lpAttrs=(kind,arg)=>`onpointerdown="lpStart(event,'${kind}','${arg}')" onp
 function workoutMenu(k){const w=S.core.workout[k];if(!w)return;const inW=schedule().includes(k);
  openSheet(`<h3><span class="dd" style="background:${DAYCOL[k]||"var(--plum)"}">${k}</span> ${esc(w.title)}</h3>
  ${sheetBtn("✎","Edit exercises",`closeSheet();gymDay='${k}';trainView='plan';render()`)}${sheetBtn("＋","Add exercises",`closeSheet();pickExercises('${k}')`)}${sheetBtn("Aa","Rename",`closeSheet();renameWorkout('${k}')`)}${sheetBtn("⧉","Duplicate",`closeSheet();dupWorkout('${k}')`)}
- ${inW?"":sheetBtn("📅","Add to week",`closeSheet();addSheet('${k}')`)}${sheetBtn("🗑","Delete workout",`deleteWorkout('${k}')`,true)}`)}
+ ${sheetBtn("📈","Progression method",`progSheet('wk','${k}')`)}${inW?"":sheetBtn("📅","Add to week",`closeSheet();addSheet('${k}')`)}${sheetBtn("🗑","Delete workout",`deleteWorkout('${k}')`,true)}`)}
 async function deleteWorkout(k){const w=S.core.workout[k];if(!w||!await ask(`Delete workout ${k} “${w.title}”? Days where it's planned become rest days. Your past workouts and charts are kept.`))return;
  delete S.core.workout[k];const strip=a=>a&&a.map(x=>x===k?"rest":x);if(S.core.schedule)S.core.schedule=strip(S.core.schedule);Object.keys(S.core.weekSched||{}).forEach(m=>S.core.weekSched[m]=strip(S.core.weekSched[m]));
  if(!S.core.schedule&&baseSchedule().includes(k))S.core.schedule=strip(baseSchedule());if(gymDay===k)gymDay=null;closeSheet();save("core");render();toast(`Workout ${k} deleted.`)}
 function nextLetter(){const used=Object.keys(S.core.workout);return"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").find(x=>!used.includes(x))}
 function dupWorkout(k){const L=nextLetter();if(!L)return;S.core.workout[L]=JSON.parse(JSON.stringify(S.core.workout[k]));S.core.workout[L].title+=" (copy)";gymDay=L;save("core");render();toast(`Copied as workout ${L}.`)}
+
+function progSheet(level,arg){let cur,inheritTxt,title,tempo=null;
+ if(level==="ex"){const ex=S.core.workout[gymDay].ex[arg];cur=ex.prog||"";const src=progSource({...ex,prog:null},gymDay);inheritTxt=`Use the ${src[0]}'s method (${progLabel(src[1])})`;title=ex.name;tempo=!!ex.tempo}
+ else if(level==="wk"){const w=S.core.workout[arg];cur=w.prog||"";const src=progSource(null,null);inheritTxt=`Use the phase/default method (${progLabel(src[1])})`;title=`Workout ${arg} · ${w.title}`}
+ else{cur=S.core.phase.prog||"";inheritTxt=`Default (${progLabel(S.core.phase.name==="maintain"?"hold":defaultProg())})`;title=`Phase: ${PHASES[S.core.phase.name].label}`}
+ openSheet(`<h3 style="margin-bottom:.2rem">Progression method</h3><p class="muted" style="margin:0 0 .6rem">${esc(title)}</p>
+ <button class="sheetbtn ${cur===""?"sel":""}" onclick="setProg('${level}','${arg}','')"><span class="sheeticon">↺</span><span style="text-align:left">${esc(inheritTxt)}</span></button>
+ ${PROG.map(([k,l])=>`<button class="sheetbtn ${cur===k?"sel":""}" onclick="setProg('${level}','${arg}','${k}')"><span class="sheeticon">${cur===k?"✓":""}</span><span style="text-align:left">${l}<br><span class="muted" style="font-size:.78rem;font-weight:400">${PROG_INFO[k]}</span></span></button>`).join("")}
+ ${level==="ex"?`<label class="check" style="margin-top:.6rem;color:inherit"><input type="checkbox" ${tempo?"checked":""} onchange="S.core.workout[gymDay].ex[${arg}].tempo=this.checked;save('core');render()">Tempo: 3-second lowering (more tension at the same weight)</label>`:""}
+ <p class="muted" style="font-size:.78rem;margin:.6rem 0 0">The most specific choice wins: exercise › workout › phase › default.</p>`)}
+function setProg(level,arg,k){if(level==="ex"){const ex=S.core.workout[gymDay].ex[+arg];if(k)ex.prog=k;else delete ex.prog}else if(level==="wk"){const w=S.core.workout[arg];if(k)w.prog=k;else delete w.prog}else{if(k)S.core.phase.prog=k;else delete S.core.phase.prog}save("core");closeSheet();render()}
 function exerciseMenu(i){const d=S.core.workout[gymDay];const ex=d&&d.ex[i];if(!ex)return;
- openSheet(`<h3>${esc(ex.name)}</h3>${sheetBtn("ⓘ","Muscles & how-to",`closeSheet();showEx(${esc(JSON.stringify(ex.name))},false,${i})`)}${i>0?sheetBtn("↑","Move up",`moveEx(${i},-1)`):""}${i<d.ex.length-1?sheetBtn("↓","Move down",`moveEx(${i},1)`):""}${sheetBtn("🗑","Delete from this workout",`closeSheet();rmEx(${i})`,true)}`)}
+ openSheet(`<h3>${esc(ex.name)}</h3>${sheetBtn("ⓘ","Muscles & how-to",`closeSheet();showEx(${esc(JSON.stringify(ex.name))},false,${i})`)}${i>0?sheetBtn("↑","Move up",`moveEx(${i},-1)`):""}${i<d.ex.length-1?sheetBtn("↓","Move down",`moveEx(${i},1)`):""}${sheetBtn("📈","Progression method",`progSheet('ex',${i})`)}${sheetBtn("🗑","Delete from this workout",`closeSheet();rmEx(${i})`,true)}`)}
 function moveEx(i,dlt){const x=S.core.workout[gymDay].ex;[x[i],x[i+dlt]]=[x[i+dlt],x[i]];save("core");closeSheet();render()}
 let pickSel=new Set(),pickQ="",pickFor=null;
 function pickExercises(k){pickFor=k;pickSel=new Set();pickQ="";openSheet(pickHTML())}
@@ -2511,7 +2592,7 @@ function vMe(){
  const f=(k,lab,type="number",extra="")=>`<div><label>${lab}</label><input type="${type}" inputmode="decimal" value="${esc(p[k])}" onchange="setProf('${k}',this.value)" ${extra}></div>`;
  let h=(!S.core.setup?`<div class="note" style="margin-top:0"><b>New: personal setup.</b> Answer a few questions so the app fits your goals, training and food. <button class="small" style="margin-left:.3rem" onclick="startSetup()">Start</button></div>`:"")+summary+`<div class="box"><div class="row" style="justify-content:space-between"><div><b>My body & profile</b><div class="muted" style="font-size:.85rem">${p.age?`${p.age} y · ${p.height} cm · ${r1(latestWeight()||p.weight)} kg`:"Not filled in yet"}${T?` · target ${r0(T.kcal)} kcal`:""}</div></div><button class="ghost small" onclick="openSettings()">Edit in ⚙︎</button></div></div>`;
  // phase
- h+=`<h2>Phase</h2><div class="box"><div class="chips">${PHASE_ORDER.map(k=>`<button class="chip ${S.core.phase.name===k?"on":""}" onclick="setPhase('${k}')">${PHASES[k].label}</button>`).join("")}</div>
+ h+=`<h2>Phase</h2><div class="box"><div class="row" style="justify-content:space-between;margin-bottom:.5rem"><span class="muted" style="font-size:.85rem">Progression: <b>${esc(progLabel(S.core.phase.prog||(S.core.phase.name==="maintain"?"hold":defaultProg())))}</b></span><button class="ghost small" onclick="progSheet('ph','')">Change</button></div><div class="chips">${PHASE_ORDER.map(k=>`<button class="chip ${S.core.phase.name===k?"on":""}" onclick="setPhase('${k}')">${PHASES[k].label}</button>`).join("")}</div>
  <p style="margin:.7rem 0 .3rem">${PHASES[S.core.phase.name].info}</p><div class="muted">Started ${new Date(S.core.phase.start+"T12:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"})} · week ${ci.wk+1}</div>
  ${S.core.phase.name==="build"?`<label class="check" style="margin-top:.6rem;color:inherit"><input type="checkbox" ${S.core.phase.miniCut?"checked":""} onchange="S.core.phase.miniCut=this.checked;save('core');render()">Mini-cut (4–6 weeks at a small deficit)</label>`:""}
  <div class="row" style="margin-top:.7rem"><button class="${S.core.phasePlan?"ghost":""} small" onclick="meView={page:'plan'};planDraft=null;render();window.scrollTo(0,0)">${S.core.phasePlan?(S.core.phasePlan.paused?"Phase plan (paused)":"Phase plan: step "+(S.core.phasePlan.cur+1)+" of "+S.core.phasePlan.steps.length):"Plan my phases"}</button></div>
@@ -2597,7 +2678,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.44 beta";
+const APP_VERSION="0.48 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
