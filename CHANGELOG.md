@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.44 beta
+- **Repairs empty ingredients:** ingredients created by older versions with "(estimate)" and 0 kcal are fixed automatically when the app opens (Open Food Facts label values, or Claude with your API key); a "Find real values" button in My ingredients does it on demand. Ingredients show "(label)", "(estimated)" or "(no values)".
+
 ## 0.43 beta
 - **Products are no longer linked to the wrong ingredient:** a scanned compote, juice, biscuit… is never treated as a brand of the raw fruit/ingredient anymore; when a product could be a brand of an ingredient, the app asks first. Existing wrong links are fixed automatically, and each product in My ingredients has a "Not a …" button to separate it.
 - **Real nutrition values instead of empty estimates:** new ingredients from the recipe AI, "Describe your meal" and the recipe editor are first looked up in **Open Food Facts** (label values, GitHub app), then completed by Claude; no more ingredients with 0 kcal.
