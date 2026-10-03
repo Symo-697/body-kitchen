@@ -2,6 +2,24 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.57 beta
+- **Planned set types:** a workout can define L/R per set (e.g. RRRRLLLL or RLRL…). Live mode starts with them, and side sets are numbered per side (1R…4R, 1L…4L).
+- **Alternating sides:** after R, the app goes straight to L with no rest, then continues: rest, or the next superset exercise.
+- **L/R pairing for progression** works in any order (all right then all left too), and follows the weaker side.
+- **Exercise notes:** ••• › Add a note. Notes show in the plan and during the workout, and a workout can have its own note under its title.
+- **Starting weight:** used as the pre-filled weight until you have history.
+- **Workout file import:**
+  - Each exercise can list alternative names ("also"), so it uses your history name first, then the library.
+  - It can carry per-set types, a starting weight, a definition (muscles and logging mode) for exercises not in the library, rest 0 inside supersets, and a workout note.
+- Plyometric exercises (jump squats etc.) now have muscles (quads, glutes, calves).
+
+## 0.56 beta
+- Removed the last glute-only rule: glute exercises no longer get an extra set in building/gain phases.
+- **Train › Workouts › "Import workouts (file)"** imports one or more workouts from a JSON file.
+  - Supported per exercise: name, sets, reps, rest (s), superset group, progression method, tempo.
+  - Supported per workout: title, type (upper/lower/full/cardio).
+  - Each workout gets the next free letter. Names are matched to the library (including aliases). Unknown exercises are created as your own and listed.
+
 ## 0.55 beta
 - **Workout type:** each workout is Upper, Lower, Full body or Cardio. The type is guessed from its exercises and shown as "(guessed)" until you tap one in the workout's plan. It's also shown in the Workouts list.
 - **🎯 Apply to my workouts:** after importing a scan, or from the scan page, a list shows what the scan asks for and where you already work it.
