@@ -2360,8 +2360,9 @@ function interactions(){const out=[];const sups=(S.core.supps||[]).filter(s=>s.a
  if(has("stjohn").length)out.push({med:null,sup:has("stjohn")[0],sev:"warn",text:"St John's wort interacts with many medicines (the pill, antidepressants, blood thinners…). Check with a pharmacist before taking it."});
  return out}
 function unknownMeds(){return(S.core.meds||[]).filter(m=>!medMatch(m).length)}
-function suppsDue(d){const trainDay=schedule()[(new Date(d+"T12:00").getDay()+6)%7]!=="rest"||(S.core.sessions||[]).some(x=>x.date===d);
- return(S.core.supps||[]).filter(s=>s.active!==false).map(s=>({s,due:s.days==="daily"||(s.days==="training"&&trainDay),optional:s.days==="asneeded"||(s.days==="training"&&!trainDay)}))}
+function isTrainDay(d){const i=(new Date(d+"T12:00").getDay()+6)%7,mon=mondayOf(d);return schedule(mon)[i]!=="rest"||!!cardioFor(i,mon)||(S.core.sessions||[]).some(x=>x.date===d)||(!!A()&&d===today())}
+function suppsDue(d){const trainDay=isTrainDay(d);
+ return(S.core.supps||[]).filter(s=>s.active!==false&&!(s.days==="training"&&!trainDay)).map(s=>({s,due:s.days==="daily"||(s.days==="training"&&trainDay),optional:s.days==="asneeded"}))}
 
 const NUTR=[["caffeine","Caffeine","mg",400,"EFSA safe limit for adults, all sources (max 200 mg at once)"],["creatine","Creatine","g",10,"far above the 3–5 g that's needed"],["magnesium","Magnesium","mg",250,"EFSA limit for magnesium from supplements"],["calcium","Calcium","mg",1000,"prudent maximum from supplements (food adds more)"],["sodium","Sodium","mg",null,""],["potassium","Potassium","mg",null,""],["vitD","Vitamin D","IU",4000,"EFSA upper limit (100 µg)"],["zinc","Zinc","mg",25,"EFSA upper limit"],["iron","Iron","mg",45,"upper limit unless prescribed"],["vitC","Vitamin C","mg",2000,"upper limit"],["vitA","Vitamin A","µg",3000,"EFSA upper limit"],["omega3","Omega-3 (EPA+DHA)","mg",5000,"EFSA safe level"],["citrulline","Citrulline","g",null,""],["betaalanine","Beta-alanine","g",null,""],["protein","Protein","g",null,""]];
 const COFFEE_MG=90;
@@ -3117,7 +3118,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.58b beta";
+const APP_VERSION="0.58c beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

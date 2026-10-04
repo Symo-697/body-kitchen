@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.58c beta
+- **"Training days" supplements** (like the pre-workout) no longer appear at all, not even as optional, on days with no workout and no cardio planned or logged. Their reminders don't fire on those days either. A training day is now checked for the right week (planned workout, planned cardio, a logged session, or a workout in progress).
+
 ## 0.58b beta
 - **Settings › 📖 How Body & Kitchen works** rewritten: step-by-step sections for each tab, both iPhone shortcuts (exact setup, test without the app) and a "Shortcut problems?" checklist.
 
