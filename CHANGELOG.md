@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.58b beta
+- **Settings › 📖 How Body & Kitchen works** rewritten: step-by-step sections for each tab, both iPhone shortcuts (exact setup, test without the app) and a "Shortcut problems?" checklist.
+
 ## 0.58 beta (report #5)
 **Already shipped in the Claude version, now on GitHub too:**
 - **Home stock:** 10 closest to running out + See all (A–Z, search).
