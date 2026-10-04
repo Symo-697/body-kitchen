@@ -2,6 +2,41 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.58 beta (report #5)
+**Already shipped in the Claude version, now on GitHub too:**
+- **Home stock:** 10 closest to running out + See all (A–Z, search).
+- **Units per ingredient:** ml/L, pieces, grams; the "Count in" switch; amounts like 250ml / 1.5L / 3pcs.
+- **Prices:** 💶 per shop (kg / L / piece, ⭐ usual shop); pop-ups stay above the keyboard.
+- **Groceries:** meals already eaten no longer count; amounts scale to the portions still to cook.
+- **Receipts:** SAS GREECE → Intermarché (shops merged, aliases learned).
+- **Train:**
+  - kg ⇄ lb per exercise;
+  - Left vs right box in Progress;
+  - no pop-ups between sides or superset exercises;
+  - Smith machine hip thrust visible in the Library.
+
+**New:**
+- **Text review:** shorter or removed explanations on every tab.
+  - BMI info is now behind ⓘ, and the progress formulas behind "About".
+  - The 🎯 targets keep only the next target (plus a short pain note).
+- **Log food:** recent foods show 3 + See all.
+- **Workout header:** the title on its own line, type chips below, Rename in •••, "4 R · 4 L" instead of RRRRLLLL. The workout note is shown in the edit pop-up.
+- **Workouts:**
+  - search (name or exercise) + type filters;
+  - **Edit** opens one pop-up with name, note, type, and every exercise (sets, reps, rest, note, superset, order, remove).
+- **Finish:** "Update workout?" lists what was different (sets, added or skipped exercises) and you tick what to keep. Then 🎯 Next time.
+- **Rest over:** big pop-up with the next set (+ beep + vibration), also when you come back to the app.
+- **Sport water:** wait picked in 5-min steps; big "Refill time" alarm.
+- **Supplements:**
+  - "When" list (on waking, before/after breakfast/lunch/dinner, bedtime, training…);
+  - reminder in 30-min steps: in-app alert (Taken / In 30 min) + 📲 iPhone Reminder via the "B&K Reminder" shortcut.
+- **Settings:**
+  - step goal (custom or off);
+  - Workout timer: keep the screen on during workouts, iPhone timer via "B&K Timer" (every rest / 2 min + / off), launch delay measured and corrected automatically;
+  - 📖 instruction manual, including the shortcut setup.
+- **Calendar:** Today button; tap the month name to jump to any date.
+- **Workout colours** stay the same after reloading (G–Z included).
+
 ## 0.57 beta
 - **Planned set types:** a workout can define L/R per set (e.g. RRRRLLLL or RLRL…). Live mode starts with them, and side sets are numbered per side (1R…4R, 1L…4L).
 - **Alternating sides:** after R, the app goes straight to L with no rest, then continues: rest, or the next superset exercise.
