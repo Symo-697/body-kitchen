@@ -2,6 +2,29 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59b beta
+- **＋ Empty workout** next to ▶ Start: a blank live workout where you add exercises as you go. When you finish, it offers to **save it as a new workout** (name it, the next free letter is used).
+- **Two (or more) workouts the same day:** finish one, then start another. Both are saved separately (history, charts, calendar), and the week shows "A+1✓".
+
+## 0.59 beta (report #6)
+- **Prices per shop are visible everywhere:**
+  - under each ingredient in My ingredients, and on the 💶 button in the grocery list ("⭐ 3.96 €/kg Intermarché · 4.50 €/kg Grand Frais");
+  - typing "4,50 €" now works (the € used to make the price silently not save);
+  - when the price you enter is for a shop that isn't the ⭐ usual one, a message says the list still uses the usual shop and how to switch.
+- **Scan-added exercises follow your week:** when you replace a workout in the week by another one, exercises added for your scan move into the new workout if it doesn't already cover that issue (max 2 added per workout).
+- **Train: Plan & log and Workouts merged into one page:**
+  - top: the week (drag days, ＋🏃 cardio) and the selected workout;
+  - below: all workouts with search, type filters, Import, From my imported history, ＋ Add workout. Tap a workout's name or Open to show it at the top;
+  - removed: "This week's workouts" and "Not in your week".
+- **Switch exercise during a workout** (••• › ⇄ Switch exercise):
+  - similar exercises are suggested first, or search any exercise;
+  - sets already done stay on the old exercise, and the remaining sets go to the new one;
+  - at the end, "Update workout?" offers to keep the switch for good.
+- **Cardio:** ＋🏃 on a day asks which cardio exercise and how long, then plan it (this week / every week) or ▶ Start now (today).
+  - Live cardio has a big stopwatch (Start / Pause / Done fills the minutes), and you can still add other exercises.
+  - Tapping a planned cardio offers Start now / Change / Remove.
+- **iPhone shortcuts from the Home Screen app:** no more Safari tab opening after the timer or reminder. Swipe back to the app (or tap "◀ Shortcuts" top-left) after the shortcut runs.
+
 ## 0.58c beta
 - **"Training days" supplements** (like the pre-workout) no longer appear at all, not even as optional, on days with no workout and no cardio planned or logged. Their reminders don't fire on those days either. A training day is now checked for the right week (planned workout, planned cardio, a logged session, or a workout in progress).
 
