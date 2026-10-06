@@ -2,6 +2,49 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59m beta
+- Space added between "See all recipes" and "＋ New recipe".
+
+## 0.59l beta
+- **My ingredients:** the list now comes first (5 shown, then See all), with the search above it. "＋ New ingredient" (name, macros, price, aisle) is folded below, and Edit on an ingredient opens it.
+
+## 0.59k beta
+- **Kitchen › My recipes, new order:** Share recipes, My recipes, ＋ New recipe (now folded like the others; it opens by itself when you tap Edit on a recipe), My ingredients, Shops, Add from a supermarket.
+
+## 0.59j beta
+- **How each ingredient is bought:** by the piece, in packs, or loose by weight (Home stock › Adjust › "Bought").
+  - Set by default for the obvious ones: by the piece for carrots, onions, tomatoes, apples, bananas, lemons, peppers, courgettes, cucumbers, avocados, sweet potatoes, plantains, broccoli; in packs for spinach.
+  - The grocery list says "3 pieces", "2 × 250 g pack", "300 g loose", "1 bulb" (garlic) or "1 bunch" (herbs).
+- **No guessing:** fruit and veg with no buying mode yet appear in "How do you buy these?" at the top of Groceries. By the piece asks the weight of one piece if unknown, and In packs asks the pack size.
+- **Piece items:** the stock gauge now compares what you have with what this week's meals need. Stock counts in pieces, "1 piece ≈ g" is editable in Adjust, and adding a piece ingredient to a recipe switches it to pieces automatically.
+
+## 0.59i beta
+- **Receipts recognise your existing ingredients** even when the receipt line is written differently ("ST MICHEL MADELEINES 500 g" → your "Madeleines St Michel"). Lines matched this way show "✓ matched to yours".
+- **Merge duplicate ingredients:** Home stock › Adjust › "⇄ Same as another ingredient? Merge".
+  - Stock, brands, prices, recipes, the grocery list and receipt memory move to the ingredient you pick, and the duplicate disappears.
+  - Next receipts go straight to the right one.
+
+## 0.59h beta
+- **Receipts use the ingredient's unit:** ml for oils and sauces, pieces for eggs and onions, g for the rest, with a g / ml / pcs switch per line. You can also type "1.5L", "500g" or "12pcs". Stock and prices are still saved correctly.
+
+## 0.59g beta
+- **Assisted machines** (assisted pull-up, chin-up, dip, Gravitron):
+  - the weight you enter is the **assistance** (the column says ASSIST KG);
+  - the real load (body weight − assistance) is used for volume and strength charts;
+  - progression **lowers** the assistance when you hit your reps ("Next: 47.5 kg assistance… Less help than last time (50 kg)"), and says when you're ready for no assistance;
+  - percentage-based methods (undulating, pyramids) switch to double progression for these.
+  - Band-assisted exercises are not affected.
+
+## 0.59f beta
+- Duplicate check: "Machine Side Lateral Raises" is now merged with "Machine Lateral Raise".
+
+## 0.59e beta
+- **Recipes show kitchen units:** tbsp, tsp, a pinch, pieces and cloves. Grams are shown in brackets only for bigger amounts.
+- **Sides:** the "With sides (…)" line under the title and the batch totals are gone. Instead, "For the side (per portion)" with a table, and the "(counted in the groceries)" mention is gone.
+- **Recipe editor:**
+  - sides now have a unit (g, ml, tbsp, tsp, pinch, piece…), like ingredients;
+  - you can edit the **Instructions** (one step per line) and a **Note**.
+
 ## 0.59d beta
 - **Test my shortcuts** at the top of Settings › 📖 How Body & Kitchen works: a 10-second timer and a reminder in 2 minutes.
 - **kg ⇄ lb** per exercise also in the workout editor (Workouts › Edit). Starting weights show in lb too.
