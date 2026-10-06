@@ -2,6 +2,12 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59c beta
+- **Duplicate exercises removed from the Library** (about 200).
+  - Same exercise under several names: word order ("Barbell Decline Bench Press" / "Decline Barbell Bench Press"), plurals ("Crunch" / "Crunches"), Lever = Machine ("Lever Leg Extension" / "Machine Leg Extension"), "Assisted" = machine-assisted, and names missing their usual equipment ("Hammer curl" / "Dumbbell Hammer Curl").
+  - One name is kept, always the one you've used if you have history. The others still find it in search, and its info shows "Same as: …".
+  - Exercises you've already logged are never hidden.
+
 ## 0.59b beta
 - **＋ Empty workout** next to ▶ Start: a blank live workout where you add exercises as you go. When you finish, it offers to **save it as a new workout** (name it, the next free letter is used).
 - **Two (or more) workouts the same day:** finish one, then start another. Both are saved separately (history, charts, calendar), and the week shows "A+1✓".

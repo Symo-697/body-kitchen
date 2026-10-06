@@ -1827,12 +1827,26 @@ function eqLabel(n){const m=meta3(n);if(m)return m.eq;return EQMAP[equipOf(n)]||
 function expandQ(q){const t0=" "+norm(q).trim().replace(/\s+/g," ")+" ";let t=t0;const rep=[];
  DB3.S.forEach(([a,b])=>{const na=" "+norm(a)+" ";if(t0.includes(na)&&t.includes(na)){t=t.replace(na," \u0001"+rep.length+"\u0001 ");rep.push(norm(b))}});
  return t.replace(/\u0001(\d+)\u0001/g,(_,i)=>rep[+i]).trim()}
-function exText(n){const m=meta3(n);return n+" "+(m?m.al.join(" ")+" "+m.fam+" "+m.eq:"")+" "+muscleWords(n)+" "+eqLabel(n)+" "+(X3OF[n]||"")}
+function exText(n){const m=meta3(n);return n+" "+(DUPS[n]||[]).join(" ")+" "+(m?m.al.join(" ")+" "+m.fam+" "+m.eq:"")+" "+muscleWords(n)+" "+eqLabel(n)+" "+(X3OF[n]||"")}
 function usedExNames(){return new Set([...Object.keys(S.core.lifts||{}),...Object.values(S.core.workout||{}).flatMap(w=>(w.ex||[]).map(e=>e.name))])}
+/* duplicate detection: same words in another order, plurals, Lever = Machine, assisted = machine-assisted, missing default equipment */
+const DUPR=[[/ lever /g," machine "],[/ leverage /g," machine "],[/ pull downs? /g," pulldown "],[/ pulldowns /g," pulldown "],[/ pull ups? /g," pullup "],[/ pullups /g," pullup "],[/ chin ups? /g," chinup "],[/ chinups /g," chinup "],[/ push ups? /g," pushup "],[/ pushups /g," pushup "],[/ sit ups? /g," situp "],[/ situps /g," situp "],[/ step ups? /g," stepup "],[/ stepups /g," stepup "],[/ dumbbells /g," dumbbell "],[/ (the|with|on|a|of|an) /g," "],[/ exercise /g," "],[/ dips /g," dip "],[/ curls /g," curl "],[/ raises /g," raise "],[/ rows /g," row "],[/ squats /g," squat "],[/ lunges /g," lunge "],[/ presses /g," press "],[/ crunches /g," crunch "],[/ fl(?:ye|y)s /g," fly "],[/ extensions /g," extension "],[/ kickbacks /g," kickback "],[/ thrusts /g," thrust "]];
+const EQW3={"Barbell":"barbell","Dumbbell":"dumbbell","Cable":"cable","Leverage machine":"machine","Sled machine":"machine","Smith machine":"smith","Kettlebell":"kettlebell","EZ Bar":"ez","Band (tube)":"band","Resistance band (loop)":"band","Trap bar":"trap"};
+const EQWORDS=["barbell","dumbbell","cable","machine","smith","kettlebell","ez","band","bodyweight","trap","bar","lever","plate","hammer"];
+function dupKey(n){let x=" "+norm(n).replace(/[()\-–,\/]/g," ").replace(/\s+/g," ")+" ";x=x.replace(/ high to low /g," high2low ").replace(/ low to high /g," low2high ");
+ for(let k=0;k<2;k++)DUPR.forEach(([r,t])=>{x=x.replace(r,t)});let t=x.trim().split(" ").filter(Boolean);
+ if(t.includes("assisted")&&!t.includes("band")){t=t.filter(w=>w!=="machine");if(t.includes("dip"))t=t.filter(w=>w!=="triceps")}
+ else if(!t.some(w=>EQWORDS.includes(w))){const e=EQW3[eqLabel(n)];if(e)t.push(e)}
+ return[...new Set(t)].sort().join(" ")}
+const DUPOF={},DUPS={};
+function dupRank(n,used,own){const x=norm(n);return(used.has(n)?0:1)*8+(/^lever /.test(x)?3:0)+(EQWORDS.some(w=>x.split(/[\s\-()]+/).includes(w))?0:1)+(X3[n]?0:1)}
 let _ln=null,_lnk="";
 function libNames(){const used=usedExNames(),own=ownExerciseNames();const k=used.size+"/"+own.size+"/"+[...used].join("|").length;if(_ln&&_lnk===k)return _ln;
  const out=new Set();Object.keys(X3).forEach(c=>{const al=X3BY[c]||[];out.add([c,...al].find(n=>used.has(n))||al.find(n=>own.has(n))||c)});
  allExerciseNames().forEach(n=>{if(!X3[n]&&!X3OF[n])out.add(n)});used.forEach(n=>out.add(n));["Smith machine hip thrust"].forEach(n=>{if(EX_LIB[n])out.add(n)});
+ const grp={};[...out].forEach(n=>{const kk=dupKey(n);(grp[kk]=grp[kk]||[]).push(n)});
+ Object.keys(DUPOF).forEach(x=>delete DUPOF[x]);Object.keys(DUPS).forEach(x=>delete DUPS[x]);
+ Object.values(grp).forEach(g=>{if(g.length<2)return;g.sort((a,b)=>dupRank(a,used,own)-dupRank(b,used,own)||a.length-b.length);const keep=g.filter((x,i)=>i===0||used.has(x));g.forEach(x=>{if(!keep.includes(x)){out.delete(x);DUPOF[x]=g[0]}});DUPS[g[0]]=g.slice(1)});
  _ln=[...out].sort((a,b)=>a.localeCompare(b));_lnk=k;return _ln}
 function exSearch(q,names){const q2=expandQ(q);const qn=norm(q).trim();const used=usedExNames(),own=ownExerciseNames();
  const ws=q2.split(/\s+/).filter(Boolean);const prim=n=>{const [P]=musclesD(n);return norm(prettyList(P).join(" ")+" "+P.map(k=>MUSCLES[DMUS[k][1]]).join(" ")+" "+tgLabel(n))};
@@ -3005,7 +3019,7 @@ function showEx(name,fromSearch,idx){closeEx();const [P,Sx]=musclesD(name);const
  const ov=document.createElement("div");ov.className="modal";ov.id="exmodal";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");ov.setAttribute("aria-label",name);
  ov.onclick=e=>{if(e.target===ov)closeEx()};
  ov.innerHTML=`<div class="sheet"><div class="row" style="justify-content:space-between;align-items:flex-start"><h2 style="margin:0">${esc(name)}</h2><div class="row" style="flex-wrap:nowrap"><button class="ghost small" onclick="openExEdit(${esc(JSON.stringify(name))},${idx==null?"null":idx},${fromSearch?"true":"false"})">Edit</button><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeEx()">×</button></div></div>
- <div class="muted" style="margin:.2rem 0 .8rem">${meta3(name)?esc([meta3(name).fam,eqLabel(name),tgLabel(name)?"target: "+tgLabel(name):""].filter(Boolean).join(" · "))+"<br>":""}Logged as ${how}</div>${impBox(name,idx!=null&&!fromSearch&&S.core.workout[gymDay]?S.core.workout[gymDay].ex[idx]:((A()&&(S.core.workout[A().day]||{ex:[]}).ex.find(x=>x.name===name))||(S.core.workout[gymDay]||{ex:[]}).ex.find(x=>x.name===name)))}${bodySVG(null,{p:P,s:Sx})}
+ <div class="muted" style="margin:.2rem 0 .8rem">${meta3(name)?esc([meta3(name).fam,eqLabel(name),tgLabel(name)?"target: "+tgLabel(name):""].filter(Boolean).join(" · "))+"<br>":""}Logged as ${how}${(DUPS[name]||[]).length?`<br><span style="font-size:.8rem">Same as: ${esc(DUPS[name].join(", "))}</span>`:""}</div>${impBox(name,idx!=null&&!fromSearch&&S.core.workout[gymDay]?S.core.workout[gymDay].ex[idx]:((A()&&(S.core.workout[A().day]||{ex:[]}).ex.find(x=>x.name===name))||(S.core.workout[gymDay]||{ex:[]}).ex.find(x=>x.name===name)))}${bodySVG(null,{p:P,s:Sx})}
  ${md==="c"?`<p class="muted" style="margin:.8rem 0 0">Cardio trains your heart and burns energy; these muscles work along but don't count toward your weekly sets.</p>`:""}
  ${list(md==="c"?"Muscles involved":"Primary muscles",md==="c"?TGT_S:TGT_P,P)}${list(md==="c"?"":"Secondary muscles",TGT_S,Sx)}
  ${cue?`<div style="margin-top:.9rem"><b>How to</b><p class="muted" style="margin:.2rem 0 0">${esc(cue)}</p></div>`:WGER[name]&&WGER[name].src.desc?`<div style="margin-top:.9rem"><b>How to</b><p class="muted" style="margin:.2rem 0 0">${esc(WGER[name].src.desc)}</p></div>`:""}
@@ -3158,7 +3172,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.59b beta";
+const APP_VERSION="0.59c beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
