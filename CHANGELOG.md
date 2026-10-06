@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59d beta
+- **Test my shortcuts** at the top of Settings › 📖 How Body & Kitchen works: a 10-second timer and a reminder in 2 minutes.
+- **kg ⇄ lb** per exercise also in the workout editor (Workouts › Edit). Starting weights show in lb too.
+
 ## 0.59c beta
 - **Duplicate exercises removed from the Library** (about 200).
   - Same exercise under several names: word order ("Barbell Decline Bench Press" / "Decline Barbell Bench Press"), plurals ("Crunch" / "Crunches"), Lever = Machine ("Lever Leg Extension" / "Machine Leg Extension"), "Assisted" = machine-assisted, and names missing their usual equipment ("Hammer curl" / "Dumbbell Hammer Curl").
