@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59n beta
+- **Home stock order:** ingredients needed by this week's menu come first, most urgent at the top. The rest (even if running low) go below, and move up as soon as a planned meal needs them.
+
 ## 0.59m beta
 - Space added between "See all recipes" and "＋ New recipe".
 

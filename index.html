@@ -1746,7 +1746,7 @@ function stockUrg(id,rem){return(stockQty(id)-(rem[id]||0))/(lowOf(id)||1)}
 function stkR(){render();const b=document.getElementById("allstk");if(b)b.innerHTML=allStockRows()}
 function allStockRows(){const rem=remainingNeed();const ids=Object.keys(S.core.stock||{}).filter(id=>food(id)&&(!stkQ.trim()||searchMatch(food(id).name,stkQ))).sort((a,b)=>food(a).name.localeCompare(food(b).name));return ids.map(id=>stockRowHTML(id,stkNeed,rem)).join("")||`<p class="muted">Nothing found.</p>`}
 function openAllStock(){stkQ="";openSheet(`<div class="row" style="justify-content:space-between"><h3 style="margin:0">Home stock · A–Z</h3><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeSheet();render()">×</button></div><input type="search" placeholder="Search…" oninput="stkQ=this.value;document.getElementById('allstk').innerHTML=allStockRows()" style="margin:.6rem 0"><div id="allstk">${allStockRows()}</div>`)}
-function stockHTML(need){stkNeed=need||{};const rem=remainingNeed();const all=Object.keys(S.core.stock||{}).filter(id=>food(id));const ids=all.slice().sort((a,b)=>stockUrg(a,rem)-stockUrg(b,rem)||food(a).name.localeCompare(food(b).name)).slice(0,10);
+function stockHTML(need){stkNeed=need||{};const rem=remainingNeed();const all=Object.keys(S.core.stock||{}).filter(id=>food(id));const inMenu=id=>(rem[id]||0)>0||(stkNeed[id]||0)>0;const ids=all.slice().sort((a,b)=>(inMenu(b)-inMenu(a))||stockUrg(a,rem)-stockUrg(b,rem)||food(a).name.localeCompare(food(b).name)).slice(0,10);
  const opts=allFoods().map(f=>`<option value="${esc(f.name)}">`).join("");
  return`<h2>Home stock</h2><div class="box">
  <div class="row" style="gap:1rem;font-size:.78rem;color:var(--muted);margin:0 0 .4rem"><span class="row" style="gap:.3rem"><span style="width:14px;height:8px;border-radius:3px;background:var(--plum);display:inline-block"></span>now</span><span class="row" style="gap:.3rem"><span style="width:14px;height:8px;border-radius:3px;background:color-mix(in srgb,var(--sage) 55%,white);display:inline-block"></span>end of week</span></div>
@@ -3224,7 +3224,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.59m beta";
+const APP_VERSION="0.59n beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
