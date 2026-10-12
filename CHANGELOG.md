@@ -2,6 +2,23 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59q beta
+- New set type **PO · Positions**: one set done in several positions without resting (hip abduction 10 forward + 10 upright + 10 back, or 21s curls 7+7+7). Type reps as 10+10+10. 1 set, all reps count for volume, progression uses the total.
+- Coaching and time estimate understand reps written as 7+7+7.
+- Manual: B&K Timer shortcut now starts with Repeat 3 × Cancel Timer, so old timers are cleared before a new rest timer starts.
+
+## 0.59p beta
+- Train: tapping a day in "Your week" shows that day's workout below again (and outlines the day). Long-press still drags/moves.
+- Estimated workout time (≈ 45 min) on the workout card and in the Workouts list, from reps (~3.5 s per rep + 10 s setup per set), your rest times, supersets (rest after each round) and L/R pairs.
+- Library: new "Glute Lunge Machine" (lower body, one leg; also found as "machine lunge", "fente machine").
+
+## 0.59o beta
+- Recipes: new **▶ Start cooking** mode. Full-screen, one step per screen with a progress bar ("2 of 8"), swipe or Back/Next.
+- Servings stepper scales every ingredient and the side; tick ingredients off as you get them out.
+- Times in a step ("20 min", "3-4 min", "1 hour") become timer buttons. Several timers can run at once, shown in a bar at the top with +1 min, pause and stop; beeps and vibrates when done (and starts your iPhone timer if that's switched on).
+- Each step lists the ingredients it uses, with amounts for your servings. Screen stays awake while cooking.
+- Editor: start a step with "Title: …" to name it in cooking mode.
+
 ## 0.59n beta
 - **Home stock order:** ingredients needed by this week's menu come first, most urgent at the top. The rest (even if running low) go below, and move up as soon as a planned meal needs them.
 
