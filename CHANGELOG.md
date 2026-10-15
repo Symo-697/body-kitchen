@@ -2,6 +2,13 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59t beta
+- VisBody import reads the two new pages: body circumferences (neck, arms, chest, 3 waist heights, hips, thighs, thighs above knee, calves) and shoulder mobility (arm raised to the side / in front, left and right).
+- Scan page: "Body measurements" and "Shoulder mobility" tables with the change from the previous scan; angles under 170° in orange.
+- Circumferences are also saved in body measurements (mid waist = waist).
+- New improvement rule: shoulder mobility under 170° → wall slides, doorway pec stretch, thoracic extension; waist change insight.
+- Fix: a scan less than 2 weeks after the previous one no longer says "On track: −0.3 %/week" when weight went up.
+
 ## 0.59s beta (report #8)
 - B&K Timer help: one Cancel Timer before Start Timer (no Repeat), so only one timer ever runs.
 - New progression method "Top set + back-off": 1 top set (T) at about half your usual reps, then back-off sets (B) ~10 % lighter for your usual reps; only the top set drives progression (e.g. 80×8 stuck → 90×4 then 3 × 80×8).
