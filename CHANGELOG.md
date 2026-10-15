@@ -2,6 +2,16 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59s beta (report #8)
+- B&K Timer help: one Cancel Timer before Start Timer (no Repeat), so only one timer ever runs.
+- New progression method "Top set + back-off": 1 top set (T) at about half your usual reps, then back-off sets (B) ~10 % lighter for your usual reps; only the top set drives progression (e.g. 80×8 stuck → 90×4 then 3 × 80×8).
+- Stall detection on every exercise: same top weight and no rep gain for 3 sessions → ⚡ suggestion with a Switch button: top set + back-off (under 10 reps) or pyramid (10+ reps).
+- Change the progression method during a workout (exercise ••• › Progression method): sets not done yet are rebuilt; at Finish the app asks whether to keep it.
+- Drop sets pre-filled at −15 % with the same reps as the set before (was −25 %); back-off sets at −10 % (was −12.5 %).
+
+## 0.59r beta
+- Manual: B&K Timer section rewritten step by step (Get Numbers from Input › Repeat 3 times › Cancel Timer › End Repeat › Start Timer), with a test step and a fix if Cancel Timer errors when no timer is running.
+
 ## 0.59q beta
 - New set type **PO · Positions**: one set done in several positions without resting (hip abduction 10 forward + 10 upright + 10 back, or 21s curls 7+7+7). Type reps as 10+10+10. 1 set, all reps count for volume, progression uses the total.
 - Coaching and time estimate understand reps written as 7+7+7.
