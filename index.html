@@ -2056,7 +2056,8 @@ function exDef(name){const c=(S.core.customEx||{})[name];if(c)return c;if(EX_LIB
  if(X3[name])return X3[name];if(X3OF[name]&&X3[X3OF[name]])return X3[X3OF[name]];
  if(/treadmill|tapis|incline walk|bike|vélo|velo|elliptical|elliptique|rower|rameur|running|stairmaster|cardio/i.test(name))return{p:[],s:[],mode:"c"};
  for(const [re,p,s2] of MUSCLE_RULES)if(re.test(name))return{p,s:s2,mode:"w"};return null}
-const exMode=name=>(exDef(name)||{mode:"w"}).mode;
+const HOLD_T=new Set(["RKC Plank","Forearm Plank","Weighted Plank","Copenhagen Plank","Adductor Side Plank","Hollow Body Hold","Long-Lever Plank","Single-Leg Plank","Parallel Bar Support Hold","Chin-Up Isometric Hold","Iso-Hold Pallof Press","Isometric Neck Hold"]);
+const exMode=name=>{const c=(S.core.customEx||{})[name];if(c&&c.mode)return c.mode;if(HOLD_T.has(name))return"t";return(exDef(name)||{mode:"w"}).mode};
 const perSide=name=>{const c=(S.core.customEx||{})[name];if(c&&c.side!==undefined)return!!c.side;return _perSide(name)};
 const _perSide=name=>!!(WGER[name]||{}).side||(!WGER[name]&&!EX_LIB[name]&&!EX_MUSCLES[name]&&!!(X3[name]||{}).side)||/per leg|per side|per arm|one[- ]arm|single-leg|single[- ]arm/i.test(name);
 const kgHint=name=>perSide(name)?"kg (1 side)":/dumbbell|hammer curl|arnold|goblet/i.test(name)?"kg (1 dumbbell)":"kg";
@@ -3121,7 +3122,7 @@ function pmCardHTML(){const names=[];schedule().filter(k=>k!=="rest"&&S.core.wor
 function vProgress(){
  const pr=periodRange(progKind,progOff);const M=muscleTotals(pr.from,pr.to);
  const nav=`<div class="row" style="justify-content:space-between;margin:.2rem 0 .6rem"><button class="ghost small" aria-label="Previous" onclick="progOff++;render()">‹</button><b>${pr.label}</b><button class="ghost small" aria-label="Next" ${progOff===0?"disabled style='opacity:.4'":""} onclick="progOff=Math.max(0,progOff-1);render()">›</button></div>`;
- let h=progOverviewHTML()+pmCardHTML()+`<h2>Muscles</h2><div class="chips" style="margin-bottom:.6rem">${[["week","This week"],["month","Month"]].map(([k,l])=>`<button class="chip ${progKind===k?"on":""}" onclick="progKind='${k}';progOff=0;render()">${l}</button>`).join("")}</div>`+nav;
+ let h=progOverviewHTML()+lowMuscleHTML()+pmCardHTML()+`<h2>Muscles</h2><div class="chips" style="margin-bottom:.6rem">${[["week","This week"],["month","Month"]].map(([k,l])=>`<button class="chip ${progKind===k?"on":""}" onclick="progKind='${k}';progOff=0;render()">${l}</button>`).join("")}</div>`+nav;
  if(progKind==="week"){const m=new Date(pr.from+"T12:00");h+=`<div class="box"><div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:.85rem">${DAYS.map((d,i)=>{const x=new Date(m);x.setDate(x.getDate()+i);const on=M.days.has(x.toLocaleDateString("sv-SE"));return`<div><div class="muted">${d}</div><div style="width:10px;height:10px;border-radius:50%;margin:.3rem auto 0;background:${on?"var(--apricot)":"var(--line)"}"></div></div>`}).join("")}</div></div>`}
  h+=`<div class="box"><h3>Muscles trained</h3>${bodySVG(M.d)}
  <div class="row" style="justify-content:center;gap:.8rem;margin-top:.5rem;font-size:.8rem">${[["0",0],["1–5",1],["6–10",2],["11–15",3],["16+",4]].map(([l,i])=>`<span class="row" style="gap:.25rem"><span style="width:12px;height:12px;border-radius:3px;background:${HEAT[i]};display:inline-block"></span>${l}</span>`).join("")}</div>
@@ -3259,7 +3260,17 @@ let showAllW=false,showWarn=false;
 function resolveExName(n){n=String(n||"").trim();if(!n)return null;const all=allExerciseNames();const hit=all.find(x=>norm(x)===norm(n));if(hit)return{name:hit,known:true};
  const k3=Object.keys(X3OF).find(x=>norm(x)===norm(n));if(k3)return{name:k3,known:true};
  const al=Object.keys(X3).find(c=>(X3[c].v3.al||[]).some(a=>norm(a)===norm(n)));if(al)return{name:al,known:true};return{name:n,known:false}}
+function importAdditions(j){const added=[],skipped=[],missing=[];
+ (j.addTo||[]).forEach(a=>{const ks=Object.keys(S.core.workout);const k=ks.find(x=>norm(S.core.workout[x].title).trim()===norm(a.workout||"").trim())||(a.letter&&S.core.workout[a.letter]?a.letter:null);if(!k){missing.push(a.workout||a.letter);return}const w=S.core.workout[k];
+  (a.ex||[]).forEach(e=>{let r=resolveExName(e.name);if(!r)return;if(!r.known)for(const al of (e.also||[])){const ra=resolveExName(al);if(ra&&ra.known){r=ra;break}}if(w.ex.some(x=>x.name===r.name)){skipped.push(r.name+" ("+k+")");return}
+   const st=Array.isArray(e.setTypes)?e.setTypes:null;const o=EX(r.name,st?st.length:+e.sets||3,String(e.reps||"10-12"));if(st)o.setTypes=st;if(e.note)o.note=String(e.note);if(e.rest!=null){S.core.rest=S.core.rest||{};if(S.core.rest[r.name]==null)S.core.rest[r.name]=+e.rest}w.ex.push(o);added.push([k,r.name])})});
+ save("core");render();openSheet(`<h3>✓ ${added.length} exercise${added.length===1?"":"s"} added</h3>${added.map(([k,n])=>`<div style="padding:.25rem 0;border-bottom:1px solid var(--line)"><span class="dd" style="background:${DAYCOL[k]||"var(--plum)"}">${k}</span> ${esc(n)}</div>`).join("")}${skipped.length?`<p class="muted" style="font-size:.82rem;margin-top:.5rem">Already there, not added twice: ${esc(skipped.join(", "))}</p>`:""}${missing.length?`<div class="note warn" style="margin-top:.5rem">Workout not found: ${esc(missing.join(", "))}. Check its name, or add these by hand.</div>`:""}<button style="width:100%;margin-top:.8rem" onclick="closeSheet()">OK</button>`)}
+const MAIN_GROUPS=["chest","back","shoulders","biceps","triceps","abs","glutes","quads","hamstrings","calves"];
+function weekGroupSets(){const t={};schedule().forEach(k=>{if(k==="rest"||!S.core.workout[k])return;wkMuscles(S.core.workout[k]).groups.forEach(([g,n])=>t[g]=(t[g]||0)+n)});return t}
+function lowMuscleHTML(){if(!schedule().some(k=>k!=="rest"&&S.core.workout[k]))return"";const t=weekGroupSets();const low=MAIN_GROUPS.filter(g=>(t[g]||0)<4);if(!low.length)return"";
+ return`<div class="note warn" style="margin:.2rem 0 .8rem"><b>Under 4 sets a week</b> in your plan: ${low.map(g=>`${esc(MUSCLES[g]||g)} (${r1(t[g]||0)})`).join(", ")}. About 6–10 hard sets a week keeps a muscle progressing.<div class="chips" style="margin-top:.4rem">${low.map(g=>`<button class="chip" onclick="trainView='lib';libQ=${esc(JSON.stringify((MUSCLES[g]||g).toLowerCase()))};render();window.scrollTo(0,0)">Find ${esc((MUSCLES[g]||g).toLowerCase())} exercises</button>`).join("")}</div></div>`}
 async function importWorkoutsFile(inp){const file=inp.files[0];inp.value="";if(!file)return;let j;try{j=JSON.parse(await file.text())}catch(e){toast("This file isn't a valid workout file (JSON).");return}
+ if(j&&Array.isArray(j.addTo)){importAdditions(j);return}
  const list=Array.isArray(j)?j:j.workouts;if(!Array.isArray(list)||!list.length){toast("No workouts found in this file.");return}
  const added=[],unknown=new Set();const pal=["#8E44AD","#16A085","#D35400","#2C3E50","#C0392B","#27AE60"];
  for(const w of list){const used=Object.keys(S.core.workout);const L="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").find(x=>!used.includes(x));if(!L){toast("No free letter left (A–Z): delete a workout first.");break}
@@ -3462,7 +3473,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.59w beta";
+const APP_VERSION="0.59x beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

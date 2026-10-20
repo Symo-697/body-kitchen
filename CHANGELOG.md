@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59x beta
+- Workout files can now add exercises to existing workouts ("addTo"), matched by workout name or letter, never adding the same exercise twice.
+- Train › Progress: warning when a main muscle (chest, back, shoulders, biceps, triceps, abs, glutes, quads, hamstrings, calves) gets under 4 sets a week in your plan, with a button to find exercises for it.
+- Static holds (RKC plank, forearm/weighted/Copenhagen/side planks, hollow body hold, Pallof iso-hold…) are logged in seconds instead of kg × reps.
+
 ## 0.59w beta
 - Train › Progress: new "📈 Progression methods" card. For each exercise of this week it detects how you actually log it (double, linear, pyramid, reverse pyramid, top set + back-off, volume, undulating) and which method made you progress fastest: estimated-strength gain per week in fat loss/maintain, volume gain in building. Needs 3+ weeks with a method; falls back to your other compound or isolation exercises when the exercise itself has too little history.
 - "Switch to …" button applies the method to that exercise in every workout; when the best method is clearly better, the 🎯 line in workouts suggests it too (📈).
