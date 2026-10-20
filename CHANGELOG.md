@@ -2,6 +2,21 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59w beta
+- Train › Progress: new "📈 Progression methods" card. For each exercise of this week it detects how you actually log it (double, linear, pyramid, reverse pyramid, top set + back-off, volume, undulating) and which method made you progress fastest: estimated-strength gain per week in fat loss/maintain, volume gain in building. Needs 3+ weeks with a method; falls back to your other compound or isolation exercises when the exercise itself has too little history.
+- "Switch to …" button applies the method to that exercise in every workout; when the best method is clearly better, the 🎯 line in workouts suggests it too (📈).
+- Shows what it detected on exercises you logged before that aren't in this week.
+
+## 0.59v beta
+- Workout ••• menu: "Muscles this workout targets" anatomy figure (main target in red, also-worked in blue) with sets per muscle.
+- Edit workout: the same figure ("💪 Muscles targeted"), updated live when you change sets, move/remove exercises or add exercises (adding from the editor now brings you back to it).
+
+## 0.59u beta
+- Claude's scan analysis: each suggested exercise is now a "＋" button: matched to the library, sets/reps read from the suggestion (per side → L/R sets, minutes for cardio), choose the workout (best fit first), Add or Replace. "＋ Add all to my workouts" spreads them over the week (untick or change the workout first); suggestions already in a workout are left unticked.
+- Added exercises carry the 🎯 reason, stay until the next scan, max 2 added per workout; replacements don't count toward the 2 and the original exercise comes back at the next scan if no longer needed.
+- New analyses ask Claude for structured suggestions and a replacement only when needed (e.g. pull sets under 2× push with rounded shoulders); weekly push/pull sets shown in the rounded-shoulder insight.
+- Coherence checks: lean mass up more than 1 kg in under 3 weeks → flagged as mostly water; fat vs waist disagreement flagged from the next scan with measurements.
+
 ## 0.59t beta
 - VisBody import reads the two new pages: body circumferences (neck, arms, chest, 3 waist heights, hips, thighs, thighs above knee, calves) and shoulder mobility (arm raised to the side / in front, left and right).
 - Scan page: "Body measurements" and "Shoulder mobility" tables with the change from the previous scan; angles under 170° in orange.
