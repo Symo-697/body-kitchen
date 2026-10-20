@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59z beta
+- Calendar: removed the workout legend line; only the nutrition score dot is explained.
+
 ## 0.59y beta
 - Calendar: the list of every workout letter under the month is gone; one line explains that the colour shows the workout and tapping a day shows it.
 
