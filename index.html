@@ -2443,7 +2443,7 @@ function vLog(){const now=new Date(today()+"T12:00");const first=new Date(now.ge
  let h=`<div class="box">${st>0?`<div class="note good" style="margin-top:0">🔥 <b>${st}-week streak</b> of hitting your ${tgt} planned sessions.</div>`:""}
  <div class="row" style="justify-content:space-between;margin-bottom:.5rem"><button class="ghost small" aria-label="Previous month" onclick="calOff++;calSel=null;render()">‹</button><span class="row" style="gap:.4rem;flex-wrap:nowrap"><label style="position:relative;margin:0;cursor:pointer"><h3 style="margin:0">${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})} ▾</h3><input type="date" aria-label="Jump to a date" max="${today()}" value="${calSel||first.toLocaleDateString("sv-SE")}" onchange="calJump(this.value)" style="position:absolute;inset:0;opacity:0;width:100%;cursor:pointer"></label>${calOff||calSel&&calSel!==today()?`<button class="ghost small" style="padding:.2rem .55rem" onclick="calOff=0;calSel=today();render()">Today</button>`:""}</span><button class="ghost small" aria-label="Next month" ${calOff===0?"disabled style='opacity:.4'":""} onclick="calOff=Math.max(0,calOff-1);calSel=null;render()">›</button></div>
  <div class="calrow calhead">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}<span class="wkmark">Wk</span></div>${rows}
- <div class="row" style="gap:.8rem;margin-top:.6rem;font-size:.78rem;color:var(--muted)">${Object.entries(DAYCOL).map(([k,c])=>`<span class="row" style="gap:.25rem"><span style="width:10px;height:10px;border-radius:50%;background:${c};display:inline-block"></span>${k}</span>`).join("")}<span class="row" style="gap:.25rem"><span class="ndot" style="background:var(--sage);position:static"></span>nutrition score</span></div>
+ <div class="row" style="gap:.8rem;margin-top:.6rem;font-size:.78rem;color:var(--muted)"><span class="row" style="gap:.25rem"><span style="width:10px;height:10px;border-radius:50%;background:var(--plum);display:inline-block"></span>workout (colour = which one, tap the day)</span><span class="row" style="gap:.25rem"><span class="ndot" style="background:var(--sage);position:static"></span>nutrition score</span></div>
  <div class="row" style="gap:.7rem;margin-top:.3rem;font-size:.75rem;color:var(--muted)">Phase band: ${PHASE_ORDER.map(k=>`<span class="row" style="gap:.2rem"><span style="width:4px;height:12px;background:${PHASE_COL[k]};display:inline-block"></span>${PHASES[k].label}</span>`).join("")}</div>
  <div class="grid3" style="margin-top:.9rem"><div><div class="muted">Workouts</div><b>${ms.workouts}</b>${delta(ms.workouts,pm.workouts)}</div><div><div class="muted">Sets</div><b>${r0(ms.sets)}</b>${delta(ms.sets,pm.sets)}</div><div><div class="muted">Volume</div><b>${r0(ms.vol).toLocaleString()} kg</b>${delta(ms.vol,pm.vol)}</div></div></div>`;
  if(calSel){const ss=sessByDate[calSel]||[];const sc=dayScore((S.logs[monthKey(calSel)]||{days:{}}).days?.[calSel],T,calSel===today());
@@ -3473,7 +3473,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.59x beta";
+const APP_VERSION="0.59y beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

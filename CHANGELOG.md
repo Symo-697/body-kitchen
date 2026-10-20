@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.59y beta
+- Calendar: the list of every workout letter under the month is gone; one line explains that the colour shows the workout and tapping a day shows it.
+
 ## 0.59x beta
 - Workout files can now add exercises to existing workouts ("addTo"), matched by workout name or letter, never adding the same exercise twice.
 - Train › Progress: warning when a main muscle (chest, back, shoulders, biceps, triceps, abs, glutes, quads, hamstrings, calves) gets under 4 sets a week in your plan, with a button to find exercises for it.
