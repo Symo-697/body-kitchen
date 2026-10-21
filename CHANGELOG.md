@@ -2,6 +2,12 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.60 beta (text review)
+- About 215 texts shortened or removed across every tab, following the text review (202 shortened, 22 deleted; AI instructions and exercise data unchanged).
+- Charts: tap a dot or bar to see its value and date.
+- Log food: amount + unit (g, ml, tbsp, tsp, pinch, cup, piece, can), unit picked automatically for the ingredient.
+- Scan page: reading conditions moved behind an "ⓘ Reading conditions" button; posture and mobility priorities have "＋ Choose exercises" to tick and add them to workouts (replaces the library chip list).
+
 ## 0.59z beta
 - Calendar: removed the workout legend line; only the nutrition score dot is explained.
 
