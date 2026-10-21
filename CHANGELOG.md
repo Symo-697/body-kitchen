@@ -2,6 +2,12 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.61 beta · 2026-10-21
+- **Language setting** (Settings › Language): English or Français. Switches the whole app instantly, no reload: screens, buttons, pop-ups, coaching lines, warnings, help pages.
+- French dates (lundi 5 octobre), French units (c. à s., c. à c., pincée, pièce, boîte), decimal commas and spaced thousands.
+- Claude's scan analysis replies in French when French is on.
+- Exercise names, food and recipe names, and iPhone Shortcut action names stay in English.
+
 ## 0.60b beta
 - Fix: Build & define no longer adds a surplus when body fat is high (32 %+ women, 22 %+ men from the last scan, or BMI 30+ without a scan). It switches to recomposition: 15 % under maintenance, protein 2 g/kg, fat 30 %, 8,000 steps. Example: 2,711 kcal / 365 g carbs → 2,281 kcal / 242 g carbs.
 
