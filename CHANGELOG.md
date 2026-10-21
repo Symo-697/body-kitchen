@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.60a beta
+- Setup: the goal weight box shows a suggested weight in grey (healthy BMI for the height: BMI 24.9 if above 25, BMI 20 if under 18.5, otherwise the current weight), updated as height and weight are typed.
+
 ## 0.60 beta (text review)
 - About 215 texts shortened or removed across every tab, following the text review (202 shortened, 22 deleted; AI instructions and exercise data unchanged).
 - Charts: tap a dot or bar to see its value and date.
