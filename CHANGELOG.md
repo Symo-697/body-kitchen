@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.62a beta · 2026-10-22
+- Start cooking now asks how many portions to make when a recipe makes more than one (1 … all). Ingredient amounts scale to the choice; steps show a reminder that the amounts written in the text are for the full recipe.
+
 ## 0.62 beta · 2026-10-21
 - New phase **Recomposition** (lose fat and build muscle): maintenance × 0.90 (no deficit if BMI is under 20), protein 2 g/kg, fat 30 %, 8,000 steps.
 - Fix: the setup goal "Lose fat and build muscle" no longer gives a surplus (Build & define) when BMI is under 25. It now gives Recomposition (BMI under 25) or Fat loss (25+). People already in the wrong phase are moved once, with a message.
