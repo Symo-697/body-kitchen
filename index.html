@@ -339,7 +339,7 @@ const DEFAULT_WORKOUT={
 };
 const PHASES={
  cut:{label:"Fat loss",kf:.8,prot:2.1,steps:9000,info:"Moderate deficit. Lift heavy so muscle stays while fat goes. Aim for 0.5–1% of bodyweight lost per week."},
- build:{label:"Build & define",kf:1.07,prot:1.8,steps:7000,info:"Small surplus to grow glutes and shoulders. Slow gain: about 0.1–0.25% of bodyweight per week. A 4–6 week mini-cut at the end reveals the definition."},
+ build:{label:"Build & define",kf:1.07,prot:1.8,steps:7000,info:"Small surplus to build muscle (a small deficit while body fat is high). Slow gain: about 0.1–0.25% of bodyweight per week. A 4–6 week mini-cut at the end reveals the definition."},
  maintain:{label:"Maintain",kf:1,prot:1.8,steps:8000,info:"Eat at maintenance. Keep the same weights on the bar with less volume; strength is what keeps the muscle."},
  minicut:{label:"Mini-cut",kf:.85,prot:2.1,steps:9000,info:"A short 4–6 week deficit to reveal the muscle built in the last phase. Keep lifting heavy."},
  gain:{label:"Weight gain",kf:1.12,prot:1.8,steps:6000,info:"A clear surplus to reach a healthy weight: aim for about 0.25–0.5 kg a week, with strength training so the gain is muscle as well as fat. Eat regularly, every 3–4 hours."}
@@ -478,15 +478,16 @@ function _targets(){
  const gentle=S.core.phase.pace==="gentle";if(gentle&&S.core.phase.name==="cut")kf=.9;if(gentle&&S.core.phase.name==="build"&&!S.core.phase.miniCut)kf=1.04;
  if(S.core.phase.name==="gain")kf=(gentle||+a<18)?1.08:1.12;
  const under=w/((h/100)**2)<18.5;
+ let recomp=false;if(S.core.phase.name==="build"&&!S.core.phase.miniCut){let bf=null;try{const sc=latestScan();if(sc&&sc.bfp)bf=+sc.bfp}catch(e){}const hiBF=bf!=null?bf>=(p.sex==="m"?22:32):w/((h/100)**2)>=30;if(hiBF){recomp=true;kf=Math.min(kf,.85)}}
  const safe=!!p.noDeficit||under;if(safe&&kf<1)kf=1;
  let kcal=tdee*kf+(safe?Math.max(0,+S.core.phase.kcalAdjust||0):(+S.core.phase.kcalAdjust||0));
  const floor=Math.max(bmr,p.sex==="m"?1500:1200);
  const floored=kcal<floor;kcal=Math.max(kcal,floor);
  const isGain=S.core.phase.name==="gain";const basis=isGain?w:Math.min(w,25*(h/100)**2);
- const prot=basis*((S.core.phase.name==="cut"||S.core.phase.name==="minicut"||S.core.phase.miniCut?2.1:ph.prot)+(conds().some(c=>["pcos","insulin","menopause","glp1"].includes(c))?.1:0));
- const fat=Math.max(.8*basis,kcal*(isGain?.3:.25)/9);
+ const prot=basis*((S.core.phase.name==="cut"||S.core.phase.name==="minicut"||S.core.phase.miniCut?2.1:recomp?2:ph.prot)+(conds().some(c=>["pcos","insulin","menopause","glp1"].includes(c))?.1:0));
+ const fat=Math.max(.8*basis,kcal*(isGain||recomp?.3:.25)/9);
  const carbs=Math.max(0,(kcal-prot*4-fat*9)/4);
- return{bmr,tdee,kcal,p:prot,f:fat,c:carbs,fib:Math.min(38,Math.max(25,14*kcal/1000)),floored,steps:ph.steps,safe,under,adaptive}
+ return{bmr,tdee,kcal,p:prot,f:fat,c:carbs,fib:Math.min(38,Math.max(25,14*kcal/1000)),floored,steps:recomp?8000:ph.steps,safe,under,adaptive,recomp}
 }
 function bmi(){const h=+S.core.profile.height/100,w=latestWeight();return h&&w?w/(h*h):0}
 function avgWeight(fromDaysAgo,toDaysAgo){
@@ -736,7 +737,7 @@ function vToday(){
   const bar=(lab,v,t,col)=>`<div class="bar"><span>${lab}</span><div class="track"><div class="fill" style="width:${Math.min(100,v/t*100)}%;background:${col}"></div></div><span class="num">${r0(v)} / ${r0(t)} g</span></div>`;
   const hk=(S.core.prefs||{}).hideKcal;h+=`<div class="box meter">${hk?`<div class="muted" style="margin-bottom:.2rem">Today's balance</div>`:`<div class="left-num ${left<0?"over":""}">${r0(Math.abs(left))}</div><div class="muted">${left<0?"kcal over":"kcal left"} of ${r0(T.kcal)} · eaten ${r0(tot.kcal)}</div>`}
   <div class="bars">${bar("Protein",tot.p,T.p,"var(--p)")}${bar("Carbs",tot.c,T.c,"var(--c)")}${bar("Fat",tot.f,T.f,"var(--f)")}${bar("Fibre",tot.fib,T.fib,"#8C6D46")}</div>
-  ${T.floored?`<p class="muted" style="margin:.7rem 0 0">Calories are held at a safe minimum rather than a bigger deficit.</p>`:""}${T.safe?`<p class="muted" style="margin:.7rem 0 0">No deficit (health answers): check with a doctor.</p>`:""}</div>`;
+  ${T.floored?`<p class="muted" style="margin:.7rem 0 0">Calories are held at a safe minimum rather than a bigger deficit.</p>`:""}${T.recomp&&!T.safe?`<p class="muted" style="margin:.7rem 0 0">Recomposition: small deficit until body fat is lower.</p>`:""}${T.safe?`<p class="muted" style="margin:.7rem 0 0">No deficit (health answers): check with a doctor.</p>`:""}</div>`;
   const sc=dayScore(L,T,logDate===today());
   if(sc)h+=`<div class="box"><div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="muted">Nutrition score${logDate===today()?" · today so far":""}</div><div class="left-num" style="font-size:2.6rem">${sc.score}<span style="font-size:1rem;font-weight:600"> / 100</span></div></div><b style="color:${sc.score>=70?"var(--sage)":sc.score>=50?"var(--apricot)":"var(--warn)"}">${scoreWord(sc.score)}</b></div>
   <div class="bars">${sc.parts.map(([l,v,w])=>`<div class="bar"><span>${l}</span><div class="track"><div class="fill" style="width:${v*100}%;background:${v>=.85?"var(--sage)":v>=.5?"var(--apricot)":"var(--warn)"}"></div></div><span class="num">${r0(v*w)} / ${w}</span></div>`).join("")}</div>
@@ -3481,7 +3482,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.60a beta";
+const APP_VERSION="0.60b beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

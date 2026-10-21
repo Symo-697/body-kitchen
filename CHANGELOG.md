@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.60b beta
+- Fix: Build & define no longer adds a surplus when body fat is high (32 %+ women, 22 %+ men from the last scan, or BMI 30+ without a scan). It switches to recomposition: 15 % under maintenance, protein 2 g/kg, fat 30 %, 8,000 steps. Example: 2,711 kcal / 365 g carbs → 2,281 kcal / 242 g carbs.
+
 ## 0.60a beta
 - Setup: the goal weight box shows a suggested weight in grey (healthy BMI for the height: BMI 24.9 if above 25, BMI 20 if under 18.5, otherwise the current weight), updated as height and weight are typed.
 
