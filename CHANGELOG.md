@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.61a beta · 2026-10-21
+- French: Discover recipe names and their steps are translated (also in cooking mode, and in your planner once added).
+- French units also cover ¾ c. à c., gousses; cooking mode shows ÉTAPE 1, 2…
+
 ## 0.61 beta · 2026-10-21
 - **Language setting** (Settings › Language): English or Français. Switches the whole app instantly, no reload: screens, buttons, pop-ups, coaching lines, warnings, help pages.
 - French dates (lundi 5 octobre), French units (c. à s., c. à c., pincée, pièce, boîte), decimal commas and spaced thousands.
