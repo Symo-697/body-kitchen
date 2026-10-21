@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.62 beta · 2026-10-21
+- New phase **Recomposition** (lose fat and build muscle): maintenance × 0.90 (no deficit if BMI is under 20), protein 2 g/kg, fat 30 %, 8,000 steps.
+- Fix: the setup goal "Lose fat and build muscle" no longer gives a surplus (Build & define) when BMI is under 25. It now gives Recomposition (BMI under 25) or Fat loss (25+). People already in the wrong phase are moved once, with a message.
+- New option in Me › Phase: **High protein** (2 g per kg of body weight, max 220 g). Carbs go down by the same amount.
+
 ## 0.61a beta · 2026-10-21
 - French: Discover recipe names and their steps are translated (also in cooking mode, and in your planner once added).
 - French units also cover ¾ c. à c., gousses; cooking mode shows ÉTAPE 1, 2…
