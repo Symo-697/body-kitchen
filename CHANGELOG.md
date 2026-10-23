@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68d beta · 2026-10-23
+- Supplements & medication: interactions and daily totals as two tiles (details on tap), supplements as rows (tap to edit), New + quick-add suggestions in one scrolling row, medication as rows with a one-line add; explanations behind ⓘ.
+- 'How much do you have at home?' shortened to one line.
+
 ## 0.68c beta · 2026-10-23
 - Kitchen › Plan my week: tap the card again to close it; the week is a compact list of meal pills, tap any meal to swap the recipe; cost and buttons on one line, no long text.
 - Settings: painful joints and foods to avoid are picked from a list (with Other… for anything else); switches fixed.
