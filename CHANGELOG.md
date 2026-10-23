@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.64a beta · 2026-10-23
+- Workout editor redesigned like Lyfta: every exercise is folded; tap one to unfold its sets, tap again (or another one) to fold it back.
+- New ••• menu per exercise: Video & history, Superset, Replace exercise, Pinned note, Change weight unit, Move up/down, Delete from workout.
+- Removed the global Reps field (each set has its own values now) and the "⇄ next" superset chip.
+
 ## 0.64 beta · 2026-10-23
 - **＋ quick button** on every tab: log food, describe a meal, photo of a meal, water +250 ml, weight, start/resume workout (and fasting when on).
 - **Food photo logging:** take a photo, Claude estimates foods and grams, check and add (in Describe your meal too).
