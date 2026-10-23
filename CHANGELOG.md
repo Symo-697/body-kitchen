@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.65 beta · 2026-10-23
+- Edit workout, Lyfta-style: top bar with ✕ (discard changes) and Save, big title, borderless "Notes…", 💪 Muscles targeted kept, workout type as a small selector.
+- Muscle pictures: every exercise row (workout page, editor, library) shows a thumbnail with its main muscle highlighted.
+- Library redesigned: round search bar, Muscles / Equipment / Movements as a grid of picture tiles (muscle maps and equipment icons); tap a tile to see its exercises as picture rows with a select circle.
+
 ## 0.64d beta · 2026-10-23
 - Workouts list redesigned like Lyfta: coloured tile, name, "N exercises • last done", ▶ to start straight away, ••• for everything else. No more exercise lists or Open/Edit/+ Exercises buttons; tap a row to open it.
 

@@ -133,6 +133,25 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .restbar{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.18)}
 .livebar{display:block;width:100%;margin:.2rem 0 .6rem;background:var(--plum-soft);color:var(--plum);font-weight:600;text-align:left}
 #extabs button{font-size:.84rem;padding:.45rem .15rem;white-space:nowrap}.wkex{border-bottom:1px solid var(--line)}
+.mt{flex:none;width:100%;aspect-ratio:1;border-radius:50%;background:#F2F2F6 center/contain no-repeat;display:grid;place-items:center;font-size:1.8rem;overflow:hidden}
+.mt.mtsq{width:52px;height:52px;aspect-ratio:auto;border-radius:12px;background-color:#fff;border:1px solid var(--line);font-size:1.2rem}
+.libsearch{display:flex;align-items:center;gap:.4rem;background:var(--card,#fff);border:1px solid var(--line);border-radius:999px;padding:.15rem .3rem .15rem .9rem;margin-bottom:.7rem;box-shadow:0 4px 14px rgba(0,0,0,.05)}
+.libsearch input{border:0;background:transparent;flex:1;min-width:0;padding:.55rem 0;box-shadow:none;outline:none}
+.libgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem .7rem;margin-top:.9rem}
+.libtile{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.25rem;min-width:0}
+.libtile b{font-size:.9rem;line-height:1.15;margin-top:.2rem}.libtile .muted{font-size:.72rem}
+.librow{display:flex;gap:.75rem;align-items:center;padding:.5rem 0;cursor:pointer}
+.liblist{margin-top:.4rem}
+.libhead{display:flex;gap:.6rem;align-items:center;margin:.8rem 0 .3rem}
+.circbtn{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:var(--card,#fff);box-shadow:0 2px 10px rgba(0,0,0,.08);font-size:1.4rem;line-height:1;padding:0;color:inherit;display:grid;place-items:center}
+.pillsel{width:auto;max-width:45%;border-radius:999px;padding:.35rem .7rem;font-size:.82rem}
+.selc{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);background:transparent;padding:0;font-size:.85rem;color:#fff}.selc.on{background:var(--plum);border-color:var(--plum)}
+.wkbar{position:sticky;top:-1rem;z-index:4;background:var(--card,#fff);display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.4rem 0 .6rem;margin-top:-.4rem}
+.wkbar b{font-size:1.05rem}.wkbar .save{border-radius:999px;padding:.45rem 1.1rem}
+.wktitle{border:0!important;background:transparent!important;font-size:1.6rem!important;font-weight:800!important;padding:.2rem 0!important;box-shadow:none!important;width:100%}
+.wknotes{border:0!important;background:transparent!important;padding:.1rem 0!important;box-shadow:none!important;width:100%;resize:none;color:var(--muted)}
+.wkmusbtn{all:unset;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--plum)}
+
 .wksum{display:flex;border:1px solid var(--line);border-radius:14px;margin:.8rem 0 .4rem;padding:.55rem 0}.wksum>div{flex:1;text-align:center;border-right:1px solid var(--line)}.wksum>div:last-child{border:0}.wksum span{display:block;font-size:.75rem;color:var(--muted)}.wksum b{font-size:1.05rem}
 .wkro{display:flex;gap:.75rem;align-items:center;padding:.55rem 0;cursor:pointer}.wkth{flex:none;width:46px;height:46px;border:1px solid var(--line);border-radius:10px;display:grid;place-items:center;font-weight:700;color:var(--plum);background:var(--card,#fff)}.wkn{font-weight:650;line-height:1.25}.wkplay{flex:none;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:transparent;color:var(--ink,inherit);padding:0;font-size:.85rem;display:grid;place-items:center}#fab{position:fixed;right:1rem;bottom:calc(4.4rem + env(safe-area-inset-bottom,0px));width:3.3rem;height:3.3rem;border-radius:50%;background:var(--plum);color:#fff;font-size:1.7rem;line-height:1;padding:0;z-index:6;box-shadow:0 6px 18px rgba(0,0,0,.28)}main{padding-bottom:9rem!important}.draghandle{touch-action:none;cursor:grab;padding:.35rem .55rem;font-size:1.25rem;color:var(--muted);user-select:none;-webkit-user-select:none}.livecard{transition:transform .15s}.livecard.dragging{transition:none;position:relative;z-index:5;box-shadow:0 10px 28px rgba(0,0,0,.28)}.ytbtn{display:inline-flex;align-items:center;gap:.3rem;border:1px solid var(--line);border-radius:999px;padding:.35rem .85rem;color:var(--ink);text-decoration:none;font-weight:600;font-size:.88rem}
 .stopt{display:flex;align-items:center;gap:.8rem;width:100%;background:transparent;color:var(--ink);font-size:.95rem;font-weight:600;padding:.5rem .3rem;border-radius:10px;text-align:left;border-bottom:1px solid var(--line)}.stopt>span{width:2rem;text-align:center;font-weight:800}.stopt.on{background:var(--plum-soft)}
@@ -2407,7 +2426,7 @@ function vTrain(){
  const nSets=day.ex.reduce((a,e)=>a+setsFor(e),0);
  h+=`<div class="box" id="daybox"><div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:flex-start"><div style="min-width:0"><h3 style="margin:0"><span class="dd" style="background:${DAYCOL[gymDay]||"var(--plum)"}">${gymDay}</span> ${esc(day.title)}</h3>${lastTxt?`<div class="muted" style="font-size:.8rem;margin-top:.2rem">${LANG()==="fr"?"Dernière fois":"Last performed"} : ${lastTxt}</div>`:""}</div><button class="iconbtn" aria-label="Workout options" onclick="workoutMenu('${gymDay}')">•••</button></div>
  ${day.ex.length?`<div class="wksum"><div><span>${LANG()==="fr"?"Séries":"Sets"}</span><b>${nSets}</b></div><div><span>${LANG()==="fr"?"Durée":"Duration"}</span><b>${wkTimeTxt(day)}</b></div><div><span>${LANG()==="fr"?"Exercices":"Exercises"}</span><b>${day.ex.length}</b></div></div>`:""}
- ${day.ex.map((ex,i)=>{const n=setsFor(ex);const si=ssInfo(day.ex,i);const m=exMode(ex.name);const reps=isCardio(ex)?esc(ex.reps)+" min":m==="t"?esc(ex.reps)+" s":esc(String(ex.reps).replace("-","–"))+" reps";return`<div class="wkro" onclick="showEx(${esc(JSON.stringify(ex.name))},false,${i})" style="${si?`border-left:3px solid ${si.col};padding-left:.6rem`:""}"><div class="wkth">${esc(ex.name.trim()[0]||"?")}</div><div style="min-width:0"><div class="wkn">${esc(ex.name)}${ex.note?" 📌":""}</div><div class="muted" style="font-size:.85rem">${n} ${LANG()==="fr"?"séries":"sets"} • ${reps}</div></div></div>`}).join("")}
+ ${day.ex.map((ex,i)=>{const n=setsFor(ex);const si=ssInfo(day.ex,i);const m=exMode(ex.name);const reps=isCardio(ex)?esc(ex.reps)+" min":m==="t"?esc(ex.reps)+" s":esc(String(ex.reps).replace("-","–"))+" reps";return`<div class="wkro" onclick="showEx(${esc(JSON.stringify(ex.name))},false,${i})" style="${si?`border-left:3px solid ${si.col};padding-left:.6rem`:""}">${exThumb(ex.name)}<div style="min-width:0"><div class="wkn">${esc(ex.name)}${ex.note?" 📌":""}</div><div class="muted" style="font-size:.85rem">${n} ${LANG()==="fr"?"séries":"sets"} • ${reps}</div></div></div>`}).join("")}
  ${day.ex.length?"":`<p class="muted" style="text-align:center">${LANG()==="fr"?"Aucun exercice. ••• → Modifier la séance.":"No exercises yet. ••• → Edit workout."}</p>`}
  ${A()?`<button style="width:100%;margin-top:.8rem" onclick="trainView='live';render();window.scrollTo(0,0)">▶ Resume workout ${esc(A().day)}</button>`:`<button style="width:100%;margin-top:.8rem" onclick="startWorkout('${gymDay}')">${LANG()==="fr"?"Démarrer la séance":"Start workout"}</button>`}
  </div>`;
@@ -3273,8 +3292,8 @@ function libGroups(){const names=libNames().filter(libFilt);const g={};
   return[...TGOPTS(),["other","Other"]].filter(([k])=>g[k]).map(([k,l])=>[k,l,g[k]])}
  if(libBy==="fam"){names.forEach(n=>{const m=meta3(n);const f=m?m.fam:"Other";(g[f]=g[f]||[]).push(n)});return Object.keys(g).sort((a,b)=>(a==="Other")-(b==="Other")||a.localeCompare(b)).map(k=>[k,k,g[k]])}
  names.forEach(n=>{const e=eqLabel(n);(g[e]=g[e]||[]).push(n)});return Object.keys(g).sort((a,b)=>g[b].length-g[a].length).map(k=>[k,k,g[k]])}
-function libRow(n){const own=ownExerciseNames().has(n);const nn=esc(JSON.stringify(n));const [P]=musclesD(n);
- return`<div class="row" style="padding:.35rem 0;border-bottom:1px solid var(--line);flex-wrap:nowrap"><input type="checkbox" style="width:1.1rem;flex:none" ${libSel.has(n)?"checked":""} onchange="libToggle(${nn},this.checked)" aria-label="Select"><button class="exname" style="text-decoration:none;font-weight:600;flex:1;min-width:0" onclick="showEx(${nn},true)">${esc(n)}<br><span class="muted" style="font-weight:400;font-size:.78rem">${esc([eqLabel(n),...prettyList(P).slice(0,2)].filter(Boolean).join(" · "))}</span></button></div>`}
+function libRow(n){const nn=esc(JSON.stringify(n));const [P]=musclesD(n);const on=libSel.has(n);
+ return`<div class="librow" onclick="showEx(${nn},true)">${exThumb(n)}<div style="flex:1;min-width:0"><div class="wkn">${esc(n)}</div><div class="muted" style="font-size:.8rem">${esc([eqLabel(n),...prettyList(P).slice(0,1)].filter(Boolean).join(" · "))}</div></div><button class="selc ${on?"on":""}" aria-label="Select" onclick="event.stopPropagation();libToggle(${nn},!libSel.has(${nn}));this.classList.toggle('on')">${on?"✓":""}</button></div>`}
 function libToggle(n,on){if(on)libSel.add(n);else libSel.delete(n);const b=document.getElementById("libbar");if(b)b.innerHTML=libBarHTML()}
 function libBarHTML(){if(!libSel.size)return"";return`<div class="box" style="position:sticky;top:calc(env(safe-area-inset-top,0px) + .3rem);z-index:5;box-shadow:0 6px 18px rgba(0,0,0,.15)"><b>${libSel.size} selected</b>
  <div class="row" style="margin-top:.5rem"><select id="libday" style="width:auto">${Object.keys(S.core.workout).map(k=>`<option value="${k}">Day ${k} · ${esc(S.core.workout[k].title)}</option>`).join("")}</select><button class="small" onclick="libAddTo()">Add to day</button></div>
@@ -3284,16 +3303,65 @@ function libEx(n){const d=exDef(n)||{};const md=exMode(n);return EX(n,md==="c"?1
 function libAddTo(){const k=($("#libday")||{}).value;const d=S.core.workout[k];if(!d)return;libSel.forEach(n=>{if(!d.ex.some(e=>e.name===n))d.ex.push(libEx(n))});const c=libSel.size;libSel.clear();save("core");toast(`${c} exercise${c>1?"s":""} added to day ${k}.`);render()}
 function libNewRoutine(){const name=(($("#libname")||{}).value||"").trim()||"New routine";const used=Object.keys(S.core.workout);const L="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").find(x=>!used.includes(x));if(!L){toast("You already have 12 routines.");return}
  S.core.workout[L]={title:name,ex:[...libSel].map(libEx)};DAYCOL[L]=DAYCOL[L]||["#8E44AD","#16A085","#D35400","#2C3E50","#C0392B","#27AE60"][used.length%6];const c=libSel.size;libSel.clear();save("core");gymDay=L;trainView="plan";toast(`Routine ${L} “${name}” created with ${c} exercises. Start it any day from Plan & log.`);render()}
-function vLibrary(){const q=norm(libQ).trim();const words=q.split(/\s+/).filter(Boolean);
- let h=`<div class="seg"><button class="${libBy==="muscle"?"on":""}" onclick="libBy='muscle';render()">Muscle</button><button class="${libBy==="equip"?"on":""}" onclick="libBy='equip';render()">Equipment</button><button class="${libBy==="fam"?"on":""}" onclick="libBy='fam';render()">Movement</button></div>
- <div class="row" style="margin:.5rem 0;flex-wrap:nowrap;gap:.4rem"><select style="flex:1;min-width:0" aria-label="Filter by equipment" onchange="libEq=this.value;render()"><option value="">All equipment</option>${DB3.E.filter(e=>e!=="Other").map(e=>`<option ${libEq===e?"selected":""}>${esc(e)}</option>`).join("")}</select><select style="flex:1;min-width:0" aria-label="Filter by target muscle" onchange="libTg=this.value;render()"><option value="">All muscles</option>${TGOPTS().map(([k,l])=>`<option value="${k}" ${libTg===k?"selected":""}>${esc(l)}</option>`).join("")}</select></div>
- <div id="libbar">${libBarHTML()}</div><div class="row" style="margin-bottom:.7rem;flex-wrap:nowrap"><input type="search" class="grow" placeholder="Search ${libNames().filter(libFilt).length} exercises (EN/FR)…" value="${esc(libQ)}" oninput="libQ=this.value;const el=document.getElementById('libbody');if(el)el.innerHTML=libBody()"><button class="small" onclick="libNew()">＋ New</button></div>
- <p class="muted" style="font-size:.82rem;margin:0 0 .6rem">Tap an exercise for its muscles and alternatives; tick several to make a routine.</p><div id="libbody">${libBody()}</div>`;return h}
-async function libNew(){const n=await askText("Name of the new exercise",libQ.trim());if(!n||!n.trim())return;if(allExerciseNames().some(x=>norm(x)===norm(n.trim()))){toast("That exercise already exists.");return}
- exQuery=n.trim();newEx={name:n.trim().replace(/\s+/g," "),p:[],s:[],mode:"w",sets:3,reps:"8-12"};openSheet(`<div id="exres">${exResultsHTML()}</div>`)}
-function libBody(){const q=norm(libQ).trim();const words=q.split(/\s+/).filter(Boolean);
- if(words.length){const all=exSearch(libQ,libNames().filter(libFilt));const hits=all.slice(0,80);return`<div class="box">${all.length>80?`<p class="muted" style="font-size:.8rem;margin:0 0 .3rem">Showing 80 of ${all.length}: add a word or a filter to narrow it.</p>`:""}${hits.map(libRow).join("")||'<p class="muted">No exercise found.</p>'}</div>`}
- return libGroups().map(([k,l,list])=>`<details class="box" ontoggle="if(this.open&&!this.dataset.f){this.querySelector('.lb').innerHTML=libList(${esc(JSON.stringify(k))});this.dataset.f=1}"><summary>${esc(l)} <span class="muted" style="font-weight:400">(${list.length})</span></summary><div class="lb"></div></details>`).join("")}
+
+/* ---------- muscle & equipment tiles (Lyfta-style) ---------- */
+const MUS_CROP={chest:"Fu",shoulders:"Fu",biceps:"Fu",abs:"Fu",forearms:"Fu",neck:"Fu",traps:"Bu",back:"Bu",lowerback:"Bu",triceps:"Bu",glutes:"Bm",quads:"Fl",adductors:"Fl",hamstrings:"Bl",calves:"Bl"};
+const MUS_EMO={mobility:"🧘",cardio:"🏃",other:"•"};
+let _musSex=null,_musDone={};
+function musKeys(g){return g==="neck"?["trapezius"]:Object.keys(DMUS).filter(k=>DMUS[k][1]===g)}
+function musSVG(g){const sex=S.core.profile.sex==="f"?"f":"m";const sh=BODY.shapes[sex];const vb=BODY.svg[sex].match(/viewBox="([^"]*)"/)[1].split(" ").map(Number);const c=MUS_CROP[g]||"Fu";const ks=musKeys(g);
+ const W=640,H=880;const cx=vb[0]+vb[2]*(c[0]==="F"?(sex==="f"?.238:.234):(sex==="f"?.778:.752));const y=c[1]==="u"?vb[1]+10:c[1]==="m"?vb[1]+vb[3]*.3:vb[1]+vb[3]*.43;
+ let svg=BODY.svg[sex].replace(/\{s:(\d+)\}/g,(_,j)=>sh[+j].some(k=>ks.includes(k))?"#E0604C":"#DADADF").replace(/\{t:(\d+)\}/g,"");
+ svg=svg.replace(/viewBox="[^"]*"/,`viewBox="${cx-W/2} ${y} ${W} ${H}" width="${W}" height="${H}"`).replace(/style="width:100%;display:block"/,"");if(!/xmlns=/.test(svg))svg=svg.replace("<svg ",'<svg xmlns="http://www.w3.org/2000/svg" ');return svg}
+function musPrep(){const sex=S.core.profile&&S.core.profile.sex==="f"?"f":"m";if(_musSex===sex)return;_musSex=sex;_musDone={};let st=document.getElementById("musstyle");if(!st){st=document.createElement("style");st.id="musstyle";document.head.appendChild(st)}st.textContent="";
+ const gs=Object.keys(MUS_CROP);let i=0;const next=()=>{if(i>=gs.length||_musSex!==sex)return;const g=gs[i++];const img=new Image();
+  img.onload=()=>{let u;try{const c=document.createElement("canvas");c.width=160;c.height=220;c.getContext("2d").drawImage(img,0,0,160,220);u=c.toDataURL("image/png")}catch(e){u=img.src}_musDone[g]=1;st.textContent+=`.mt-${g}{background-image:url("${u}")}`;setTimeout(next,0)};
+  img.onerror=()=>setTimeout(next,0);img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(musSVG(g))};next()}
+function exGroup(n){try{const [P]=musclesD(n);if(P.length)return DMUS[P[0]][1];return tgGroup(n)}catch(e){return"other"}}
+function musTile(g,cls){musPrep();return MUS_CROP[g]?`<div class="mt mt-${g} ${cls||""}"></div>`:`<div class="mt ${cls||""}"><span>${MUS_EMO[g]||"•"}</span></div>`}
+const exThumb=n=>musTile(exGroup(n),"mtsq");
+const EQI=(()=>{const P=(d,f)=>`<svg viewBox="0 0 48 48" width="100%" height="100%" fill="none" stroke="#2B2630" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;const K="#2B2630";
+ return{"Barbell":P(`<path d="M8 30 40 18"/><rect x="9" y="20" width="5" height="16" rx="1.5" fill="${K}" transform="rotate(-21 11.5 28)"/><rect x="34" y="12" width="5" height="16" rx="1.5" fill="${K}" transform="rotate(-21 36.5 20)"/>`),
+ "Dumbbell":P(`<path d="M17 24h14"/><rect x="9" y="16" width="8" height="16" rx="2" fill="${K}"/><rect x="31" y="16" width="8" height="16" rx="2" fill="${K}"/>`),
+ "Kettlebell":P(`<path d="M17 21c-2-10 16-10 14 0"/><circle cx="24" cy="30" r="11" fill="${K}"/>`),
+ "EZ Bar":P(`<path d="M7 26h8l4-4 4 4 4-4 4 4h10"/><rect x="5" y="18" width="5" height="16" rx="1.5" fill="${K}"/><rect x="38" y="18" width="5" height="16" rx="1.5" fill="${K}"/>`),
+ "Cable":P(`<path d="M12 42V7h24v35M12 12h24M24 12v15"/><circle cx="24" cy="12" r="3"/><path d="M19 27h10"/><rect x="28" y="30" width="8" height="10" fill="${K}"/>`),
+ "Leverage machine":P(`<path d="M10 42h28M14 42V14l18 10M14 30h14M22 30v12"/><circle cx="32" cy="24" r="4" fill="${K}"/>`),
+ "Smith machine":P(`<path d="M10 42V6M38 42V6M8 18h32M14 34h20M17 34v8M31 34v8"/>`),
+ "Sled machine":P(`<path d="M8 40 34 14M14 40h26M30 40 40 30"/><circle cx="34" cy="14" r="5" fill="${K}"/>`),
+ "Body weight":P(`<circle cx="33" cy="12" r="4"/><path d="M8 34l12-6 9-10 3 9M20 28l-6 10M29 18l9 16"/>`),
+ "Weighted":P(`<circle cx="24" cy="24" r="16" fill="${K}"/><circle cx="24" cy="24" r="4" fill="#fff" stroke="none"/>`),
+ "Band (tube)":P(`<path d="M14 10c-6 0-6 10 0 10M34 10c6 0 6 10 0 10M14 20c0 20 20 20 20 0"/>`),
+ "Resistance band (loop)":P(`<ellipse cx="24" cy="24" rx="16" ry="9"/><ellipse cx="24" cy="24" rx="12" ry="5.5"/>`),
+ "Medicine Ball":P(`<circle cx="24" cy="24" r="15" fill="${K}"/><path d="M12 18c8 4 16 4 24 0M12 30c8-4 16-4 24 0" stroke="#fff"/>`),
+ "Stability ball":P(`<circle cx="24" cy="24" r="16"/><path d="M12 14c6 6 18 6 24 0" />`),
+ "Bosu ball":P(`<path d="M8 32a16 14 0 0 1 32 0z" fill="#9EC3E8"/><path d="M6 34h36"/>`),
+ "Battling rope":P(`<path d="M6 20c6-8 10 8 16 0s10 8 16 0M6 30c6-8 10 8 16 0s10 8 16 0"/>`),
+ "Jump rope":P(`<path d="M12 10v8M36 10v8M12 18c0 26 24 26 24 0"/>`),
+ "Cardio machine":P(`<path d="M8 38h32l-4-10H14zM34 28l2-16h-6"/>`),
+ "Trap bar":P(`<path d="M8 24h7M33 24h7M15 24l5-8h8l5 8-5 8h-8z"/><rect x="4" y="17" width="4" height="14" rx="1" fill="${K}"/><rect x="40" y="17" width="4" height="14" rx="1" fill="${K}"/>`),
+ "Landmine":P(`<path d="M8 40 38 12"/><rect x="34" y="6" width="6" height="14" rx="1.5" fill="${K}" transform="rotate(43 37 13)"/><path d="M5 42h8"/>`),
+ "T-bar":P(`<path d="M6 40 36 14M22 22l6 6"/><rect x="33" y="8" width="6" height="14" rx="1.5" fill="${K}" transform="rotate(41 36 15)"/>`),
+ "Suspension trainer":P(`<path d="M24 4v8M24 12 14 36M24 12l10 24M10 36h8M30 36h8"/>`),
+ "Foam roller":P(`<rect x="8" y="17" width="32" height="14" rx="7"/><path d="M16 17v14M24 17v14M32 17v14"/>`),
+ "Ab roller":P(`<circle cx="24" cy="24" r="10"/><path d="M6 24h36"/>`),
+ "Power Sled":P(`<path d="M8 36h30l4-6M12 36V24h18v12M14 24v-8"/>`),
+ "Massage ball":P(`<circle cx="24" cy="24" r="12"/><circle cx="20" cy="20" r="1.5" fill="${K}"/><circle cx="28" cy="22" r="1.5" fill="${K}"/><circle cx="23" cy="29" r="1.5" fill="${K}"/>`)}})();
+const eqTile=e=>`<div class="mt">${EQI[e]?`<div style="width:58%;height:58%">${EQI[e]}</div>`:`<span>${esc((e||"?")[0])}</span>`}</div>`;
+function vLibrary(){musPrep();const fr=LANG()==="fr";
+ let h=`<div class="libsearch"><span aria-hidden="true">🔍</span><input type="search" placeholder="${fr?"Chercher un exercice":"Search for exercises"}" value="${esc(libQ)}" oninput="libQ=this.value;const el=document.getElementById('libbody');if(el)el.innerHTML=libBody()"><button class="iconbtn" aria-label="New exercise" onclick="libNew()">＋</button></div>
+ <div class="seg"><button class="${libBy==="muscle"?"on":""}" onclick="libBy='muscle';libOpen=null;libEq='';libTg='';render()">${fr?"Muscles":"Muscles"}</button><button class="${libBy==="equip"?"on":""}" onclick="libBy='equip';libOpen=null;libEq='';libTg='';render()">${fr?"Matériel":"Equipment"}</button><button class="${libBy==="fam"?"on":""}" onclick="libBy='fam';libOpen=null;libEq='';libTg='';render()">${fr?"Mouvements":"Movements"}</button></div>
+ <div id="libbar">${libBarHTML()}</div><div id="libbody">${libBody()}</div>`;return h}
+let libOpen=null;
+function famGroup(list){const c={};list.slice(0,60).forEach(n=>{const g=exGroup(n);c[g]=(c[g]||0)+1});return Object.keys(c).sort((a,b)=>c[b]-c[a])[0]||"other"}
+function libTileImg(k,list){return libBy==="equip"?eqTile(k):musTile(libBy==="muscle"?k:famGroup(list))}
+function libBody(){const q=norm(libQ).trim();const words=q.split(/\s+/).filter(Boolean);const fr=LANG()==="fr";
+ if(words.length){const all=exSearch(libQ,libNames().filter(libFilt));const hits=all.slice(0,80);return`${all.length>80?`<p class="muted" style="font-size:.8rem;margin:.2rem 0">${fr?"80 premiers sur":"Showing 80 of"} ${all.length}</p>`:""}<div class="liblist">${hits.map(libRow).join("")||`<p class="muted">${fr?"Aucun exercice trouvé.":"No exercise found."}</p>`}</div>`}
+ const G=libGroups();
+ if(libOpen!=null){const g=G.find(x=>x[0]===libOpen);if(g){const used=usedExNames();const list=g[2].slice().sort((a,b)=>(used.has(b)-used.has(a))||a.localeCompare(b));
+  const other=libBy==="equip"?`<select class="pillsel" aria-label="Muscle" onchange="libTg=this.value;render()"><option value="">${fr?"Tous les muscles":"All muscles"}</option>${TGOPTS().map(([k,l])=>`<option value="${k}" ${libTg===k?"selected":""}>${esc(l)}</option>`).join("")}</select>`:`<select class="pillsel" aria-label="Equipment" onchange="libEq=this.value;render()"><option value="">${fr?"Tout le matériel":"All equipment"}</option>${DB3.E.filter(e=>e!=="Other").map(e=>`<option ${libEq===e?"selected":""}>${esc(e)}</option>`).join("")}</select>`;
+  return`<div class="libhead"><button class="circbtn" aria-label="Back" onclick="libOpen=null;libEq='';libTg='';render()">‹</button><div style="flex:1;min-width:0"><b>${esc(g[1])}</b><div class="muted" style="font-size:.8rem">${list.length} ${fr?"exercices":"exercises"}</div></div>${other}</div><div class="liblist">${list.slice(0,300).map(libRow).join("")}</div>${list.length>300?`<p class="muted" style="font-size:.8rem">${fr?"Utilise la recherche pour le reste.":"Use search to find the rest."}</p>`:""}`}libOpen=null}
+ return`<div class="libgrid">${G.map(([k,l,list])=>`<button class="libtile" onclick="libOpen=${esc(JSON.stringify(k))};render();window.scrollTo(0,0)">${libTileImg(k,list)}<b>${esc(l)}</b><span class="muted">${list.length}</span></button>`).join("")}</div>`}
 function libList(k){const g=libGroups().find(x=>x[0]===k);if(!g)return"";const used=usedExNames();return g[2].slice().sort((a,b)=>(used.has(b)-used.has(a))||a.localeCompare(b)).map(libRow).join("")}
 let trainView="plan",progKind="week",progRange="3m",progMetric="vol",progOff=0,progEx=null;
 
@@ -3478,16 +3546,20 @@ function wkListHTML(){const ks=Object.keys(S.core.workout).filter(k=>{const w=S.
  return`<div class="box" style="padding:.3rem .9rem">`+ks.map(k=>{const w=S.core.workout[k];const ago=wkAgo(k);const n=w.ex.length;
   return`<div class="wkro" ${lpAttrs("wm",k)} onclick="gymDay='${k}';trainView='plan';render();window.scrollTo(0,0)"><div class="wkth" style="background:${DAYCOL[k]||"var(--plum)"};color:#fff;border:0;font-size:1.1rem">${k}</div><div style="min-width:0;flex:1"><div class="wkn">${esc(w.title)}</div><div class="muted" style="font-size:.85rem">${n} ${LANG()==="fr"?(n>1?"exercices":"exercice"):(n===1?"exercise":"exercises")}${ago?" • "+ago:""}</div></div>${A()?"":`<button class="wkplay" aria-label="Start workout ${k}" onclick="event.stopPropagation();startWorkout('${k}')">▶</button>`}<button class="iconbtn" aria-label="Workout options" onclick="event.stopPropagation();workoutMenu('${k}')">•••</button></div>`}).join("")+`</div>`}
 let wkE=null;
-function wkEdit(k){wkE=k;const w=S.core.workout[k];if(!w)return;const L=w.ex;const op=window._wkOpen&&window._wkOpen.k===k?window._wkOpen.i:-1;
- openSheet(`<div class="row" style="gap:.4rem;flex-wrap:nowrap"><span class="dd" style="background:${DAYCOL[k]||"var(--plum)"}">${k}</span><input value="${esc(w.title)}" aria-label="Workout name" onchange="S.core.workout['${k}'].title=this.value.trim()||S.core.workout['${k}'].title;save('core');render()" style="font-weight:700;font-size:1.05rem"></div>
- <textarea placeholder="Notes for this workout" rows="1" style="margin-top:.4rem;width:100%" onchange="const v=this.value.trim();if(v)S.core.workout['${k}'].note=v;else delete S.core.workout['${k}'].note;save('core')">${esc(w.note||"")}</textarea>
- <div class="chips" style="margin:.4rem 0 .4rem">${WTYPES.map(([t,l])=>`<button class="chip" style="font-size:.8rem;padding:.25rem .65rem;${wType(k)===t?"background:var(--plum);color:#fff;border-color:var(--plum)":""}" onclick="S.core.workout['${k}'].type='${t}';save('core');wkRefresh('${k}')">${l}</button>`).join("")}</div>
- <details ${window._wkMusOpen?"open":""} ontoggle="window._wkMusOpen=this.open" style="margin:0 0 .3rem"><summary style="font-size:.85rem;font-weight:600;color:var(--plum)">💪 Muscles targeted</summary><div id="wkmus" style="margin-top:.4rem">${wkMusclesHTML(k)}</div></details>
+function wkEdit(k){wkE=k;const w=S.core.workout[k];if(!w)return;const L=w.ex;const op=window._wkOpen&&window._wkOpen.k===k?window._wkOpen.i:-1;const fr=LANG()==="fr";
+ if(!document.querySelector("#sheetmodal .wkbar"))window._wkSnap={k,j:JSON.stringify(w)};
+ openSheet(`<div class="wkbar"><button class="circbtn" aria-label="Cancel" onclick="wkCancel('${k}')">✕</button><b>${fr?"Modifier la séance":"Edit workout"}</b><button class="save" onclick="wkSave()">${fr?"Enregistrer":"Save"}</button></div>
+ <input class="wktitle" value="${esc(w.title)}" aria-label="Workout name" onchange="S.core.workout['${k}'].title=this.value.trim()||S.core.workout['${k}'].title;save('core');render()">
+ <textarea class="wknotes" placeholder="Notes…" rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onchange="const v=this.value.trim();if(v)S.core.workout['${k}'].note=v;else delete S.core.workout['${k}'].note;save('core')">${esc(w.note||"")}</textarea>
+ <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap;margin:.3rem 0 .2rem"><button class="wkmusbtn" onclick="window._wkMusOpen=!window._wkMusOpen;wkRefresh('${k}')">💪 ${fr?"Muscles ciblés":"Muscles targeted"} ${window._wkMusOpen?"▴":"▾"}</button><select class="pillsel" aria-label="Workout type" onchange="S.core.workout['${k}'].type=this.value;save('core');wkRefresh('${k}')">${WTYPES.map(([t,l])=>`<option value="${t}" ${wType(k)===t?"selected":""}>${l}</option>`).join("")}</select></div>
+ ${window._wkMusOpen?`<div id="wkmus" style="margin:.3rem 0 .5rem">${wkMusclesHTML(k)}</div>`:""}
  ${L.map((e,i)=>{const si=ssInfo(L,i);const open=i===op;const md=exMode(e.name);const n=e.rows?e.rows.length:(e.setTypes?e.setTypes.length:setsFor(e));const rr=(S.core.rest||{})[e.name]??restSuggest(e.name,e.reps)[0];
-  return`<div id="wkr${i}" class="wkex" style="${si?`border-left:4px solid ${si.col};padding-left:.55rem`:""}"><div class="row" style="flex-wrap:nowrap;gap:.5rem;padding:.6rem 0;cursor:pointer" onclick="wkToggle('${k}',${i})"><div style="flex:1;min-width:0"><b style="font-size:.98rem">${esc(e.name)}${e.added?" ➕":""}</b><div class="muted" style="font-size:.8rem">${si?`⇄ Superset ${si.n} · `:""}${md==="c"?esc(e.reps)+" min":n+" sets"}${e.note?" · 📌":""}</div></div><span class="muted" style="font-size:.8rem">${open?"▴":"▾"}</span><button class="iconbtn" aria-label="Exercise options" onclick="event.stopPropagation();wkExMenu('${k}',${i})">•••</button></div>
+  return`<div id="wkr${i}" class="wkex" style="${si?`border-left:4px solid ${si.col};padding-left:.55rem`:""}"><div class="row" style="flex-wrap:nowrap;gap:.7rem;padding:.6rem 0;cursor:pointer;align-items:center" onclick="wkToggle('${k}',${i})">${exThumb(e.name)}<div style="flex:1;min-width:0"><b style="font-size:.98rem">${esc(e.name)}${e.added?" ➕":""}</b><div class="muted" style="font-size:.8rem">${si?`⇄ Superset ${si.n} · `:""}${md==="c"?esc(e.reps)+" min":n+" sets"}${e.note?" · 📌":""}</div></div><span class="muted" style="font-size:.8rem">${open?"▴":"▾"}</span><button class="iconbtn" aria-label="Exercise options" onclick="event.stopPropagation();wkExMenu('${k}',${i})">•••</button></div>
   ${open?`<div style="padding:0 0 .8rem">${e.note?`<div style="font-size:.82rem;margin-bottom:.4rem">📌 ${esc(e.note)}</div>`:""}<div class="row" style="gap:.5rem;align-items:center;font-size:.88rem;flex-wrap:wrap"><span style="color:var(--plum);font-weight:600">⏱</span><select aria-label="Rest timer" style="width:auto;padding:.25rem .5rem" onchange="S.core.rest=S.core.rest||{};S.core.rest[${esc(JSON.stringify(e.name))}]=+this.value;save('core')">${[0,30,45,60,75,90,105,120,150,180,240].map(v=>`<option value="${v}" ${+rr===v?"selected":""}>${v?fmtRest(v):"Off"}</option>`).join("")}</select>${["t","c"].includes(md)?`<input type="number" min="1" max="12" aria-label="Sets" style="width:4rem;padding:.25rem .4rem" value="${e.setTypes?e.setTypes.length:e.sets}" onchange="S.core.workout['${k}'].ex[${i}].sets=Math.max(1,+this.value||1);save('core');wkRefresh('${k}')"><span class="muted">×</span><input aria-label="${md==="t"?"Seconds":"Minutes"}" style="width:5rem;padding:.25rem .4rem" value="${esc(e.reps)}" onchange="S.core.workout['${k}'].ex[${i}].reps=this.value.trim()||'30';save('core');wkRefresh('${k}')"><span class="muted">${md==="t"?"s":"min"}</span>`:""}</div>${["w","r"].includes(md)?rowsHTML(k,i):""}</div>`:""}</div>`}).join("")}
  <button style="width:100%;margin-top:.9rem" onclick="closeSheet();window._pickBack='${k}';pickExercises('${k}')">＋ Add exercises</button>
- <button class="ghost" style="width:100%;margin-top:.4rem" onclick="closeSheet();render()">Done</button>`)}
+`)}
+async function wkCancel(k){const sn=window._wkSnap;if(sn&&sn.k===k&&S.core.workout[k]&&sn.j!==JSON.stringify(S.core.workout[k])){if(!await ask(LANG()==="fr"?"Annuler tes modifications ?":"Discard your changes?"))return;S.core.workout[k]=JSON.parse(sn.j);save("core")}window._wkSnap=null;closeSheet();render()}
+function wkSave(){window._wkSnap=null;closeSheet();render();flash(LANG()==="fr"?"Séance enregistrée ✓":"Workout saved ✓")}
 function wkToggle(k,i){const o=window._wkOpen;window._wkOpen=o&&o.k===k&&o.i===i?null:{k,i};wkRefresh(k);const el=document.getElementById("wkr"+i);if(el)el.scrollIntoView({block:"nearest",behavior:"smooth"})}
 function wkExMenu(k,i){const w=S.core.workout[k];const e=w.ex[i];const L=w.ex;const nn=esc(JSON.stringify(e.name));
  stDlg(`<h3 style="text-align:center;margin:0 0 .5rem">${esc(e.name)}</h3>${sheetBtn("▶","Video & history",`closeStDlg();showEx(${nn},false,null,'hist')`)}
@@ -3735,7 +3807,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.64d beta";
+const APP_VERSION="0.65 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
