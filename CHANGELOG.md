@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68a beta · 2026-10-23
+- Groceries: portions to cook as rows with − / + steppers; meal prep days as one selector; cook days list recipes with × portions; grocery list with a big total, budget bar, Shopping mode + receipt + share buttons; items as clean tick rows (name, pack, price) grouped by aisle with icons, details on tap; pantry rows with ✓ / 🛒; home stock without the repeated Adjust lines.
+
 ## 0.68 beta · 2026-10-23
 - Today: day-summary line removed; saved meals, favourites and recents in one scrolling Quick picks row; supplement details and the energy warning behind ⓘ; simpler Strength level explanation.
 - Kitchen: round search bar, Plan my week as a single card (details behind ⓘ), meal and cuisine filters as scrolling rows, recipes as a picture grid. Tapping a recipe opens a recipe page (macros as tiles, Ingredients / Method tabs, Add or Start cooking). Import / export recipes behind •••.
