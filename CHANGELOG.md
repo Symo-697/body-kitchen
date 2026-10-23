@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68 beta · 2026-10-23
+- Today: day-summary line removed; saved meals, favourites and recents in one scrolling Quick picks row; supplement details and the energy warning behind ⓘ; simpler Strength level explanation.
+- Kitchen: round search bar, Plan my week as a single card (details behind ⓘ), meal and cuisine filters as scrolling rows, recipes as a picture grid. Tapping a recipe opens a recipe page (macros as tiles, Ingredients / Method tabs, Add or Start cooking). Import / export recipes behind •••.
+
 ## 0.67d beta · 2026-10-23
 - Fix: muscle pictures (exercise thumbnails, library tiles, recovery) were blank on iPhone; they are now drawn directly on the page.
 - Cards and sheets: drag down from the top to close them (small grab handle on top); the page underneath no longer scrolls while a card is open.
