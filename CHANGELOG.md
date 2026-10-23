@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68k beta · 2026-10-23
+- Library: line-drawing icons for Stretching & mobility (stretching figure) and Cardio (treadmill).
+- Butt Kicks now has muscles (hamstrings, plus quads and calves) and sits in Cardio, so the empty Other group is gone.
+
 ## 0.68j beta · 2026-10-23
 - Workout timer: button rows fill the whole width. Steps goal centred. Today: quick picks removed, meal time on the left.
 
