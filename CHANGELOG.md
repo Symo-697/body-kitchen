@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.64d beta · 2026-10-23
+- Workouts list redesigned like Lyfta: coloured tile, name, "N exercises • last done", ▶ to start straight away, ••• for everything else. No more exercise lists or Open/Edit/+ Exercises buttons; tap a row to open it.
+
 ## 0.64c beta · 2026-10-23
 - Set tables (edit routine and live workout): "Previous" column centred, weight and reps cells wider and equal, like Lyfta.
 
