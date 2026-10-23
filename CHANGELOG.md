@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68g beta · 2026-10-23
+- Recipe picture picker: two sections, each with its own search bar: Food (≈150 food and drink emojis, searchable in English and French, e.g. plantain, attiéké, piment) and Flags (every country flag on iPhone, searchable by country name in English or French). Picks stay selected while you search.
+
 ## 0.68f beta · 2026-10-23
 - Recipe picture: combine up to 4 emojis (e.g. 🍚🐟🍌 for attiéké, tilapia & alloco); 48 emojis including plantain, corn, sweet potato, peanuts, onion, tomato, Ivorian and Senegalese flags.
 - Log food: Quick add removed; barcode / product search is one field with 📷 scan and 🔍 (a barcode number is detected automatically).
