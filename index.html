@@ -133,6 +133,7 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .restbar{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.18)}
 .livebar{display:block;width:100%;margin:.2rem 0 .6rem;background:var(--plum-soft);color:var(--plum);font-weight:600;text-align:left}
 #extabs button{font-size:.84rem;padding:.45rem .15rem;white-space:nowrap}.wkex{border-bottom:1px solid var(--line)}
+.calsess{cursor:pointer}
 .hcgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:.25rem 0}.hchead{position:sticky;top:2.6rem;background:var(--card,#fff);z-index:3;padding:.3rem 0;border-bottom:1px solid var(--line)}.hchead span{text-align:center;font-size:.75rem;color:var(--muted);font-weight:700}
 .hcmonth{margin:1rem 0 .5rem;text-transform:capitalize}.hcday{all:unset;display:flex;flex-direction:column;align-items:center;min-height:62px;min-width:0;cursor:pointer}div.hcday{cursor:default}
 .hcnum{font-weight:700;padding-top:.55rem}.hctoday{color:var(--plum);text-decoration:underline}
@@ -2734,6 +2735,13 @@ function vLog(){const now=new Date(today()+"T12:00");const first=new Date(now.ge
    if(cc&&!ss.some(x=>x.day==="CARDIO"))h+=`<div class="box muted">🏃 Cardio planned: ${esc(cc.name)} · ${fmtMin(cc.mins)}</div>`}
   ss.forEach((sess,si)=>{const key=sess.id||("legacy:"+sess.date);const L=sessionLifts(sess);const vol=L.reduce((a,x)=>a+(isCardio({name:x.name})?0:sessionStats(x.name,x.entry).volume||0),0);
    const editing=sessEdit===key;
+   if(!editing){const sm=sessSum(sess);const kq=esc(JSON.stringify(key));
+    const best=(x)=>{const md=exMode(x.name);if(md==="c"){const q=(x.entry.sets||[])[0]||{};return`${fmtMin(q.min||0)}${q.speed?" · "+q.speed+" km/h":""}`}let b=null;try{workSets(x.entry).forEach(q=>{const e=(+q.w||0)*(1+(+q.r||0)/30)+(+q.r||0)*.001+(+q.sec||0)*.001;if(!b||e>b.e)b={e,q}})}catch(e){}return b?LL("best ","meilleure ")+fmtSet(x.name,b.q):""};
+    h+=`<div class="box calsess" onclick="histSheet(${kq})"><div class="row" style="gap:.75rem;flex-wrap:nowrap;align-items:center"><div class="wkth" style="background:${DAYCOL[sess.day]||"var(--plum)"};color:#fff;border:0;font-size:1.05rem">${sess.day==="CARDIO"?"🏃":sess.day==="FREE"?"＋":esc(sess.day)}</div><div style="flex:1;min-width:0"><div class="wkn" style="font-size:1.05rem">${esc(sessTitle(sess))}</div><div class="muted" style="font-size:.82rem">${sess.startAt?esc(sess.startAt)+" · ":""}${sess.dur?fmtMin(sess.dur):""}</div></div><button class="iconbtn" aria-label="Options" onclick="event.stopPropagation();calSessMenu(${kq})">•••</button></div>
+    <div class="wksum" style="margin:.7rem 0 .3rem"><div><span>${LL("Exercises","Exercices")}</span><b>${L.length}</b></div><div><span>${LL("Sets","Séries")}</span><b>${r0(sm.sets)}</b></div><div><span>Volume</span><b>${r0(sm.vol).toLocaleString(LOC())} kg</b></div></div>
+    ${sess.notes?`<div class="muted" style="font-size:.85rem;margin:.3rem 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">📝 ${esc(sess.notes)}</div>`:""}
+    ${L.map(x=>`<div class="librow" style="padding:.35rem 0">${exThumb(x.name)}<div style="flex:1;min-width:0"><div class="wkn" style="font-size:.92rem">${esc(x.name)}</div><div class="muted" style="font-size:.8rem">${(x.entry.sets||[]).length} ${LL("sets","séries")}${best(x)?" · "+best(x):""}</div></div></div>`).join("")||`<p class="muted">${LL("No sets recorded.","Aucune série enregistrée.")}</p>`}
+    <div class="muted" style="text-align:center;font-size:.8rem;margin-top:.4rem">${LL("Tap for details","Touche pour le détail")} ›</div></div>`;return}
    h+=`<div class="box"><div class="row" style="justify-content:space-between"><h3 style="margin:0"><span class="dd" style="background:${DAYCOL[sess.day]||"var(--plum)"}">${esc(sess.day)}</span> ${esc((S.core.workout[sess.day]||{}).title||sess.title||"")}</h3>
    <div class="row"><button class="ghost small" onclick="histSheet('${key}')">${LL("View","Voir")}</button>${editing?"":`<button class="ghost small" onclick="sessEdit='${key}';render()">Edit</button>`}<button class="ghost small" onclick="delSession('${key}')">Delete</button></div></div>
    <div class="muted" style="margin:.2rem 0 .4rem">${L.length} exercise${L.length===1?"":"s"}${vol?` · ${r0(vol).toLocaleString()} kg volume`:""}${sess.dur?` · ${fmtMin(sess.dur)}`:""}${sess.startAt?` · ${esc(sess.startAt)}–${esc(sess.endAt||"")}`:""}</div>
@@ -3324,6 +3332,7 @@ function histCalSheet(){const ss=(S.core.sessions||[]).slice();if(!ss.length){to
   h+=`</div>`;d=new Date(y,m+1,1,12)}
  openSheet(`<div class="wkbar"><button class="circbtn" aria-label="Back" onclick="closeSheet()">‹</button><b>${LL("Calendar","Calendrier")}</b><span class="recpill" style="background:#F08C1A">🔥 ${streak()}</span></div><div class="hcgrid hchead">${(fr?["L","M","M","J","V","S","D"]:["M","T","W","T","F","S","S"]).map(x=>`<span>${x}</span>`).join("")}</div>${h}`);
  setTimeout(()=>{const s=document.querySelector("#sheetmodal .sheet");if(s)s.scrollTop=s.scrollHeight},30)}
+function calSessMenu(key){stDlg(`${sheetBtn("👁",LL("View details","Voir le détail"),`closeStDlg();histSheet(${esc(JSON.stringify(key))})`)}${sheetBtn("✎",LL("Edit sets","Modifier les séries"),`closeStDlg();sessEdit=${esc(JSON.stringify(key))};render()`)}${sheetBtn("🗑",LL("Delete workout","Supprimer la séance"),`closeStDlg();delSession(${esc(JSON.stringify(key))})`,true)}`)}
 function histMenu(key){const x=findSess(key)[0];if(!x)return;const kq=esc(JSON.stringify(key));stDlg(`<h3 style="text-align:center;margin:0 0 .5rem">${esc(sessTitle(x))}</h3>${sheetBtn("🗓",LL("All workouts (calendar)","Toutes les séances (calendrier)"),`closeStDlg();closeSheet();histCalSheet()`)}${sheetBtn("📅",LL("Open in calendar (edit)","Ouvrir dans le calendrier (modifier)"),`closeStDlg();closeSheet();go('cal');calJump('${x.date}')`)}${sheetBtn("↗",LL("Share","Partager"),`closeStDlg();sessShare(${kq})`)}${sheetBtn("🗑",LL("Delete workout","Supprimer la séance"),`closeStDlg();closeSheet();delSession(${kq})`,true)}`)}
 function slInfo(){stDlg(`<h3>${LL("Strength level","Niveau de force")}</h3><p>${LL("Your best estimated one-rep max on a free-weight lift in this workout, divided by your body weight, compared with usual standards for your sex. A rough guide only: technique, range of motion and equipment change a lot.","Ton meilleur 1RM estimé sur un exercice en poids libre de cette séance, divisé par ton poids de corps, comparé aux standards habituels. C'est un repère approximatif : la technique, l'amplitude et le matériel changent beaucoup.")}</p><p class="muted" style="font-size:.85rem">${SL_LAB().join(" → ")}</p>`)}
 function splitSheet(key,g){const x=findSess(key)[0];if(!x)return;const M=sessMus(x);const L=(M.ex[g]||[]);
@@ -4039,7 +4048,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.67a beta";
+const APP_VERSION="0.67b beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

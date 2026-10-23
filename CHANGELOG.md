@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.67b beta · 2026-10-23
+- Calendar: each workout is now a clean card (tile, name, time · duration, Exercises / Sets / Volume, one row per exercise with picture, sets and best set). Tap it for the full detail; View / Edit sets / Delete moved behind •••.
+
 ## 0.67a beta · 2026-10-23
 - History › 📅 Calendar: your whole workout history month by month, each workout as a coloured circle with its name; tap one to open its detail.
 - Workout detail: sets shown as SET / WEIGHT & REPS / 1RM rows.
