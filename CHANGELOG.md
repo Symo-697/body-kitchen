@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68i beta · 2026-10-23
+- Appearance: System / Light / Dark / Auto on one line; Auto lets you choose the dark-mode hours (🌙 from → ☀️ until).
+- Chip rows and their titles are centred across the app (palettes, rest between sides, seconds, iPhone timer…); removed the extra wording and the launch-delay line.
+
 ## 0.68h beta · 2026-10-23
 - Picture picker shows the recipe's name at the top; flags sorted A–Z.
 
