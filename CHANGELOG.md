@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68e beta · 2026-10-23
+- Fix: Edit recipe in a recipe's ••• menu did nothing.
+- Recipe picture: choose the emoji for any of your recipes (tap the big picture on the recipe page, ••• › Change picture, or in Edit recipe); Automatic brings back the default.
+
 ## 0.68d beta · 2026-10-23
 - Supplements & medication: interactions and daily totals as two tiles (details on tap), supplements as rows (tap to edit), New + quick-add suggestions in one scrolling row, medication as rows with a one-line add; explanations behind ⓘ.
 - 'How much do you have at home?' shortened to one line.
