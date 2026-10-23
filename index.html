@@ -133,6 +133,7 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .restbar{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.18)}
 .livebar{display:block;width:100%;margin:.2rem 0 .6rem;background:var(--plum-soft);color:var(--plum);font-weight:600;text-align:left}
 #extabs button{font-size:.84rem;padding:.45rem .15rem;white-space:nowrap}.wkex{border-bottom:1px solid var(--line)}
+.sheet{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:-.5rem auto .6rem}
 .calsess{cursor:pointer}
 .hcgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:.25rem 0}.hchead{position:sticky;top:2.6rem;background:var(--card,#fff);z-index:3;padding:.3rem 0;border-bottom:1px solid var(--line)}.hchead span{text-align:center;font-size:.75rem;color:var(--muted);font-weight:700}
 .hcmonth{margin:1rem 0 .5rem;text-transform:capitalize}.hcday{all:unset;display:flex;flex-direction:column;align-items:center;min-height:62px;min-width:0;cursor:pointer}div.hcday{cursor:default}
@@ -3337,6 +3338,21 @@ function histCalSheet(){const ss=(S.core.sessions||[]).slice();if(!ss.length){to
  openSheet(`<div class="wkbar"><button class="circbtn" aria-label="Back" onclick="closeSheet()">‹</button><b>${LL("Calendar","Calendrier")}</b><span class="recpill" style="background:#F08C1A">🔥 ${streak()}</span></div><div class="hcgrid hchead">${(fr?["L","M","M","J","V","S","D"]:["M","T","W","T","F","S","S"]).map(x=>`<span>${x}</span>`).join("")}</div>${h}`);
  setTimeout(()=>{const s=document.querySelector("#sheetmodal .sheet");if(s)s.scrollTop=s.scrollHeight},30)}
 function calSessMenu(key){stDlg(`${sheetBtn("👁",LL("View details","Voir le détail"),`closeStDlg();histSheet(${esc(JSON.stringify(key))})`)}${sheetBtn("✎",LL("Edit sets","Modifier les séries"),`closeStDlg();sessEdit=${esc(JSON.stringify(key))};render()`)}${sheetBtn("🗑",LL("Delete workout","Supprimer la séance"),`closeStDlg();delSession(${esc(JSON.stringify(key))})`,true)}`)}
+/* swipe down to close sheets + keep the page underneath still */
+(()=>{const CL={sheetmodal:()=>closeSheet(),stdlg:()=>closeStDlg(),exmodal:()=>closeEx()};
+ function arm(ov){if(!ov||ov._sw)return;ov._sw=1;const sh=ov.querySelector(".sheet");if(!sh)return;const canClose=!!CL[ov.id];
+  if(canClose&&!sh.querySelector(".grab"))sh.insertAdjacentHTML("afterbegin",'<div class="grab" aria-hidden="true"></div>');
+  let y0=null,x0=0,dy=0,act=false,st0=0;
+  ov.addEventListener("touchmove",e=>{if(!e.target.closest(".sheet"))e.preventDefault()},{passive:false});
+  sh.addEventListener("touchstart",e=>{if(e.touches.length!==1){y0=null;return}y0=e.touches[0].clientY;x0=e.touches[0].clientX;dy=0;act=false;st0=sh.scrollTop},{passive:true});
+  sh.addEventListener("touchmove",e=>{if(y0==null)return;const d=e.touches[0].clientY-y0,dx=e.touches[0].clientX-x0;const noScroll=sh.scrollHeight<=sh.clientHeight+1;
+   if(!act){if(Math.abs(dx)>Math.abs(d)&&Math.abs(dx)>6){y0=null;return}
+    if(d>6&&sh.scrollTop<=0&&st0<=0&&canClose&&!e.target.closest("input[type=range],.sumcar,.ndrag")){act=true;sh.style.transition="none"}
+    else{const atBottom=sh.scrollTop+sh.clientHeight>=sh.scrollHeight-1;if(noScroll||(d<0&&atBottom)||(d>0&&sh.scrollTop<=0))e.preventDefault();return}}
+   e.preventDefault();dy=Math.max(0,d);sh.style.transform=`translateY(${dy}px)`;ov.style.background=`rgba(20,10,20,${Math.max(.1,.5-dy/800)})`},{passive:false});
+  sh.addEventListener("touchend",()=>{if(!act){y0=null;return}act=false;y0=null;sh.style.transition="transform .2s ease";
+   if(dy>Math.min(130,sh.offsetHeight*.22)){sh.style.transform="translateY(110%)";setTimeout(()=>{const f=CL[ov.id];if(f&&ov.isConnected)f()},170)}else{sh.style.transform="";ov.style.background=""}})}
+ new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1&&n.classList&&n.classList.contains("modal"))arm(n)}))).observe(document.body,{childList:true})})();
 function histMenu(key){const x=findSess(key)[0];if(!x)return;const kq=esc(JSON.stringify(key));stDlg(`<h3 style="text-align:center;margin:0 0 .5rem">${esc(sessTitle(x))}</h3>${sheetBtn("🗓",LL("All workouts (calendar)","Toutes les séances (calendrier)"),`closeStDlg();closeSheet();histCalSheet()`)}${sheetBtn("📅",LL("Open in calendar (edit)","Ouvrir dans le calendrier (modifier)"),`closeStDlg();closeSheet();go('cal');calJump('${x.date}')`)}${sheetBtn("↗",LL("Share","Partager"),`closeStDlg();sessShare(${kq})`)}${sheetBtn("🗑",LL("Delete workout","Supprimer la séance"),`closeStDlg();closeSheet();delSession(${kq})`,true)}`)}
 function slInfo(){stDlg(`<h3>${LL("Strength level","Niveau de force")}</h3><p>${LL("Your best estimated one-rep max on a free-weight lift in this workout, divided by your body weight, compared with usual standards for your sex. A rough guide only: technique, range of motion and equipment change a lot.","Ton meilleur 1RM estimé sur un exercice en poids libre de cette séance, divisé par ton poids de corps, comparé aux standards habituels. C'est un repère approximatif : la technique, l'amplitude et le matériel changent beaucoup.")}</p><p class="muted" style="font-size:.85rem">${SL_LAB().join(" → ")}</p>`)}
 function splitSheet(key,g){const x=findSess(key)[0];if(!x)return;const M=sessMus(x);const L=(M.ex[g]||[]);
@@ -3552,12 +3568,13 @@ function musSVG(g){const sex=S.core.profile.sex==="f"?"f":"m";const sh=BODY.shap
  const W=640,H=880;const cx=vb[0]+vb[2]*(c[0]==="F"?(sex==="f"?.238:.234):(sex==="f"?.778:.752));const y=c[1]==="u"?vb[1]+10:c[1]==="m"?vb[1]+vb[3]*.3:vb[1]+vb[3]*.43;
  let svg=BODY.svg[sex].replace(/\{s:(\d+)\}/g,(_,j)=>sh[+j].some(k=>ks.includes(k))?"#E0604C":"#DADADF").replace(/\{t:(\d+)\}/g,"");
  svg=svg.replace(/viewBox="[^"]*"/,`viewBox="${cx-W/2} ${y} ${W} ${H}" width="${W}" height="${H}"`).replace(/style="width:100%;display:block"/,"");if(!/xmlns=/.test(svg))svg=svg.replace("<svg ",'<svg xmlns="http://www.w3.org/2000/svg" ');return svg}
-function musPrep(){const sex=S.core.profile&&S.core.profile.sex==="f"?"f":"m";if(_musSex===sex)return;_musSex=sex;_musDone={};let st=document.getElementById("musstyle");if(!st){st=document.createElement("style");st.id="musstyle";document.head.appendChild(st)}st.textContent="";
- const gs=Object.keys(MUS_CROP);let i=0;const next=()=>{if(i>=gs.length||_musSex!==sex)return;const g=gs[i++];const img=new Image();
-  img.onload=()=>{let u;try{const c=document.createElement("canvas");c.width=160;c.height=220;c.getContext("2d").drawImage(img,0,0,160,220);u=c.toDataURL("image/png")}catch(e){u=img.src}_musDone[g]=1;st.textContent+=`.mt-${g}{background-image:url("${u}")}`;setTimeout(next,0)};
-  img.onerror=()=>setTimeout(next,0);img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(musSVG(g))};next()}
+function musPrep(){}
 function exGroup(n){try{const [P]=musclesD(n);if(P.length)return DMUS[P[0]][1];return tgGroup(n)}catch(e){return"other"}}
-function musTile(g,cls){musPrep();return MUS_CROP[g]?`<div class="mt mt-${g} ${cls||""}"></div>`:`<div class="mt ${cls||""}"><span>${MUS_EMO[g]||"•"}</span></div>`}
+function musSym(g){const sex=S.core.profile&&S.core.profile.sex==="f"?"f":"m";const id=`mus-${sex}-${g}`;if(document.getElementById(id))return id;
+ let sp=document.getElementById("musprite");if(!sp){sp=document.createElementNS("http://www.w3.org/2000/svg","svg");sp.id="musprite";sp.setAttribute("aria-hidden","true");sp.style.cssText="position:absolute;width:0;height:0;overflow:hidden";document.body.appendChild(sp)}
+ const full=musSVG(g);const vb=(full.match(/viewBox="([^"]*)"/)||[])[1];const inner=full.replace(/^[\s\S]*?<svg[^>]*>/,"").replace(/<\/svg>\s*$/,"");
+ const t=document.createElementNS("http://www.w3.org/2000/svg","svg");t.innerHTML=`<symbol id="${id}" viewBox="${vb}">${inner}</symbol>`;sp.appendChild(t.firstChild);return id}
+function musTile(g,cls){if(!MUS_CROP[g])return`<div class="mt ${cls||""}"><span>${MUS_EMO[g]||"•"}</span></div>`;let id="";try{id=musSym(g)}catch(e){}return`<div class="mt ${cls||""}"><svg viewBox="0 0 640 880" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block" aria-hidden="true"><use href="#${id}" width="640" height="880"/></svg></div>`}
 const exThumb=n=>musTile(exGroup(n),"mtsq");
 const EQI=(()=>{const K="#2B2630",F="#fff",G="#E6E4EA";const P=d=>`<svg viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="${K}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
  const plate=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${F}"/>`;
@@ -4052,7 +4069,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.67c beta";
+const APP_VERSION="0.67d beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

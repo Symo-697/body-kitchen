@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.67d beta · 2026-10-23
+- Fix: muscle pictures (exercise thumbnails, library tiles, recovery) were blank on iPhone; they are now drawn directly on the page.
+- Cards and sheets: drag down from the top to close them (small grab handle on top); the page underneath no longer scrolls while a card is open.
+
 ## 0.67c beta · 2026-10-23
 - Exercise page: tapping a workout in History, or a record in Records, opens that workout's detail; ‹ brings you back to the exercise.
 
