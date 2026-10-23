@@ -304,9 +304,13 @@ let exCur=null,exRange="all";
 function exTab(t){if(!exCur)return;document.querySelectorAll("#extabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));const ab=document.getElementById("exabout"),ot=document.getElementById("exother");if(!ab||!ot)return;
  if(t==="about"){ab.style.display="";ot.style.display="none";return}ab.style.display="none";ot.style.display="";ot.innerHTML=t==="hist"?exHistHTML(exCur):t==="prog"?exProgHTML(exCur):exRecHTML(exCur)}
 const fmtD=(d,o)=>new Date(d+"T12:00").toLocaleDateString(LOC(),o||{day:"numeric",month:"short",year:"numeric"});
+function entryKey(sid,date){const ss=S.core.sessions||[];const x=(sid&&ss.find(z=>z.id===sid))||ss.find(z=>!z.id&&z.date===date)||ss.find(z=>z.date===date);return x?(x.id||("legacy:"+x.date)):null}
+function openEntry(name,tab,sid,date){const k=entryKey(sid,date);if(!k){toast(LL("This workout isn't in your history any more.","Cette séance n'est plus dans ton historique."));return}window._hbNext={name,tab};closeEx();closeSheet();histSheet(k)}
+function histBack(){const b=window._histBack;window._histBack=null;closeSheet();if(b)setTimeout(()=>showEx(b.name,true,null,b.tab),60)}
+const _eo=(name,tab,sid,date)=>`onclick="openEntry(${esc(JSON.stringify(name))},'${tab}',${esc(JSON.stringify(sid||""))},'${date||""}')"`;
 function exHistHTML(name){const H=exHist(name).slice().reverse();if(!H.length)return`<p class="muted">No sessions logged yet for this exercise.</p>`;const md=exMode(name);
  return H.slice(0,60).map(x=>{const ss=(S.core.sessions||[]).find(z=>z.id===x.sid);const title=ss?((S.core.workout[ss.day]||{}).title||ss.title||""):"";let n=0;
-  return`<div class="box" style="padding:.7rem .9rem"><div class="row" style="justify-content:space-between"><b>${esc(title||"Workout")}</b><span class="muted" style="font-size:.82rem">${fmtD(x.date)}</span></div>
+  return`<div class="box" style="padding:.7rem .9rem;cursor:pointer" ${_eo(name,"hist",x.sid,x.date)}><div class="row" style="justify-content:space-between"><b>${esc(title||"Workout")}</b><span class="muted" style="font-size:.82rem">${fmtD(x.date)} ›</span></div>
   <div class="setgrid head" style="grid-template-columns:2.4rem 1fr ${md==="w"?"3.6rem":""}"><span>SET</span><span>${md==="w"?"WEIGHT & REPS":"RESULT"}</span>${md==="w"?"<span>1RM</span>":""}</div>
   ${(x.sets||[]).map(st=>{const ty=SET_TYPES.find(t=>t[0]===st.t);const lab=st.t?sideTag(st):String(++n);const e1=md==="w"&&repsMain(st)>0?r0(epley(effW(name,st.w),repsMain(st))):"";return`<div class="setgrid" style="grid-template-columns:2.4rem 1fr ${md==="w"?"3.6rem":""};margin-top:.1rem"><b style="${ty?`color:${ty[2]}`:"color:var(--plum)"};text-align:center">${lab}</b><span>${fmtSet(name,st)}</span>${md==="w"?`<span style="text-align:right">${["W","FE"].includes(kindOf(st))?"":e1}</span>`:""}</div>`}).join("")}
   ${x.note?`<div style="font-size:.8rem;font-style:italic;margin-top:.3rem">📝 ${esc(x.note)}</div>`:""}</div>`}).join("")}
@@ -319,19 +323,19 @@ function exProgHTML(name){const all=exHist(name);if(!all.length)return`<p class=
  else h+=card("Estimated strength (1-rep max)",r1(last.e1rm),"kg",st.map(x=>({date:x.date,v:x.e1rm})))+card("Heaviest weight",r1(last.weight),"kg",st.map(x=>({date:x.date,v:x.weight})))+card("Volume (weight × reps, all sets)",r0(last.volume),"kg",st.map(x=>({date:x.date,v:x.volume})),true)+card("Best set reps",r0(last.reps),"reps",st.map(x=>({date:x.date,v:x.reps})));
  return h}
 function exRecHTML(name){const H=exHist(name);if(!H.length)return`<p class="muted">Records appear after your first session.</p>`;const md=exMode(name);
- const row=(lab,date,val,sub)=>`<div class="row" style="justify-content:space-between;padding:.55rem 0;border-bottom:1px solid var(--line);flex-wrap:nowrap"><div><b>🏅 ${lab}</b><div class="muted" style="font-size:.8rem">${date?fmtD(date):""}</div></div><div style="text-align:right"><b>${val}</b><div class="muted" style="font-size:.8rem">${sub||""}</div></div></div>`;
- if(md!=="w"){let best=null,tot=null;H.forEach(x=>{const s=sessionStats(name,x);const v=s.time?s.best:s.repsOnly?s.reps:s.cardio?s.km:0;const t=s.time?s.total:s.repsOnly?s.total:s.cardio?s.min:0;if(!best||v>best.v)best={v,date:x.date};if(!tot||t>tot.v)tot={v:t,date:x.date}});
-  const u=md==="t"?"s":md==="r"?"reps":"km",u2=md==="t"?"s":md==="r"?"reps":"min";return`<div class="box">${row(md==="t"?"Longest hold":md==="r"?"Max reps":"Longest distance",best.date,r1(best.v)+" "+u)}${row(md==="t"?"Total time in a session":md==="r"?"Most reps in a session":"Longest session",tot.date,r1(tot.v)+" "+u2)}</div>`}
+ const row=(lab,date,val,sub,sid)=>`<div class="row" style="justify-content:space-between;padding:.55rem 0;border-bottom:1px solid var(--line);flex-wrap:nowrap;${date?"cursor:pointer":""}" ${date?_eo(name,"rec",sid,date):""}><div><b>🏅 ${lab}</b><div class="muted" style="font-size:.8rem">${date?fmtD(date)+" ›":""}</div></div><div style="text-align:right"><b>${val}</b><div class="muted" style="font-size:.8rem">${sub||""}</div></div></div>`;
+ if(md!=="w"){let best=null,tot=null;H.forEach(x=>{const s=sessionStats(name,x);const v=s.time?s.best:s.repsOnly?s.reps:s.cardio?s.km:0;const t=s.time?s.total:s.repsOnly?s.total:s.cardio?s.min:0;if(!best||v>best.v)best={v,date:x.date,sid:x.sid};if(!tot||t>tot.v)tot={v:t,date:x.date,sid:x.sid}});
+  const u=md==="t"?"s":md==="r"?"reps":"km",u2=md==="t"?"s":md==="r"?"reps":"min";return`<div class="box">${row(md==="t"?"Longest hold":md==="r"?"Max reps":"Longest distance",best.date,r1(best.v)+" "+u,"",best.sid)}${row(md==="t"?"Total time in a session":md==="r"?"Most reps in a session":"Longest session",tot.date,r1(tot.v)+" "+u2,"",tot.sid)}</div>`}
  let e1=null,mw=null,mr=null,sv=null,ss=null;const hist=[];
  H.forEach(x=>{(x.sets||[]).forEach(st=>{const k=kindOf(st);if(["W","FE"].includes(k))return;const w=effW(name,st.w),r=repsMain(st);if(!r)return;const v=epley(w,r);
-   if(!["D"].includes(k)&&(!e1||v>e1.v+1e-9)){e1={v,w:st.w,r,date:x.date};hist.push({...e1})}
-   if(!mw||w>mw.w||(w===mw.w&&r>mw.r))mw={w,r,date:x.date};if(!mr||r>mr.r||(r===mr.r&&w>mr.w))mr={r,w:st.w,date:x.date};const s1=w*r;if(!ss||s1>ss.v)ss={v:s1,w:st.w,r,date:x.date}});
-  const vol=sessionStats(name,x).volume||0;if(!sv||vol>sv.v)sv={v:vol,date:x.date}});
+   if(!["D"].includes(k)&&(!e1||v>e1.v+1e-9)){e1={v,w:st.w,r,date:x.date,sid:x.sid};hist.push({...e1})}
+   if(!mw||w>mw.w||(w===mw.w&&r>mw.r))mw={w,r,date:x.date,sid:x.sid};if(!mr||r>mr.r||(r===mr.r&&w>mr.w))mr={r,w:st.w,date:x.date,sid:x.sid};const s1=w*r;if(!ss||s1>ss.v)ss={v:s1,w:st.w,r,date:x.date,sid:x.sid}});
+  const vol=sessionStats(name,x).volume||0;if(!sv||vol>sv.v)sv={v:vol,date:x.date,sid:x.sid}});
  if(!e1)return`<p class="muted">Records appear after your first working set.</p>`;
  const rough=e1.r>15;const est=r=>e1.v/(1+(r>1?r/30:0));
- return`<div class="box">${row("Estimated 1RM",e1.date,(rough?"≈ ":"")+r1(e1.v)+" kg",`${e1.w} kg × ${e1.r}`)}${row("Max weight",mw.date,r1(mw.w)+" kg",`${mw.r} reps`)}${row("Max reps",mr.date,mr.r+" reps",`${mr.w} kg`)}${row("Max session volume",sv.date,r0(sv.v).toLocaleString()+" kg","")}${row("Max single-set volume",ss.date,r0(ss.v).toLocaleString()+" kg",`${ss.w} kg × ${ss.r}`)}
+ return`<div class="box">${row("Estimated 1RM",e1.date,(rough?"≈ ":"")+r1(e1.v)+" kg",`${e1.w} kg × ${e1.r}`,e1.sid)}${row("Max weight",mw.date,r1(mw.w)+" kg",`${mw.r} reps`,mw.sid)}${row("Max reps",mr.date,mr.r+" reps",`${mr.w} kg`,mr.sid)}${row("Max session volume",sv.date,r0(sv.v).toLocaleString()+" kg","",sv.sid)}${row("Max single-set volume",ss.date,r0(ss.v).toLocaleString()+" kg",`${ss.w} kg × ${ss.r}`,ss.sid)}
  ${rough?`<p class="muted" style="font-size:.8rem;margin:.5rem 0 0">Estimated from a set of ${e1.r} reps: above 15 reps this estimate is rough.</p>`:""}</div>
- <h3>Record history</h3><div class="box">${hist.slice(-10).reverse().map(x=>row("Estimated 1RM",x.date,r1(x.v)+" kg",`${x.w} kg × ${x.r}`)).join("")}</div>
+ <h3>Record history</h3><div class="box">${hist.slice(-10).reverse().map(x=>row("Estimated 1RM",x.date,r1(x.v)+" kg",`${x.w} kg × ${x.r}`,x.sid)).join("")}</div>
  <h3>Estimated performance</h3><p class="muted" style="font-size:.82rem;margin:0 0 .4rem">What you could lift for each number of reps, from your best set.</p><div class="box">${Array.from({length:12},(_,j)=>j+1).map(r=>{const pc=Math.round(100/(1+(r>1?r/30:0)));return`<div class="row" style="justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--line)"><span>${r1(Math.round(est(r)*2)/2)} kg × ${r}</span><span class="muted">${pc} %</span></div>`}).join("")}</div>`}
 
 /* ---------- 0.64: quick ＋, photo, macro balance, stats, diversity, Today layout, challenges, fasting ---------- */
@@ -3300,7 +3304,7 @@ function sessStrength(x){const bw=latestWeight();if(!bw)return null;const male=S
   const pos=Math.max(0,Math.min(1,ratio/(th[4]*1.1)));if(!best||pos>best.pos)best={name,ratio,lv,pos,e1}});return best}
 function bodyMapHTML(P,Sx,w){return`<div style="max-width:${w||260}px;margin:0 auto">${bodySVG(null,{p:P,s:Sx})}</div>`}
 function insCard(title,body,on){return`<div class="inscard" ${on?`onclick="${on}" style="cursor:pointer"`:""}><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:.9rem">${title}</b>${on?`<span class="muted">›</span>`:""}</div>${body}</div>`}
-function histSheet(key){const x=findSess(key)[0];if(!x)return;const fr=LANG()==="fr";const s=sessSum(x);const M=sessMus(x);const kq=esc(JSON.stringify(key));
+function histSheet(key){const x=findSess(key)[0];if(!x)return;window._histBack=window._hbNext||null;window._hbNext=null;const fr=LANG()==="fr";const s=sessSum(x);const M=sessMus(x);const kq=esc(JSON.stringify(key));
  const nm=(S.core.profile.name||"S").trim();const when=new Date(x.date+"T12:00").toLocaleDateString(LOC(),{weekday:"long",day:"numeric",month:"long"})+(x.startAt?` · ${esc(x.startAt)}`:"");
  const split=Object.entries(M.g).sort((a,b)=>b[1]-a[1]);const mx=split.length?split[0][1]:1;
  const Z=sessZones(x);const PR=sessPRs(x);const VT=sessVolTrend(x);const vmax=Math.max(1,...VT.map(v=>v.v));const SL=sessStrength(x);
@@ -3311,7 +3315,7 @@ function histSheet(key){const x=findSess(key)[0];if(!x)return;const fr=LANG()===
   insCard(LL("Personal records","Records"),PR.length?PR.slice(0,4).map(p=>`<div class="row" style="gap:.45rem;flex-wrap:nowrap;margin-top:.45rem"><span class="prmed">PR</span><div style="min-width:0"><div style="font-size:.78rem;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</div><div class="muted" style="font-size:.72rem">${esc(p.txt)}</div></div></div>`).join(""):`<p class="muted" style="font-size:.78rem;margin:.5rem 0 0">${LL("No new record this time.","Pas de nouveau record cette fois.")}</p>`),
   VT.length>1?insCard(LL("Volume over time","Volume dans le temps"),`<div class="volbars">${VT.map(v=>`<div title="${r0(v.v)} kg"><i style="height:${Math.max(4,Math.round(v.v/vmax*100))}%;${v.cur?"":"opacity:.45"}"></i></div>`).join("")}</div><div class="muted" style="font-size:.7rem;margin-top:.3rem">${LL("Last","Dernières")} ${VT.length} ${LL("times","fois")} · ${r0(VT[VT.length-1].v).toLocaleString(LOC())} kg</div>`):"",
   SL?insCard(LL("Strength level","Niveau de force"),`<svg viewBox="0 0 120 50" style="width:100%;margin-top:.4rem"><path d="M2 46 C25 44 30 8 50 8 S80 36 118 44" fill="none" stroke="var(--plum)" stroke-width="2"/><circle cx="${2+SL.pos*116}" cy="${(()=>{const t=SL.pos;return t<.4?46-38*(t/.4):8+38*((t-.4)/.6)})()}" r="4" fill="var(--plum)"/></svg><div style="font-size:.8rem;font-weight:700">${SL_LAB()[SL.lv]}</div><div class="muted" style="font-size:.7rem">${esc(SL.name)} · ${r1(SL.ratio)}× ${LL("body weight","poids du corps")}</div>`,"slInfo()"):""].filter(Boolean);
- openSheet(`<div class="wkbar"><button class="circbtn" aria-label="Back" onclick="closeSheet()">‹</button><b></b><button class="circbtn" aria-label="Options" onclick="histMenu(${kq})">•••</button></div>
+ openSheet(`<div class="wkbar"><button class="circbtn" aria-label="Back" onclick="histBack()">‹</button><b></b><button class="circbtn" aria-label="Options" onclick="histMenu(${kq})">•••</button></div>
  <div class="row" style="gap:.7rem;flex-wrap:nowrap;align-items:center"><div class="avatar">${esc(nm[0].toUpperCase())}</div><div><b>${esc(S.core.profile.name||"")}</b><div class="muted" style="font-size:.82rem">🏋️ ${when}</div></div></div>
  <h2 style="margin:.8rem 0 .4rem">${esc(sessTitle(x))}</h2>
  <div class="row" style="flex-wrap:nowrap;align-items:center;gap:.6rem"><div style="flex:1;min-width:0">${M.P.length||M.S.length?bodyMapHTML(M.P,M.S,240):""}</div><div style="flex:none;width:6.5rem"><div class="muted" style="font-size:.78rem">${LL("Duration","Durée")}</div><b style="font-size:1.15rem">${x.dur?fmtMin(x.dur):"—"}</b><div class="muted" style="font-size:.78rem;margin-top:.5rem">Volume</div><b style="font-size:1.15rem">${r0(s.vol).toLocaleString(LOC())} kg</b><div class="muted" style="font-size:.78rem;margin-top:.5rem">${LL("Calories","Calories")}</div><b style="font-size:1.15rem">${x.dur?sessKcal(x)+" kcal":"—"}</b><div class="muted" style="font-size:.78rem;margin-top:.5rem">${LL("Sets","Séries")}</div><b style="font-size:1.15rem">${r0(s.sets)}</b></div></div>
@@ -4048,7 +4052,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.67b beta";
+const APP_VERSION="0.67c beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
