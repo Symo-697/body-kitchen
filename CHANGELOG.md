@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68f beta · 2026-10-23
+- Recipe picture: combine up to 4 emojis (e.g. 🍚🐟🍌 for attiéké, tilapia & alloco); 48 emojis including plantain, corn, sweet potato, peanuts, onion, tomato, Ivorian and Senegalese flags.
+- Log food: Quick add removed; barcode / product search is one field with 📷 scan and 🔍 (a barcode number is detected automatically).
+
 ## 0.68e beta · 2026-10-23
 - Fix: Edit recipe in a recipe's ••• menu did nothing.
 - Recipe picture: choose the emoji for any of your recipes (tap the big picture on the recipe page, ••• › Change picture, or in Edit recipe); Automatic brings back the default.
