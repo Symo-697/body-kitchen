@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68c beta · 2026-10-23
+- Kitchen › Plan my week: tap the card again to close it; the week is a compact list of meal pills, tap any meal to swap the recipe; cost and buttons on one line, no long text.
+- Settings: painful joints and foods to avoid are picked from a list (with Other… for anything else); switches fixed.
+- Today › Log food: meals as one segmented row, Crous / Describe / Quick add as three equal buttons, ingredient + quantity + unit + ＋ on one line, recipe + portions + ＋ on one line.
+
 ## 0.68b beta · 2026-10-23
 - Me: phase as a header with icon (explanation behind ⓘ), phase chips in one row, calories / progression / phase plan as three tiles; check-in tips as short icon lines; Health as three rows (conditions, maintenance, doctor-guided targets in a sheet).
 - Settings: bedtime as one row with ⓘ; My body as tiles (sex, age, height, start, goal, activity, maintenance, target); AI as one status row; My gym as chips + switches + tiles; Data: backup, restore, CSV import/export, remove imported and redo setup as one list.
