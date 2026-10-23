@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.66c beta · 2026-10-23
+- "Next time" after a workout, simplified: muscle picture, exercise name, one big target (weight · sets × reps), a coloured badge (⬆ Heavier / +1 rep / = Same / ⬇ Lighter / ★ New) and one short goal line (🎯 reps → next weight). Explanations moved behind ⓘ.
+- Fix: the ••• menu in Edit workout could fail to open (0.66a).
+
 ## 0.66b beta · 2026-10-23
 - Drop sets: no rest timer before a drop set any more (just a "go straight away" note); the full rest starts after the drop set.
 

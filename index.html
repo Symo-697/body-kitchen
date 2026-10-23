@@ -3139,7 +3139,7 @@ const srLabel=m=>(SR_OPTS().find(o=>o[0]===m)||["",m])[1];
 function sideRestSheet(n){const nn=esc(JSON.stringify(n));const cur=(S.core.sideRest||{})[n]||"";const fr=LANG()==="fr";
  stDlg(`<h3 style="text-align:center;margin:0 0 .3rem">${fr?"Repos entre les côtés":"Rest between sides"}</h3><p class="muted" style="text-align:center;font-size:.82rem;margin:0 0 .5rem">${esc(n)}</p>
  ${SR_OPTS().map(([k,l])=>sheetBtn(cur===k?"✓":"",l,`S.core.sideRest=S.core.sideRest||{};S.core.sideRest[${nn}]='${k}';save('core');closeStDlg();render()`)).join("")}${sheetBtn(cur?"":"✓",(fr?"Par défaut : ":"Default: ")+srLabel(prefs().sideRest||"short"),`if(S.core.sideRest)delete S.core.sideRest[${nn}];save('core');closeStDlg();render()`)}`)}
-const exHasSides=e=>(e.sets||[]).some(isSideSet)||(e.rows||[]).some(isSideSet)||(e.setTypes||[]).some(x=>/^[LR]/.test(x||""));
+const exHasSides=e=>{const A_=x=>Array.isArray(x)?x:[];return A_(e.sets).some(isSideSet)||A_(e.rows).some(isSideSet)||A_(e.setTypes).some(x=>/^[LR]/.test(x||""))};
 function moveLiveEx(i,d){const x=A().ex;[x[i],x[i+d]]=[x[i+d],x[i]];liveSave();closeSheet();render();const el=document.querySelectorAll(".livecard")[i+d];if(el)el.scrollIntoView({block:"center"})}
 async function removeLiveEx(i){if(!await ask("Remove this exercise from today's workout?"))return;A().ex.splice(i,1);liveSave();closeSheet();render()}
 function stPickerHTML(s,ctx){const side=isSideSet(s)?s.t:"";const kind=kindOf(s);
@@ -3214,10 +3214,26 @@ function saveLive(){const a=A();const anyDone=a.ex.some(e=>e.sets.some(s=>s.done
  if(a.water&&a.water.n){const sw=prefs().sw||swDefaults();const Ld=dayLog(date);Ld.food.push({label:`💧 Sport water${prefs().gym&&prefs().gym!=="Other"?" ("+prefs().gym+")":""} × ${a.water.n}`,kcal:a.water.n*(+sw.kcal||0),p:0,c:0,f:0,fib:0,veg:0,meal:"s",at:($("#fend")||{}).value||nowHM()});const ss=S.core.sessions[S.core.sessions.length-1];if(ss)ss.water=a.water.n;save(monthKey(date))}
  {const ss=S.core.sessions[S.core.sessions.length-1];if(ss){ss.painAsked=true;ss.pain=finPain.filter(x=>x.l>0)}if(finPain.some(x=>x.l>0))save("core")}
  const done=a.ex.filter(e=>e.sets.some(x=>x.done));const upd=wkDiff(a);S.core.active=null;wakeOff();save("core");closeSheet();tab="cal";trainView="plan";calSel=date;calOff=0;render();window.scrollTo(0,0);
- const nx=done.map(e=>{const pe=(S.core.workout[a.day]||{ex:[]}).ex.find(x=>x.name===e.name)||{name:e.name,reps:e.reps,sets:e.sets.filter(x=>x.t!=="W").length};const t=nextTarget(pe,a.day);return t.text?`<div style="padding:.45rem 0;border-bottom:1px solid var(--line)"><b>${t.status==="up"?"⬆️ ":t.status==="down"?"⬇️ ":"➡️ "}${esc(e.name)}</b>${t.perSet&&t.perSet[0].w!=null?` · <b>${t.perSet.map(p=>p.w+"×"+p.r).join(" · ")}</b>`:t.w!=null?` · <b>${t.w} kg × ${t.sets}×${t.r}</b>`:""} <span class="muted" style="font-size:.75rem">${esc(progLabel(t.method))}</span><br><span class="muted" style="font-size:.85rem">${esc(t.text.replace(/^Last: [^.]*\. /,""))}</span></div>`:""}).join("");
- window._nextHTML=nx?`<h3>🎯 Next time</h3>${nx}<button style="width:100%;margin-top:.8rem" onclick="closeSheet()">Got it</button>`:"";
+ const nx=done.map(e=>{const pe=(S.core.workout[a.day]||{ex:[]}).ex.find(x=>x.name===e.name)||{name:e.name,reps:e.reps,sets:e.sets.filter(x=>x.t!=="W").length};const t=nextTarget(pe,a.day);return t.text?nextRowHTML(e,t):""}).join("");
+ window._nextHTML=nx?`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:center"><h3 style="margin:0">${LANG()==="fr"?"La prochaine fois":"Next time"}</h3><button class="circbtn" aria-label="Info" onclick="nextInfo()">ⓘ</button></div>${nx}<button style="width:100%;margin-top:.8rem" onclick="closeSheet()">Got it</button>`:"";
  window._free=a.day==="FREE"?done.map(e=>({name:e.name,sets:e.sets.filter(x=>x.done).length,reps:e.reps,types:e.sets.some(isSideSet)?e.sets.filter(x=>x.done).map(x=>x.t||""):null,ss:e.ss})):null;
  setTimeout(()=>{if(window._free&&window._free.length)openSheet(freeSaveHTML());else if(upd&&upd.items.length){window._upd=upd;openSheet(wkDiffHTML(upd))}else if(window._nextHTML)openSheet(window._nextHTML)},150)}
+function nextRowHTML(e,t){const fr=LANG()==="fr";const md=exMode(e.name);const txt=String(t.text||"");
+ let main="";const ps=t.perSet&&t.perSet.filter(p=>p.w!=null);
+ if(ps&&ps.length){const ws=ps.map(p=>+p.w);const lo=Math.min(...ws),hi=Math.max(...ws);const rs=[...new Set(ps.map(p=>p.r))];main=`${lo===hi?lo:lo+"–"+hi} kg · ${ps.length} × ${rs.length===1?rs[0]:rs.join("/")}`}
+ else if(t.w!=null)main=`${t.w} kg · ${t.sets||""}${t.sets?" × ":""}${t.r||""}`;else if(md==="r"&&t.r)main=`${t.r} reps`;else if(md==="t"&&t.sec)main=`${t.sec} s`;else if(md==="c"&&t.min)main=`${t.min} min · ${t.speed} km/h`;
+ const up=t.status==="up",down=t.status==="down",plus=/\+1 rep|aim for/i.test(txt),first=/^First time/.test(txt);
+ const badge=first?["var(--plum)",fr?"★ Nouveau":"★ New"]:up?["#3FB950",fr?"⬆ Plus lourd":"⬆ Heavier"]:down?["#E8A33A",fr?"⬇ Plus léger":"⬇ Lighter"]:plus?["#3B82F6","+1 rep"]:["#9A949C",fr?"= Pareil":"= Same"];
+ const m=txt.match(/([\d]+ ?× ?[\d]+|[\d]+(?:\/[\d]+)+|[\d]+)\s*(?:reps?\s*)?→\s*([\d.,]+)\s*kg/);let goal="";
+ if(m){let r=m[1];if(r.includes("/")){const a=r.split("/");r=a.every(x=>x===a[0])?`${a.length} × ${a[0]}`:r}goal=`🎯 ${r} → ${m[2]} kg`}
+ if(!main&&!goal)goal=esc(txt.replace(/^Last: [^.]*\. /,"").slice(0,90));
+ return`<div class="librow" style="cursor:default;border-bottom:1px solid var(--line);align-items:center">${exThumb(e.name)}<div style="flex:1;min-width:0"><div class="wkn" style="font-size:.95rem">${esc(e.name)}</div>${main?`<div style="font-weight:800;font-size:1.05rem">${main}${isAssisted(e.name)?` <span class="muted" style="font-size:.75rem;font-weight:500">${fr?"d'aide":"assist"}</span>`:""}</div>`:""}${goal?`<div class="muted" style="font-size:.8rem">${goal}</div>`:""}${t.pain?`<div style="font-size:.78rem;color:var(--warn)">⚠ ${esc(t.pain.a)}</div>`:""}</div><span class="recpill" style="background:${badge[0]};font-size:.75rem;min-width:0">${badge[1]}</span></div>`}
+function nextInfo(){const fr=LANG()==="fr";stDlg(`<h3>${fr?"Comment lire ça":"How to read this"}</h3>
+ <p><b style="color:#3FB950">⬆ ${fr?"Plus lourd":"Heavier"}</b> ${fr?": tu as fait toutes tes reps, la charge monte.":": you hit all your reps, so the weight goes up."}</p>
+ <p><b style="color:#3B82F6">+1 rep</b> ${fr?": même charge, essaie de faire une rep de plus par série.":": same weight, try one more rep per set."}</p>
+ <p><b style="color:#9A949C">= ${fr?"Pareil":"Same"}</b> ${fr?": refais la même chose.":": repeat the same."}</p>
+ <p><b style="color:#E8A33A">⬇ ${fr?"Plus léger":"Lighter"}</b> ${fr?": un peu moins lourd pour repartir proprement.":": a bit lighter to build back up."}</p>
+ <p>🎯 ${fr?"= l'objectif : quand tu fais ces reps, passe à cette charge.":"= the goal: once you do these reps, move up to this weight."}</p>`)}
 function freeSaveHTML(){return`<h3>Save it as a workout?</h3><p class="muted" style="margin:0 0 .5rem;font-size:.85rem">${window._free.map(x=>esc(x.name)+" ("+x.sets+")").join(" · ")}</p><input id="freename" placeholder="Name, e.g. Upper pump"><div class="row" style="margin-top:.8rem"><button class="ghost small" onclick="closeSheet();if(window._nextHTML)setTimeout(()=>openSheet(window._nextHTML),120)">No thanks</button><span class="grow"></span><button onclick="freeSave()">Save workout</button></div>`}
 function freeSave(){const n=(document.getElementById("freename")||{}).value;const used=Object.keys(S.core.workout);const L="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").find(x=>!used.includes(x));if(!L){toast("No free letter left (A–Z).");return}
  S.core.workout[L]={title:(n||"").trim()||"My workout",ex:window._free.map(x=>{const o=EX(x.name,Math.max(1,x.sets),x.reps||DEF_REPS[exMode(x.name)]);if(x.types)o.setTypes=x.types;if(x.ss)o.ss=x.ss;return o})};ensureColors();save("core");closeSheet();render();toast(`Saved as workout ${L}.`);if(window._nextHTML)setTimeout(()=>openSheet(window._nextHTML),200)}
@@ -3862,7 +3878,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.66b beta";
+const APP_VERSION="0.66c beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
