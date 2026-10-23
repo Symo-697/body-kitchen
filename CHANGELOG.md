@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68b beta · 2026-10-23
+- Me: phase as a header with icon (explanation behind ⓘ), phase chips in one row, calories / progression / phase plan as three tiles; check-in tips as short icon lines; Health as three rows (conditions, maintenance, doctor-guided targets in a sheet).
+- Settings: bedtime as one row with ⓘ; My body as tiles (sex, age, height, start, goal, activity, maintenance, target); AI as one status row; My gym as chips + switches + tiles; Data: backup, restore, CSV import/export, remove imported and redo setup as one list.
+- Calendar: meals as folded cards (icon, items, protein, kcal) and the day total as tiles; legend behind ⓘ.
+
 ## 0.68a beta · 2026-10-23
 - Groceries: portions to cook as rows with − / + steppers; meal prep days as one selector; cook days list recipes with × portions; grocery list with a big total, budget bar, Shopping mode + receipt + share buttons; items as clean tick rows (name, pack, price) grouped by aisle with icons, details on tap; pantry rows with ✓ / 🛒; home stock without the repeated Adjust lines.
 
