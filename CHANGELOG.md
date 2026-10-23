@@ -2,6 +2,15 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.63 beta · 2026-10-23
+- **Side + set type together:** Left/Right is now a separate choice, so a set can be R + Failure, L + Drop set, etc. One side still counts as ½ set.
+- **Compact set-type picker:** side row (Both / Left / Right) + one line per type; explanations behind ⓘ Infos.
+- **Edit a workout set by set** (like Lyfta): each exercise shows SET · PREVIOUS · KG · REPS rows, + Add set, tap the set number to change its type/side or remove it. The live workout is pre-filled with exactly those rows. After each workout, every set where you hit the reps goes up next time (2.5 kg, or 1–5 kg depending on the exercise); Maintain method and pain answers hold it.
+- **Moving exercises no longer jumps to the top** (edit page, plan and live workout).
+- **Drag to reorder during a workout:** hold ⠿ on an exercise and drag it (↑/↓ in ••• still work).
+- **Exercise notes are kept:** the note under an exercise is saved with the session (Calendar, History) and pre-filled next time.
+- **Exercise page with tabs:** About (muscles, how-to, ▶ YouTube search, alternatives), History (every session, sets and 1RM per set), Progress (charts), Records (est. 1RM, max weight, max reps, best session and single-set volume, record history, estimated performance 1–12 reps; ≈ when based on 15+ reps). Includes history logged under the same exercise's other names.
+
 ## 0.62a beta · 2026-10-22
 - Start cooking now asks how many portions to make when a recipe makes more than one (1 … all). Ingredient amounts scale to the choice; steps show a reminder that the amounts written in the text are for the full recipe.
 
