@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.67a beta · 2026-10-23
+- History › 📅 Calendar: your whole workout history month by month, each workout as a coloured circle with its name; tap one to open its detail.
+- Workout detail: sets shown as SET / WEIGHT & REPS / 1RM rows.
+- New comparison: 🛥️ a yacht (from 18 t).
+
 ## 0.67 beta · 2026-10-23
 - Workout detail (History, Calendar › View): body map, duration, volume, calories, sets, AI analysis (highlights / keep going / next tip; offline summary when AI isn't available), private note, and insight cards: workout split (tap a muscle for its exercises), training zones, personal records, volume over time, strength level.
 - Muscle recovery: tap a muscle to see the exercises and sets from the last 7 days, how much each one costs, and when it will be fully recovered.
