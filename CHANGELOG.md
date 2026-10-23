@@ -2,6 +2,14 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.67 beta · 2026-10-23
+- Workout detail (History, Calendar › View): body map, duration, volume, calories, sets, AI analysis (highlights / keep going / next tip; offline summary when AI isn't available), private note, and insight cards: workout split (tap a muscle for its exercises), training zones, personal records, volume over time, strength level.
+- Muscle recovery: tap a muscle to see the exercises and sets from the last 7 days, how much each one costs, and when it will be fully recovered.
+- Finish workout redesigned like Lyfta (title, "How'd it go?", photo, date & time, duration, how hard 1–10, energy, discomfort, Save, Discard), followed by a "Keep it up!" summary: swipeable cards (streak, weight lifted + body map, "that's like lifting…", exercise list), Share, and ＋ for all the stats.
+- Live workout: progress bar under the top bar; bar and Finish button turn green when every set is done.
+- Library: new outline illustrations for every piece of equipment; Movement groups audited (≈150 exercises moved to the right group, e.g. triceps kickbacks out of Glute Kickback, tibialis curls into a new Tibialis Raise group).
+- Plan & log: the long explanations under the week moved behind ⓘ.
+
 ## 0.66c beta · 2026-10-23
 - "Next time" after a workout, simplified: muscle picture, exercise name, one big target (weight · sets × reps), a coloured badge (⬆ Heavier / +1 rep / = Same / ⬇ Lighter / ★ New) and one short goal line (🎯 reps → next weight). Explanations moved behind ⓘ.
 - Fix: the ••• menu in Edit workout could fail to open (0.66a).
