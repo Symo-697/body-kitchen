@@ -2,6 +2,12 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.66 beta · 2026-10-23
+- Muscle recovery, Lyfta-style: overall % ring, then Push / Pull / Legs / Core / Accessories with muscle pictures, last exercise and a coloured %. Each completed set tires its muscles (half for secondary ones); fatigue fades over 48 h (small muscles) to 72 h (big ones). Card on Today (can be moved or hidden in Arrange Today), in History and in Progress.
+- New History tab in Train: every workout by month with date, duration, sets and volume; tap one to see every set, or jump to it in the calendar.
+- Export workout history as a CSV in Lyfta's format (Me › Settings › Workout history), which can be imported back here or into another app.
+- French labels for the library and equipment names.
+
 ## 0.65 beta · 2026-10-23
 - Edit workout, Lyfta-style: top bar with ✕ (discard changes) and Save, big title, borderless "Notes…", 💪 Muscles targeted kept, workout type as a small selector.
 - Muscle pictures: every exercise row (workout page, editor, library) shows a thumbnail with its main muscle highlighted.
