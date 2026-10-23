@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.68j beta · 2026-10-23
+- Workout timer: button rows fill the whole width. Steps goal centred. Today: quick picks removed, meal time on the left.
+
 ## 0.68i beta · 2026-10-23
 - Appearance: System / Light / Dark / Auto on one line; Auto lets you choose the dark-mode hours (🌙 from → ☀️ until).
 - Chip rows and their titles are centred across the app (palettes, rest between sides, seconds, iPhone timer…); removed the extra wording and the launch-delay line.
