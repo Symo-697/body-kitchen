@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.66a beta · 2026-10-23
+- Rest between sides for one-arm / one-leg sets: a short timer (20 s by default) after the first side, then the full rest after both. Default in Me › Settings › Workout timer (None / Short 10–45 s / Full rest); per exercise in its ••• menu (live workout and Edit workout).
+
 ## 0.66 beta · 2026-10-23
 - Muscle recovery, Lyfta-style: overall % ring, then Push / Pull / Legs / Core / Accessories with muscle pictures, last exercise and a coloured %. Each completed set tires its muscles (half for secondary ones); fatigue fades over 48 h (small muscles) to 72 h (big ones). Card on Today (can be moved or hidden in Arrange Today), in History and in Progress.
 - New History tab in Train: every workout by month with date, duration, sets and volume; tap one to see every set, or jump to it in the calendar.
