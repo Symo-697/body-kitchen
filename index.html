@@ -124,6 +124,7 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .setgrid.head span{font-size:.72rem;color:var(--muted);font-weight:700;letter-spacing:.03em}
 .setgrid.done{background:color-mix(in srgb,var(--sage) 18%,transparent)}
 .setgrid input{text-align:center;padding:.45rem .2rem}
+.sgp>:nth-child(2){text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sgp>span{text-align:center}.sgp input{width:100%;min-width:0;padding:.55rem .2rem;font-size:1rem}
 .setlab{all:unset;cursor:pointer;font-weight:800;color:var(--plum);text-align:center;font-size:1.05rem}
 .chk{width:2.5rem;height:2.3rem;border-radius:10px;background:var(--line);color:var(--muted);padding:0;font-size:1.1rem}
 .chk.on{background:var(--sage);color:#fff}
@@ -227,10 +228,10 @@ function rowsSync(e){const R=e.rows||[];if(!R.length){delete e.rows;return}if(R.
 function planRows(k,i){const e=S.core.workout[k].ex[i];if(!e.rows){e.rows=genRows(k,e);rowsSync(e)}return e.rows}
 function wkRefresh(k){const sh=document.querySelector("#sheetmodal .sheet");const sc=sh?sh.scrollTop:0;wkEdit(k);const sh2=document.querySelector("#sheetmodal .sheet");if(sh2)sh2.scrollTop=sc;render()}
 const lbIn=(n,v)=>isLb(n)&&v!==""&&v!=null&&!isNaN(+v)?String(Math.round(+v*LB*10)/10):(v??"");
-function rowsHTML(k,i){const e=S.core.workout[k].ex[i];const md=exMode(e.name);const R=e.rows||genRows(k,e);const ex=!!e.rows;const g=md==="w"?"2.6rem 1fr 4.2rem 4.2rem":"2.6rem 1fr 4.6rem";const cnt={};
+function rowsHTML(k,i){const e=S.core.workout[k].ex[i];const md=exMode(e.name);const R=e.rows||genRows(k,e);const ex=!!e.rows;const g=md==="w"?"2.4rem minmax(0,1fr) minmax(0,1.2fr) minmax(0,1.2fr)":"2.4rem minmax(0,1fr) minmax(0,1.4fr)";const cnt={};
  const inp=(x,j,fld)=>{const v=fld==="w"?lbIn(e.name,x.w):x[fld];return`<input type="text" inputmode="${fld==="r"&&["M","P","PO"].includes(kindOf(x))?"text":"decimal"}" value="${ex?esc(v):""}" placeholder="${ex?"":esc(v)}" aria-label="${fld==="w"?"Weight":"Reps"}" onchange="planSetFld('${k}',${i},${j},'${fld}',this.value)">`};
- return`<div class="setgrid head" style="grid-template-columns:${g};margin-top:.35rem"><span>SET</span><span>PREVIOUS</span>${md==="w"?`<span>${isLb(e.name)?"LB":"KG"}</span>`:""}<span>REPS</span></div>${R.map((x,j)=>{const ty=SET_TYPES.find(t=>t[0]===x.t);let lab;if(isSideSet(x)){cnt[x.t]=(cnt[x.t]||0)+1;lab=cnt[x.t]+x.t+(x.sub?`<small style="font-size:.6rem">·${x.sub}</small>`:"")}else if(x.t)lab=x.t;else{cnt.n=(cnt.n||0)+1;lab=cnt.n}const p=prevSet(e.name,j);
-  return`<div class="setgrid" style="grid-template-columns:${g};margin-top:.25rem"><button class="setlab" style="${ty?`color:${ty[2]}`:""}" onclick="planTypeSheet('${k}',${i},${j})" aria-label="Set type">${lab}</button><span class="muted" style="font-size:.76rem">${p?fmtSet(e.name,p):"—"}</span>${md==="w"?inp(x,j,"w"):""}${inp(x,j,"r")}</div>`}).join("")}
+ return`<div class="setgrid sgp head" style="grid-template-columns:${g};margin-top:.35rem"><span>SET</span><span>PREVIOUS</span>${md==="w"?`<span>${isLb(e.name)?"LB":"KG"}</span>`:""}<span>REPS</span></div>${R.map((x,j)=>{const ty=SET_TYPES.find(t=>t[0]===x.t);let lab;if(isSideSet(x)){cnt[x.t]=(cnt[x.t]||0)+1;lab=cnt[x.t]+x.t+(x.sub?`<small style="font-size:.6rem">·${x.sub}</small>`:"")}else if(x.t)lab=x.t;else{cnt.n=(cnt.n||0)+1;lab=cnt.n}const p=prevSet(e.name,j);
+  return`<div class="setgrid sgp" style="grid-template-columns:${g};margin-top:.25rem"><button class="setlab" style="${ty?`color:${ty[2]}`:""}" onclick="planTypeSheet('${k}',${i},${j})" aria-label="Set type">${lab}</button><span class="muted" style="font-size:.76rem">${p?fmtSet(e.name,p):"—"}</span>${md==="w"?inp(x,j,"w"):""}${inp(x,j,"r")}</div>`}).join("")}
  <button class="ghost small" style="width:100%;margin-top:.35rem" onclick="planAddSet('${k}',${i})">+ Add set</button>`}
 function planSetFld(k,i,j,fld,v){const R=planRows(k,i);const e=S.core.workout[k].ex[i];v=String(v).replace(",",".").trim();if(fld==="w"&&isLb(e.name)&&v!==""&&!isNaN(+v))v=String(Math.round(+v/LB*10)/10);R[j][fld]=v;rowsSync(e);save("core");wkRefresh(k)}
 function planAddSet(k,i){const R=planRows(k,i);const e=S.core.workout[k].ex[i];const last=R[R.length-1]||{t:"",w:"",r:""};const n={...last};if(isSideSet(last))n.t=last.t==="L"?"R":"L";else if(last.t==="W")n.t="";R.push(n);rowsSync(e);save("core");wkRefresh(k)}
@@ -2986,7 +2987,7 @@ function vLive(){const a=A();if(!a){trainView="plan";return vTrain()}const st=li
  <div class="muted" style="text-align:center;margin-top:.4rem;font-size:.85rem">${a.day==="CARDIO"?"Cardio session":a.day==="FREE"?"Free workout":`Day ${esc(a.day)} · ${esc((S.core.workout[a.day]||{}).title||"")}`} · tap for live stats</div></div>`;
  if(a.notes)h+=`<div class="note" style="white-space:pre-wrap">📝 ${esc(a.notes)}</div>`;
  const ps=livePhotoSrc(a.photo);if(ps)h+=`<img src="${esc(ps)}" alt="Workout photo" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:.8rem">`;
- a.ex.forEach((e,i)=>{const done=e.sets.filter(s=>s.done).length;const f=liveFields(e.name);const g=exMode(e.name)!=="w"&&exMode(e.name)!=="c"?"2.4rem 1fr 5.2rem 2.8rem":"2.4rem 1fr 4.6rem 4.6rem 2.8rem";
+ a.ex.forEach((e,i)=>{const done=e.sets.filter(s=>s.done).length;const f=liveFields(e.name);const g=exMode(e.name)!=="w"&&exMode(e.name)!=="c"?"2.4rem minmax(0,1fr) minmax(0,1.4fr) 2.6rem":"2.4rem minmax(0,1fr) minmax(0,1.15fr) minmax(0,1.15fr) 2.6rem";
   const si=ssInfo(a.ex,i);h+=`<div class="box livecard" data-li="${i}" style="${si?`border-left:5px solid ${si.col};${si.last?"":"margin-bottom:.35rem;"}`:""}">${ssTag(a.ex,i)}<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div style="flex:1;min-width:0"><button class="exname" onclick="showEx(${esc(JSON.stringify(e.name))})">${esc(e.name)}</button>${impBadge(e.name,(S.core.workout[A().day]||{ex:[]}).ex.find(x=>x.name===e.name)||e)}
   <button style="all:unset;cursor:pointer;display:block" class="muted" onclick="A().ex[${i}].open=!A().ex[${i}].open;liveSave();render()">${done}/${e.sets.length} done ${e.open?"▴":"▾"}</button></div>${a.ex.length>1?`<span class="draghandle" aria-label="Drag to reorder" onpointerdown="liveDragStart(event,${i})">⠿</span>`:""}<button class="iconbtn" aria-label="Exercise options" onclick="exMenu(${i})">•••</button></div>`;
   if(e.open&&exMode(e.name)==="c"){const el=cdElapsed(e);const tgt=+String(e.reps||"").match(/\d+/)||0;h+=`<div class="row" style="align-items:center;gap:.6rem;margin:.4rem 0"><span style="font-size:1.8rem;font-weight:800;font-variant-numeric:tabular-nums" class="cdtime" data-i="${i}">${fmtClock(el/1000)}</span>${tgt?`<span class="muted" style="font-size:.85rem">/ ${fmtMin(tgt)}</span>`:""}<span class="grow"></span>${e.cStart?`<button class="ghost small" onclick="cdPause(${i})">❚❚ Pause</button>`:`<button class="small" onclick="cdStart(${i})">▶ ${el?"Resume":"Start"}</button>`}${el?`<button class="ghost small" onclick="cdStop(${i})">■ Done</button>`:""}</div>`}
@@ -2994,9 +2995,9 @@ function vLive(){const a=A();if(!a){trainView="plan";return vTrain()}const st=li
    h+=`<input class="plain" placeholder="Notes…" value="${esc(e.notes)}" onchange="A().ex[${i}].notes=this.value;liveSave()" style="margin-top:.5rem">
    ${e.plan?`<div class="note" style="margin:.4rem 0;font-size:.85rem">🎯 Hit the reps on a set → that set goes up next time.</div>`:(()=>{const t=nextTarget(liveDef(e),A().day);return t.text?`<div class="note ${t.status==="up"?"good":t.status==="down"?"warn":""}" style="margin:.4rem 0;font-size:.85rem">🎯 ${esc(t.text)}${suggBtn(t,`liveSetProg(${i},'${t.sugg}')`)}</div>`:""})()}
    <button class="linkbtn" onclick="restSheet(${i})">⏱ Rest timer: ${fmtRest(rs)}</button>${exMode(e.name)==="w"?` <button class="linkbtn" onclick="toggleLb(${i})">⚖ ${isLb(e.name)?"lb":"kg"} ⇄</button>`:""}
-   <div class="setgrid head" style="grid-template-columns:${g}"><span>SET</span><span>PREVIOUS</span>${f.map(x=>`<span>${x[1]}</span>`).join("")}<span></span></div>
+   <div class="setgrid sgp head" style="grid-template-columns:${g}"><span>SET</span><span>PREVIOUS</span>${f.map(x=>`<span>${x[1]}</span>`).join("")}<span></span></div>
    ${e.sets.map((s,k)=>{const ty=SET_TYPES.find(t=>t[0]===s.t);let n=0;if(isSideSet(s)){for(let j=0;j<=k;j++)if(e.sets[j].t===s.t)n++}else for(let j=0;j<=k;j++){const x=e.sets[j];if(setCls(x)==="W"||isSideSet(x))continue;n++}const p=prevSet(e.name,k);
-    return`<div class="setgrid ${s.done?"done":""}" style="grid-template-columns:${g}"><button class="setlab" style="${ty?`color:${ty[2]}`:""}" onclick="setTypeSheet(${i},${k})" aria-label="Set type">${isSideSet(s)?n+s.t+(s.sub?`<small style="font-size:.62rem">·${s.sub}</small>`:""):ty?ty[0]:n}</button>
+    return`<div class="setgrid sgp ${s.done?"done":""}" style="grid-template-columns:${g}"><button class="setlab" style="${ty?`color:${ty[2]}`:""}" onclick="setTypeSheet(${i},${k})" aria-label="Set type">${isSideSet(s)?n+s.t+(s.sub?`<small style="font-size:.62rem">·${s.sub}</small>`:""):ty?ty[0]:n}</button>
     <span class="muted" style="font-size:.8rem">${p?esc(fmtSet(e.name,p)):"—"}</span>
     ${f.map(([fld])=>`<input type="text" inputmode="${fld==="r"&&["M","P","PO"].includes(kindOf(s))?"text":"decimal"}" value="${esc(dispFld(e,s,fld))}" placeholder="${esc(fld==="r"&&kindOf(s)==="PO"?posPH(e.name):fld==="r"&&kindOf(s)==="M"?"15+4+4":fld==="r"&&kindOf(s)==="P"?"10+5":fld==="w"&&isLb(e.name)&&+phFor(e,k,fld)?String(Math.round(+phFor(e,k,fld)*LB)):phFor(e,k,fld))}" oninput="setFld(${i},${k},'${fld}',this.value)" onchange="liveSave()" aria-label="${fld}">`).join("")}
     <button class="chk ${s.done?"on":""}" aria-label="Set done" onclick="toggleSetDone(${i},${k})">✓</button></div>`}).join("")}
@@ -3735,7 +3736,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.64b beta";
+const APP_VERSION="0.64c beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

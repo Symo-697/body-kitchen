@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.64c beta · 2026-10-23
+- Set tables (edit routine and live workout): "Previous" column centred, weight and reps cells wider and equal, like Lyfta.
+
 ## 0.64b beta · 2026-10-23
 - Workout page is now read-only, like Lyfta: summary card (sets, duration, exercises), "last performed", and a clean list of "N sets • reps". No × buttons and no add-exercise search; tap an exercise to open its page.
 - Editing, adding exercises, an empty workout and warnings are all behind the ••• menu. Per-exercise progression method moved to the ••• menu inside Edit workout.
