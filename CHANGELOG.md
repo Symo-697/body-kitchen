@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.64b beta · 2026-10-23
+- Workout page is now read-only, like Lyfta: summary card (sets, duration, exercises), "last performed", and a clean list of "N sets • reps". No × buttons and no add-exercise search; tap an exercise to open its page.
+- Editing, adding exercises, an empty workout and warnings are all behind the ••• menu. Per-exercise progression method moved to the ••• menu inside Edit workout.
+- Library "＋ New" exercise now opens in its own sheet.
+
 ## 0.64a beta · 2026-10-23
 - Workout editor redesigned like Lyfta: every exercise is folded; tap one to unfold its sets, tap again (or another one) to fold it back.
 - New ••• menu per exercise: Video & history, Superset, Replace exercise, Pinned note, Change weight unit, Move up/down, Delete from workout.
