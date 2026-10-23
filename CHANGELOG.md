@@ -2,6 +2,15 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.64 beta · 2026-10-23
+- **＋ quick button** on every tab: log food, describe a meal, photo of a meal, water +250 ml, weight, start/resume workout (and fasting when on).
+- **Food photo logging:** take a photo, Claude estimates foods and grams, check and add (in Describe your meal too).
+- **Macro balance:** ••• on the calories card › Edit macro balance (sliders, must total 100 %, protein minimum protected, Reset to recommended) or Calorie adjustment.
+- **Statistics** (Me › This week › 📊): week by week, calories, macro balance, protein (per day and per meal), fibre, water, weight (8 weeks), food diversity (ingredients this week vs last, top 10), each with a one-line tip.
+- **Arrange Today:** reorder or hide the cards (button at the bottom of Today). New Weight card.
+- **Challenges & streak** (no points): 4 daily, 5–7 weekly, 🔥 streak of active days.
+- **Optional fasting timer** (Settings › Fasting, 12–20 h): Today card, start/end, counts in weekly challenges.
+
 ## 0.63 beta · 2026-10-23
 - **Side + set type together:** Left/Right is now a separate choice, so a set can be R + Failure, L + Drop set, etc. One side still counts as ½ set.
 - **Compact set-type picker:** side row (Both / Left / Right) + one line per type; explanations behind ⓘ Infos.
