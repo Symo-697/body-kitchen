@@ -3059,7 +3059,7 @@ function updLive(){const st=liveStats();const v=document.getElementById("livevol
 function toggleSetDone(i,k){const e=A().ex[i],s=e.sets[k];if(!s.done){liveFields(e.name).forEach(([fld])=>{if(s[fld]==null||s[fld]===""){const ph=phFor(e,k,fld);if(ph!=="")s[fld]=String(ph)}});
   if(!liveFields(e.name).some(([fld])=>parseFloat(s[fld]))){toast("Enter the weight or reps first.");return}
   s.done=true;const si=ssInfo(A().ex,i);
-  if(isSideSet(s)){let j0=k;while(j0>0&&isSideSet(e.sets[j0-1])&&e.sets[j0-1].t!==e.sets[j0].t)j0--;const nx=e.sets[k+1];if(nx&&!nx.done&&isSideSet(nx)&&nx.t!==s.t&&(k-j0)%2===0){const sm=sideRestMode(e.name);if(sm!=="full"){if(sm==="short"){const r=prefs().sideRestSec||20;A().rest={end:Date.now()+r*1000,total:r,name:e.name}}else A().rest=null;liveSave();render();startTicker();return}}}if(si&&!si.last){const nj=si.mem[si.pos+1];const nx=A().ex[nj];A().ex.forEach((x,j)=>x.open=j===nj);A().rest=null;liveSave();render();startTicker();return}
+  if(isSideSet(s)){let j0=k;while(j0>0&&isSideSet(e.sets[j0-1])&&e.sets[j0-1].t!==e.sets[j0].t)j0--;const nx=e.sets[k+1];if(nx&&!nx.done&&isSideSet(nx)&&nx.t!==s.t&&(k-j0)%2===0){const sm=sideRestMode(e.name);if(sm!=="full"){if(sm==="short"){const r=prefs().sideRestSec||20;A().rest={end:Date.now()+r*1000,total:r,name:e.name}}else A().rest=null;liveSave();render();startTicker();return}}}{const nd=e.sets[k+1];let nk="";try{nk=nd?kindOf(nd):""}catch(_){}if(nd&&!nd.done&&nk==="D"){A().rest=null;liveSave();render();startTicker();flash(LANG()==="fr"?"Série dégressive : enchaîne sans repos ⬇":"Drop set next: go straight away ⬇");return}}if(si&&!si.last){const nj=si.mem[si.pos+1];const nx=A().ex[nj];A().ex.forEach((x,j)=>x.open=j===nj);A().rest=null;liveSave();render();startTicker();return}
   let r=restFor(e,kindOf(s)==="W"?"W":s.t);if(si)r=Math.max(...si.mem.map(j=>restFor(A().ex[j],"")||0),r||0);const mth=methodFor(liveDef(e),A().day);if(s.t!=="W"&&(mth==="pyramid"||mth==="rpyramid")){const wk=e.sets.slice(0,k).filter(x=>x.t!=="W").length;r=mth==="pyramid"?90+30*wk:Math.max(90,180-30*wk)}if(r){A().rest={end:Date.now()+r*1000,total:r,name:e.name};iosTimer(r)}
   if(si&&si.last&&!si.mem.every(j=>A().ex[j].sets.every(y=>y.done))){const fj=si.mem.find(j=>!A().ex[j].sets.every(y=>y.done));A().ex.forEach((x,j)=>x.open=j===fj)}
   else if(e.sets.every(x=>x.done)){e.open=false;const nx=A().ex.find((x,j)=>j>i&&!x.sets.every(y=>y.done));if(nx)nx.open=true}}
@@ -3862,7 +3862,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.66a beta";
+const APP_VERSION="0.66b beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

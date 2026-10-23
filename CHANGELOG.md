@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.66b beta · 2026-10-23
+- Drop sets: no rest timer before a drop set any more (just a "go straight away" note); the full rest starts after the drop set.
+
 ## 0.66a beta · 2026-10-23
 - Rest between sides for one-arm / one-leg sets: a short timer (20 s by default) after the first side, then the full rest after both. Default in Me › Settings › Workout timer (None / Short 10–45 s / Full rest); per exercise in its ••• menu (live workout and Edit workout).
 
