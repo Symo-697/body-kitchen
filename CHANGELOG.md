@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.69a beta · 2026-10-23
+- 917 new exercises in the library (from exercises-dataset, MIT), with muscles, equipment and movement group.
+- Step-by-step instructions (French when the app is in French) on ~1,500 exercises, including 47 of the 71 in your workouts.
+- 🎬 Demo button next to YouTube: opens the exercise's animation on the dataset's GitHub page (animations © Gym visual, not stored in the app).
+
 ## 0.69 beta · 2026-10-23
 - Stretches for every workout, chosen by its type (Upper / Lower / Full body / Cardio): 'Stretch Time 🧘🏾‍♀️' when you start, a Pre-workout row above the first exercise and a Post-workout row after the last one. Each opens a card with a timer and a tick per stretch; the next timer starts by itself, and the card closes when all are ticked. Upper pre-workout has Version 1 / Version 2. ✎ to remove, add (from the stretching library or your own) or change times; Reset brings the default list back. Also on each workout page (Pre / Post buttons).
 
