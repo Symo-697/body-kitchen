@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.69 beta · 2026-10-23
+- Stretches for every workout, chosen by its type (Upper / Lower / Full body / Cardio): 'Stretch Time 🧘🏾‍♀️' when you start, a Pre-workout row above the first exercise and a Post-workout row after the last one. Each opens a card with a timer and a tick per stretch; the next timer starts by itself, and the card closes when all are ticked. Upper pre-workout has Version 1 / Version 2. ✎ to remove, add (from the stretching library or your own) or change times; Reset brings the default list back. Also on each workout page (Pre / Post buttons).
+
 ## 0.68k beta · 2026-10-23
 - Library: line-drawing icons for Stretching & mobility (stretching figure) and Cardio (treadmill).
 - Butt Kicks now has muscles (hamstrings, plus quads and calves) and sits in Cardio, so the empty Other group is gone.
