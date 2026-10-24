@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.69b beta · 2026-10-23
+- Exercise page: How to is now a folded 📖 button; tap to open the steps.
+
 ## 0.69a beta · 2026-10-23
 - 917 new exercises in the library (from exercises-dataset, MIT), with muscles, equipment and movement group.
 - Step-by-step instructions (French when the app is in French) on ~1,500 exercises, including 47 of the 71 in your workouts.
