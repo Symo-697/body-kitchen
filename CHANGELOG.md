@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.69d beta · 2026-10-23
+- Machine weight: the first time you tick a set on a machine exercise (leg press, smith, hack squat, lever machines…), the app asks how much the machine adds by itself (sled, carriage, bar), or 0 for a weight-stack machine. It's added to that exercise's estimated 1RM, heaviest weight and volume, so Progress and Records are accurate. Change it any time from the exercise page (⚖️) or the exercise's ••• menu.
+
 ## 0.69c beta · 2026-10-23
 - Edit exercise (muscles): removed the Sets / Reps per set fields and their note; sets and reps are set in Edit workout.
 
