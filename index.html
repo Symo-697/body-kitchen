@@ -3076,13 +3076,13 @@ function bwNow(){const a=avgWeight(10,0);if(a)return a;const e=(S.body.entries||
 const effW=(n,w)=>isAssisted(n)?Math.max(0,bwNow()-(+w||0)):(+w||0)+((+w||0)>0||baseW(n)?baseW(n):0);
 const isMachine=n=>{try{if(isAssisted(n))return false;const e=eqLabel(n);if(["Leverage machine","Smith machine","Sled machine","T-bar"].includes(e))return true}catch(x){}return/\b(lever|machine|smith|leg press|hack squat|sled|pendulum|belt squat)\b/i.test(n)};
 const baseW=n=>+((S.core.baseW||{})[n])||0;
-function baseSheet(n,after){const cur=(S.core.baseW||{})[n];const nq=esc(JSON.stringify(n));
+function baseSheet(n,after){const cur=(S.core.baseW||{})[n];const nq=esc(JSON.stringify(n));const plates=cur!=null&&+cur>0;
  stDlg(`<h3 style="margin:0 0 .2rem">⚖️ ${LL("Machine weight","Poids de la machine")}</h3><p class="muted" style="margin:0 0 .7rem;font-size:.85rem">${esc(n)}</p>
- <p style="margin:0 0 .6rem">${LL("How much does the machine add by itself (sled, carriage, bar)?","Combien la machine ajoute-t-elle à vide (chariot, barre) ?")}</p>
- <div class="oneline"><input id="basew" type="text" inputmode="decimal" value="${cur!=null&&+cur?cur:""}" placeholder="kg" style="flex:1;text-align:center;font-size:1.2rem;font-weight:700"><span class="muted">kg</span></div>
- <div class="hscroll" style="margin-top:.6rem;justify-content:center">${[0,10,15,20,25,40,60].map(v=>`<button class="chip" onclick="document.getElementById('basew').value=${v}">${v}</button>`).join("")}</div>
- <button style="width:100%;margin-top:.8rem;border-radius:999px" onclick="baseSave(${nq},document.getElementById('basew').value)">${LL("Save","Enregistrer")}</button>
- <button class="x" style="width:100%;margin-top:.5rem" onclick="baseSave(${nq},0)">${LL("Weight-stack machine (0 kg)","Machine à poids guidés (0 kg)")}</button>`);window._baseAfter=after||null}
+ <p style="margin:0 0 .6rem">${LL("What do you write in the KG column?","Qu'est-ce que tu notes dans la colonne KG ?")}</p>
+ ${sheetBtn(cur!=null&&!plates?"✓":"🏋️",LL("The total (machine included)","Le total (machine comprise)"),`baseSave(${nq},0)`)}
+ <div class="box" style="margin-top:.5rem;${plates?"border-color:var(--plum)":""}"><b>${LL("Only the plates I add","Seulement les disques ajoutés")}</b><div class="muted" style="font-size:.82rem;margin:.2rem 0 .5rem">${LL("Then how much does the empty machine weigh?","Alors combien pèse la machine à vide ?")}</div>
+ <div class="oneline"><input id="basew" type="text" inputmode="decimal" value="${plates?cur:""}" placeholder="kg" style="flex:1;text-align:center;font-size:1.2rem;font-weight:700"><button class="addb" aria-label="Save" onclick="baseSave(${nq},document.getElementById('basew').value)">✓</button></div>
+ <div class="hscroll" style="margin-top:.5rem">${[10,15,20,25,40,60].map(v=>`<button class="chip" onclick="document.getElementById('basew').value=${v}">${v}</button>`).join("")}</div></div>`);window._baseAfter=after||null}
 function baseSave(n,v){S.core.baseW=S.core.baseW||{};S.core.baseW[n]=Math.max(0,+String(v).replace(",",".")||0);save("core");closeStDlg();flash(LL("Machine weight saved","Poids machine enregistré"));const f=window._baseAfter;window._baseAfter=null;if(f)f();render()}
 
 function setVol(name,s,db){const r=setRuleS(s);if(!r[1])return 0;const m=isSideSet(s)?1:perSide(name)?2:db&&/dumbbell|hammer curl|arnold/i.test(name)&&!/goblet/i.test(name)?2:1;return effW(name,s.w)*repsVol(s)*m*r[1]}
@@ -4222,7 +4222,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.69d beta";
+const APP_VERSION="0.69e beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
