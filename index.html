@@ -4068,9 +4068,7 @@ function paintExEdit(){const e=exEdit;const sh=document.querySelector("#exmodal 
  <label style="margin-top:.8rem">Muscles</label>${muscleChips(e,"edToggle")}
  <div style="margin-top:.7rem">${bodySVG(null,{p:e.p,s:e.s})}</div>
  ${e.mode==="c"?"":`<label class="check" style="margin-top:.7rem;color:inherit"><input type="checkbox" ${e.side?"checked":""} onchange="exEdit.side=this.checked">One side at a time (per leg / per arm)</label>`}
- <div class="row" style="margin-top:.7rem">${e.idx!=null&&e.mode!=="c"?`<div style="width:6rem"><label>Sets</label><input type="number" min="1" max="8" value="${e.sets}" onchange="exEdit.sets=Math.max(1,+this.value||3)"></div>`:""}
- <div style="width:9rem"><label>${e.mode==="c"?"Minutes":e.mode==="t"?"Seconds per set":"Reps per set"}</label><input value="${esc(e.reps)}" onchange="exEdit.reps=this.value.replace(/[^0-9-]/g,'')||exEdit.reps"></div></div>
- ${e.idx!=null?`<p class="muted" style="margin:.4rem 0 0">Sets and reps apply to day ${gymDay}; muscles and logging mode apply everywhere.</p>`:""}
+
  <div class="row" style="margin-top:1rem">${hasOriginal(e.name)&&(S.core.customEx||{})[e.name]?`<button class="ghost small" onclick="resetExEdit()">Reset to original</button>`:""}<span class="grow"></span><button class="ghost small" onclick="showEx(exEdit.name,exEdit.fromSearch,exEdit.idx)">Cancel</button><button onclick="saveExEdit()">Save</button></div>`;sh.scrollTop=0}
 function edToggle(k){const e=exEdit;if(e.p.includes(k)){e.p=e.p.filter(x=>x!==k);e.s.push(k)}else if(e.s.includes(k))e.s=e.s.filter(x=>x!==k);else e.p.push(k);const sh=document.querySelector("#exmodal .sheet");const y=sh?sh.scrollTop:0;paintExEdit();if(sh)sh.scrollTop=y}
 function saveExEdit(){const e=exEdit;if(e.mode!=="c"&&!e.p.length){toast("Pick at least one main muscle.");return}
@@ -4213,7 +4211,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.69b beta";
+const APP_VERSION="0.69c beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.69c beta · 2026-10-23
+- Edit exercise (muscles): removed the Sets / Reps per set fields and their note; sets and reps are set in Edit workout.
+
 ## 0.69b beta · 2026-10-23
 - Exercise page: How to is now a folded 📖 button; tap to open the steps.
 
