@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.69h beta · 2026-10-23
+- Library: Hammer Strength Abdominal Crunch and Hammer Strength MTS Abdominal Crunch (machine, abs + obliques), with How to steps in English and French.
+
 ## 0.69g beta · 2026-10-23
 - Positions (PO) sets: one small box per position instead of typing 10+10+10. Choose which positions you do (2 or 3: forward / upright / back) with the chips under the sets; already-typed reps follow their position.
 
