@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.70d beta · 2026-10-23
+Calendar › Edit: one row per set (number or L/R tag, kg, reps) with column headers; Cancel/Save at the top.
+
 ## 0.70c beta · 2026-10-23
 Left vs right: tap a session to open that workout (◀ comes back); sessions with a likely typo (one side 2.5× heavier) are flagged ⚠ and not counted.
 
