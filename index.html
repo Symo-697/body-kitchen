@@ -134,6 +134,7 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .restbar{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.18)}
 .livebar{display:block;width:100%;margin:.2rem 0 .6rem;background:var(--plum-soft);color:var(--plum);font-weight:600;text-align:left}
 #extabs button{font-size:.84rem;padding:.45rem .15rem;white-space:nowrap}.wkex{border-bottom:1px solid var(--line)}
+.posbox{display:flex;gap:3px;min-width:0}.posbox input{flex:1;min-width:0;padding:.55rem .1rem!important;text-align:center;font-size:.95rem!important}
 .howto{margin-top:.9rem;border:1px solid var(--line);border-radius:14px;padding:.6rem .9rem}.howto summary{font-weight:700;cursor:pointer}
 .strrow{width:100%;display:flex;align-items:center;gap:.7rem;border:1px solid var(--line);background:var(--card,#fff);color:inherit;border-radius:16px;padding:.6rem .8rem;margin:.6rem 0;font:inherit}.strrow.ok{border-color:var(--sage);background:color-mix(in srgb,var(--sage) 14%,transparent)}.strico{flex:none;width:40px;height:40px;border-radius:50%;background:var(--plum-soft);display:grid;place-items:center;font-size:1.3rem}.strrow.ok .strico{background:var(--sage);color:#fff}
 .strt{flex:none;border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:.35rem .7rem;font-size:.8rem;font-weight:700;min-width:4.5rem}.strt.on{background:var(--plum);border-color:var(--plum);color:#fff}
@@ -3116,6 +3117,13 @@ function toggleLbName(n){S.core.exUnit=S.core.exUnit||{};if(isLb(n))delete S.cor
 function toggleLb(i){const n=A().ex[i].name;S.core.exUnit=S.core.exUnit||{};if(isLb(n))delete S.core.exUnit[n];else S.core.exUnit[n]="lb";save("core");render()}
 function dispFld(e,s,fld){const v=s[fld]??"";return fld==="w"&&isLb(e.name)&&v!==""&&!isNaN(+v)?String(Math.round(+v*LB*10)/10):v}
 function setFld(i,k,fld,v){v=v.replace(",",".");const e=A().ex[i];if(fld==="w"&&isLb(e.name)&&v!==""&&!isNaN(+v))v=String(Math.round(+v/LB*100)/100);e.sets[k][fld]=v;updLive()}
+const POS_FR={forward:"avant",upright:"droit",back:"arrière","bottom half":"bas","top half":"haut","full range":"complet"};
+const posSel=n=>{const all=posLabels(n);const s=(S.core.posSel||{})[n];return s&&s.length>=2?all.filter(x=>s.includes(x)):all};
+const posLab=l=>LANG()==="fr"&&POS_FR[l]?POS_FR[l]:l;
+function posInputs(i,k,e,s){const L=posSel(e.name);const v=String(s.r??"").split("+");const ph=String(phFor(e,k,"r")||"").split("+");
+ return`<div class="posbox">${L.map((l,j)=>`<input type="text" inputmode="numeric" value="${esc(v[j]||"")}" placeholder="${esc(ph[j]||"10")}" aria-label="${esc(l)}" title="${esc(posLab(l))}" oninput="posSet(${i},${k},${j},this.value)" onchange="liveSave()">`).join("")}</div>`}
+function posSet(i,k,j,v){const e=A().ex[i];const n=posSel(e.name).length;const p=String(e.sets[k].r??"").split("+");while(p.length<n)p.push("");p.length=n;p[j]=String(v).replace(/[^0-9.,]/g,"");e.sets[k].r=p.every(x=>x==="")?"":p.map(x=>x||"0").join("+");updLive()}
+function posTog(n,l){const all=posLabels(n);let s=posSel(n).slice();if(s.includes(l)){if(s.length<=2){toast(LL("Keep at least 2 positions.","Garde au moins 2 positions."));return}s=s.filter(x=>x!==l)}else s.push(l);const old=posSel(n);const nw=all.filter(x=>s.includes(x));if(A())A().ex.filter(e=>e.name===n).forEach(e=>e.sets.forEach(st=>{if(kindOf(st)!=="PO"||st.r==null||st.r==="")return;const p=String(st.r).split("+");const m={};old.forEach((x,j)=>m[x]=p[j]);st.r=nw.map(x=>m[x]||"0").join("+")}));S.core.posSel=Object.assign({},S.core.posSel,{[n]:nw});save("core");if(A())liveSave();render()}
 function liveFields(name){const md=exMode(name);return md==="c"?[["min","MIN"],["speed","KM/H"]]:md==="t"?[["sec","SEC"]]:md==="r"?[["r","REPS"]]:[["w",(isAssisted(name)?"ASSIST ":"")+(isLb(name)?"LB":"KG")+(perSide(name)?" (1 SIDE)":"")],["r","REPS"]]}
 function liveDef(e){const dy=window._phDay||(A()&&A().day);const d=dy&&S.core.workout[dy];const d0=(d&&d.ex.find(x=>x.name===e.name))||{name:e.name,reps:e.reps,sets:e.sets.filter(x=>x.t!=="W").length||3};return e.prog?Object.assign({},d0,{prog:e.prog}):d0}
 const setCls=x=>{const k=kindOf(x);return k==="W"||k==="FE"?"W":isSideSet(x)?x.t:"N"};
@@ -3153,9 +3161,9 @@ function vLive(){const a=A();if(!a){trainView="plan";return vTrain()}const st=li
    ${e.sets.map((s,k)=>{const ty=SET_TYPES.find(t=>t[0]===s.t);let n=0;if(isSideSet(s)){for(let j=0;j<=k;j++)if(e.sets[j].t===s.t)n++}else for(let j=0;j<=k;j++){const x=e.sets[j];if(setCls(x)==="W"||isSideSet(x))continue;n++}const p=prevSet(e.name,k);
     return`<div class="setgrid sgp ${s.done?"done":""}" style="grid-template-columns:${g}"><button class="setlab" style="${ty?`color:${ty[2]}`:""}" onclick="setTypeSheet(${i},${k})" aria-label="Set type">${isSideSet(s)?n+s.t+(s.sub?`<small style="font-size:.62rem">·${s.sub}</small>`:""):ty?ty[0]:n}</button>
     <span class="muted" style="font-size:.8rem">${p?esc(fmtSet(e.name,p)):"—"}</span>
-    ${f.map(([fld])=>`<input type="text" inputmode="${fld==="r"&&["M","P","PO"].includes(kindOf(s))?"text":"decimal"}" value="${esc(dispFld(e,s,fld))}" placeholder="${esc(fld==="r"&&kindOf(s)==="PO"?posPH(e.name):fld==="r"&&kindOf(s)==="M"?"15+4+4":fld==="r"&&kindOf(s)==="P"?"10+5":fld==="w"&&isLb(e.name)&&+phFor(e,k,fld)?String(Math.round(+phFor(e,k,fld)*LB)):phFor(e,k,fld))}" oninput="setFld(${i},${k},'${fld}',this.value)" onchange="liveSave()" aria-label="${fld}">`).join("")}
+    ${f.map(([fld])=>fld==="r"&&kindOf(s)==="PO"?posInputs(i,k,e,s):`<input type="text" inputmode="${fld==="r"&&["M","P","PO"].includes(kindOf(s))?"text":"decimal"}" value="${esc(dispFld(e,s,fld))}" placeholder="${esc(fld==="r"&&kindOf(s)==="PO"?posPH(e.name):fld==="r"&&kindOf(s)==="M"?"15+4+4":fld==="r"&&kindOf(s)==="P"?"10+5":fld==="w"&&isLb(e.name)&&+phFor(e,k,fld)?String(Math.round(+phFor(e,k,fld)*LB)):phFor(e,k,fld))}" oninput="setFld(${i},${k},'${fld}',this.value)" onchange="liveSave()" aria-label="${fld}">`).join("")}
     <button class="chk ${s.done?"on":""}" aria-label="Set done" onclick="toggleSetDone(${i},${k})">✓</button></div>`}).join("")}
-   ${e.sets.some(s=>s.t==="PO")?`<p class="muted" style="font-size:.8rem;margin:.4rem 0 0"><b style="color:#0E9AA7">PO</b> Positions: ${esc(posLabels(e.name).join(" + "))}, typed like ${posPH(e.name)}</p>`:""}<button class="ghost" style="width:100%;margin-top:.6rem" onclick="addLiveSet(${i})">+ Add set</button>`}
+   ${e.sets.some(s=>s.t==="PO")?`<div class="row" style="gap:.35rem;align-items:center;margin:.5rem 0 0;justify-content:center"><b style="color:#0E9AA7;font-size:.85rem">PO</b>${posLabels(e.name).map(l=>`<button class="chip ${posSel(e.name).includes(l)?"on":""}" style="font-size:.78rem;padding:.2rem .6rem" onclick="posTog(${esc(JSON.stringify(e.name))},'${l}')">${esc(posLab(l))}</button>`).join("")}</div>`:""}<button class="ghost" style="width:100%;margin-top:.6rem" onclick="addLiveSet(${i})">+ Add set</button>`}
   h+=`</div>`});
  h+=strRowHTML("post",a.day,true);
  h+=swBoxHTML();
@@ -4227,7 +4235,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.69f beta";
+const APP_VERSION="0.69g beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.69g beta · 2026-10-23
+- Positions (PO) sets: one small box per position instead of typing 10+10+10. Choose which positions you do (2 or 3: forward / upright / back) with the chips under the sets; already-typed reps follow their position.
+
 ## 0.69f beta · 2026-10-23
 - Dumbbells: you log the weight of one dumbbell. Two-handed dumbbell exercises count × 2 in volume (now also in the live counter, which used to count × 1). For one-sided moves like Bulgarian split squats, choose 1 or 2 dumbbells (🏋️ on the exercise page or in its ••• menu). Weight and 1RM records stay per dumbbell.
 
