@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.69i beta · 2026-10-23
+- Renamed to Abdominal Crunch Machine and MTS Abdominal Crunch Machine (search 'hammer strength' still finds them). Anything already logged under the old names moves over automatically.
+
 ## 0.69h beta · 2026-10-23
 - Library: Hammer Strength Abdominal Crunch and Hammer Strength MTS Abdominal Crunch (machine, abs + obliques), with How to steps in English and French.
 
