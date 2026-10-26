@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.70 beta · 2026-10-23
+- 📲 next to Steps in Today runs the 'B&K Steps' shortcut (reads today's steps from Health and copies them). When you come back, a card offers Paste (or type the number). Setup steps in Settings › How Body & Kitchen works › iPhone shortcuts: B&K Steps.
+
 ## 0.69k beta · 2026-10-23
 - Workout summary cards: bigger emoji, numbers and body map, centred in the card so there's no empty space underneath.
 
