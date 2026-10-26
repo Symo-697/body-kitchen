@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.70c beta · 2026-10-23
+Left vs right: tap a session to open that workout (◀ comes back); sessions with a likely typo (one side 2.5× heavier) are flagged ⚠ and not counted.
+
 ## 0.70b beta · 2026-10-23
 Left vs right: average of the last 4 sessions, warm-ups/drop sets excluded, a side with no weight uses the other side's; tap a row to see each session.
 
