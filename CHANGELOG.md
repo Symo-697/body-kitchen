@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.70b beta · 2026-10-23
+Left vs right: average of the last 4 sessions, warm-ups/drop sets excluded, a side with no weight uses the other side's; tap a row to see each session.
+
 ## 0.70a beta · 2026-10-23
 Steps: if the Paste button can't read the clipboard, the box gets focus — long-press › Paste saves instantly; accepts 8 432 / 8,432.
 
