@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.69f beta · 2026-10-23
+- Dumbbells: you log the weight of one dumbbell. Two-handed dumbbell exercises count × 2 in volume (now also in the live counter, which used to count × 1). For one-sided moves like Bulgarian split squats, choose 1 or 2 dumbbells (🏋️ on the exercise page or in its ••• menu). Weight and 1RM records stay per dumbbell.
+
 ## 0.69e beta · 2026-10-23
 - Machine weight now first asks what you write in KG: the total (machine included, nothing is added) or only the plates (then enter the empty machine's weight).
 
