@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.70a beta · 2026-10-23
+Steps: if the Paste button can't read the clipboard, the box gets focus — long-press › Paste saves instantly; accepts 8 432 / 8,432.
+
 ## 0.70 beta · 2026-10-23
 - 📲 next to Steps in Today runs the 'B&K Steps' shortcut (reads today's steps from Health and copies them). When you come back, a card offers Paste (or type the number). Setup steps in Settings › How Body & Kitchen works › iPhone shortcuts: B&K Steps.
 

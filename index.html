@@ -3238,11 +3238,16 @@ function runShortcut(name,text){const base=`shortcuts://run-shortcut?name=${enco
 /* steps from iPhone Health via the "B&K Steps" shortcut */
 let _stepsWait=0;
 function stepsSync(){_stepsWait=Date.now();try{localStorage.setItem("bk_stepsWait",String(_stepsWait))}catch(e){}runShortcut("B&K Steps","today")}
-function stepsPasteSheet(){stDlg(`<div style="text-align:center"><div style="font-size:2.6rem">👟</div><h3 style="margin:.2rem 0">${LL("Today's steps","Pas du jour")}</h3><p class="muted" style="margin:0 0 .8rem;font-size:.85rem">${LL("Tap Paste to add the number the shortcut copied.","Touche Coller pour ajouter le nombre copié par le raccourci.")}</p>
+function stepsPasteSheet(){stDlg(`<div style="text-align:center"><div style="font-size:2.6rem">👟</div><h3 style="margin:.2rem 0">${LL("Today's steps","Pas du jour")}</h3><p class="muted" style="margin:0 0 .8rem;font-size:.85rem"><span id="stepshint">${LL("Tap Paste to add the number the shortcut copied.","Touche Coller pour ajouter le nombre copié par le raccourci.")}</span></p>
  <button style="width:100%;border-radius:999px" onclick="stepsPaste()">📋 ${LL("Paste","Coller")}</button>
- <div class="oneline" style="margin-top:.7rem"><input id="stepsman" type="number" inputmode="numeric" placeholder="${LL("or type it","ou tape-le")}" style="flex:1;text-align:center"><button class="addb" onclick="stepsSet(document.getElementById('stepsman').value)">✓</button></div>
+ <div class="oneline" style="margin-top:.7rem"><input id="stepsman" type="text" inputmode="numeric" autocomplete="off" placeholder="${LL("or type it","ou tape-le")}" style="flex:1;text-align:center" onpaste="stepsOnPaste(event)"><button class="addb" onclick="stepsSet(stepsNum(document.getElementById('stepsman').value))">✓</button></div>
  <button class="x" style="width:100%;margin-top:.5rem" onclick="closeStDlg()">${LL("Cancel","Annuler")}</button></div>`)}
-async function stepsPaste(){try{const t=await navigator.clipboard.readText();const n=parseInt(String(t).replace(/[^\d]/g,""),10);if(!n&&n!==0)throw 0;stepsSet(n)}catch(e){toast(LL("Couldn't read the copied number: type it instead.","Impossible de lire le nombre copié : tape-le."));const el=document.getElementById("stepsman");if(el)el.focus()}}
+function stepsNum(t){const d=String(t||"").split(/[.,](?=\d{1,2}(?!\d))/)[0].replace(/[^\d]/g,"");return d?parseInt(d,10):NaN}
+async function stepsPaste(){let t="";try{if(navigator.clipboard&&navigator.clipboard.read){const it=await navigator.clipboard.read();for(const i of it){const ty=i.types.find(x=>x.startsWith("text/"));if(ty){t=await (await i.getType(ty)).text();break}}}}catch(e){}
+ if(!t){try{t=await navigator.clipboard.readText()}catch(e){}}
+ const n=stepsNum(t);if(n>=0){stepsSet(n);return}
+ const h=document.getElementById("stepshint");if(h)h.innerHTML=`<b>${LL("Long-press the box below › Paste","Appui long sur la case › Coller")}</b>`;const el=document.getElementById("stepsman");if(el)el.focus()}
+function stepsOnPaste(ev){const t=(ev.clipboardData||window.clipboardData).getData("text");const n=stepsNum(t);if(n>=0){ev.preventDefault();stepsSet(n)}}
 function stepsSet(v){const n=Math.round(+v);if(!(n>=0)||n>200000){toast(LL("Enter a number of steps.","Entre un nombre de pas."));return}const d=today();const L=dayLog(d);L.steps=n;save(monthKey(d));closeStDlg();_stepsWait=0;try{localStorage.removeItem("bk_stepsWait")}catch(e){}render();flash(`👟 ${n.toLocaleString(LOC())} ${LL("steps","pas")}`)}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState!=="visible")return;let w=_stepsWait;try{w=w||+localStorage.getItem("bk_stepsWait")||0}catch(e){}if(w&&Date.now()-w<5*60000)setTimeout(stepsPasteSheet,300)});
 let _tmrCal=null;
