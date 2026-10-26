@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.69j beta · 2026-10-23
+- One Abdominal Crunch Machine instead of 7 near-identical entries (Machine Crunch, Machine Ab Crunch, Lever Seated Crunch ×3, Crunches on Machine, Lever Ab Crunch). Those names still find it in search, it gets the 🎬 Demo, and anything logged under them moves over. MTS Abdominal Crunch Machine, kneeling and oblique machine crunches stay separate.
+
 ## 0.69i beta · 2026-10-23
 - Renamed to Abdominal Crunch Machine and MTS Abdominal Crunch Machine (search 'hammer strength' still finds them). Anything already logged under the old names moves over automatically.
 
