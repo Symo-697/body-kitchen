@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.72a beta · 2026-10-23
+Library › exercise page: ⚖️ Steps button opens the weight steps.
+
 ## 0.72 beta · 2026-10-23
 Weight steps per exercise (plates, pin stack with add-ons, dumbbells 2 kg); progression jumps to the next weight that really exists.
 
