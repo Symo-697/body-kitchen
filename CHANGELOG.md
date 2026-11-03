@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.71 beta · 2026-10-23
+New progression method: Rep range, set by set (to failure, 3 min rest; over the range → +1 step next set, in range → same, under → back to previous weight; next time start at your heaviest weight and beat the reps).
+
 ## 0.70d beta · 2026-10-23
 Calendar › Edit: one row per set (number or L/R tag, kg, reps) with column headers; Cancel/Save at the top.
 
