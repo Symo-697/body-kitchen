@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.72b beta · 2026-10-23
+Edit workout: hold ≡ and drag an exercise up or down.
+
 ## 0.72a beta · 2026-10-23
 Library › exercise page: ⚖️ Steps button opens the weight steps.
 
