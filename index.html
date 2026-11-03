@@ -116,7 +116,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--plum)}
 .ndot{width:6px;height:6px;border-radius:50%;display:inline-block}
 .wkmark{font-size:.75rem;color:var(--sage);font-weight:700}
 .dd{display:inline-block;min-width:1.6rem;padding:.05rem .35rem;border-radius:999px;color:#fff;font-weight:700;font-size:.8rem;text-align:center}
-.livehead{display:flex;align-items:center;gap:.5rem;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:4;padding:.4rem 0 .6rem}
+.livehead{display:flex;align-items:center;gap:.5rem;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:4;padding:.4rem 0 .85rem}
 .iconbtn{background:transparent;color:var(--ink);font-size:1.25rem;padding:.3rem .55rem;border-radius:10px}
 .iconbtn.light{color:#fff;font-size:.95rem;font-weight:700}
 .linkbtn{all:unset;cursor:pointer;color:var(--plum);font-weight:600;display:block;margin:.55rem 0 .4rem}
@@ -168,7 +168,7 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .hcday small{font-size:.6rem;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:.15rem;padding:0 2px}
 .hsrow{display:grid;grid-template-columns:2.2rem 1fr auto;gap:.6rem;align-items:center;padding:.45rem .3rem;font-size:.92rem}.hsrow:nth-child(even){background:color-mix(in srgb,var(--line) 45%,transparent);border-radius:8px}
 
-.livebar{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--line);border-radius:2px;overflow:hidden}.livebar i{display:block;height:100%;background:var(--plum);transition:width .3s}
+.livebar{position:absolute;left:0;right:0;bottom:0;margin:0!important;height:4px;background:var(--line);border-radius:2px;overflow:hidden}.livebar i{display:block;height:100%;background:var(--plum);transition:width .3s}
 .finok{background:#3FB950!important;border-color:#3FB950!important;color:#fff!important}
 .finbox{width:100%;margin-top:.5rem;border-radius:14px!important}
 .finphoto{display:block;margin-top:.6rem;border:2px dashed var(--line);border-radius:14px;padding:1.4rem;text-align:center;cursor:pointer;font-weight:600}
@@ -3800,7 +3800,9 @@ function musSym(g){const sex=S.core.profile&&S.core.profile.sex==="f"?"f":"m";co
  const t=document.createElementNS("http://www.w3.org/2000/svg","svg");t.innerHTML=`<symbol id="${id}" viewBox="${vb}">${inner}</symbol>`;sp.appendChild(t.firstChild);return id}
 const GRP_ICON={mobility:`<svg viewBox="0 0 64 64" width="62%" height="62%" fill="none" stroke="#2B2630" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><circle cx="38" cy="15" r="6"/><path d="M14 56 31 37l9 3 4 16M31 37l3-10c2-6 8-9 14-9M34 27c-6-1-11 3-13 9"/></svg>`,
  cardio:`<svg viewBox="0 0 64 64" width="70%" height="70%" fill="none" stroke="#2B2630" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 48 44 36l12 4-38 13z" fill="#C9D3E6"/><path d="M18 53 56 40"/><path d="M44 36 47 14M50 37l3-23"/><path d="M40 14h17l2 4H42z" fill="#8FB3E0"/><path d="M38 21h8M50 21h8"/></svg>`};
-function musTile(g,cls){if(!MUS_CROP[g])return`<div class="mt ${cls||""}">${GRP_ICON[g]||`<span>${MUS_EMO[g]||"•"}</span>`}</div>`;let id="";try{id=musSym(g)}catch(e){}return`<div class="mt ${cls||""}"><svg viewBox="0 0 640 880" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block" aria-hidden="true"><use href="#${id}" width="640" height="880"/></svg></div>`}
+const _musURL={};function musURL(g){const sex=S.core.profile&&S.core.profile.sex==="f"?"f":"m";const k=sex+g;if(_musURL[k])return _musURL[k];if(window._musImgBad)return"";try{const u=URL.createObjectURL(new Blob([musSVG(g)],{type:"image/svg+xml"}));_musURL[k]=u;return u}catch(e){return""}}
+function musUseHTML(g){let id="";try{id=musSym(g)}catch(e){}return`<svg viewBox="0 0 640 880" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block" aria-hidden="true"><use href="#${id}" width="640" height="880"/></svg>`}
+function musTile(g,cls){if(!MUS_CROP[g])return`<div class="mt ${cls||""}">${GRP_ICON[g]||`<span>${MUS_EMO[g]||"•"}</span>`}</div>`;const u=musURL(g);if(u)return`<div class="mt ${cls||""}"><img src="${u}" alt="" decoding="async" style="width:100%;height:100%;object-fit:contain;display:block" onerror="window._musImgBad=1;this.outerHTML=musUseHTML('${g}')"></div>`;let id="";try{id=musSym(g)}catch(e){}return`<div class="mt ${cls||""}"><svg viewBox="0 0 640 880" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block" aria-hidden="true"><use href="#${id}" width="640" height="880"/></svg></div>`}
 const exThumb=n=>musTile(exGroup(n),"mtsq");
 const EQI=(()=>{const K="#2B2630",F="#fff",G="#E6E4EA";const P=d=>`<svg viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="${K}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
  const plate=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${F}"/>`;

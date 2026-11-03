@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.72e beta · 2026-10-23
+Muscle thumbnails are drawn as sharp images (no more pixels); the workout progress line no longer crosses the Finish button.
+
 ## 0.72d beta · 2026-10-23
 Alternatives: your own exercises that work the same muscles come first (e.g. Lat pulldown ↔ Assisted Chin-Up, Seated cable row ↔ One-arm dumbbell row).
 
