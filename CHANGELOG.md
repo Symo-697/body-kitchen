@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.73a beta · 2026-10-23
+Warm-up sets now suggest weight and reps from your working weight (about 50 % × 8 then 75 % × 5, or 60 % × 6 for a single warm-up).
+
 ## 0.73 beta · 2026-10-23
 ↑ Back-to-top arrow on every tab and long sheet; importing workouts renames older ones with the same name and can set your week.
 

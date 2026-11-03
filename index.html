@@ -3195,7 +3195,12 @@ function rangeNext(e,k){const s=e.sets[k];if(!s||setCls(s)==="W"||kindOf(s)==="D
  const p=e.sets[j],w=+p.w,r=repsMain(p);const [lo,hi]=repRange(liveDef(e).reps);const inc=incFor(e.name,w);
  if(r>hi){const up=wUp(e.name,w);return{w:up,why:"up",r,lo,hi,inc:r2(up-w)}}if(r>=lo)return{w,why:"same",r,lo,hi};
  for(let q=j-1;q>=0;q--){const x=e.sets[q];if(same(x)&&repsMain(x)>=lo&&+x.w<w)return{w:+x.w,why:"down",r,lo,hi}}return{w:wDown(e.name,w),why:"down",r,lo,hi}}
-function phFor(e,k,fld){const s=e.sets[k];if(!s)return"";if(fld==="w"){const rn=rangeNext(e,k);if(rn)return rn.w}if(e.plan&&e.plan[k]&&e.plan[k][fld]!=null&&e.plan[k][fld]!=="")return e.plan[k][fld];
+function warmPh(e,k,fld){const s=e.sets[k];if(!s||setCls(s)!=="W"||exMode(e.name)!=="w"||isAssisted(e.name))return null;if(e.plan&&e.plan[k]&&e.plan[k][fld]!=null&&e.plan[k][fld]!=="")return null;
+ const ws=e.sets.map((x,j)=>setCls(x)==="W"?j:-1).filter(j=>j>=0);const n=ws.length,i=ws.indexOf(k);if(i<0)return null;
+ if(fld==="r")return n===1?6:[8,5,3][Math.min(i,2)];
+ let top=0;try{const t=nextTarget(liveDef(e),window._phDay||(A()&&A().day));top=+(t.perSet&&t.perSet[0]&&t.perSet[0].w)||+t.w||0}catch(_){}if(!top){const p=prevSet(e.name,0);top=p?+p.w||0:0}if(!top)return null;
+ const pct=n===1?.6:n===2?[.5,.75][i]:[.4,.6,.8][Math.min(i,2)];let v=top*pct;try{v=wSnap(e.name,v)}catch(_){v=Math.round(v/2.5)*2.5}return v>=top?null:v}
+function phFor(e,k,fld){const s=e.sets[k];if(!s)return"";{const wp=warmPh(e,k,fld);if(wp!=null)return wp}if(fld==="w"){const rn=rangeNext(e,k);if(rn)return rn.w}if(e.plan&&e.plan[k]&&e.plan[k][fld]!=null&&e.plan[k][fld]!=="")return e.plan[k][fld];
  if(fld==="w"&&(kindOf(s)==="D"||kindOf(s)==="B")){let ref=0;if(kindOf(s)==="D"){for(let j=k-1;j>=0;j--){const x=e.sets[j];const v=parseFloat(x.w)||parseFloat(phFor(e,j,"w"))||0;if(v){ref=v;break}}if(ref)return r25(ref*.85)}
   else{const tops=e.sets.slice(0,k).filter(x=>{const q=kindOf(x);return q==="T"||!q||q==="F"});tops.forEach((x,j)=>{const v=parseFloat(x.w)||0;if(v>ref)ref=v});if(!ref)e.sets.slice(0,k).forEach((x,j)=>{const v=parseFloat(phFor(e,e.sets.indexOf(x),"w"))||0;if(v>ref&&kindOf(x)!=="W"&&kindOf(x)!=="FE")ref=v});if(ref)return r25(ref*.9)}}
  if(fld==="r"&&kindOf(s)==="D"){for(let j=k-1;j>=0;j--){const x=e.sets[j];if(kindOf(x)==="D")continue;const v=x.r!=null&&x.r!==""?x.r:phFor(e,j,"r");if(v!==""&&v!=null)return v;break}}const t=nextTarget(liveDef(e),window._phDay||(A()&&A().day));const isW=setCls(s)==="W";
