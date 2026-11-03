@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.72h beta · 2026-10-23
+Photos: Show/Hide button is always there.
+
 ## 0.72g beta · 2026-10-23
 Progress photos: latest session only in Me (small strip), All photos by date, ⇆ Compare two dates side by side, add several at once.
 
