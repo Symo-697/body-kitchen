@@ -3997,7 +3997,15 @@ function workoutMenu(k){const w=S.core.workout[k];if(!w)return;const inW=schedul
  ${sheetBtn("📈","Progression method",`progSheet('wk','${k}')`)}${inW?"":sheetBtn("📅","Add to week",`closeSheet();addSheet('${k}')`)}${sheetBtn("🗑","Delete workout",`deleteWorkout('${k}')`,true)}`)}
 async function deleteWorkout(k){const w=S.core.workout[k];if(!w||!await ask(`Delete workout ${k} “${w.title}”? Its days become rest days.`))return;
  delete S.core.workout[k];const strip=a=>a&&a.map(x=>x===k?"rest":x);if(S.core.schedule)S.core.schedule=strip(S.core.schedule);Object.keys(S.core.weekSched||{}).forEach(m=>S.core.weekSched[m]=strip(S.core.weekSched[m]));
- if(!S.core.schedule&&baseSchedule().includes(k))S.core.schedule=strip(baseSchedule());if(gymDay===k)gymDay=null;closeSheet();save("core");render();toast(`Workout ${k} deleted.`)}
+ if(!S.core.schedule&&baseSchedule().includes(k))S.core.schedule=strip(baseSchedule());(S.core.sessions||[]).forEach(x=>{if(x.day===k){if(!x.title)x.title=w.title;x.day="FREE"}});if(gymDay===k)gymDay=null;relabelWorkouts();closeSheet();save("core");render();toast(`Workout “${w.title}” deleted.`)}
+function relabelWorkouts(){const W=S.core.workout||{};const old=Object.keys(W).filter(k=>/^[A-Z]$/.test(k));const AB="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");const map={};old.forEach((k,i)=>map[k]=AB[i]);
+ (S.core.sessions||[]).forEach(x=>{if(!x.day||x.day==="FREE"||x.day==="CARDIO")return;if(map[x.day]){if(!x.title&&W[x.day])x.title=W[x.day].title}else if(/^[A-Z]$/.test(x.day)){x.day="FREE"}});
+ if(old.every(k=>map[k]===k))return false;
+ const nw={};Object.keys(W).forEach(k=>{if(!map[k])nw[k]=W[k]});old.forEach(k=>nw[map[k]]=W[k]);S.core.workout=nw;
+ const rm=a=>Array.isArray(a)?a.map(x=>map[x]||x):a;S.core.schedule=rm(S.core.schedule);Object.keys(S.core.weekSched||{}).forEach(m=>S.core.weekSched[m]=rm(S.core.weekSched[m]));
+ (S.core.sessions||[]).forEach(x=>{if(map[x.day])x.day=map[x.day]});
+ if(S.core.active&&map[S.core.active.day])S.core.active.day=map[S.core.active.day];
+ if(typeof gymDay!=="undefined"&&map[gymDay])gymDay=map[gymDay];return true}
 function nextLetter(){const used=Object.keys(S.core.workout);return"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").find(x=>!used.includes(x))}
 function dupWorkout(k){const L=nextLetter();if(!L)return;S.core.workout[L]=JSON.parse(JSON.stringify(S.core.workout[k]));S.core.workout[L].title+=" (copy)";gymDay=L;save("core");render();toast(`Copied as workout ${L}.`)}
 
@@ -4485,7 +4493,7 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden&&window._ph
  b.onclick=()=>{const sh=sheetEl();if(sh){sh.scrollTo({top:0,behavior:"smooth"});const m=document.getElementById("sheetmodal");const o=m&&m.querySelector(".sheet");if(o&&o!==sh)o.scrollTo({top:0,behavior:"smooth"})}else window.scrollTo({top:0,behavior:"smooth"});setTimeout(upd,600)};
  window.addEventListener("scroll",upd,{passive:true});document.addEventListener("scroll",e=>{const t=e.target;if(t&&t.nodeType===1){if(t.scrollHeight>t.clientHeight+50)last=t;upd()}},{passive:true,capture:true});
  new MutationObserver(()=>requestAnimationFrame(upd)).observe(document.body,{childList:true,subtree:false,attributes:true,attributeFilter:["class"]});setInterval(upd,1500)})();
-let autoSetup=false;localLoad();seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();setTimeout(()=>maybeCheckin(),900);
+let autoSetup=false;localLoad();try{if(S.core&&S.core.workout&&S.core._relab!==1){relabelWorkouts();S.core._relab=1;save("core")}}catch(_){}seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();setTimeout(()=>maybeCheckin(),900);
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
 </script>
 

@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.73b beta · 2026-10-23
+Workout letters are re-lettered in list order (no gaps) after a delete; history keeps the right names.
+
 ## 0.73a beta · 2026-10-23
 Warm-up sets now suggest weight and reps from your working weight (about 50 % × 8 then 75 % × 5, or 60 % × 6 for a single warm-up).
 
