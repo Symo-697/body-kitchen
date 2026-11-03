@@ -931,7 +931,7 @@ let _trOn=false;function render(){if(S.core&&(S.core._migHS||0)<2){migHS();S.cor
 let setupOn=false,setupStep=0,SD=null;
 const SO={
  goal:[["gain","Gain weight (healthy weight gain)"],["fat","Lose fat"],["muscle","Build muscle"],["recomp","Lose fat and build muscle"],["maintain","Maintain my shape"],["strength","Get stronger"],["fitness","General fitness"]],
- areas:[["glutes","Glutes"],["legs","Legs"],["shoulders_arms","Shoulders & arms"],["back","Back"],["core","Core"],["balanced","Balanced, whole body"]],
+ areas:[["glutes","Glutes"],["quads","Quads"],["hamstrings","Hamstrings"],["legs","Legs (all)"],["mid_back","Middle back (back line, posture)"],["lats","Back width (lats)"],["back","Back (all)"],["shoulders","Shoulders"],["triceps","Triceps (toned arms)"],["arms","Arms (biceps & triceps)"],["shoulders_arms","Shoulders & arms"],["chest","Chest"],["core","Core"],["balanced","Balanced, whole body"]],
  pace:[["gentle","Gentle (easier to stick to)"],["standard","Standard"]],
  exp:[["new","New to lifting"],["lt6","Under 6 months"],["mid","6 months – 2 years"],["adv","2+ years"]],
  days:[[3,"3"],[4,"4"],[5,"5"],[6,"6"]],len:[[30,"30 min"],[45,"45 min"],[60,"60 min"],[90,"90 min"]],
@@ -2952,8 +2952,17 @@ const DAY_T={
  P_shoulders_arms:["Shoulders & arms",[["VPUSH",3,"8-12",1],["LAT",3,"12-20",1],["REAR",3,"12-20"],["BIS",3,"10-12"],["TRI",3,"10-12"],["LAT",2,"15-20"],["BIS",2,"12-15"]]],
  P_back:["Back focus",[["VPULL",3,"8-12",1],["HPULL",3,"8-12",1],["HPULL",2,"10-12"],["REAR",3,"12-20"],["BEXT",2,"12-15"],["BIS",2,"10-12"]]],
  P_core:["Core & conditioning",[["CORE",3,"",1],["CORE",3,""],["CORE",3,""],["GISO",2,"15-20"],["CARDIO",1,""]]],
+ P_mid_back:["Mid-back & posture",[["HPULL",3,"8-12",1],["REAR",3,"12-20",1],["HPULL",2,"10-12"],["BEXT",3,"10-12"],["VPULL",2,"10-12"],["CORE",2,""]]],
+ P_lats:["Back width",[["VPULL",3,"8-12",1],["VPULL",3,"10-12",1],["HPULL",3,"10-12"],["REAR",2,"12-20"],["BIS",2,"10-12"],["CORE",2,""]]],
+ P_shoulders:["Shoulders focus",[["VPUSH",3,"8-12",1],["LAT",3,"12-20",1],["REAR",3,"12-20"],["LAT",2,"15-20"],["TRI",2,"10-12"],["CORE",2,""]]],
+ P_arms:["Arms focus",[["TRI",3,"10-12",1],["BIS",3,"10-12",1],["TRI",3,"12-15"],["BIS",2,"12-15"],["LAT",2,"12-20"],["CORE",2,""]]],
+ P_triceps:["Triceps & arms",[["TRI",3,"10-12",1],["HPUSH",3,"8-12",1],["TRI",3,"12-15"],["TRI",2,"15-20"],["BIS",2,"10-12"],["LAT",2,"12-20"]]],
+ P_chest:["Chest focus",[["HPUSH",3,"6-10",1],["HPUSH",3,"10-12",1],["HPULL",3,"10-12"],["TRI",2,"10-12"],["LAT",2,"12-20"],["CORE",2,""]]],
+ P_quads:["Quads focus",[["SQUAT",3,"6-10",1],["LUNGE",3,"10-12",1],["QUAD",3,"12-15"],["SQUAT",2,"10-12"],["CALF",3,"10-15"],["CORE",2,""]]],
+ P_hamstrings:["Hamstrings focus",[["HINGE",3,"8-10",1],["HAM",3,"10-12",1],["BRIDGE",3,"10-12"],["HAM",2,"12-15"],["BEXT",2,"12-15"],["CORE",2,""]]],
  P_balanced:["Full body",[["SQUAT",3,"8-12",1],["HPULL",3,"8-12",1],["HPUSH",3,"8-12"],["BRIDGE",3,"10-12"],["LAT",2,"12-20"],["CORE",2,""]]]};
-const AREA_SLOTS={glutes:["BRIDGE","GISO","HINGE","LUNGE","BEXT"],legs:["SQUAT","LUNGE","HAM","QUAD","CALF","HINGE"],shoulders_arms:["VPUSH","LAT","REAR","BIS","TRI"],back:["VPULL","HPULL","REAR","BEXT"],core:["CORE"],balanced:[]};
+const AREA_SLOTS={mid_back:["HPULL","REAR","BEXT"],lats:["VPULL"],shoulders:["VPUSH","LAT","REAR"],arms:["BIS","TRI"],triceps:["TRI"],chest:["HPUSH"],quads:["SQUAT","QUAD","LUNGE"],hamstrings:["HAM","HINGE"],glutes:["BRIDGE","GISO","HINGE","LUNGE","BEXT"],legs:["SQUAT","LUNGE","HAM","QUAD","CALF","HINGE"],shoulders_arms:["VPUSH","LAT","REAR","BIS","TRI"],back:["VPULL","HPULL","REAR","BEXT"],core:["CORE"],balanced:[]};
+try{Object.assign(FRPACK.d,{"Quads":"Quadriceps","Hamstrings":"Ischios","Legs (all)":"Jambes (tout)","Middle back (back line, posture)":"Milieu du dos (ligne du dos, posture)","Back width (lats)":"Largeur du dos (dorsaux)","Back (all)":"Dos (tout)","Shoulders":"Épaules","Triceps (toned arms)":"Triceps (bras toniques)","Arms (biceps & triceps)":"Bras (biceps & triceps)","Chest":"Pectoraux","Mid-back & posture":"Milieu du dos & posture","Back width":"Largeur du dos","Shoulders focus":"Focus épaules","Arms focus":"Focus bras","Triceps & arms":"Triceps & bras","Chest focus":"Focus pectoraux","Quads focus":"Focus quadriceps","Hamstrings focus":"Focus ischios"})}catch(_){}
 let progSeed=0,progDraft=null;
 function progKey(){const a=(S.core.setup||{}).answers||{};return JSON.stringify([a.days,a.len,a.exp,a.where,a.equip,a.areas,a.injuryAreas,a.injuriesText,a.hateEx,a.cardio,a.cardioKinds,a.goal])}
 function genProgram(seed){const a=(S.core.setup||{}).answers;if(!a)return null;
@@ -2969,6 +2978,9 @@ function genProgram(seed){const a=(S.core.setup||{}).answers;if(!a)return null;
   let c=SLOTS_EX[slot].filter(([n,r])=>has(r)&&!hated.some(h=>norm(n).includes(norm(h))));
   if(a.exp==="new")c=c.slice().sort((x,y)=>(x[1]==="barbell")-(y[1]==="barbell"));
   c=c.slice().sort((x,y)=>hurts(x[0])-hurts(y[0]));
+  if(slot==="HPULL"&&pri.includes("mid_back")){const F=[["Chest-Supported Machine Row","gym"],["Wide-Grip Cable Row","gym"],["T-bar row","gym"]].filter(([n,r])=>has(r));c=[...F,...c.filter(x=>!F.some(y=>y[0]===x[0]))]}
+  if(slot==="TRI"&&(pri.includes("triceps")||pri.includes("arms"))){const o=["Overhead triceps extension","Triceps pushdown","Skull crusher"];c=c.slice().sort((x,y)=>((o.indexOf(x[0])+1)||9)-((o.indexOf(y[0])+1)||9))}
+  if(slot==="VPULL"&&pri.includes("lats")){const o=["Lat pulldown","Assisted pull-up","Pull-up","Close-grip lat pulldown"];c=c.slice().sort((x,y)=>((o.indexOf(x[0])+1)||9)-((o.indexOf(y[0])+1)||9))}
   const fresh=c.filter(([n])=>!used.has(n));const pool=(fresh.length?fresh:c).slice(0,Math.min(2,(fresh.length?fresh:c).length));
   if(!pool.length)return null;const ch=pool.length>1&&rand()<.35?pool[1][0]:pool[0][0];used.add(ch);return ch}
  const P=pri[0]||"balanced";
@@ -2979,11 +2991,13 @@ function genProgram(seed){const a=(S.core.setup||{}).answers;if(!a)return null;
   if(a.goal==="strength")rows.forEach(r=>{if(r.main){r.reps="4-6";r.sets=4}});
   if(a.exp==="new")rows.forEach(r=>{r.sets=r.main?3:2;if(r.main&&r.reps==="6-10")r.reps="8-12"});
   else rows.forEach(r=>{if(r.prio===2&&!r.main)r.sets=Math.min(4,r.sets+1)});
+  if(pri.includes("mid_back")&&!pri.includes("lats"))rows.forEach(r=>{if(r.slot==="VPULL"&&!r.main)r.sets=Math.min(r.sets,2)});
   if((a.goal==="fat"||a.goal==="fitness"||a.goal==="recomp")&&a.cardio!=="none"&&!rows.some(r=>r.slot==="CARDIO")&&(a.cardio==="lot"||a.len>=60)&&key.startsWith("L")===false)rows.push({slot:"CARDIO",sets:1,reps:"",prio:0,j:99});
   const keep=rows.slice().sort((x,y)=>(y.main-x.main)||(y.prio-x.prio)||(x.j-y.j)).slice(0,nEx+(rows.some(r=>r.slot==="CARDIO")?1:0));
   rows=rows.filter(r=>keep.includes(r));
   const ex=[];rows.forEach(r=>{const n=pick(r.slot);if(!n||ex.some(e=>e.name===n))return;const d=exDef(n)||{};const md=exMode(n);
-   ex.push({name:n,sets:md==="c"?1:r.sets,reps:md==="c"?(a.cardio==="lot"?"25-35":"15-20"):md==="w"?(r.reps||d.reps||DEF_REPS.w):(d.reps||DEF_REPS[md]),glute:musclesD(n)[0].some(k=>DMUS[k][1]==="glutes")})});
+   const fnote=r.slot==="HPULL"&&pri.includes("mid_back")?"Mid-back: wide grip, elbows out 70–90°, pull to your upper chest and squeeze your shoulder blades.":r.slot==="REAR"&&pri.includes("mid_back")?"Rear delts & upper back: elbows high, reach wide.":r.slot==="TRI"&&pri.includes("triceps")&&/overhead/i.test(n)?"Full stretch behind your head: works the long head (back of the arm).":r.slot==="VPULL"&&pri.includes("mid_back")&&!pri.includes("lats")?"Shoulder-width grip, elbows down toward your hips.":"";
+   ex.push({...(fnote?{note:fnote}:{}),name:n,sets:md==="c"?1:r.sets,reps:md==="c"?(a.cardio==="lot"?"25-35":"15-20"):md==="w"?(r.reps||d.reps||DEF_REPS.w):(d.reps||DEF_REPS[md]),glute:musclesD(n)[0].some(k=>DMUS[k][1]==="glutes")})});
   out[L]={title,ex}});
  return{workout:out,schedule:week}}
 function vPreview(){const a=(S.core.setup||{}).answers;if(!a)return`<div class="note">Do the setup first (Me › Setup).</div>`;

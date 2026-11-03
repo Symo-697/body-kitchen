@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.73c beta · 2026-10-23
+Setup › Areas to prioritise: middle back, back width, shoulders, triceps, arms, chest, quads, hamstrings; the generated program adapts (elbows-out rows, overhead triceps first, focus day).
+
 ## 0.73b beta · 2026-10-23
 Workout letters are re-lettered in list order (no gaps) after a delete; history keeps the right names.
 
