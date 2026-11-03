@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.73 beta · 2026-10-23
+↑ Back-to-top arrow on every tab and long sheet; importing workouts renames older ones with the same name and can set your week.
+
 ## 0.72h beta · 2026-10-23
 Photos: Show/Hide button is always there.
 

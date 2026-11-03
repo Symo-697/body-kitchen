@@ -262,6 +262,8 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .phf{margin:0;position:relative;overflow:hidden;border-radius:10px;background:var(--line);aspect-ratio:3/4;cursor:pointer}.phf img{width:100%;height:100%;object-fit:cover;display:block}
 .phdel{position:absolute;top:3px;right:3px;width:22px;height:22px;padding:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:.8rem;line-height:22px;border:0}
 .phhide img{filter:blur(28px) saturate(.4);transform:scale(1.15)}.phhide .phf{pointer-events:none}.phhide .phdel{display:none}
+#totop{position:fixed;left:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1.3rem;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:1000;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s;padding:0}
+#totop.on{opacity:.92;pointer-events:auto;transform:none}#totop.insheet{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
 </style>
 </head>
 <body>
@@ -4122,6 +4124,7 @@ async function importWorkoutsFile(inp){const file=inp.files[0];inp.value="";if(!
  if(j&&Array.isArray(j.addTo)){importAdditions(j);return}
  const list=Array.isArray(j)?j:j.workouts;if(!Array.isArray(list)||!list.length){toast("No workouts found in this file.");return}
  const added=[],unknown=new Set();const pal=["#8E44AD","#16A085","#D35400","#2C3E50","#C0392B","#27AE60"];
+ {const nt=new Set(list.map(w=>String(w.title||w.name||"").trim().toLowerCase()).filter(Boolean));const renamed=[];Object.values(S.core.workout||{}).forEach(w=>{if(w&&nt.has(String(w.title||"").trim().toLowerCase())){let t=w.title+" (old)",k=2;const all=()=>Object.values(S.core.workout).map(x=>String(x.title||"").toLowerCase());while(all().includes(t.toLowerCase()))t=w.title+` (old ${k++})`;renamed.push(w.title+" → "+t);w.title=t}});if(renamed.length)window._impRen=renamed}
  for(const w of list){const used=Object.keys(S.core.workout);const L="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").find(x=>!used.includes(x));if(!L){toast("No free letter left (A–Z): delete a workout first.");break}
   const groups={};const ex=(w.ex||w.exercises||[]).map(e=>{let r=resolveExName(e.name||e.exercise);if(!r)return null;
    if(!r.known)for(const a of (e.also||[])){const ra=resolveExName(a);if(ra&&ra.known){r=ra;break}}
@@ -4135,7 +4138,10 @@ async function importWorkoutsFile(inp){const file=inp.files[0];inp.value="";if(!
   Object.values(groups).forEach(g=>{if(ex.filter(x=>x.ss===g).length<2)ex.forEach(x=>{if(x.ss===g)delete x.ss})});
   const nw={title:String(w.title||w.name||"Imported workout").trim(),ex};if(["upper","lower","full","cardio"].includes(w.type))nw.type=w.type;if(w.prog&&PROG.some(p=>p[0]===w.prog))nw.prog=w.prog;if(w.note)nw.note=String(w.note);
   S.core.workout[L]=nw;if(!DAYCOL[L])DAYCOL[L]=pal[used.length%6];added.push(L)}
- if(!added.length)return;gymDay=added[0];save("core");render();
+ if(!added.length)return;gymDay=added[0];
+ if(Array.isArray(j.schedule)&&j.schedule.length===7){const sc=j.schedule.map(x=>typeof x==="number"?(added[x]||"rest"):x==="rest"||x==="cardio"?x:"rest");const DN=LANG()==="fr"?["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"]:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  if(await ask(LL("Use these workouts as your week?","Utiliser ces séances pour ta semaine ?")+"\n"+sc.map((x,i)=>DN[i]+": "+(x==="rest"?LL("Rest","Repos"):x==="cardio"?"Cardio":(S.core.workout[x]||{}).title)).join("\n"))){S.core.schedule=sc;const mon=mondayOf(today());if(S.core.weekSched&&S.core.weekSched[mon])delete S.core.weekSched[mon]}}
+ save("core");render();if(window._impRen){const r=window._impRen;window._impRen=null;setTimeout(()=>flash(LL("Renamed: ","Renommée : ")+r.join(", ")),800)}
  openSheet(`<h3>✓ ${added.length} workout${added.length>1?"s":""} imported</h3>${added.map(L=>`<div style="padding:.3rem 0;border-bottom:1px solid var(--line)"><span class="dd" style="background:${DAYCOL[L]}">${L}</span> <b>${esc(S.core.workout[L].title)}</b> <span class="muted">· ${S.core.workout[L].ex.length} exercises</span></div>`).join("")}
  ${unknown.size?`<div class="note warn" style="margin-top:.6rem">Added as your own exercises (muscles guessed): ${[...unknown].map(esc).join(", ")}</div>`:""}
  <p class="muted" style="font-size:.82rem">Add them to your week from the Plan &amp; log calendar, or long-press a workout › Add to this week.</p><button style="width:100%" onclick="closeSheet()">OK</button>`)}
@@ -4468,6 +4474,12 @@ async function uploadPhoto(inp){const file=inp.files[0];if(!file)return;status="
 async function delPhoto(id){if(!await ask("Delete this photo?"))return;await idbDel(id);delete photoCache[id];S.body.photos=S.body.photos.filter(p=>p.id!==id);save("body");render()}
 
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&window._phShow){window._phShow=false;try{render()}catch(_){}}});
+(function(){const b=document.createElement("button");b.id="totop";b.setAttribute("aria-label","Back to top");b.textContent="↑";document.body.appendChild(b);
+ let last=null;const sheetEl=()=>{const m=document.getElementById("sheetmodal");const sh=m&&m.querySelector(".sheet");if(!sh||!sh.offsetHeight)return null;if(last&&last.isConnected&&m.contains(last)&&last.scrollTop>sh.scrollTop)return last;return sh};
+ const upd=()=>{const sh=sheetEl();const y=sh?sh.scrollTop:(window.scrollY||document.documentElement.scrollTop);const lim=Math.max(500,(sh?sh.clientHeight:window.innerHeight)*0.9);b.classList.toggle("on",y>lim);b.classList.toggle("insheet",!!sh)};
+ b.onclick=()=>{const sh=sheetEl();if(sh){sh.scrollTo({top:0,behavior:"smooth"});const m=document.getElementById("sheetmodal");const o=m&&m.querySelector(".sheet");if(o&&o!==sh)o.scrollTo({top:0,behavior:"smooth"})}else window.scrollTo({top:0,behavior:"smooth"});setTimeout(upd,600)};
+ window.addEventListener("scroll",upd,{passive:true});document.addEventListener("scroll",e=>{const t=e.target;if(t&&t.nodeType===1){if(t.scrollHeight>t.clientHeight+50)last=t;upd()}},{passive:true,capture:true});
+ new MutationObserver(()=>requestAnimationFrame(upd)).observe(document.body,{childList:true,subtree:false,attributes:true,attributeFilter:["class"]});setInterval(upd,1500)})();
 let autoSetup=false;localLoad();seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();setTimeout(()=>maybeCheckin(),900);
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
 </script>
