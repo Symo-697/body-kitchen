@@ -2416,8 +2416,13 @@ function exSearch(q,names){const q2=expandQ(q);const qn=norm(q).trim();const use
  const st=ws.map(w=>w.length>4?w.replace(/s$/,""):w);
  return names.filter(n=>{const t=norm(exText(n));return st.every(w=>t.includes(w))}).map(n=>[n,sc(n)]).sort((A,B)=>A[1]-B[1]||(norm(B[0]).includes(qn)-norm(A[0]).includes(qn))||(used.has(B[0])-used.has(A[0]))||(own.has(B[0])-own.has(A[0]))||A[0].length-B[0].length||A[0].localeCompare(B[0])).map(x=>x[0]);
  return names.filter(n=>searchMatch(exText(n),q2)).sort((a,b)=>(norm(b).includes(qn)-norm(a).includes(qn))||(used.has(b)-used.has(a))||(own.has(b)-own.has(a))||a.length-b.length||a.localeCompare(b))}
-function altsOf(name,max=8){const m=meta3(name);if(!m)return[];const tg=m.tg;const disp=libNames();const self=X3[name]?name:X3OF[name];
- return disp.filter(n=>{const x=meta3(n);return x&&x.fam===m.fam&&n!==name&&(X3[n]?n:X3OF[n])!==self}).sort((a,b)=>((meta3(b).tg===tg)-(meta3(a).tg===tg))||((meta3(b).eq===m.eq)-(meta3(a).eq===m.eq))||a.length-b.length).slice(0,max)}
+const FAMPAIR={"Lat Pulldown":["Pull-Up / Chin-Up"],"Pull-Up / Chin-Up":["Lat Pulldown"]};
+function altsOf(name,max=8){const m=meta3(name);if(!m)return[];const tg=m.tg;const disp=libNames();const self=X3[name]?name:X3OF[name];const fams=[m.fam,...(FAMPAIR[m.fam]||[])];
+ const okN=n=>{const x=meta3(n);return x&&fams.includes(x.fam)&&n!==name&&(X3[n]?n:X3OF[n])!==self};
+ let mine=[];try{const inW=new Set(Object.values(S.core.workout||{}).flatMap(w=>(w.ex||[]).map(e=>e.name)));const sc=n=>(inW.has(n)?4:0)+(meta3(n).fam!==m.fam?2:0)+(meta3(n).eq!==m.eq?1:0);mine=[...usedExNames()].filter(n=>okN(n)&&(meta3(n).tg===tg||meta3(n).fam!==m.fam)).sort((a,b)=>sc(b)-sc(a)).slice(0,4)}catch(_){}
+ const pair=disp.filter(n=>{const x=meta3(n);return x&&x.fam!==m.fam&&okN(n)&&x.tg===tg&&/pull-?up|chin-?up|pulldown/i.test(n)}).sort((a,b)=>a.length-b.length).slice(0,2);
+ const same=disp.filter(n=>{const x=meta3(n);return x&&x.fam===m.fam&&okN(n)}).sort((a,b)=>((meta3(b).tg===tg)-(meta3(a).tg===tg))||((meta3(b).eq===m.eq)-(meta3(a).eq===m.eq))||a.length-b.length);
+ return[...new Set([...mine,...pair,...same])].slice(0,max)}
 function exDef(name){const c=(S.core.customEx||{})[name];if(c)return c;if(EX_LIB[name])return EX_LIB[name];
  if(WGER[name]&&!EX_MUSCLES[name])return WGER[name];
  if(EX_MUSCLES[name])return{p:EX_MUSCLES[name][0],s:EX_MUSCLES[name][1],mode:/treadmill|tapis|incline walk|bike|vélo|velo|elliptical|elliptique|rower|rameur|running|stairmaster|cardio/i.test(name)?"c":"w"};

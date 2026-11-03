@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.72d beta · 2026-10-23
+Alternatives: your own exercises that work the same muscles come first (e.g. Lat pulldown ↔ Assisted Chin-Up, Seated cable row ↔ One-arm dumbbell row).
+
 ## 0.72c beta · 2026-10-23
 Rep range per exercise: ••• › 🎯 Rep range (4–6 … 15–20 or your own) in Edit workout, the plan and during a workout; shown under each exercise.
 
