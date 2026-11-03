@@ -256,6 +256,12 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .esets{margin-top:.35rem}.eset{display:grid;gap:.5rem;align-items:center;margin:.3rem 0}.eset input{width:100%;min-width:0;text-align:center;padding:.5rem .3rem}.ehead span{font-size:.72rem;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.04em}.esetn{text-align:center;font-size:.95rem;background:var(--card2,rgba(127,127,127,.12));border-radius:10px;padding:.45rem 0}
 .wkdrag{touch-action:none;user-select:none;-webkit-user-select:none;font-size:1.35rem;line-height:1;color:var(--muted);padding:.5rem .45rem;cursor:grab}.wkex{position:relative;transition:transform .15s}.wkex.wkdragging{transition:none;z-index:5;background:var(--card);box-shadow:0 8px 24px rgba(0,0,0,.35);border-radius:12px}
 .photos.phhide img{filter:blur(28px) saturate(.4);transform:scale(1.15)}.photos.phhide figure{overflow:hidden;pointer-events:none}
+.phstrip{display:flex;gap:.5rem;overflow-x:auto;scrollbar-width:none}.phstrip .phf{flex:0 0 84px}
+.phgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+.phcmp{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem}
+.phf{margin:0;position:relative;overflow:hidden;border-radius:10px;background:var(--line);aspect-ratio:3/4;cursor:pointer}.phf img{width:100%;height:100%;object-fit:cover;display:block}
+.phdel{position:absolute;top:3px;right:3px;width:22px;height:22px;padding:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:.8rem;line-height:22px;border:0}
+.phhide img{filter:blur(28px) saturate(.4);transform:scale(1.15)}.phhide .phf{pointer-events:none}.phhide .phdel{display:none}
 </style>
 </head>
 <body>
@@ -4246,9 +4252,7 @@ function vMe(){
  // measurements
  h+=scansSection();h+=measSection("Body measurements","body")+measSection("Other measurements","other")+measSection("Custom measurements","custom");
  // photos
- h+=`<h2>Progress photos</h2><div class="box"><label class="muted">Same light and pose: front, side, back. Photos stay on this phone only.</label><input type="file" accept="image/*" onchange="uploadPhoto(this)" style="margin:.5rem 0">
- ${S.body.photos.length?`<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap;margin:.2rem 0 .5rem"><span class="muted" style="font-size:.85rem">🔒 ${S.body.photos.length} ${LL(S.body.photos.length>1?"photos":"photo",S.body.photos.length>1?"photos":"photo")}</span><button class="ghost small" onclick="window._phShow=!window._phShow;render()">${window._phShow?LL("🙈 Hide","🙈 Masquer"):LL("👁 Show","👁 Afficher")}</button></div>`:""}
- <div class="photos${window._phShow?"":" phhide"}">${S.body.photos.slice().reverse().filter(ph=>photoCache[ph.id]).map(ph=>`<figure><img src="${photoCache[ph.id]}" alt="Progress photo ${esc(ph.date)}"><figcaption>${esc(ph.date)} <button class="x" aria-label="Delete photo" onclick="delPhoto('${ph.id}')">×</button></figcaption></figure>`).join("")}</div></div>`;
+ h+=phSection();
  {const ad=adaptiveTDEE();const man=(S.core.profile.manual||{}).kcal;
  h+=`<h2>${LL("Health","Santé")}</h2><div class="box" style="padding:.3rem .9rem">
  ${sheetBtn("🩺",conds().length?conds().map(c=>esc((COND[c]||{l:c}).l.split(" (")[0])).join(" · "):LL("No condition noted","Aucune condition notée"),"startSetup();setupStep=6;render()")}
@@ -4435,6 +4439,30 @@ async function idbDel(id){const d=await idb();return new Promise(res=>{const t=d
 async function idbAll(){const d=await idb();return new Promise(res=>{const out={};const t=d.transaction("photos");const c=t.objectStore("photos").openCursor();c.onsuccess=()=>{const cur=c.result;if(cur){out[cur.key]=cur.value;cur.continue()}else res(out)}})}
 async function loadPhotos(){try{Object.assign(photoCache,await idbAll());if(tab==="me")render()}catch(e){}}
 function shrink(file){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const k=Math.min(1,1000/Math.max(img.width,img.height));const c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(img.src);res(c.toDataURL("image/jpeg",.82))};img.onerror=rej;img.src=URL.createObjectURL(file)})}
+
+const phDelOK=true;
+function phSrc(ph){return photoCache[ph.id]}
+function phGroups(){const g={};(S.body.photos||[]).forEach(ph=>{if(!phSrc(ph))return;(g[ph.date]=g[ph.date]||[]).push(ph)});return Object.keys(g).sort().reverse().map(d=>[d,g[d]])}
+const phDate=d=>new Date(d+"T12:00").toLocaleDateString(LOC(),{day:"numeric",month:"short",year:"numeric"});
+function phThumb(ph,big){return`<figure class="phf${big?" big":""}" onclick="phView('${ph.id}')"><img src="${esc(phSrc(ph))}" alt="" loading="lazy">${phDelOK?`<button class="phdel" aria-label="Delete photo" onclick="event.stopPropagation();delPhoto('${ph.id}')">×</button>`:""}</figure>`}
+function phSection(){const G=phGroups();const n=G.reduce((a,x)=>a+x[1].length,0);const hid=!window._phShow;
+ let h=`<h2>${LL("Progress photos","Photos de progression")}</h2><div class="box">`;
+ if(true)h+=`<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap"><label style="display:inline-flex;align-items:center;gap:.35rem;margin:0;padding:.45rem 1rem;border:1px solid var(--line);border-radius:999px;font-size:.92rem;font-weight:600;color:var(--plum);cursor:pointer">📷 ${LL("Add photos","Ajouter")}<input type="file" accept="image/*" multiple onchange="uploadPhotos(this)" style="display:none"></label>${n?`<button class="ghost small" onclick="window._phShow=!window._phShow;render()">${hid?LL("👁 Show","👁 Afficher"):LL("🙈 Hide","🙈 Masquer")}</button>`:""}</div>`;
+ else h+=`<p class="muted" style="margin:0">${LL("Photo upload isn't available in this view.","L'ajout de photos n'est pas disponible ici.")}</p>`;
+ if(!n)return h+`<p class="muted" style="font-size:.82rem;margin:.6rem 0 0;text-align:center">${LL("Same light and pose each time: front, side, back.","Même lumière et même pose : face, profil, dos.")}</p></div>`;
+ const [d0,l0]=G[0];
+ h+=`<div class="muted" style="font-size:.8rem;margin:.7rem 0 .35rem">🔒 ${LL("Latest","Dernières")} · ${phDate(d0)}</div><div class="phstrip${hid?" phhide":""}">${l0.map(ph=>phThumb(ph)).join("")}</div>
+ <div class="row" style="justify-content:center;gap:.5rem;margin-top:.6rem;flex-wrap:nowrap"><button class="ghost small" onclick="phAll()">${LL("All photos","Toutes")} (${n}) ›</button>${G.length>1?`<button class="ghost small" onclick="phCompare()">⇆ ${LL("Compare","Comparer")}</button>`:""}</div></div>`;return h}
+function phAll(){const G=phGroups();const hid=!window._phShow;openSheet(`<div class="wkbar"><button class="circbtn" aria-label="Close" onclick="closeSheet()">✕</button><b>${LL("Progress photos","Photos de progression")}</b><button class="circbtn" aria-label="Show or hide" onclick="window._phShow=!window._phShow;phAll();render()">${hid?"👁":"🙈"}</button></div>
+ ${G.map(([d,l])=>`<div class="muted" style="font-size:.8rem;margin:.8rem 0 .35rem">${phDate(d)} · ${l.length}</div><div class="phgrid${hid?" phhide":""}">${l.map(ph=>phThumb(ph)).join("")}</div>`).join("")}`)}
+function phView(id){if(!window._phShow)return;const ph=(S.body.photos||[]).find(x=>x.id===id);if(!ph)return;stDlg(`<img src="${esc(phSrc(ph))}" alt="" style="width:100%;max-height:70vh;object-fit:contain;border-radius:12px"><p class="muted" style="text-align:center;margin:.4rem 0 0">${phDate(ph.date)}</p>`)}
+function phCompare(a,b){const G=phGroups();if(G.length<2)return;a=a||G[G.length-1][0];b=b||G[0][0];const ga=(G.find(x=>x[0]===a)||G[G.length-1])[1],gb=(G.find(x=>x[0]===b)||G[0])[1];const hid=!window._phShow;
+ const sel=(v,w)=>`<select class="pillsel" style="width:100%;max-width:none;text-align:center" onchange="phCompare(${w==="a"?"this.value":`'${a}'`},${w==="b"?"this.value":`'${b}'`})">${G.map(([d])=>`<option value="${d}" ${d===v?"selected":""}>${new Date(d+"T12:00").toLocaleDateString(LOC(),{day:"numeric",month:"short",year:"2-digit"})}</option>`).join("")}</select>`;
+ const rows=Math.max(ga.length,gb.length);
+ openSheet(`<div class="wkbar"><button class="circbtn" aria-label="Close" onclick="closeSheet()">✕</button><b>⇆ ${LL("Compare","Comparer")}</b><button class="circbtn" aria-label="Show or hide" onclick="window._phShow=!window._phShow;phCompare('${a}','${b}');render()">${hid?"👁":"🙈"}</button></div>
+ <div class="oneline" style="gap:.5rem;margin-bottom:.6rem"><div style="flex:1">${sel(a,"a")}</div><div style="flex:1">${sel(b,"b")}</div></div>
+ ${Array.from({length:rows},(_,i)=>`<div class="phcmp${hid?" phhide":""}">${[ga[i],gb[i]].map(ph=>ph?`<figure class="phf big"><img src="${esc(phSrc(ph))}" alt=""></figure>`:`<div></div>`).join("")}</div>`).join("")}`)}
+async function uploadPhotos(inp){const fs=[...inp.files];if(!fs.length)return;for(const f of fs){await uploadPhoto({files:[f]})}inp.value=""}
 async function uploadPhoto(inp){const file=inp.files[0];if(!file)return;status="Saving photo…";paintStatus();
  try{const data=await shrink(file);const id="p"+uidGen();await idbPut(id,data);photoCache[id]=data;S.body.photos.push({id,date:today()});save("body");status="Photo saved";render()}catch(e){status="Photo couldn't be saved";paintStatus()}}
 async function delPhoto(id){if(!await ask("Delete this photo?"))return;await idbDel(id);delete photoCache[id];S.body.photos=S.body.photos.filter(p=>p.id!==id);save("body");render()}
