@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.74 beta · 2026-10-23
+RIR: tap the small RIR tag on any reps box to log reps in reserve (5+…0); shows as '70 kg × 10 @ 1' in history and counts in the 1RM estimate.
+
 ## 0.73c beta · 2026-10-23
 Setup › Areas to prioritise: middle back, back width, shoulders, triceps, arms, chest, quads, hamstrings; the generated program adapts (elbows-out rows, overhead triceps first, focus day).
 
