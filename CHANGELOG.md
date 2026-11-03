@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.72f beta · 2026-10-23
+Progress photos are blurred by default; 👁 Show reveals them and they blur again when you leave the app.
+
 ## 0.72e beta · 2026-10-23
 Muscle thumbnails are drawn as sharp images (no more pixels); the workout progress line no longer crosses the Finish button.
 

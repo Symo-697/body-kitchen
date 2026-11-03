@@ -255,6 +255,7 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .manual ul,.manual ol{margin:.3rem 0;padding-left:1.2rem}.manual li{margin:.25rem 0}.manual p{margin:.3rem 0}
 .esets{margin-top:.35rem}.eset{display:grid;gap:.5rem;align-items:center;margin:.3rem 0}.eset input{width:100%;min-width:0;text-align:center;padding:.5rem .3rem}.ehead span{font-size:.72rem;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.04em}.esetn{text-align:center;font-size:.95rem;background:var(--card2,rgba(127,127,127,.12));border-radius:10px;padding:.45rem 0}
 .wkdrag{touch-action:none;user-select:none;-webkit-user-select:none;font-size:1.35rem;line-height:1;color:var(--muted);padding:.5rem .45rem;cursor:grab}.wkex{position:relative;transition:transform .15s}.wkex.wkdragging{transition:none;z-index:5;background:var(--card);box-shadow:0 8px 24px rgba(0,0,0,.35);border-radius:12px}
+.photos.phhide img{filter:blur(28px) saturate(.4);transform:scale(1.15)}.photos.phhide figure{overflow:hidden;pointer-events:none}
 </style>
 </head>
 <body>
@@ -4246,7 +4247,8 @@ function vMe(){
  h+=scansSection();h+=measSection("Body measurements","body")+measSection("Other measurements","other")+measSection("Custom measurements","custom");
  // photos
  h+=`<h2>Progress photos</h2><div class="box"><label class="muted">Same light and pose: front, side, back. Photos stay on this phone only.</label><input type="file" accept="image/*" onchange="uploadPhoto(this)" style="margin:.5rem 0">
- <div class="photos">${S.body.photos.slice().reverse().filter(ph=>photoCache[ph.id]).map(ph=>`<figure><img src="${photoCache[ph.id]}" alt="Progress photo ${esc(ph.date)}"><figcaption>${esc(ph.date)} <button class="x" aria-label="Delete photo" onclick="delPhoto('${ph.id}')">×</button></figcaption></figure>`).join("")}</div></div>`;
+ ${S.body.photos.length?`<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap;margin:.2rem 0 .5rem"><span class="muted" style="font-size:.85rem">🔒 ${S.body.photos.length} ${LL(S.body.photos.length>1?"photos":"photo",S.body.photos.length>1?"photos":"photo")}</span><button class="ghost small" onclick="window._phShow=!window._phShow;render()">${window._phShow?LL("🙈 Hide","🙈 Masquer"):LL("👁 Show","👁 Afficher")}</button></div>`:""}
+ <div class="photos${window._phShow?"":" phhide"}">${S.body.photos.slice().reverse().filter(ph=>photoCache[ph.id]).map(ph=>`<figure><img src="${photoCache[ph.id]}" alt="Progress photo ${esc(ph.date)}"><figcaption>${esc(ph.date)} <button class="x" aria-label="Delete photo" onclick="delPhoto('${ph.id}')">×</button></figcaption></figure>`).join("")}</div></div>`;
  {const ad=adaptiveTDEE();const man=(S.core.profile.manual||{}).kcal;
  h+=`<h2>${LL("Health","Santé")}</h2><div class="box" style="padding:.3rem .9rem">
  ${sheetBtn("🩺",conds().length?conds().map(c=>esc((COND[c]||{l:c}).l.split(" (")[0])).join(" · "):LL("No condition noted","Aucune condition notée"),"startSetup();setupStep=6;render()")}
@@ -4437,6 +4439,7 @@ async function uploadPhoto(inp){const file=inp.files[0];if(!file)return;status="
  try{const data=await shrink(file);const id="p"+uidGen();await idbPut(id,data);photoCache[id]=data;S.body.photos.push({id,date:today()});save("body");status="Photo saved";render()}catch(e){status="Photo couldn't be saved";paintStatus()}}
 async function delPhoto(id){if(!await ask("Delete this photo?"))return;await idbDel(id);delete photoCache[id];S.body.photos=S.body.photos.filter(p=>p.id!==id);save("body");render()}
 
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&window._phShow){window._phShow=false;try{render()}catch(_){}}});
 let autoSetup=false;localLoad();seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();setTimeout(()=>maybeCheckin(),900);
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
 </script>
