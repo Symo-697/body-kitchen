@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.76 beta · 2026-11-10
+Workout in progress: a clean bar above the tabs (green dot, workout name, timer, ▶). Sismo: ‹ › arrows between steps. Fixed: Library ＋ New exercise did nothing; a settings ⓘ didn't open (French apostrophe).
+
 ## 0.75d beta · 2026-11-09
 Sismo › area step: smaller 3-column body diagrams so every area fits without scrolling; ↑ button hidden over pop-ups.
 
