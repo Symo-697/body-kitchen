@@ -3160,8 +3160,18 @@ function baseSheet(n,after){const cur=(S.core.baseW||{})[n];const nq=esc(JSON.st
  ${sheetBtn(cur!=null&&!plates?"✓":"🏋️",LL("The total (machine included)","Le total (machine comprise)"),`baseSave(${nq},0)`)}
  <div class="box" style="margin-top:.5rem;${plates?"border-color:var(--plum)":""}"><b>${LL("Only the plates I add","Seulement les disques ajoutés")}</b><div class="muted" style="font-size:.82rem;margin:.2rem 0 .5rem">${LL("Then how much does the empty machine weigh?","Alors combien pèse la machine à vide ?")}</div>
  <div class="oneline"><input id="basew" type="text" inputmode="decimal" value="${plates?cur:""}" placeholder="kg" style="flex:1;text-align:center;font-size:1.2rem;font-weight:700"><button class="addb" aria-label="Save" onclick="baseSave(${nq},document.getElementById('basew').value)">✓</button></div>
- <div class="hscroll" style="margin-top:.5rem">${[10,15,20,25,40,60].map(v=>`<button class="chip" onclick="document.getElementById('basew').value=${v}">${v}</button>`).join("")}</div></div>`);window._baseAfter=after||null}
-function baseSave(n,v){S.core.baseW=S.core.baseW||{};S.core.baseW[n]=Math.max(0,+String(v).replace(",",".")||0);save("core");closeStDlg();flash(LL("Machine weight saved","Poids machine enregistré"));const f=window._baseAfter;window._baseAfter=null;if(f)f();render()}
+ <div class="hscroll" style="margin-top:.5rem">${[10,15,20,25,40,60].map(v=>`<button class="chip" onclick="document.getElementById('basew').value=${v}">${v}</button>`).join("")}</div></div>
+ ${plates&&((S.core.lifts||{})[n]||[]).length?`<button class="ghost small" style="width:100%;margin-top:.6rem" onclick="closeStDlg();baseFix(${nq})">🛠 ${LL("Fix older sessions logged as the total","Corriger les anciennes séances notées en total")}</button>`:""}`);window._baseAfter=after||null}
+function baseFix(n){const M=baseW(n);const H=(S.core.lifts||{})[n]||[];if(!M||!H.length)return;const nq=esc(JSON.stringify(n));const last=H[H.length-1].date;
+ window._bfSel=H.map((h,i)=>!h.baseFixed&&h.date<last&&(h.sets||[]).some(x=>+x.w>M)?i:-1).filter(i=>i>=0);
+ const row=(h,i)=>{const top=Math.max(0,...(h.sets||[]).map(x=>+x.w||0));const on=window._bfSel.includes(i);return`<label style="display:flex;gap:.5rem;flex-wrap:nowrap;justify-content:space-between;align-items:center;padding:.5rem 0;border-top:1px solid var(--line);margin:0;cursor:pointer"><span style="display:flex;align-items:center;white-space:nowrap"><input type="checkbox" ${on?"checked":""} ${h.baseFixed?"disabled":""} onchange="const a=window._bfSel;const j=a.indexOf(${i});if(this.checked&&j<0)a.push(${i});if(!this.checked&&j>=0)a.splice(j,1)" style="margin:0 .55rem 0 0;width:20px;height:20px;flex:none">${new Date(h.date+"T12:00").toLocaleDateString(LOC(),{day:"numeric",month:"short",year:"2-digit"})}</span><span class="muted">${h.baseFixed?LL("fixed ✓","corrigée ✓"):`${LL("top","max")} ${top} kg → ${r2(Math.max(0,top-M))} kg`}</span></label>`};
+ stDlg(`<h3 style="margin:0 0 .2rem">🛠 ${LL("Older sessions","Anciennes séances")}</h3><p class="muted" style="margin:0 0 .6rem;font-size:.85rem">${esc(n)}</p>
+ <p style="margin:0 0 .5rem;font-size:.9rem">${LL(`Tick the sessions where you wrote the <b>total</b> (machine included). The app removes the machine's ${M} kg so they match how you log now.`,`Coche les séances où tu as noté le <b>total</b> (machine comprise). L'app retire les ${M} kg de la machine pour qu'elles correspondent à ta façon de noter maintenant.`)}</p>
+ <div style="max-height:45vh;overflow:auto">${H.map((h,i)=>({h,i})).reverse().map(({h,i})=>row(h,i)).join("")}</div>
+ <div class="row" style="justify-content:center;flex-wrap:nowrap;margin-top:.7rem"><button class="ghost" onclick="closeStDlg()">${LL("Cancel","Annuler")}</button><button onclick="baseFixApply(${nq})">${LL(`Remove ${M} kg`,`Retirer ${M} kg`)}</button></div>`)}
+function baseFixApply(n){const M=baseW(n);const H=(S.core.lifts||{})[n]||[];const sel=window._bfSel||[];let c=0;sel.forEach(i=>{const h=H[i];if(!h||h.baseFixed)return;(h.sets||[]).forEach(x=>{if(+x.w>0)x.w=r2(Math.max(0,+x.w-M))});h.baseFixed=M;c++});save("core");closeStDlg();render();flash(LL(`${c} session${c>1?"s":""} corrected`,`${c} séance${c>1?"s":""} corrigée${c>1?"s":""}`))}
+function baseSave(n,v){S.core.baseW=S.core.baseW||{};const was=+S.core.baseW[n]||0;S.core.baseW[n]=Math.max(0,+String(v).replace(",",".")||0);save("core");closeStDlg();flash(LL("Machine weight saved","Poids machine enregistré"));const f=window._baseAfter;window._baseAfter=null;if(f)f();render();
+ if(!was&&S.core.baseW[n]>0&&((S.core.lifts||{})[n]||[]).some(h=>!h.baseFixed&&(h.sets||[]).some(x=>+x.w>S.core.baseW[n])))setTimeout(()=>baseFix(n),400)}
 
 const dbAuto=n=>/dumbbell|hammer curl|arnold/i.test(n)&&!/goblet/i.test(n)&&!perSide(n)?2:1;
 const dbCount=n=>{const c=(S.core.dbCount||{})[n];return c?+c:dbAuto(n)};
@@ -4378,7 +4388,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.70 beta";
+const APP_VERSION="0.74a beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

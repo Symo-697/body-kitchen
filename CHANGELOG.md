@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.74a beta · 2026-11-09
+Machine weight › 🛠 Fix older sessions logged as the total: tick the sessions where you wrote machine + plates and the app removes the machine weight so history, records and progression match. Asked automatically when you switch to 'plates only'.
+
 ## 0.74 beta · 2026-10-23
 RIR: tap the small RIR tag on any reps box to log reps in reserve (5+…0); shows as '70 kg × 10 @ 1' in history and counts in the 1RM estimate.
 
