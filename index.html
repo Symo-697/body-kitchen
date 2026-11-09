@@ -266,6 +266,7 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 #totop.on{opacity:.92;pointer-events:auto;transform:none}#totop.insheet{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
 .rirwrap{position:relative;display:block;min-width:0}.rirwrap input{width:100%}.rirb{position:absolute;top:-7px;right:-5px;min-width:22px;height:18px;padding:0 4px;border-radius:6px;font-size:.62rem;font-weight:700;line-height:18px;background:var(--card);color:var(--muted);border:1px solid var(--line);opacity:.75;z-index:1}.rirb.on{opacity:1;color:var(--ink);background:var(--bg);font-size:.72rem}
 .etimes{display:grid;grid-template-columns:1fr 1fr .8fr;gap:.5rem;margin-top:.9rem}.etimes>div{min-width:0}.etimes label{display:block;font-size:.78rem;margin:0 0 .25rem;text-align:center}.etimes input{width:100%;min-width:0;box-sizing:border-box;text-align:center;padding:.6rem .2rem}
+.smgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem}.smgrid button{border-radius:12px;padding:.35rem .2rem .45rem;display:flex;flex-direction:column;align-items:center;gap:.2rem;min-width:0}.smgrid .smbody{width:100%;pointer-events:none}.smgrid .smbody svg text,.smgrid .smbody .bmlab{display:none}.smgrid span{font-size:.74rem;font-weight:700;line-height:1.15}
 </style>
 </head>
 <body>
@@ -3468,8 +3469,8 @@ function timeLink(p,what){const st=$("#"+p+"start"),en=$("#"+p+"end"),du=$("#"+p
  else if(what==="dur"&&s0!=null&&d0>0)en.value=m2hm(s0+d0);
  const h=$("#"+p+"durh");if(h)h.innerHTML=""}
 function finDur(){const s0=($("#fstart")||{}).value,e0=($("#fend")||{}).value;if(!s0||!e0)return;let m=(+e0.slice(0,2)*60+ +e0.slice(3))-(+s0.slice(0,2)*60+ +s0.slice(3));if(m<0)m+=1440;const d=$("#fdur");if(d)d.value=m}
-const SISMO={tonif:["Tonification",["Arms","Chest & arms","Core (abdominal belt)","Thighs & glutes","Full body"],["Bras","Poitrine & bras","Sangle abdominale","Cuisses & fessiers","Complet"]],
- remod:["Remodelage",["Chest & arms","Core (abdominal belt)","Thighs & glutes 1","Thighs & glutes 2","Full body"],["Poitrine & bras","Sangle abdominale","Cuisses & fessiers 1","Cuisses & fessiers 2","Complet"]],
+const SISMO={tonif:["Tonification",["Arms","Chest & arms","Core / abs","Thighs & glutes","Full body"],["Bras","Poitrine & bras","Sangle abdominale","Cuisses & fessiers","Complet"]],
+ remod:["Remodelage",["Chest & arms","Core / abs","Thighs & glutes 1","Thighs & glutes 2","Full body"],["Poitrine & bras","Sangle abdominale","Cuisses & fessiers 1","Cuisses & fessiers 2","Complet"]],
  cell:["Anti-cellulite",["Thighs & glutes"],["Cuisses & fessiers"]],
  gain:["Gainage",["Full body 1","Full body 2"],["Complet 1","Complet 2"]],
  relax:["Relaxation / Drainage",["Drainage","Relax 1","Relax 2"],["Drainage","Relax 1","Relax 2"]],
@@ -3486,7 +3487,7 @@ function sismoStep(n,key){const fr=LANG()==="fr";if(n===0){window._smKey=key||nu
  const big=(lab,on,cl)=>`<button class="${on?"":"ghost"}" style="width:100%;margin:.25rem 0;border-radius:14px;padding:.75rem;font-size:1rem" onclick="${cl}">${lab}</button>`;
  if(n===0)stDlg(`${dots}<h3 style="text-align:center;margin:0 0 .6rem">📳 ${LL("Which mode?","Quel mode ?")}</h3>${Object.entries(SISMO).map(([k,m])=>big(m[0],x.mode===k,`window._sm.mode='${k}';if(window._sm._m!=='${k}'){window._sm.area=null;window._sm._m='${k}'};${nxt(1)}`)).join("")}`);
  else if(n===1){const m=SISMO[x.mode];if(!m)return sismoStep(0);if(m[1].length===1){x.area=0;return sismoStep(2)}
-  stDlg(`${dots}<h3 style="text-align:center;margin:0 0 .2rem">${x.mode==="prop"?LL("Which program?","Quel programme ?"):LL("Which area?","Quelle zone ?")}</h3><p class="muted" style="text-align:center;margin:0 0 .6rem">${m[0]}</p>${x.mode==="prop"?`<div class="chips full" style="flex-wrap:wrap">${m[1].map((a,i)=>`<button class="chip ${x.area===i?"on":""}" style="min-width:3rem;font-size:1.1rem" onclick="window._sm.area=${i};${nxt(2)}">${a}</button>`).join("")}</div>`:`<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;max-height:62vh;overflow:auto">${(fr?m[2]:m[1]).map((a,i)=>`<button class="${x.area===i?"":"ghost"}" style="border-radius:14px;padding:.5rem .3rem .6rem;display:flex;flex-direction:column;align-items:center;gap:.3rem" onclick="window._sm.area=${i};${nxt(2)}"><div style="width:100%;pointer-events:none">${bodyMapHTML((SISMO_MUS[x.mode]||[])[i]||[],[],150)}</div><span style="font-size:.88rem;font-weight:700">${a}</span></button>`).join("")}</div>`}`)}
+  stDlg(`${dots}<h3 style="text-align:center;margin:0 0 .2rem">${x.mode==="prop"?LL("Which program?","Quel programme ?"):LL("Which area?","Quelle zone ?")}</h3><p class="muted" style="text-align:center;margin:0 0 .6rem">${m[0]}</p>${x.mode==="prop"?`<div class="chips full" style="flex-wrap:wrap">${m[1].map((a,i)=>`<button class="chip ${x.area===i?"on":""}" style="min-width:3rem;font-size:1.1rem" onclick="window._sm.area=${i};${nxt(2)}">${a}</button>`).join("")}</div>`:`<div class="smgrid">${(fr?m[2]:m[1]).map((a,i)=>`<button class="${x.area===i?"":"ghost"}" onclick="window._sm.area=${i};${nxt(2)}"><div class="smbody">${bodyMapHTML((SISMO_MUS[x.mode]||[])[i]||[],[],110)}</div><span>${a}</span></button>`).join("")}</div>`}`)}
  else if(n===2)stDlg(`${dots}<h3 style="text-align:center;margin:0 0 .6rem">${LL("Which level?","Quel niveau ?")}</h3>${SISMO_LV.map((l,i)=>big(fr?l[1]:l[0],x.lv===i,`window._sm.lv=${i};${nxt(3)}`)).join("")}`);
  else stDlg(`${dots}<h3 style="text-align:center;margin:0 0 .6rem">${LL("How long?","Combien de temps ?")}</h3><div class="chips full">${[5,10,15,20].map(v=>`<button class="chip ${+x.min===v?"on":""}" onclick="sismoDone(${v})">${v} min</button>`).join("")}</div>
  <div class="oneline" style="margin-top:.7rem"><input id="smmin" type="number" inputmode="numeric" placeholder="${LL("Other (min)","Autre (min)")}" style="flex:1;text-align:center"><button class="addb" aria-label="Save" onclick="sismoDone(document.getElementById('smmin').value)">✓</button></div>`)}
@@ -4417,7 +4418,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.75c beta";
+const APP_VERSION="0.75d beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
@@ -4549,7 +4550,7 @@ async function delPhoto(id){if(!await ask("Delete this photo?"))return;await idb
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&window._phShow){window._phShow=false;try{render()}catch(_){}}});
 (function(){const b=document.createElement("button");b.id="totop";b.setAttribute("aria-label","Back to top");b.textContent="↑";document.body.appendChild(b);
  let last=null;const sheetEl=()=>{const m=document.getElementById("sheetmodal");const sh=m&&m.querySelector(".sheet");if(!sh||!sh.offsetHeight)return null;if(last&&last.isConnected&&m.contains(last)&&last.scrollTop>sh.scrollTop)return last;return sh};
- const upd=()=>{const sh=sheetEl();const y=sh?sh.scrollTop:(window.scrollY||document.documentElement.scrollTop);const lim=Math.max(500,(sh?sh.clientHeight:window.innerHeight)*0.9);b.classList.toggle("on",y>lim);b.classList.toggle("insheet",!!sh)};
+ const upd=()=>{const dl=document.getElementById("stdlg");if(dl&&dl.offsetHeight&&getComputedStyle(dl).display!=="none"){b.classList.remove("on");return}const sh=sheetEl();const y=sh?sh.scrollTop:(window.scrollY||document.documentElement.scrollTop);const lim=Math.max(500,(sh?sh.clientHeight:window.innerHeight)*0.9);b.classList.toggle("on",y>lim);b.classList.toggle("insheet",!!sh)};
  b.onclick=()=>{const sh=sheetEl();if(sh){sh.scrollTo({top:0,behavior:"smooth"});const m=document.getElementById("sheetmodal");const o=m&&m.querySelector(".sheet");if(o&&o!==sh)o.scrollTo({top:0,behavior:"smooth"})}else window.scrollTo({top:0,behavior:"smooth"});setTimeout(upd,600)};
  window.addEventListener("scroll",upd,{passive:true});document.addEventListener("scroll",e=>{const t=e.target;if(t&&t.nodeType===1){if(t.scrollHeight>t.clientHeight+50)last=t;upd()}},{passive:true,capture:true});
  new MutationObserver(()=>requestAnimationFrame(upd)).observe(document.body,{childList:true,subtree:false,attributes:true,attributeFilter:["class"]});setInterval(upd,1500)})();

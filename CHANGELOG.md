@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.75d beta · 2026-11-09
+Sismo › area step: smaller 3-column body diagrams so every area fits without scrolling; ↑ button hidden over pop-ups.
+
 ## 0.75c beta · 2026-11-09
 Edit a past workout: Started / Ended / Minutes sit in three even boxes that no longer overlap; Cancel and Save are full-width below.
 
