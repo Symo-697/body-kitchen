@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.75c beta · 2026-11-09
+Edit a past workout: Started / Ended / Minutes sit in three even boxes that no longer overlap; Cancel and Save are full-width below.
+
 ## 0.75b beta · 2026-11-09
 Sismo › area step shows front/back body diagrams with the targeted muscles in red, like on the machine.
 

@@ -265,6 +265,7 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 #totop{position:fixed;left:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1.3rem;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:1000;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s;padding:0}
 #totop.on{opacity:.92;pointer-events:auto;transform:none}#totop.insheet{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
 .rirwrap{position:relative;display:block;min-width:0}.rirwrap input{width:100%}.rirb{position:absolute;top:-7px;right:-5px;min-width:22px;height:18px;padding:0 4px;border-radius:6px;font-size:.62rem;font-weight:700;line-height:18px;background:var(--card);color:var(--muted);border:1px solid var(--line);opacity:.75;z-index:1}.rirb.on{opacity:1;color:var(--ink);background:var(--bg);font-size:.72rem}
+.etimes{display:grid;grid-template-columns:1fr 1fr .8fr;gap:.5rem;margin-top:.9rem}.etimes>div{min-width:0}.etimes label{display:block;font-size:.78rem;margin:0 0 .25rem;text-align:center}.etimes input{width:100%;min-width:0;box-sizing:border-box;text-align:center;padding:.6rem .2rem}
 </style>
 </head>
 <body>
@@ -2890,7 +2891,7 @@ function vLog(){const now=new Date(today()+"T12:00");const first=new Date(now.ge
    ${L.map((x,ei)=>`<div class="ex"><div class="row" style="justify-content:space-between"><button class="exname" onclick="showEx(${esc(JSON.stringify(x.name))})">${esc(x.name)}</button>${editing?`<button class="x" aria-label="Remove exercise from this session" onclick="rmSessEx('${key}',${ei})">×</button>`:""}</div>
     ${editing?`<div class="esets">${editSetHead(x.name)}${x.entry.sets.map((st,k)=>editSetHTML(x.name,st,ei,k)).join("")}</div>`:`<div class="muted">${x.entry.sets.map(st=>(st.t?`<b style="color:${(SET_TYPES.find(t=>t[0]===st.t)||[0,0,"inherit"])[2]}">${sideTag(st)}</b> `:"")+fmtSet(x.name,st)).join(" · ")}</div>${x.entry.note?`<div style="font-size:.8rem;font-style:italic;margin-top:.15rem">📝 ${esc(x.entry.note)}</div>`:""}`}</div>`).join("")||`<p class="muted">No sets recorded.</p>`}
    ${editing?`<div id="esismo" style="margin-top:.7rem">${sismoRowHTML(key)}</div>`:sess.sismo?`<div class="muted" style="margin-top:.35rem">📳 Sismo · ${esc(sismoLabel(sess.sismo))}</div>`:""}
-   ${editing?`<div class="row" style="margin-top:.7rem"><div style="width:7rem"><label>Started</label><input id="estart" type="time" value="${esc(sess.startAt||"")}" onchange="timeLink('e','start')"></div><div style="width:7rem"><label>Ended</label><input id="eend" type="time" value="${esc(sess.endAt||"")}" onchange="timeLink('e','end')"></div><div style="width:6rem"><label>Minutes</label><input id="edur" type="number" min="1" value="${sess.dur||""}" oninput="timeLink('e','dur')"></div></div><div class="muted" id="edurh" style="font-size:.8rem;margin-top:.2rem">${sess.dur?"Duration: "+fmtMin(sess.dur):""}</div><div class="row" style="margin-top:.5rem"><span class="grow"></span><button class="ghost small" onclick="sessEdit=null;render()">Cancel</button><button onclick="saveSessEdit('${key}')">Save</button></div>`:""}</div>`})}
+   ${editing?`<div class="etimes"><div><label>${LL("Started","Début")}</label><input id="estart" type="time" value="${esc(sess.startAt||"")}" onchange="timeLink('e','start')"></div><div><label>${LL("Ended","Fin")}</label><input id="eend" type="time" value="${esc(sess.endAt||"")}" onchange="timeLink('e','end')"></div><div><label>${LL("Minutes","Minutes")}</label><input id="edur" type="number" inputmode="numeric" min="1" value="${sess.dur||""}" oninput="timeLink('e','dur')"></div></div><div class="muted" id="edurh" style="font-size:.8rem;margin-top:.35rem;text-align:center">${sess.dur?LL("Duration: ","Durée : ")+fmtMin(sess.dur):""}</div><div class="row" style="margin-top:.9rem;justify-content:center;gap:.6rem;flex-wrap:nowrap"><button class="ghost" style="flex:1" onclick="sessEdit=null;render()">${LL("Cancel","Annuler")}</button><button style="flex:1" onclick="saveSessEdit('${key}')">${LL("Save","Enregistrer")}</button></div>`:""}</div>`})}
  return h}
 
 function vCal(){let h=vLog();if(!calSel)return h+"";
@@ -4416,7 +4417,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.75b beta";
+const APP_VERSION="0.75c beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
