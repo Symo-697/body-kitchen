@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.75a beta · 2026-11-09
+Calendar › Edit a past workout: add, change or remove its Sismo session; shown on the day's workout card.
+
 ## 0.75 beta · 2026-11-09
 Finish workout › 📳 I did a Sismo session: mode, then area, then level, then minutes, one question at a time. Shown in the workout's details.
 
