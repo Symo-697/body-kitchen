@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.75 beta · 2026-11-09
+Finish workout › 📳 I did a Sismo session: mode, then area, then level, then minutes, one question at a time. Shown in the workout's details.
+
 ## 0.74a beta · 2026-11-09
 Machine weight › 🛠 Fix older sessions logged as the total: tick the sessions where you wrote machine + plates and the app removes the machine weight so history, records and progression match. Asked automatically when you switch to 'plates only'.
 

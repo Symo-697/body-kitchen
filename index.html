@@ -3456,6 +3456,7 @@ function finishSheet(){closeStDlg();finPain=[];const a=A();const st=liveStats();
  <div class="finrow">🎚<select id="frpe" aria-label="Difficulty"><option value="">${LL("How hard was this workout?","C'était difficile à quel point ?")}</option>${[1,2,3,4,5,6,7,8,9,10].map(v=>`<option value="${v}">${v}/10 · ${rl(v)}</option>`).join("")}</select></div>
  <label style="margin-top:.8rem">${LL("Energy","Énergie")}</label><div class="chips" id="fenergy">${[1,2,3,4,5].map(n=>`<button class="chip" data-v="${n}" onclick="document.querySelectorAll('#fenergy .chip').forEach(c=>c.classList.toggle('on',c.dataset.v==='${n}'))">${["😫","😕","😐","🙂","💪"][n-1]}</button>`).join("")}</div>
  <label style="margin-top:.6rem">${LL("Any discomfort?","Une gêne ?")}</label><div id="fpain">${painChipsHTML()}</div>
+ <div id="fsismo" style="margin-top:.9rem">${sismoRowHTML()}</div>
  <button style="width:100%;margin-top:1.1rem;border-radius:999px;padding:.85rem;font-size:1.05rem" onclick="saveLive()">${LL("Save","Enregistrer")}</button>
  <button class="x" style="width:100%;margin-top:.6rem;color:var(--warn);font-weight:700" onclick="discardWorkout()">${LL("Discard workout","Abandonner la séance")}</button>`)}
 function timeLink(p,what){const st=$("#"+p+"start"),en=$("#"+p+"end"),du=$("#"+p+"dur");if(!st||!en||!du)return;const s0=hm2m(st.value),e0=hm2m(en.value),d0=+du.value||0;
@@ -3464,6 +3465,24 @@ function timeLink(p,what){const st=$("#"+p+"start"),en=$("#"+p+"end"),du=$("#"+p
  else if(what==="dur"&&s0!=null&&d0>0)en.value=m2hm(s0+d0);
  const h=$("#"+p+"durh");if(h)h.innerHTML=""}
 function finDur(){const s0=($("#fstart")||{}).value,e0=($("#fend")||{}).value;if(!s0||!e0)return;let m=(+e0.slice(0,2)*60+ +e0.slice(3))-(+s0.slice(0,2)*60+ +s0.slice(3));if(m<0)m+=1440;const d=$("#fdur");if(d)d.value=m}
+const SISMO={tonif:["Tonification",["Arms","Chest & arms","Core (abdominal belt)","Thighs & glutes","Full body"],["Bras","Poitrine & bras","Sangle abdominale","Cuisses & fessiers","Complet"]],
+ remod:["Remodelage",["Chest & arms","Core (abdominal belt)","Thighs & glutes 1","Thighs & glutes 2","Full body"],["Poitrine & bras","Sangle abdominale","Cuisses & fessiers 1","Cuisses & fessiers 2","Complet"]],
+ cell:["Anti-cellulite",["Thighs & glutes"],["Cuisses & fessiers"]],
+ gain:["Gainage",["Full body 1","Full body 2"],["Complet 1","Complet 2"]],
+ relax:["Relaxation / Drainage",["Drainage","Relax 1","Relax 2"],["Drainage","Relax 1","Relax 2"]],
+ prop:["Proprioception",["1","2","3","4","5","6"],["1","2","3","4","5","6"]]};
+const SISMO_LV=[["Beginner","Débutant"],["Intermediate","Initié"],["Advanced","Confirmé"]];
+function sismoLabel(x){if(!x)return"";const m=SISMO[x.mode];if(!m)return"";const fr=LANG()==="fr";const ar=x.mode==="prop"?(fr?"Programme ":"Program ")+(x.area+1):(fr?m[2]:m[1])[x.area]||"";const lv=x.lv!=null?(SISMO_LV[x.lv]||[])[fr?1:0]:"";return[m[0],ar,lv,x.min?x.min+" min":""].filter(Boolean).join(" · ")}
+function sismoRowHTML(){const x=A()&&A().sismo;return x?`<div class="box" style="display:flex;align-items:center;gap:.6rem;margin:0"><span style="font-size:1.4rem">📳</span><div style="flex:1;min-width:0"><b>Sismo</b><div class="muted" style="font-size:.85rem">${esc(sismoLabel(x))}</div></div><button class="iconbtn" aria-label="Edit Sismo" onclick="sismoStep(0)">✎</button><button class="iconbtn" aria-label="Remove Sismo" onclick="delete A().sismo;liveSave();document.getElementById('fsismo').innerHTML=sismoRowHTML()">✕</button></div>`:`<button class="ghost" style="width:100%;border-radius:999px" onclick="sismoStep(0)">📳 ${LL("I did a Sismo session","J'ai fait une séance Sismo")}</button>`}
+function sismoStep(n){const fr=LANG()==="fr";if(n===0)window._sm=Object.assign({min:10},A().sismo||{});const x=window._sm;const nxt=k=>`closeStDlg();setTimeout(()=>sismoStep(${k}),180)`;const dots=`<div style="text-align:center;letter-spacing:.3rem;color:var(--muted);font-size:.7rem;margin-bottom:.4rem">${[0,1,2,3].map(i=>i===n?"●":"○").join("")}</div>`;
+ const big=(lab,on,cl)=>`<button class="${on?"":"ghost"}" style="width:100%;margin:.25rem 0;border-radius:14px;padding:.75rem;font-size:1rem" onclick="${cl}">${lab}</button>`;
+ if(n===0)stDlg(`${dots}<h3 style="text-align:center;margin:0 0 .6rem">📳 ${LL("Which mode?","Quel mode ?")}</h3>${Object.entries(SISMO).map(([k,m])=>big(m[0],x.mode===k,`window._sm.mode='${k}';if(window._sm._m!=='${k}'){window._sm.area=null;window._sm._m='${k}'};${nxt(1)}`)).join("")}`);
+ else if(n===1){const m=SISMO[x.mode];if(!m)return sismoStep(0);if(m[1].length===1){x.area=0;return sismoStep(2)}
+  stDlg(`${dots}<h3 style="text-align:center;margin:0 0 .2rem">${x.mode==="prop"?LL("Which program?","Quel programme ?"):LL("Which area?","Quelle zone ?")}</h3><p class="muted" style="text-align:center;margin:0 0 .6rem">${m[0]}</p>${x.mode==="prop"?`<div class="chips full" style="flex-wrap:wrap">${m[1].map((a,i)=>`<button class="chip ${x.area===i?"on":""}" style="min-width:3rem;font-size:1.1rem" onclick="window._sm.area=${i};${nxt(2)}">${a}</button>`).join("")}</div>`:(fr?m[2]:m[1]).map((a,i)=>big(a,x.area===i,`window._sm.area=${i};${nxt(2)}`)).join("")}`)}
+ else if(n===2)stDlg(`${dots}<h3 style="text-align:center;margin:0 0 .6rem">${LL("Which level?","Quel niveau ?")}</h3>${SISMO_LV.map((l,i)=>big(fr?l[1]:l[0],x.lv===i,`window._sm.lv=${i};${nxt(3)}`)).join("")}`);
+ else stDlg(`${dots}<h3 style="text-align:center;margin:0 0 .6rem">${LL("How long?","Combien de temps ?")}</h3><div class="chips full">${[5,10,15,20].map(v=>`<button class="chip ${+x.min===v?"on":""}" onclick="sismoDone(${v})">${v} min</button>`).join("")}</div>
+ <div class="oneline" style="margin-top:.7rem"><input id="smmin" type="number" inputmode="numeric" placeholder="${LL("Other (min)","Autre (min)")}" style="flex:1;text-align:center"><button class="addb" aria-label="Save" onclick="sismoDone(document.getElementById('smmin').value)">✓</button></div>`)}
+function sismoDone(v){const x=window._sm;const m=Math.max(1,Math.round(+v||0));if(!m)return;A().sismo={mode:x.mode,area:x.area||0,lv:x.lv??0,min:m};liveSave();closeStDlg();const el=document.getElementById("fsismo");if(el)el.innerHTML=sismoRowHTML();flash("📳 "+sismoLabel(A().sismo))}
 function saveLive(){const a=A();const anyDone=a.ex.some(e=>e.sets.some(s=>s.done));
  if(!anyDone){a.ex.forEach(e=>e.sets.forEach(s=>{if(liveFields(e.name).some(([f])=>parseFloat(s[f])))s.done=true}))}
  if(!a.ex.some(e=>e.sets.some(s=>s.done))){toast("Nothing to save yet: tick ✓ the sets you did.");return}
@@ -3475,6 +3494,7 @@ function saveLive(){const a=A();const anyDone=a.ex.some(e=>e.sets.some(s=>s.done
  {const ns=(S.core.sessions||[]).find(q=>q.id===sid);if(ns){const tt=(($("#ftitle")||{}).value||"").trim();const def=a.day==="FREE"?"Free workout":(S.core.workout[a.day]||{}).title;if(tt&&tt!==def&&tt!==LL("Free workout","Séance libre"))ns.title=tt;const rp=+(($("#frpe")||{}).value||0);if(rp)ns.rpe=rp}}
  const en=document.querySelector("#fenergy .chip.on");if(en){const ss=S.core.sessions[S.core.sessions.length-1];if(ss)ss.energy=+en.dataset.v;const Ld=dayLog(date);if(!Ld.energy)Ld.energy=+en.dataset.v;save(monthKey(date))}
  if(a.water&&a.water.n){const sw=prefs().sw||swDefaults();const Ld=dayLog(date);Ld.food.push({label:`💧 Sport water${prefs().gym&&prefs().gym!=="Other"?" ("+prefs().gym+")":""} × ${a.water.n}`,kcal:a.water.n*(+sw.kcal||0),p:0,c:0,f:0,fib:0,veg:0,meal:"s",at:($("#fend")||{}).value||nowHM()});const ss=S.core.sessions[S.core.sessions.length-1];if(ss)ss.water=a.water.n;save(monthKey(date))}
+ {const sq=(S.core.sessions||[]).find(q=>q.id===sid);if(sq&&a.sismo)sq.sismo=a.sismo}
  {const ss=S.core.sessions[S.core.sessions.length-1];if(ss){ss.painAsked=true;ss.pain=finPain.filter(x=>x.l>0)}if(finPain.some(x=>x.l>0))save("core")}
  const done=a.ex.filter(e=>e.sets.some(x=>x.done));const upd=wkDiff(a);S.core.active=null;wakeOff();save("core");closeSheet();tab="cal";trainView="plan";calSel=date;calOff=0;render();window.scrollTo(0,0);
  const nx=done.map(e=>{const pe=(S.core.workout[a.day]||{ex:[]}).ex.find(x=>x.name===e.name)||{name:e.name,reps:e.reps,sets:e.sets.filter(x=>x.t!=="W").length};const t=nextTarget(pe,a.day);return t.text?nextRowHTML(e,t):""}).join("");
@@ -3538,7 +3558,8 @@ function histSheet(key){const x=findSess(key)[0];if(!x)return;window._histBack=w
  <h2 style="margin:.8rem 0 .4rem">${esc(sessTitle(x))}</h2>
  <div class="row" style="flex-wrap:nowrap;align-items:center;gap:.6rem"><div style="flex:1;min-width:0">${M.P.length||M.S.length?bodyMapHTML(M.P,M.S,240):""}</div><div style="flex:none;width:6.5rem"><div class="muted" style="font-size:.78rem">${LL("Duration","Durée")}</div><b style="font-size:1.15rem">${x.dur?fmtMin(x.dur):"—"}</b><div class="muted" style="font-size:.78rem;margin-top:.5rem">Volume</div><b style="font-size:1.15rem">${r0(s.vol).toLocaleString(LOC())} kg</b><div class="muted" style="font-size:.78rem;margin-top:.5rem">${LL("Calories","Calories")}</div><b style="font-size:1.15rem">${x.dur?sessKcal(x)+" kcal":"—"}</b><div class="muted" style="font-size:.78rem;margin-top:.5rem">${LL("Sets","Séries")}</div><b style="font-size:1.15rem">${r0(s.sets)}</b></div></div>
  <button class="aibtn" onclick="aiWorkout(${kq})">✨ ${LL("AI analysis","Analyse IA")}</button>
- ${x.notes?`<div style="margin:.8rem 0"><b>🔒 ${LL("Private note","Note privée")}</b><div style="white-space:pre-wrap;margin-top:.3rem">${esc(x.notes)}</div></div>`:""}
+ ${x.sismo?`<div class="box" style="display:flex;align-items:center;gap:.6rem;margin:.8rem 0"><span style="font-size:1.3rem">📳</span><div><b>Sismo</b><div class="muted" style="font-size:.85rem">${esc(sismoLabel(x.sismo))}</div></div></div>`:""}
+${x.notes?`<div style="margin:.8rem 0"><b>🔒 ${LL("Private note","Note privée")}</b><div style="white-space:pre-wrap;margin-top:.3rem">${esc(x.notes)}</div></div>`:""}
  ${cards.length?`<div class="insgrid">${cards.join("")}</div>`:""}
  <h3 style="margin:1.1rem 0 .3rem">${LL("Exercises","Exercices")}</h3>
  ${s.L.map(({name,entry})=>{let n=0;return`<div style="padding:.6rem 0;border-bottom:1px solid var(--line)"><div class="row" style="gap:.7rem;flex-wrap:nowrap;align-items:center">${exThumb(name)}<b class="wkn" style="cursor:pointer" onclick="closeSheet();showEx(${esc(JSON.stringify(name))},true)">${esc(name)}</b></div>
@@ -4388,7 +4409,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.74a beta";
+const APP_VERSION="0.75 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
