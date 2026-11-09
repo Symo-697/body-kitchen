@@ -1028,7 +1028,7 @@ function finishSetup(){const d=SD,p=S.core.profile;
  progSeed=0;save("core");save("body");setupOn=false;
  if(d.planPhases){SD=null;tab="me";meView={page:"plan"};planDraft=tplSteps(defaultTemplate());render();window.scrollTo(0,0);return}
  SD=null;tab="train";trainView="preview";render();window.scrollTo(0,0)}
-function go(t){if(t==="kitchen"&&tab!=="kitchen")setTimeout(lowAsk,250);settingsOpen=false;statsOpen=false;if(t==="me"&&tab==="me")meView=null;tab=t;render();window.scrollTo(0,0)}
+function go(t){if(t==="shop"&&tab!=="shop")setTimeout(lowAsk,250);settingsOpen=false;statsOpen=false;if(t==="me"&&tab==="me")meView=null;tab=t;render();window.scrollTo(0,0)}
 
 function vToday(){
  const T=targets();const L=dayLog(logDate);
@@ -4423,7 +4423,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.76 beta";
+const APP_VERSION="0.76a beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
