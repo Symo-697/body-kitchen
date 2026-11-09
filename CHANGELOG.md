@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.75b beta · 2026-11-09
+Sismo › area step shows front/back body diagrams with the targeted muscles in red, like on the machine.
+
 ## 0.75a beta · 2026-11-09
 Calendar › Edit a past workout: add, change or remove its Sismo session; shown on the day's workout card.
 
