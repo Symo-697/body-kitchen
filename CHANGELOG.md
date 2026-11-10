@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77b beta · 2026-11-10
+Recovery: compound lifts count less for the muscles that only help (e.g. glutes on hack squat/leg press), fatigue adds up more gently; tapping 🙂 Fine keeps the muscle at 80 % or more for today.
+
 ## 0.77a beta · 2026-11-10
 Recovery: hard sets count more (RIR/failure), fatigue stays high the first day, calves 72 h, extra after a 10-day break; tap a muscle and say how it feels (fine / a bit sore / very sore) and that overrides the estimate for today. 'Today/yesterday' now follows the calendar.
 
