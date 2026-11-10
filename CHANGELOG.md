@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77 beta · 2026-11-10
+Morning check-in: first open of the day asks sleep (📲 B&K Sleep shortcut, chips or type), energy (5 faces), then supplement tiles (tap = taken, time editable). ☀️ next to Sleep reopens it.
+
 ## 0.76a beta · 2026-11-10
 Running low list now pops up when you open Groceries (once a day), not Kitchen.
 
