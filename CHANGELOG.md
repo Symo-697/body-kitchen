@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77a beta · 2026-11-10
+Recovery: hard sets count more (RIR/failure), fatigue stays high the first day, calves 72 h, extra after a 10-day break; tap a muscle and say how it feels (fine / a bit sore / very sore) and that overrides the estimate for today. 'Today/yesterday' now follows the calendar.
+
 ## 0.77 beta · 2026-11-10
 Morning check-in: first open of the day asks sleep (📲 B&K Sleep shortcut, chips or type), energy (5 faces), then supplement tiles (tap = taken, time editable). ☀️ next to Sleep reopens it.
 
