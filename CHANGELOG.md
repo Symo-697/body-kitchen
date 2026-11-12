@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77c beta · 2026-11-12
+Muscle recovery: the list updates as soon as you choose Fine / A bit sore / Very sore.
+
 ## 0.77b beta · 2026-11-10
 Recovery: compound lifts count less for the muscles that only help (e.g. glutes on hack squat/leg press), fatigue adds up more gently; tapping 🙂 Fine keeps the muscle at 80 % or more for today.
 
