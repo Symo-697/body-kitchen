@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77e beta · 2026-11-12
+Rep range on position (PO) sets: each position must land in the range; the weakest position decides up / same / down.
+
 ## 0.77d beta · 2026-11-12
 New cardio: E-bike ride (search 'e-bike', 'bike share' or 'vélo électrique'); counts about 4 METs, lighter than regular cycling. Workout calories now use each cardio activity's own intensity.
 

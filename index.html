@@ -2529,10 +2529,10 @@ function _nextTarget(ex,day){const name=ex.name;const hist=(S.core.lifts||{})[na
   else if(e1){wTop=rnd(e1/(1+topR/30));why="Top set from your estimated max."}
   const wB=wTop?r25(wTop*.9):null;
   out={sets:1+nB,r:topR,w:wTop||undefined,perSet:[{r:topR,w:wTop||undefined,t:"T"}].concat(Array.from({length:nB},()=>({r:backR,w:wB||undefined,t:"B"}))),status,text:wTop?`Next: top set ${wTop} kg × ${topR}, then ${nB} × ${backR} at ${wB} kg. ${why}`:`Top set + back-off: first time, 1 heavy set of ${topR} reps with 2 to spare, then ${nB} × ${backR} about 10 % lighter.`}}
- else if(method==="range"){const all=last?(last.sets||[]).filter(x=>kindOf(x)!=="W"&&kindOf(x)!=="FE"&&kindOf(x)!=="D"&&+x.w&&repsMain(x)):[];
+ else if(method==="range"){const all=last?(last.sets||[]).filter(x=>kindOf(x)!=="W"&&kindOf(x)!=="FE"&&kindOf(x)!=="D"&&+x.w&&rrReps(x)):[];
   if(!all.length)out={sets:baseSets,r:hi,status:"",text:LL(`First time: pick a weight you can lift about ${hi} times with good form, go to failure. Range ${lo}–${hi}.`,`Première fois : prends un poids que tu peux soulever environ ${hi} fois proprement, jusqu'à l'échec. Fourchette ${lo}–${hi}.`)};
-  else{const ok=all.filter(x=>repsMain(x)>=lo-1);const W=ok.length?Math.max(...ok.map(x=>+x.w)):+all[0].w;const br=Math.max(...all.filter(x=>+x.w===W).map(x=>repsMain(x)));const tgt=Math.min(hi+1,br+1);
-   out={sets:baseSets,w:W,r:tgt,status:br>hi?"up":"reps",text:LL(`Start at ${W} kg and beat ${br} reps. Over ${hi} → +${incFor(name,W)} kg next set; under ${lo} → back down.`,`Commence à ${W} kg et bats ${br} reps. Plus de ${hi} → +${incFor(name,W)} kg à la série suivante ; moins de ${lo} → redescends.`)}}}
+  else{const ok=all.filter(x=>rrReps(x)>=lo-1);const W=ok.length?Math.max(...ok.map(x=>+x.w)):+all[0].w;const br=Math.max(...all.filter(x=>+x.w===W).map(x=>rrReps(x)));const tgt=Math.min(hi+1,br+1);
+   out={sets:baseSets,w:W,r:tgt,status:br>hi?"up":"reps",text:LL(`Start at ${W} kg and beat ${br} reps${all.some(x=>kindOf(x)==="PO")?" per position":""}. Over ${hi} → +${incFor(name,W)} kg next set; under ${lo} → back down.`,`Commence à ${W} kg et bats ${br} reps${all.some(x=>kindOf(x)==="PO")?" par position":""}. Plus de ${hi} → +${incFor(name,W)} kg à la série suivante ; moins de ${lo} → redescends.`)}}}
  else if(!ws.length){out={sets:method==="linear"?baseSets:baseSets,r:lo,text:method==="linear"?`First time: ${baseSets} × ${lo}, 2 reps to spare.`:`First time: ${baseSets} × ${lo===hi?lo:lo+"–"+hi}${lo===hi&&/\+/.test(String(ex&&ex.reps||""))?" ("+ex.reps+")":""}.`}}
  else if(method==="hold"){const r=Math.round(ws.reduce((a,x)=>a+(+x.r),0)/ws.length);out={sets:ws.length,w:top,r,status:"",text:`Maintain: keep ${top} kg for ${ws.length} × ${r}.`}}
  else if(method==="linear"){const atTop=ws.filter(x=>+x.w===top);if(atTop.every(x=>+x.r>=lo)&&atTop.length>=Math.min(baseSets,ws.length)&&!R.low)out={sets:baseSets,r:lo,w:rnd(top+inc),status:"up",text:`All sets done at ${top} kg: next ${rnd(top+inc)} kg, ${baseSets} × ${lo}.`};
@@ -3143,6 +3143,7 @@ const posPH=n=>/curl/i.test(n)?"7+7+7":"10+10+10";
 const SETINFO={PO:"One set in several positions, typed 10+10+10 (e.g. abduction, 21s curls).","":"Straight working set: 1 set, full volume, used for progression.",W:"Light prep set: counts as a set, not for progression.",FE:"1–3 reps at 70–90 %: counts as a set, not for progression.",L:"Left side: ½ set. Next set becomes R.",R:"Right side: ½ set. Next set becomes L.",D:"Straight after the set, 15 % lighter. Not an extra set.",F:"Taken to failure: 1 set and progression as normal.",N:"Slow heavy lowering, helped up. Use sparingly.",P:"Full reps then partials in the same set: type 10+5 (10 full + 5 partials). 1 set; partials count as half volume; progression uses the full reps.",M:"Myo-reps: activation set then mini-sets after 3–5 breaths, typed as one entry: 15+4+4+3. 1 set, all reps in volume; progression uses the activation reps. Best on machines/cables.",T:"Heaviest set of the day: 1 set, the reference for progression.",B:"10 % lighter than the top set: counts as a set, not for progression."};
 const repParts=s=>{if(!s)return[0];if(Array.isArray(s.rx))return[+s.r||0,...s.rx.map(x=>+x||0)];return String(s.r??"").split("+").map(x=>parseFloat(String(x).replace(",","."))||0)};
 const repsMain=s=>repParts(s)[0];
+const rrReps=s=>{if(s&&kindOf(s)==="PO"){const p=repParts(s).filter(x=>x>0);return p.length?Math.min(...p):0}return repParts(s)[0]};
 const repsVol=s=>{const p=repParts(s);const rest=p.slice(1).reduce((a,b)=>a+b,0);return p[0]+(s&&kindOf(s)==="P"?rest*.5:rest)};
 const r25=w=>w>=20?Math.round(w/2.5)*2.5:Math.round(w);
 const setRule=t=>SETRULE[t||""]||SETRULE[""];
@@ -3226,10 +3227,10 @@ function liveDef(e){const dy=window._phDay||(A()&&A().day);const d=dy&&S.core.wo
 const setCls=x=>{const k=kindOf(x);return k==="W"||k==="FE"?"W":isSideSet(x)?x.t:"N"};
 function prevSetAt(name,e,k){const h=(S.core.lifts||{})[name];if(!h||!h.length)return null;const cur=e.sets[k];const c=setCls(cur);const idx=e.sets.slice(0,k).filter(x=>setCls(x)===c).length;const ps=h[h.length-1].sets.filter(x=>setCls(x)===c);return ps[idx]||null}
 function rangeNext(e,k){const s=e.sets[k];if(!s||setCls(s)==="W"||kindOf(s)==="D"||kindOf(s)==="B")return null;let m="";try{m=methodFor(liveDef(e),window._phDay||(A()&&A().day))}catch(_){}if(m!=="range"||exMode(e.name)!=="w"||isAssisted(e.name))return null;
- const same=x=>x.done&&setCls(x)!=="W"&&kindOf(x)!=="D"&&kindOf(x)!=="FE"&&(!isSideSet(s)||x.t===s.t)&&parseFloat(x.w)&&repsMain(x);let j=k-1;while(j>=0&&!same(e.sets[j]))j--;if(j<0)return null;
- const p=e.sets[j],w=+p.w,r=repsMain(p);const [lo,hi]=repRange(liveDef(e).reps);const inc=incFor(e.name,w);
+ const same=x=>x.done&&setCls(x)!=="W"&&kindOf(x)!=="D"&&kindOf(x)!=="FE"&&(!isSideSet(s)||x.t===s.t)&&parseFloat(x.w)&&rrReps(x);let j=k-1;while(j>=0&&!same(e.sets[j]))j--;if(j<0)return null;
+ const p=e.sets[j],w=+p.w,r=rrReps(p);const [lo,hi]=repRange(liveDef(e).reps);const inc=incFor(e.name,w);
  if(r>hi){const up=wUp(e.name,w);return{w:up,why:"up",r,lo,hi,inc:r2(up-w)}}if(r>=lo)return{w,why:"same",r,lo,hi};
- for(let q=j-1;q>=0;q--){const x=e.sets[q];if(same(x)&&repsMain(x)>=lo&&+x.w<w)return{w:+x.w,why:"down",r,lo,hi}}return{w:wDown(e.name,w),why:"down",r,lo,hi}}
+ for(let q=j-1;q>=0;q--){const x=e.sets[q];if(same(x)&&rrReps(x)>=lo&&+x.w<w)return{w:+x.w,why:"down",r,lo,hi}}return{w:wDown(e.name,w),why:"down",r,lo,hi}}
 function warmPh(e,k,fld){const s=e.sets[k];if(!s||setCls(s)!=="W"||exMode(e.name)!=="w"||isAssisted(e.name))return null;if(e.plan&&e.plan[k]&&e.plan[k][fld]!=null&&e.plan[k][fld]!=="")return null;
  const ws=e.sets.map((x,j)=>setCls(x)==="W"?j:-1).filter(j=>j>=0);const n=ws.length,i=ws.indexOf(k);if(i<0)return null;
  if(fld==="r")return n===1?6:[8,5,3][Math.min(i,2)];
@@ -4463,7 +4464,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.77d beta";
+const APP_VERSION="0.77e beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
