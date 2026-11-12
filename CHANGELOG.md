@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77d beta · 2026-11-12
+New cardio: E-bike ride (search 'e-bike', 'bike share' or 'vélo électrique'); counts about 4 METs, lighter than regular cycling. Workout calories now use each cardio activity's own intensity.
+
 ## 0.77c beta · 2026-11-12
 Muscle recovery: the list updates as soon as you choose Fine / A bit sore / Very sore.
 
