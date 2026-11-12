@@ -3247,7 +3247,7 @@ function phFor(e,k,fld){const s=e.sets[k];if(!s)return"";{const wp=warmPh(e,k,fl
  const pl=prevSet(e.name,k);if(pl&&pl[fld]!=null&&pl[fld]!=="")return pl[fld];const dd=liveDef(e);if(fld==="w"&&dd&&dd.w!=null)return dd.w;if(fld==="r"||fld==="sec"||fld==="min")return topReps(e.reps);return""}
 function isUniEx(n){return!!((exDef(n)||{}).side||/\b(per (leg|side|arm)|single[- ]?(leg|arm)|one[- ]?(leg|arm)|unilateral)\b/i.test(n||""))}
 function uniExpand(le){if(!le||!["w","r"].includes(exMode(le.name))||!isUniEx(le.name))return le;if(le.sets.some(x=>x.t==="L"||x.t==="R"||x.t==="PO"))return le;
- const P=le.plan;le.sets=le.sets.flatMap(x=>{const w=x.t==="W";const base={...x,done:false};delete base.t;return["L","R"].map(sd=>({...base,t:sd,...(w?{sub:"W"}:{})}))});if(Array.isArray(P))le.plan=P.flatMap(p=>[p,{...p}]);return le}
+ const P=le.plan,src=le.sets;le.sets=["L","R"].flatMap(sd=>src.map(x=>{const w=x.t==="W";const base={...x,done:false};delete base.t;return{...base,t:sd,...(w?{sub:"W"}:{})}}));if(Array.isArray(P))le.plan=[...P,...P.map(p=>({...p}))];return le}
 function newLiveEx(name,n,reps,noUni){const le={name,reps:reps||(exDef(name)||{}).reps||DEF_REPS[exMode(name)],notes:lastExNote(name),open:false,sets:Array.from({length:exMode(name)==="c"?1:Math.max(1,n)},()=>({t:"",done:false}))};return noUni?le:uniExpand(le)}
 async function startWorkout(day){if(A()&&!await ask("A workout is already in progress. Discard it and start this one?"))return;const d=S.core.workout[day];if(!d)return;
  S.core.active={day,start:Date.now(),notes:"",photo:null,rest:null,ex:d.ex.map(ex=>{if(ex.rows&&ex.rows.length&&["w","r"].includes(exMode(ex.name))){const le=newLiveEx(ex.name,ex.rows.length,ex.reps,1);ex.rows.forEach((r,j)=>decT(encT(r),le.sets[j]));le.plan=ex.rows.map(r=>({w:r.w,r:r.r}));if(ex.ss)le.ss=ex.ss;return uniExpand(le)}const t=exMode(ex.name)==="w"?nextTarget(ex,day):{};const st=Array.isArray(ex.setTypes)&&ex.setTypes.length?ex.setTypes:null;const le=newLiveEx(ex.name,st?st.length:t.sets||setsFor(ex),ex.reps,1);if(st)le.sets.forEach((x,j)=>{if(st[j])decT(st[j],x)});else if(t.perSet)le.sets.forEach((x,j)=>{const p=t.perSet[j];if(p&&p.t)x.t=p.t});if(ex.ss)le.ss=ex.ss;return uniExpand(le)})};if(S.core.active.ex[0])S.core.active.ex[0].open=true;
@@ -4467,7 +4467,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.77f beta";
+const APP_VERSION="0.77g beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

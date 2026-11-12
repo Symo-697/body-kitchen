@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77g beta · 2026-11-12
+One-sided exercises: all Left sets first (warm-up included), then all Right sets; full rest between sets on the same leg, short rest when you switch legs.
+
 ## 0.77f beta · 2026-11-12
 One-sided exercises (per leg / per arm / single-leg / one-arm…) now start with Left and Right sets automatically, warm-ups included.
 
