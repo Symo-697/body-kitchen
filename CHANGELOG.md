@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77f beta · 2026-11-12
+One-sided exercises (per leg / per arm / single-leg / one-arm…) now start with Left and Right sets automatically, warm-ups included.
+
 ## 0.77e beta · 2026-11-12
 Rep range on position (PO) sets: each position must land in the range; the weakest position decides up / same / down.
 
