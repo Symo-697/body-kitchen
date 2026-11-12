@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77h beta · 2026-11-12
+Sport water: ＋ Missed refill adds a refill you forgot without restarting the refill timer. The ↑ button hides while the rest timer is on screen.
+
 ## 0.77g beta · 2026-11-12
 One-sided exercises: all Left sets first (warm-up included), then all Right sets; full rest between sets on the same leg, short rest when you switch legs.
 
