@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77l beta · 2026-11-13
+Iso-lateral machine weight is per arm (shoulder press set to 4.5 kg per arm).
+
 ## 0.77k beta · 2026-11-13
 Iso-lateral exercises now log all left sets, then all right sets. Past iso-lateral sets were converted to per-arm weights.
 
