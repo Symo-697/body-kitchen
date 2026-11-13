@@ -3246,7 +3246,13 @@ function phFor(e,k,fld){const s=e.sets[k];if(!s)return"";{const wp=warmPh(e,k,fl
  const p=prevSetAt(e.name,e,k);if(p&&p[fld]!=null&&p[fld]!=="")return p[fld];
  for(let j=k-1;j>=0;j--){const x=e.sets[j];if(setCls(x)==="W"&&!isW)continue;if(x[fld]!=null&&x[fld]!=="")return x[fld]}
  const pl=prevSet(e.name,k);if(pl&&pl[fld]!=null&&pl[fld]!=="")return pl[fld];const dd=liveDef(e);if(fld==="w"&&dd&&dd.w!=null)return dd.w;if(fld==="r"||fld==="sec"||fld==="min")return topReps(e.reps);return""}
-function isUniEx(n){return!!((exDef(n)||{}).side||/\b(per (leg|side|arm)|single[- ]?(leg|arm)|one[- ]?(leg|arm)|unilateral)\b/i.test(n||""))}
+function isUniEx(n){return!!((exDef(n)||{}).side||/\b(per (leg|side|arm)|single[- ]?(leg|arm)|one[- ]?(leg|arm)|unilateral|iso[- ]?lateral)\b/i.test(n||""))}
+const isIsoLat=n=>/\biso[- ]?lateral\b/i.test(n||"");
+function isoSplit(){const h2=v=>v==null||v===""||isNaN(+v)?v:Math.round(+v/2*100)/100;const L=S.core.lifts||{};
+ Object.keys(L).forEach(n=>{if(!isIsoLat(n))return;L[n].forEach(en=>{const ss=en.sets||[];if(!ss.length||ss.some(x=>x.t==="L"||x.t==="R"))return;en.sets=["L","R"].flatMap(sd=>ss.map(x=>{const b={...x,w:h2(x.w)};const w=x.t==="W";delete b.t;return{...b,t:sd,...(w?{sub:"W"}:{})}}))})});
+ const fixNote=t=>typeof t==="string"?t.replace(/ ?Log both arms[\u2019']? plates added together\.?/g," Log one arm\u2019s plates (left and right are logged separately)."):t;
+ Object.values(S.core.workout||{}).forEach(d=>(d&&d.ex||[]).forEach(ex=>{if(!isIsoLat(ex.name))return;if(ex.w!=null)ex.w=h2(ex.w);(ex.rows||[]).forEach(r=>{r.w=h2(r.w)});ex.note=fixNote(ex.note);ex.notes=fixNote(ex.notes)}));
+ const a=S.core.active;if(a&&a.ex)a.ex=a.ex.map(le=>{if(!isIsoLat(le.name)||le.sets.some(x=>x.done||x.t==="L"||x.t==="R"))return le;if(Array.isArray(le.plan))le.plan=le.plan.map(p=>({...p,w:h2(p.w)}));le.sets.forEach(x=>{if(x.w!=null&&x.w!=="")x.w=h2(x.w)});le.notes=fixNote(le.notes);return uniExpand(le)})}
 function uniExpand(le){if(!le||!["w","r"].includes(exMode(le.name))||!isUniEx(le.name))return le;if(le.sets.some(x=>x.t==="L"||x.t==="R"||x.t==="PO"))return le;
  const P=le.plan,src=le.sets;le.sets=["L","R"].flatMap(sd=>src.map(x=>{const w=x.t==="W";const base={...x,done:false};delete base.t;return{...base,t:sd,...(w?{sub:"W"}:{})}}));if(Array.isArray(P))le.plan=[...P,...P.map(p=>({...p}))];return le}
 function newLiveEx(name,n,reps,noUni){const le={name,reps:reps||(exDef(name)||{}).reps||DEF_REPS[exMode(name)],notes:lastExNote(name),open:false,sets:Array.from({length:exMode(name)==="c"?1:Math.max(1,n)},()=>({t:"",done:false}))};return noUni?le:uniExpand(le)}
@@ -4470,7 +4476,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.77j beta";
+const APP_VERSION="0.77k beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
@@ -4608,7 +4614,7 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden&&window._ph
  window.addEventListener("scroll",upd,{passive:true});document.addEventListener("scroll",e=>{const t=e.target;if(t&&t.nodeType===1){if(t.scrollHeight>t.clientHeight+50)last=t;upd()}},{passive:true,capture:true});
  new MutationObserver(()=>requestAnimationFrame(upd)).observe(document.body,{childList:true,subtree:false,attributes:true,attributeFilter:["class"]});setInterval(upd,1500)})();
 setInterval(()=>{try{document.body.classList.toggle("haslive",!!document.querySelector(".livebar"))}catch(_){}},500);
-let autoSetup=false;localLoad();try{if(S.core&&S.core.workout&&S.core._relab!==1){relabelWorkouts();S.core._relab=1;save("core")}}catch(_){}seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();
+let autoSetup=false;localLoad();try{if(S.core&&S.core.workout&&S.core._relab!==1){relabelWorkouts();S.core._relab=1;save("core")}}catch(_){}try{if(S.core&&S.core._isoSplit!==1){isoSplit();S.core._isoSplit=1;save("core")}}catch(e){console.warn(e)}seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
 </script>
 

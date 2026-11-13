@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77k beta · 2026-11-13
+Iso-lateral exercises now log all left sets, then all right sets. Past iso-lateral sets were converted to per-arm weights.
+
 ## 0.77j beta · 2026-11-13
 The old Good morning sheet no longer pops up; only the new morning check-in remains.
 
