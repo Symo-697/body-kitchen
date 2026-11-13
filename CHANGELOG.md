@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77n beta · 2026-11-13
+Pin stacks can start with several first weights (e.g. 2.5 then 6, then every 3.5). Cable exercises default to the Life Fitness stack, with a button to apply it to all cables.
+
 ## 0.77m beta · 2026-11-13
 The Possible weights preview now updates as you edit First / Then every.
 
