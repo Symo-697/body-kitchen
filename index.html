@@ -918,7 +918,8 @@ function migHS(){try{const M={"Hammer Strength Abdominal Crunch":"Abdominal Crun
  const fixEx=L=>(L||[]).forEach(e=>{if(M[e.name]){e.name=M[e.name];ch=true}});Object.values(c.workout||{}).forEach(w=>fixEx(w.ex));if(c.active)fixEx(c.active.ex);
  ["lifts","baseW","dbCount","rest","restW","exUnit","sideRest","posSel","customEx","wsteps"].forEach(k=>{const o=c[k];if(!o)return;Object.keys(M).forEach(a=>{if(o[a]!==undefined){if(k==="lifts"&&o[M[a]])o[M[a]]=o[M[a]].concat(o[a]);else o[M[a]]=o[a];delete o[a];ch=true}})});
  if(ch)save("core")}catch(e){}}
-let _trOn=false;function render(){if(S.core&&(S.core._migHS||0)<2){migHS();S.core._migHS=2}ensureColors();setTimeout(fabPaint,0);if(S.core&&S.core.profile&&S.core.profile.age)migRecomp();if(!_trOn&&document.body){_trOn=true;trStart()}
+let _trOn=false;function rollPlan(){try{const p=S.core&&S.core.plan,m=mondayOf(today());if(p&&p.week&&p.week<m){p.week=m;save("core")}}catch(_){}}
+function render(){if(S.core&&(S.core._migHS||0)<2){migHS();S.core._migHS=2}rollPlan();ensureColors();setTimeout(fabPaint,0);if(S.core&&S.core.profile&&S.core.profile.age)migRecomp();if(!_trOn&&document.body){_trOn=true;trStart()}
  if(setupOn){$("#tabs").style.display="none";$("#app").innerHTML=vSetup();return}
  $("#tabs").style.display="";
  const tabs=[["today","◐","Today"],["kitchen","🍳","Kitchen"],["shop","🛒","Groceries"],["train","🏋️","Train"],["cal","📅","Calendar"],["me","◎","Me"]];
@@ -4479,7 +4480,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.77n beta";
+const APP_VERSION="0.77o beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
