@@ -1184,7 +1184,7 @@ async function delSavedMeal(i){const m=S.core.meals[i];if(!await ask(`Delete the
 function rmLog(i){const x=dayLog(logDate).food[i];if(x&&x.used)stockUse(x.used,-1);if(x&&x.slot){const L=dayLog(logDate);if(L.slotsDone)delete L.slotsDone[x.slot]}dayLog(logDate).food.splice(i,1);save(monthKey(logDate));render()}
 function addWater(v){const L=dayLog(logDate);L.water=Math.max(0,(L.water||0)+v);save(monthKey(logDate));render()}
 let _ci=false;
-function maybeCheckin(force){const P=prefs();if(!force&&(_ci||P.checkin===false||P.checkinDay===today()||typeof setupOn!=="undefined"&&setupOn||!S.core.profile.age))return;const h=new Date().getHours();if(!force&&(h<4||h>=14))return;_ci=true;
+function maybeCheckin(force){if(force){try{prefs().ciOff=false;ciOpen()}catch(_){}}return;const P=prefs();if(!force&&(_ci||P.checkin===false||P.checkinDay===today()||typeof setupOn!=="undefined"&&setupOn||!S.core.profile.age))return;const h=new Date().getHours();if(!force&&(h<4||h>=14))return;_ci=true;
  const L=dayLog(today());const due=suppsDue(today()).filter(x=>x.due&&(x.s.when||"").match(/morn|wake|break|am/i));
  openSheet(`<h3>☀️ Good morning</h3><p class="muted" style="margin:0 0 .5rem;font-size:.86rem">10 seconds: this sets today's training (a low score keeps the weights where they are).</p>
  <label>How long did you sleep?</label><div class="chips" id="cisleep">${[5,6,6.5,7,7.5,8,9].map(v=>`<button class="chip ${+L.sleep===v?"on":""}" data-v="${v}" onclick="document.querySelectorAll('#cisleep .chip').forEach(c=>c.classList.toggle('on',c===this));$('#cisl').value='${v}'">${v} h</button>`).join("")}<input id="cisl" type="text" inputmode="decimal" placeholder="other" value="${esc(L.sleep||"")}" style="width:4.5rem;padding:.3rem"></div>
@@ -4470,7 +4470,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.77i beta";
+const APP_VERSION="0.77j beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
@@ -4608,7 +4608,7 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden&&window._ph
  window.addEventListener("scroll",upd,{passive:true});document.addEventListener("scroll",e=>{const t=e.target;if(t&&t.nodeType===1){if(t.scrollHeight>t.clientHeight+50)last=t;upd()}},{passive:true,capture:true});
  new MutationObserver(()=>requestAnimationFrame(upd)).observe(document.body,{childList:true,subtree:false,attributes:true,attributeFilter:["class"]});setInterval(upd,1500)})();
 setInterval(()=>{try{document.body.classList.toggle("haslive",!!document.querySelector(".livebar"))}catch(_){}},500);
-let autoSetup=false;localLoad();try{if(S.core&&S.core.workout&&S.core._relab!==1){relabelWorkouts();S.core._relab=1;save("core")}}catch(_){}seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();setTimeout(()=>maybeCheckin(),900);
+let autoSetup=false;localLoad();try{if(S.core&&S.core.workout&&S.core._relab!==1){relabelWorkouts();S.core._relab=1;save("core")}}catch(_){}seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
 </script>
 

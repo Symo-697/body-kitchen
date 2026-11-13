@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77j beta · 2026-11-13
+The old Good morning sheet no longer pops up; only the new morning check-in remains.
+
 ## 0.77i beta · 2026-11-13
 Check-in: pick your sleep with hour/minute wheels (or the quick buttons). Today › Supplements uses the same tap tiles as the check-in, with the time under each one taken.
 
