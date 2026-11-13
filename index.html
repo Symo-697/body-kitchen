@@ -2456,13 +2456,13 @@ function repRange(reps){if(/\d\s*\+\s*\d/.test(String(reps))){const t=String(rep
 function wDefault(n){const m=/machine|lever|seated|pec deck/i.test(n);if(/abduct|adduct/i.test(n)&&m)return{type:"stack",start:5,step:7,adds:[2.5,2.5]};if(/lateral raise/i.test(n)&&m)return{type:"stack",start:5,step:7.5,adds:[2.5,2.5]};if(equipOf(n)==="dumbbell"&&!m)return{type:"db"};return{type:"plates",step:2.5}}
 function wSteps(n){return(S.core.wsteps||{})[n]||wDefault(n)}
 const r2=v=>Math.round(v*100)/100;
-function wVals(n){const c=wSteps(n);if(c.type==="db")return Array.from({length:40},(_,i)=>2+2*i);if(c.type!=="stack")return null;let sums=[0];(c.adds||[]).forEach(a=>{sums=sums.concat(sums.map(x=>x+(+a||0)))});const st=+c.step||5,s0=+c.start||st;const out=new Set();for(let i=0;i<60;i++)sums.forEach(x=>out.add(r2(s0+st*i+x)));return[...out].sort((a,b)=>a-b)}
+function wVals(n,cfg){const c=cfg||wSteps(n);if(c.type==="db")return Array.from({length:40},(_,i)=>2+2*i);if(c.type!=="stack")return null;let sums=[0];(c.adds||[]).forEach(a=>{sums=sums.concat(sums.map(x=>x+(+a||0)))});const st=+c.step||5,s0=+c.start||st;const out=new Set();for(let i=0;i<60;i++)sums.forEach(x=>out.add(r2(s0+st*i+x)));return[...out].sort((a,b)=>a-b)}
 function wUp(n,w){w=+w||0;const V=wVals(n);if(V){const v=V.find(x=>x>w+1e-6);return v!=null?v:r2(w+(+wSteps(n).step||2))}const st=+wSteps(n).step||2.5;return r2(w+st)}
 function wDown(n,w){w=+w||0;const V=wVals(n);if(V){const v=[...V].reverse().find(x=>x<w-1e-6);return v!=null?v:0}const st=+wSteps(n).step||2.5;return Math.max(0,r2(w-st))}
 function wSnap(n,v){const V=wVals(n);if(V)return V.reduce((a,x)=>Math.abs(x-v)<Math.abs(a-v)?x:a,V[0]);const st=+wSteps(n).step||2.5;return Math.max(st,r2(Math.round(v/st)*st))}
 function wStepsLabel(n){const c=wSteps(n);return c.type==="db"?LL("Dumbbells, 2 kg steps","Haltères, pas de 2 kg"):c.type==="stack"?`${LL("Stack","Pile")} ${c.start}+${c.step}${(c.adds||[]).length?" · +"+c.adds.join("/+"):""}`:LL(`Plates, ${c.step} kg steps`,`Disques, pas de ${c.step} kg`)}
 function wStepSheet(n){const c=JSON.parse(JSON.stringify(wSteps(n)));window._ws={n,c};wStepPaint()}
-function wStepPaint(){const {n,c}=window._ws;const t=c.type;const prev=(()=>{const V=wVals(n);if(V)return V.slice(0,9).join(" · ")+" …";const st=c.step||2.5;return[1,2,3,4,5,6].map(i=>r2(i*st)).join(" · ")+" …"})();
+function wStepPaint(){const {n,c}=window._ws;const t=c.type;const prev=(()=>{const V=wVals(n,c);if(V)return V.slice(0,9).join(" · ")+" …";const st=c.step||2.5;return[1,2,3,4,5,6].map(i=>r2(i*st)).join(" · ")+" …"})();
  stDlg(`<h3 style="margin:0 0 .2rem">⚖️ ${LL("Weight steps","Paliers de poids")}</h3><p class="muted" style="margin:0 0 .7rem;font-size:.85rem">${esc(n)}</p>
  <div class="seg">${[["plates",LL("Plates","Disques")],["stack",LL("Pin stack","Pile à goupille")],["db",LL("Dumbbells","Haltères")]].map(([k,l])=>`<button class="${t===k?"on":""}" onclick="window._ws.c=${k==="stack"?"{type:'stack',start:5,step:7,adds:[2.5,2.5]}":k==="db"?"{type:'db'}":"{type:'plates',step:2.5}"};wStepPaint()">${l}</button>`).join("")}</div>
  ${t==="plates"?`<p class="muted" style="font-size:.8rem;margin:.6rem 0 .3rem;text-align:center">${LL("Smallest jump (both sides together)","Plus petit saut (les deux côtés)")}</p><div class="chips full">${[1.25,2.5,5].map(v=>`<button class="chip ${+c.step===v?"on":""}" onclick="window._ws.c.step=${v};wStepPaint()">+${v} kg</button>`).join("")}</div>`:""}
@@ -4476,7 +4476,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.77l beta";
+const APP_VERSION="0.77m beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

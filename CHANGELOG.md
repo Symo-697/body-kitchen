@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77m beta · 2026-11-13
+The Possible weights preview now updates as you edit First / Then every.
+
 ## 0.77l beta · 2026-11-13
 Iso-lateral machine weight is per arm (shoulder press set to 4.5 kg per arm).
 
