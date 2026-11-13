@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77i beta · 2026-11-13
+Check-in: pick your sleep with hour/minute wheels (or the quick buttons). Today › Supplements uses the same tap tiles as the check-in, with the time under each one taken.
+
 ## 0.77h beta · 2026-11-12
 Sport water: ＋ Missed refill adds a refill you forgot without restarting the refill timer. The ↑ button hides while the rest timer is on screen.
 
