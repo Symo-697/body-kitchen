@@ -2405,7 +2405,7 @@ function eqLabel(n){const m=meta3(n);if(m)return m.eq;return EQMAP[equipOf(n)]||
 function expandQ(q){const t0=" "+norm(q).trim().replace(/\s+/g," ")+" ";let t=t0;const rep=[];
  DB3.S.forEach(([a,b])=>{const na=" "+norm(a)+" ";if(t0.includes(na)&&t.includes(na)){t=t.replace(na," \u0001"+rep.length+"\u0001 ");rep.push(norm(b))}});
  return t.replace(/\u0001(\d+)\u0001/g,(_,i)=>rep[+i]).trim()}
-function exText(n){const m=meta3(n);return n+" "+(DUPS[n]||[]).join(" ")+" "+(m?m.al.join(" ")+" "+m.fam+" "+m.eq:"")+" "+muscleWords(n)+" "+eqLabel(n)+" "+(X3OF[n]||"")}
+function exText(n){const m=meta3(n);return n+" "+(GYM_ALIAS[n]||"")+" "+(GYM_SET.has(n)?"my gym":"")+" "+(DUPS[n]||[]).join(" ")+" "+(m?m.al.join(" ")+" "+m.fam+" "+m.eq:"")+" "+muscleWords(n)+" "+eqLabel(n)+" "+(X3OF[n]||"")}
 function usedExNames(){return new Set([...Object.keys(S.core.lifts||{}),...Object.values(S.core.workout||{}).flatMap(w=>(w.ex||[]).map(e=>e.name))])}
 /* duplicate detection: same words in another order, plurals, Lever = Machine, assisted = machine-assisted, missing default equipment */
 const DUPR=[[/ side lateral /g," lateral "],[/ lever /g," machine "],[/ leverage /g," machine "],[/ pull downs? /g," pulldown "],[/ pulldowns /g," pulldown "],[/ pull ups? /g," pullup "],[/ pullups /g," pullup "],[/ chin ups? /g," chinup "],[/ chinups /g," chinup "],[/ push ups? /g," pushup "],[/ pushups /g," pushup "],[/ sit ups? /g," situp "],[/ situps /g," situp "],[/ step ups? /g," stepup "],[/ stepups /g," stepup "],[/ dumbbells /g," dumbbell "],[/ (the|with|on|a|of|an) /g," "],[/ exercise /g," "],[/ dips /g," dip "],[/ curls /g," curl "],[/ raises /g," raise "],[/ rows /g," row "],[/ squats /g," squat "],[/ lunges /g," lunge "],[/ presses /g," press "],[/ crunches /g," crunch "],[/ fl(?:ye|y)s /g," fly "],[/ extensions /g," extension "],[/ kickbacks /g," kickback "],[/ thrusts /g," thrust "]];
@@ -2421,12 +2421,13 @@ function dupRank(n,used,own){const x=norm(n);return(used.has(n)?0:1)*8+(/^lever 
 let _ln=null,_lnk="";
 function libNames(){const used=usedExNames(),own=ownExerciseNames();const k=used.size+"/"+own.size+"/"+[...used].join("|").length;if(_ln&&_lnk===k)return _ln;
  const out=new Set();Object.keys(X3).forEach(c=>{const al=X3BY[c]||[];out.add([c,...al].find(n=>used.has(n))||al.find(n=>own.has(n))||c)});
- allExerciseNames().forEach(n=>{if(!X3[n]&&!X3OF[n])out.add(n)});used.forEach(n=>out.add(n));["Smith machine hip thrust"].forEach(n=>{if(EX_LIB[n])out.add(n)});
+ allExerciseNames().forEach(n=>{if(!X3[n]&&!X3OF[n])out.add(n)});used.forEach(n=>out.add(n));gymInit();GYM_SET.forEach(n=>out.add(n));["Smith machine hip thrust"].forEach(n=>{if(EX_LIB[n])out.add(n)});
  const grp={};[...out].forEach(n=>{const kk=dupKey(n);(grp[kk]=grp[kk]||[]).push(n)});
  Object.keys(DUPOF).forEach(x=>delete DUPOF[x]);Object.keys(DUPS).forEach(x=>delete DUPS[x]);
- Object.values(grp).forEach(g=>{if(g.length<2)return;g.sort((a,b)=>dupRank(a,used,own)-dupRank(b,used,own)||a.length-b.length);const keep=g.filter((x,i)=>i===0||used.has(x));g.forEach(x=>{if(!keep.includes(x)){out.delete(x);DUPOF[x]=g[0]}});DUPS[g[0]]=g.slice(1)});
+ Object.values(grp).forEach(g=>{if(g.length<2)return;g.sort((a,b)=>(GYM_SET.has(b)-GYM_SET.has(a))||dupRank(a,used,own)-dupRank(b,used,own)||a.length-b.length);const keep=g.filter((x,i)=>i===0||used.has(x));g.forEach(x=>{if(!keep.includes(x)){out.delete(x);DUPOF[x]=g[0]}});DUPS[g[0]]=g.slice(1)});
  _ln=[...out].sort((a,b)=>a.localeCompare(b));_lnk=k;return _ln}
-function exSearch(q,names){const q2=expandQ(q);const qn=norm(q).trim();const used=usedExNames(),own=ownExerciseNames();
+function exSearch(q,names){const r=exSearch0(q,names);return[...r.filter(n=>GYM_SET.has(n)),...r.filter(n=>!GYM_SET.has(n))]}
+function exSearch0(q,names){const q2=expandQ(q);const qn=norm(q).trim();const used=usedExNames(),own=ownExerciseNames();
  const ws=q2.split(/\s+/).filter(Boolean);const prim=n=>{const [P]=musclesD(n);return norm(prettyList(P).join(" ")+" "+P.map(k=>MUSCLES[DMUS[k][1]]).join(" ")+" "+tgLabel(n))};
  const sc=n=>{const x=norm(n);return ws.every(w=>x.includes(w.length>4?w.replace(/s$/,""):w))?0:ws.some(w=>prim(n).includes(w))?1:2};
  const st=ws.map(w=>w.length>4?w.replace(/s$/,""):w);
@@ -3175,7 +3176,7 @@ const sideTag=x=>isSideSet(x)?x.t+(x.sub?"·"+x.sub:""):(x&&x.t)||"";
 const isAssisted=n=>/assist|gravitron/i.test(n)&&!/band/i.test(n)&&exMode(n)==="w";
 function bwNow(){const a=avgWeight(10,0);if(a)return a;const e=(S.body.entries||[]).filter(x=>x.weight).sort((x,y)=>x.date.localeCompare(y.date)).pop();return e?+e.weight:(+S.core.profile.weight||70)}
 const effW=(n,w)=>isAssisted(n)?Math.max(0,bwNow()-(+w||0)):(+w||0)+((+w||0)>0||baseW(n)?baseW(n):0);
-const isMachine=n=>{try{if(isAssisted(n))return false;const e=eqLabel(n);if(["Leverage machine","Smith machine","Sled machine","T-bar"].includes(e))return true}catch(x){}return/\b(lever|machine|smith|leg press|hack squat|sled|pendulum|belt squat)\b/i.test(n)};
+const isMachine=n=>{try{if(isAssisted(n))return false;if(GYM_SET.has(n)&&!/cable|pull-up|chin-up|dips|hanging|ring row|captain|knee raise|treadmill|bike|stair|back extension/i.test(n))return true;const e=eqLabel(n);if(["Leverage machine","Smith machine","Sled machine","T-bar"].includes(e))return true}catch(x){}return/\b(lever|machine|smith|leg press|hack squat|sled|pendulum|belt squat)\b/i.test(n)};
 const baseW=n=>+((S.core.baseW||{})[n])||0;
 function baseSheet(n,after){const cur=(S.core.baseW||{})[n];const nq=esc(JSON.stringify(n));const plates=cur!=null&&+cur>0;
  stDlg(`<h3 style="margin:0 0 .2rem">⚖️ ${LL("Machine weight","Poids de la machine")}</h3><p class="muted" style="margin:0 0 .7rem;font-size:.85rem">${esc(n)}</p>
@@ -3263,6 +3264,25 @@ function phFor(e,k,fld){const s=e.sets[k];if(!s)return"";{const wp=warmPh(e,k,fl
  const p=prevSetAt(e.name,e,k);if(p&&p[fld]!=null&&p[fld]!=="")return p[fld];
  for(let j=k-1;j>=0;j--){const x=e.sets[j];if(setCls(x)==="W"&&!isW)continue;if(x[fld]!=null&&x[fld]!=="")return x[fld]}
  const pl=prevSet(e.name,k);if(pl&&pl[fld]!=null&&pl[fld]!=="")return pl[fld];const dd=liveDef(e);if(fld==="w"&&dd&&dd.w!=null)return dd.w;if(fld==="r"||fld==="sec"||fld==="min")return topReps(e.reps);return""}
+const GYM_EX=[
+["Biceps Curl Machine",null,"Arms"],["Triceps Extension Machine","Machine Triceps Extension","Arms"],["Cable Curls",null,"Arms"],["Triceps Pushdown (rope)",null,"Arms"],["Cable Overhead Triceps Extension (rope, overhead)",null,"Arms"],["Iso-Lateral Seated Dip","Machine Seated Dip","Arms",{mode:"w"}],["Dips",null,"Arms"],
+["Chest press machine",null,"Chest"],["Pec Deck Fly",null,"Chest"],["Iso-Lateral Machine Chest Press",null,"Chest"],["Iso-Lateral Bench Press","Iso-Lateral Machine Chest Press","Chest"],["Machine Iso-Lateral Decline Chest Press",null,"Chest"],["Cable Crossover",null,"Chest"],
+["Machine Shoulder Press",null,"Shoulders"],["Machine Iso-Lateral Shoulder Press",null,"Shoulders"],["Machine Lateral Raise",null,"Shoulders"],["Plate-Loaded Lateral Raise","Machine Lateral Raise","Shoulders"],["Cable lateral raise",null,"Shoulders"],["Reverse Pec Deck","Machine Reverse Pec Deck","Shoulders"],["Cable Face Pull (rope)",null,"Shoulders"],
+["Lat pulldown",null,"Back"],["Chest-Supported Machine Row",null,"Back"],["Wide-Grip Cable Row",null,"Back"],["Machine Iso-Lateral High Row",null,"Back"],["Iso-Lateral D.Y. Row","Machine Iso-Lateral Row (Underhand)","Back"],["Iso-Lateral Machine Row",null,"Back"],["Pullover Machine",null,"Back"],["Pull-up",null,"Back"],["Chin-up",null,"Back"],["Ring Row",null,"Back"],
+["Leg press",null,"Legs"],["Sled 45° Leg Press",null,"Legs"],["Hack Squat Machine",null,"Legs"],["Machine Belt Squat",null,"Legs"],["Ground Base Squat","Hack Squat Machine","Legs"],["Machine Leg Extension",null,"Legs"],["Iso-Lateral Leg Extension","Machine Leg Extension","Legs"],["Machine Seated Leg Curl",null,"Legs"],["Lying leg curl",null,"Legs"],["Iso-Lateral Kneeling Leg Curl","Machine Kneeling Leg Curl","Legs"],
+["Hip Thrust Machine","Machine Hip Thrust","Glutes"],["Dual 45 Hip Extension","45 Degree Hip Extension Glute Focused","Glutes"],["45° back extension, glute bias",null,"Glutes"],["Glute Belt Squat","Machine Belt Squat","Glutes"],["Glute Squat","Machine Belt Squat","Glutes"],["Glute Lunge Machine",null,"Glutes"],["Pendulum Glute Kickback","Machine Glute Kickback","Glutes",{side:true}],["Cable kickback (per leg)",null,"Glutes"],["Hip abduction machine",null,"Glutes"],["3D Multi Abductor","Lever Standing Hip Abduction","Glutes"],
+["Abdominal Crunch Machine",null,"Core"],["Cable crunch",null,"Core"],["Hanging leg raise",null,"Core"],["Hanging Knee Raise",null,"Core"],["Weighted Knee Raise",null,"Core"],["Hanging Oblique Knee Raise",null,"Core"],["Hanging Around-the-World",null,"Core"],["Captain's Chair Tuck Hold",null,"Core"],
+["Incline treadmill walk",null,"Cardio"],["Treadmill run",null,"Cardio"],["Stair climber",null,"Cardio"],["Stationary bike",null,"Cardio"],["Recumbent Bike",null,"Cardio"]];
+const GYM_SET=new Set(GYM_EX.map(x=>x[0]));const GYM_AREAS=["Arms","Chest","Shoulders","Back","Legs","Glutes","Core","Cardio"];
+const GYM_ALIAS={"Triceps Extension Machine":"Lever Triceps Extension triceps machine","Biceps Curl Machine":"Lever Biceps Curl bicep machine","Hip Thrust Machine":"Lever Hip Thrust Hip Thrust Elite guided","Dual 45 Hip Extension":"Weighted Back Extension glute focus 45 GluteBuilder","Reverse Pec Deck":"Lever Seated Reverse Fly rear delt","Iso-Lateral D.Y. Row":"DY row underhand","Ground Base Squat":"multi squat","Pendulum Glute Kickback":"kickback pendulum","3D Multi Abductor":"standing abduction abductor","Glute Belt Squat":"belt squat glute","Plate-Loaded Lateral Raise":"iso-lateral lateral raise","Iso-Lateral Seated Dip":"triceps dip machine","Iso-Lateral Bench Press":"horizontal bench press lying"};
+let _gymOk=false;function gymInit(){if(_gymOk)return;_gymOk=true;GYM_EX.forEach(([n,b,,o])=>{if(!b||EX_LIB[n]||X3[n])return;const d=EX_LIB[b]||X3[b]||(X3OF[b]&&X3[X3OF[b]]);if(d)EX_LIB[n]=Object.assign({},d,o||{})})}
+function renameEx(a,b){const C=S.core;if(a===b)return false;const used=usedExNames();if(!used.has(a)||used.has(b))return false;
+ if(C.lifts&&C.lifts[a]){C.lifts[b]=C.lifts[a];delete C.lifts[a]}
+ Object.values(C.workout||{}).forEach(d=>(d&&d.ex||[]).forEach(x=>{if(x.name===a)x.name=b}));
+ if(C.active&&C.active.ex)C.active.ex.forEach(x=>{if(x.name===a)x.name=b});
+ ["baseW","customEx","exUnit","posSel","rest","restW","sideRest","wsteps","dbCount"].forEach(k=>{const o=C[k];if(o&&typeof o==="object"&&o[a]!==undefined&&o[b]===undefined){o[b]=o[a];delete o[a]}});return true}
+function gymRename(){const R=[["Weighted Back Extension (Glute Focus)","Dual 45 Hip Extension"],["Lever Hip Thrust","Hip Thrust Machine"],["Lever Seated Reverse Fly","Reverse Pec Deck"],["Machine Triceps Extension","Triceps Extension Machine"],["Lever Triceps Extension","Triceps Extension Machine"],["Lever Biceps Curl","Biceps Curl Machine"],["Machine Curl","Biceps Curl Machine"]];const done=[];R.forEach(([a,b])=>{if(renameEx(a,b))done.push(a+" → "+b)});
+ S.core.baseW=S.core.baseW||{};if(S.core.baseW["Dual 45 Hip Extension"]==null)S.core.baseW["Dual 45 Hip Extension"]=11;return done}
 function isUniEx(n){return!!((exDef(n)||{}).side||/\b(per (leg|side|arm)|single[- ]?(leg|arm)|one[- ]?(leg|arm)|unilateral|iso[- ]?lateral)\b/i.test(n||""))}
 const isIsoLat=n=>/\biso[- ]?lateral\b/i.test(n||"");
 function isoSplit(){const h2=v=>v==null||v===""||isNaN(+v)?v:Math.round(+v/2*100)/100;const L=S.core.lifts||{};
@@ -3878,7 +3898,7 @@ function libGroups(){const names=libNames().filter(libFilt);const g={};
  if(libBy==="fam"){names.forEach(n=>{const m=meta3(n);const f=m?m.fam:"Other";(g[f]=g[f]||[]).push(n)});return Object.keys(g).sort((a,b)=>(a==="Other")-(b==="Other")||a.localeCompare(b)).map(k=>[k,k,g[k]])}
  names.forEach(n=>{const e=eqLabel(n);(g[e]=g[e]||[]).push(n)});return Object.keys(g).sort((a,b)=>g[b].length-g[a].length).map(k=>[k,k,g[k]])}
 function libRow(n){const nn=esc(JSON.stringify(n));const [P]=musclesD(n);const on=libSel.has(n);
- return`<div class="librow" onclick="showEx(${nn},true)">${exThumb(n)}<div style="flex:1;min-width:0"><div class="wkn">${esc(n)}</div><div class="muted" style="font-size:.8rem">${esc([eqLabel(n),...prettyList(P).slice(0,1)].filter(Boolean).join(" · "))}</div></div><button class="selc ${on?"on":""}" aria-label="Select" onclick="event.stopPropagation();libToggle(${nn},!libSel.has(${nn}));this.classList.toggle('on')">${on?"✓":""}</button></div>`}
+ return`<div class="librow" onclick="showEx(${nn},true)">${exThumb(n)}<div style="flex:1;min-width:0"><div class="wkn">${GYM_SET.has(n)?"🏋️ ":""}${esc(n)}</div><div class="muted" style="font-size:.8rem">${esc([eqLabel(n),...prettyList(P).slice(0,1)].filter(Boolean).join(" · "))}</div></div><button class="selc ${on?"on":""}" aria-label="Select" onclick="event.stopPropagation();libToggle(${nn},!libSel.has(${nn}));this.classList.toggle('on')">${on?"✓":""}</button></div>`}
 function libToggle(n,on){if(on)libSel.add(n);else libSel.delete(n);const b=document.getElementById("libbar");if(b)b.innerHTML=libBarHTML()}
 function libBarHTML(){if(!libSel.size)return"";return`<div class="box" style="position:sticky;top:calc(env(safe-area-inset-top,0px) + .3rem);z-index:5;box-shadow:0 6px 18px rgba(0,0,0,.15)"><b>${libSel.size} selected</b>
  <div class="row" style="margin-top:.5rem"><select id="libday" style="width:auto">${Object.keys(S.core.workout).map(k=>`<option value="${k}">Day ${k} · ${esc(S.core.workout[k].title)}</option>`).join("")}</select><button class="small" onclick="libAddTo()">Add to day</button></div>
@@ -3987,13 +4007,14 @@ const EQI=(()=>{const K="#2B2630",F="#fff",G="#E6E4EA";const P=d=>`<svg viewBox=
 const eqTile=e=>`<div class="mt" style="background:#F2F2F6"><div style="width:66%;height:66%">${EQI[e]||EQI.Other}</div></div>`;
 function vLibrary(){musPrep();const fr=LANG()==="fr";
  let h=`<div class="libsearch"><span aria-hidden="true">🔍</span><input type="search" placeholder="${fr?"Chercher un exercice":"Search for exercises"}" value="${esc(libQ)}" oninput="libQ=this.value;const el=document.getElementById('libbody');if(el)el.innerHTML=libBody()"><button class="iconbtn" aria-label="New exercise" onclick="libNew()">＋</button></div>
- <div class="seg"><button class="${libBy==="muscle"?"on":""}" onclick="libBy='muscle';libOpen=null;libEq='';libTg='';render()">${fr?"Muscles":"Muscles"}</button><button class="${libBy==="equip"?"on":""}" onclick="libBy='equip';libOpen=null;libEq='';libTg='';render()">${fr?"Matériel":"Equipment"}</button><button class="${libBy==="fam"?"on":""}" onclick="libBy='fam';libOpen=null;libEq='';libTg='';render()">${fr?"Mouvements":"Movements"}</button></div>
+ <div class="seg"><button class="${libBy==="muscle"?"on":""}" onclick="libBy='muscle';libOpen=null;libEq='';libTg='';render()">${fr?"Muscles":"Muscles"}</button><button class="${libBy==="equip"?"on":""}" onclick="libBy='equip';libOpen=null;libEq='';libTg='';render()">${fr?"Matériel":"Equipment"}</button><button class="${libBy==="fam"?"on":""}" onclick="libBy='fam';libOpen=null;libEq='';libTg='';render()">${fr?"Mouvements":"Movements"}</button></div><button class="${libBy==="gym"?"":"ghost"}" style="width:100%;margin-top:.5rem;border-radius:999px" onclick="libBy=libBy==='gym'?'muscle':'gym';libOpen=null;libEq='';libTg='';render()">🏋️ ${fr?"Ma salle":"My gym"}</button>
  <div id="libbar">${libBarHTML()}</div><div id="libbody">${libBody()}</div>`;return h}
 let libOpen=null;
 function famGroup(list){const c={};list.slice(0,60).forEach(n=>{const g=exGroup(n);c[g]=(c[g]||0)+1});return Object.keys(c).sort((a,b)=>c[b]-c[a])[0]||"other"}
 function libTileImg(k,list){return libBy==="equip"?eqTile(k):musTile(libBy==="muscle"?k:famGroup(list))}
 function libBody(){const q=norm(libQ).trim();const words=q.split(/\s+/).filter(Boolean);const fr=LANG()==="fr";
  if(words.length){const all=exSearch(libQ,libNames().filter(libFilt));const hits=all.slice(0,80);return`${all.length>80?`<p class="muted" style="font-size:.8rem;margin:.2rem 0">${fr?"80 premiers sur":"Showing 80 of"} ${all.length}</p>`:""}<div class="liblist">${hits.map(libRow).join("")||`<p class="muted">${fr?"Aucun exercice trouvé.":"No exercise found."}</p>`}</div>`}
+ if(libBy==="gym"){gymInit();const AR={Arms:["Arms","Bras"],Chest:["Chest","Pectoraux"],Shoulders:["Shoulders","Épaules"],Back:["Back","Dos"],Legs:["Legs","Jambes"],Glutes:["Glutes","Fessiers"],Core:["Core","Abdos"],Cardio:["Cardio","Cardio"]};return GYM_AREAS.map(a=>`<h3 style="margin:.9rem 0 .3rem">${AR[a][fr?1:0]}</h3><div class="liblist">${GYM_EX.filter(x=>x[2]===a).map(x=>libRow(x[0])).join("")}</div>`).join("")}
  const G=libGroups();
  if(libOpen!=null){const g=G.find(x=>x[0]===libOpen);if(g){const used=usedExNames();const list=g[2].slice().sort((a,b)=>(used.has(b)-used.has(a))||a.localeCompare(b));
   const other=libBy==="equip"?`<select class="pillsel" aria-label="Muscle" onchange="libTg=this.value;render()"><option value="">${fr?"Tous les muscles":"All muscles"}</option>${TGOPTS().map(([k,l])=>`<option value="${k}" ${libTg===k?"selected":""}>${esc(l)}</option>`).join("")}</select>`:`<select class="pillsel" aria-label="Equipment" onchange="libEq=this.value;render()"><option value="">${fr?"Tout le matériel":"All equipment"}</option>${DB3.E.filter(e=>e!=="Other").map(e=>`<option ${libEq===e?"selected":""}>${esc(e)}</option>`).join("")}</select>`;
@@ -4493,7 +4514,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.77r beta";
+const APP_VERSION="0.78 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
@@ -4631,7 +4652,7 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden&&window._ph
  window.addEventListener("scroll",upd,{passive:true});document.addEventListener("scroll",e=>{const t=e.target;if(t&&t.nodeType===1){if(t.scrollHeight>t.clientHeight+50)last=t;upd()}},{passive:true,capture:true});
  new MutationObserver(()=>requestAnimationFrame(upd)).observe(document.body,{childList:true,subtree:false,attributes:true,attributeFilter:["class"]});setInterval(upd,1500)})();
 setInterval(()=>{try{document.body.classList.toggle("haslive",!!document.querySelector(".livebar"))}catch(_){}},500);
-let autoSetup=false;localLoad();try{if(S.core&&S.core.workout&&S.core._relab!==1){relabelWorkouts();S.core._relab=1;save("core")}}catch(_){}try{if(S.core&&S.core._isoSplit!==1){isoSplit();S.core._isoSplit=1;save("core")}}catch(e){console.warn(e)}try{if(S.core&&S.core._isoBase!==1){const N="Machine Iso-Lateral Shoulder Press";if((S.core.lifts||{})[N]||Object.values(S.core.workout||{}).some(d=>(d&&d.ex||[]).some(x=>x.name===N))){S.core.baseW=S.core.baseW||{};S.core.baseW[N]=4.5}S.core._isoBase=1;save("core")}}catch(_){}try{if(S.core&&S.core._gbBase!==1){const N="Weighted Back Extension (Glute Focus)";S.core.baseW=S.core.baseW||{};if(S.core.baseW[N]==null)S.core.baseW[N]=11;S.core._gbBase=1;save("core")}}catch(_){}seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();
+let autoSetup=false;localLoad();try{if(S.core&&S.core.workout&&S.core._relab!==1){relabelWorkouts();S.core._relab=1;save("core")}}catch(_){}try{if(S.core&&S.core._isoSplit!==1){isoSplit();S.core._isoSplit=1;save("core")}}catch(e){console.warn(e)}try{if(S.core&&S.core._isoBase!==1){const N="Machine Iso-Lateral Shoulder Press";if((S.core.lifts||{})[N]||Object.values(S.core.workout||{}).some(d=>(d&&d.ex||[]).some(x=>x.name===N))){S.core.baseW=S.core.baseW||{};S.core.baseW[N]=4.5}S.core._isoBase=1;save("core")}}catch(_){}gymInit();try{if(S.core&&S.core._gbBase!==1){const N="Weighted Back Extension (Glute Focus)";S.core.baseW=S.core.baseW||{};if(S.core.baseW[N]==null)S.core.baseW[N]=11;S.core._gbBase=1;save("core")}}catch(_){}try{if(S.core&&S.core._gymRen!==1){S.core._gymRenDone=gymRename();S.core._gymRen=1;save("core")}}catch(e){console.warn(e)}seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
 </script>
 

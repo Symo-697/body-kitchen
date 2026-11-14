@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.78 beta · 2026-11-14
+New 🏋️ My gym list in the Library (by area), gym machines first in every search, and clearer machine names.
+
 ## 0.77r beta · 2026-11-14
 Weighted Back Extension (Glute Focus) now has a machine weight: 11 kg (GluteBuilder Dual 45 Hip Extension).
 
