@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.77q beta · 2026-11-14
+Weighted Back Extension (Glute Focus) now has a machine weight: 11 kg (GluteBuilder Dual 45 Hip Extension).
+
 ## 0.77p beta · 2026-11-13
 Tap the sport water entry in Today, or edit a past workout, to change the number of refills; water, kcal and the workout update together.
 
