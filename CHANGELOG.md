@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.78a beta · 2026-11-14
+Exercise names restored (Lever Hip Thrust, Lever Seated Reverse Fly, Weighted Back Extension (Glute Focus)); history kept.
+
 ## 0.78 beta · 2026-11-14
 New 🏋️ My gym list in the Library (by area), gym machines first in every search, and clearer machine names.
 
