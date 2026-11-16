@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79g beta · 2026-11-16
+When you earn a weight increase, the target now goes above the weight saved in the workout plan.
+
 ## 0.79f beta · 2026-11-16
 Warm-up weights you set in a workout now keep the same proportion of your first working set, so they go up when the working weight goes up.
 
