@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79h beta · 2026-11-16
+Each exercise in a workout shows its order number next to its picture; it updates when you reorder.
+
 ## 0.79g beta · 2026-11-16
 When you earn a weight increase, the target now goes above the weight saved in the workout plan.
 
