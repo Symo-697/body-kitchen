@@ -3252,7 +3252,9 @@ function rangeNext(e,k){const s=e.sets[k];if(!s||setCls(s)==="W"||kindOf(s)==="D
  const p=e.sets[j],w=+p.w,r=rrReps(p);const [lo,hi]=repRange(liveDef(e).reps);const inc=incFor(e.name,w);
  if(r>hi){const up=wUp(e.name,w);return{w:up,why:"up",r,lo,hi,inc:r2(up-w)}}if(r>=lo)return{w,why:"same",r,lo,hi};
  for(let q=j-1;q>=0;q--){const x=e.sets[q];if(same(x)&&rrReps(x)>=lo&&+x.w<w)return{w:+x.w,why:"down",r,lo,hi}}return{w:wDown(e.name,w),why:"down",r,lo,hi}}
-function warmPh(e,k,fld){const s=e.sets[k];if(!s||setCls(s)!=="W"||exMode(e.name)!=="w"||isAssisted(e.name))return null;if(e.plan&&e.plan[k]&&e.plan[k][fld]!=null&&e.plan[k][fld]!=="")return null;
+function warmPh(e,k,fld){const s=e.sets[k];if(!s||setCls(s)!=="W"||exMode(e.name)!=="w"||isAssisted(e.name))return null;
+ if(e.plan&&e.plan[k]&&e.plan[k][fld]!=null&&e.plan[k][fld]!==""){if(fld!=="w")return null;const pw=+e.plan[k].w;const j1=e.sets.findIndex(x=>setCls(x)!=="W");const pW=j1>=0&&e.plan[j1]?+e.plan[j1].w:0;if(!(pw>0&&pW>0))return null;
+  let top=0;try{const t=nextTarget(liveDef(e),window._phDay||(A()&&A().day));top=+(t.perSet&&t.perSet[0]&&t.perSet[0].w)||+t.w||0}catch(_){}if(!top||top===pW)return null;let v=pw/pW*top;try{v=wSnap(e.name,v)}catch(_){v=Math.round(v/2.5)*2.5}return v>=top?null:v}
  const ws=e.sets.map((x,j)=>setCls(x)==="W"?j:-1).filter(j=>j>=0);const n=ws.length,i=ws.indexOf(k);if(i<0)return null;
  if(fld==="r")return n===1?6:[8,5,3][Math.min(i,2)];
  let top=0;try{const t=nextTarget(liveDef(e),window._phDay||(A()&&A().day));top=+(t.perSet&&t.perSet[0]&&t.perSet[0].w)||+t.w||0}catch(_){}if(!top){const p=prevSet(e.name,0);top=p?+p.w||0:0}if(!top)return null;
@@ -4566,7 +4568,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.79e beta";
+const APP_VERSION="0.79f beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

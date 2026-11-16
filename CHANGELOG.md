@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79f beta · 2026-11-16
+Warm-up weights you set in a workout now keep the same proportion of your first working set, so they go up when the working weight goes up.
+
 ## 0.79e beta · 2026-11-16
 Your past Romanian deadlift sets are now under Smith Romanian Deadlift; today's 3 Romanian deadlift sets are logged as Ground Base Romanian Deadlift.
 
