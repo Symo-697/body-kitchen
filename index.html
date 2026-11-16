@@ -137,7 +137,9 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .posbox{display:flex;gap:3px;min-width:0}.posbox input{flex:1;min-width:0;padding:.55rem .1rem!important;text-align:center;font-size:.95rem!important}
 .howto{margin-top:.9rem;border:1px solid var(--line);border-radius:14px;padding:.6rem .9rem}.howto summary{font-weight:700;cursor:pointer}
 .strrow{width:100%;display:flex;align-items:center;gap:.7rem;border:1px solid var(--line);background:var(--card,#fff);color:inherit;border-radius:16px;padding:.6rem .8rem;margin:.6rem 0;font:inherit}.strrow.ok{border-color:var(--sage);background:color-mix(in srgb,var(--sage) 14%,transparent)}.strico{flex:none;width:40px;height:40px;border-radius:50%;background:var(--plum-soft);display:grid;place-items:center;font-size:1.3rem}.strrow.ok .strico{background:var(--sage);color:#fff}
-.strt{flex:none;border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:.35rem .7rem;font-size:.8rem;font-weight:700;min-width:4.5rem}.strt.on{background:var(--plum);border-color:var(--plum);color:#fff}
+.strt{flex:none;border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:.35rem .7rem;font-size:.8rem;font-weight:700;min-width:4.5rem}
+.strplay{background:var(--plum);color:#fff;border-radius:20px;padding:1rem 1rem .8rem;text-align:center;margin-bottom:.7rem;transition:background .3s}.strplay.prep{background:#3d6e8c}.strplay.end .strbig{animation:strpulse .5s infinite alternate}@keyframes strpulse{to{opacity:.55}}@media (prefers-reduced-motion:reduce){.strplay.end .strbig{animation:none}}.strname{font-weight:800;font-size:1.25rem;line-height:1.2}.strlab{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;opacity:.85;margin-top:.2rem}.strbig{font-size:5.5rem;font-weight:800;line-height:1;margin:.25rem 0 .4rem;font-variant-numeric:tabular-nums}.strtrack{height:6px;background:rgba(255,255,255,.25);border-radius:9px;overflow:hidden}#strbar{height:100%;width:0;background:#fff;border-radius:9px}.strnext{font-size:.85rem;opacity:.9;margin:.55rem 0 .5rem}.strctl{display:flex;justify-content:center;gap:1rem;align-items:center}.strctl .circbtn{background:rgba(255,255,255,.18);color:#fff;border:0}.strctl .circbtn.big{width:3.4rem;height:3.4rem;font-size:1.3rem}
+.strt.on{background:var(--plum);border-color:var(--plum);color:#fff}
 
 .emoscroll{max-height:220px;overflow-y:auto;grid-template-columns:repeat(7,1fr)!important}.emoscroll button{font-size:1.5rem!important}
 .emoprev{font-size:2.6rem;text-align:center;min-height:3.4rem;margin-bottom:.6rem;letter-spacing:-.05em}
@@ -3712,27 +3714,61 @@ function strRowHTML(ph,day,live){const L=strCur(day,ph);if(!L.length)return"";co
  return`<button class="strrow ${all?"ok":""}" onclick="strOpen('${ph}','${day||""}',${live?1:0})"><span class="strico">${all?"✓":"🧘🏾‍♀️"}</span><span style="flex:1;text-align:left"><b>${ph==="pre"?LL("Pre-workout stretches","Étirements d'avant séance"):LL("Post-workout stretches","Étirements d'après séance")}</b><br><span class="muted" style="font-size:.78rem">${all?LL("Done","Fait"):`${live?n+"/":""}${L.length} · ${Math.round(L.reduce((a,x)=>a+(+x.s||30),0)/60)} min`}</span></span><span class="muted">›</span></button>`}
 let STR=null,_strTick=null;
 function strOpen(ph,day,live){STR={ph,day:day||null,live:!!live,edit:false,run:null};strPaint()}
-function strClose(){clearInterval(_strTick);_strTick=null;STR=null;closeSheet();render()}
+function strClose(){clearInterval(_strTick);_strTick=null;strWake(false);STR=null;closeSheet();render()}
 function strPaint(){if(!STR)return;const {ph,day,live,edit}=STR;const t=strType(day);const key=strKey(t,ph);const L=strList(t,key);const d=live&&A()?((A().str=A().str||{})[ph]=A().str[ph]||{}):{};
  const ver=ph==="pre"&&strList(t,"pre2",true);const libs=new Set(libNames());const fmt=s=>s>=60?(s%60?Math.floor(s/60)+" min "+s%60:s/60+" min"):s+" s";
  const rows=L.map((x,i)=>{const run=STR.run&&STR.run.i===i;const left=run?Math.max(0,Math.ceil((STR.run.end-Date.now())/1000)):0;const lib=x.l&&libs.has(x.l)?x.l:libs.has(x.n)?x.n:null;
   return`<div class="gitem ${d[i]?"got":""}">${edit?`<button class="x" aria-label="Remove" onclick="strRm(${i})">✕</button>`:live?`<input type="checkbox" ${d[i]?"checked":""} onchange="strTick(${i},this.checked)">`:""}<div style="flex:1;min-width:0"><div class="wkn" ${lib&&!edit?`style="cursor:pointer" onclick="showEx(${esc(JSON.stringify(lib))},true)"`:""}>${esc(x.n)}${x.note&&!edit?` <button class="x" style="font-size:.85rem;padding:0" onclick="event.stopPropagation();stDlg('<p>'+${esc(JSON.stringify(x.note))}+'</p>')">ⓘ</button>`:""}</div></div>
-  ${edit?`<select class="pillsel" onchange="strSec(${i},+this.value)">${[20,30,40,45,60,90,120].map(v=>`<option value="${v}" ${+x.s===v?"selected":""}>${fmt(v)}</option>`).join("")}</select>`:`<button class="strt ${run?"on":""}" onclick="strRun(${i})">${run?fmt(left):"▶ "+fmt(+x.s||30)}</button>`}</div>`}).join("");
+  ${edit?`<select class="pillsel" onchange="strSec(${i},+this.value)">${[20,30,40,45,60,90,120].map(v=>`<option value="${v}" ${+x.s===v?"selected":""}>${fmt(v)}</option>`).join("")}</select>`:`<button class="strt ${run?"on":""}" onclick="strRun(${i})">${run?"■":"▶ "+fmt(+x.s||30)}</button>`}</div>`}).join("");
  const html=`<div class="wkbar"><button class="circbtn" aria-label="Close" onclick="strClose()">✕</button><b>${ph==="pre"?LL("Pre-workout","Avant la séance"):LL("Post-workout","Après la séance")}</b><button class="circbtn" aria-label="Edit" onclick="STR.edit=!STR.edit;strPaint()">${edit?"✓":"✎"}</button></div>
  <div class="muted" style="text-align:center;margin:-.3rem 0 .6rem;font-size:.85rem">${LL(STR_T[t][0],STR_T[t][1])} · ${ph==="pre"?LL("dynamic","dynamiques"):LL("hold each stretch","maintiens chaque étirement")}</div>
  ${ver?`<div class="seg cmp" style="margin-bottom:.5rem">${[1,2].map(v=>`<button class="${strVer(t)===v?"on":""}" onclick="S.core.strVer=Object.assign({},S.core.strVer,{${t}:${v}});save('core');if(A())A().str=Object.assign({},A().str,{pre:{}});strPaint()">Version ${v}</button>`).join("")}</div>`:""}
- <div class="box" style="padding:.15rem .9rem">${rows||`<p class="muted">${LL("No stretches.","Aucun étirement.")}</p>`}</div>
+ ${strPlayHTML()}<div class="box" style="padding:.15rem .9rem">${rows||`<p class="muted">${LL("No stretches.","Aucun étirement.")}</p>`}</div>
  ${edit?`<div class="oneline" style="margin-top:.6rem"><input id="stradd" list="strlib" placeholder="${LL("Add a stretch…","Ajouter un étirement…")}" style="flex:1;min-width:0" onkeydown="if(event.key==='Enter')strAdd()"><button class="addb" onclick="strAdd()">＋</button></div><datalist id="strlib">${libNames().filter(n=>tgGroup(n)==="mobility").map(n=>`<option value="${esc(n)}">`).join("")}</datalist>${(S.core.stretch||{})[t]&&(S.core.stretch[t][key])?`<button class="ghost" style="width:100%;margin-top:.5rem" onclick="delete S.core.stretch['${t}']['${key}'];save('core');strPaint()">${LL("Reset to default","Revenir à la liste de base")}</button>`:""}`
-  :live?`<button style="width:100%;margin-top:.8rem;border-radius:999px" onclick="strClose()">${LL("Done stretching","Étirements terminés")}</button>`:""}`;
- const sh=document.querySelector("#sheetmodal .sheet");if(sh&&sh.dataset.str)sh.innerHTML=html;else{openSheet(html);const s2=document.querySelector("#sheetmodal .sheet");if(s2)s2.dataset.str="1"}}
+  :(strPrepHTML()+(live?`<button class="ghost" style="width:100%;margin-top:.8rem;border-radius:999px" onclick="strClose()">${LL("Done stretching","Étirements terminés")}</button>`:""))}`;
+ const sh=document.querySelector("#sheetmodal .sheet");if(sh&&sh.dataset.str)sh.innerHTML=html;else{openSheet(html);const s2=document.querySelector("#sheetmodal .sheet");if(s2)s2.dataset.str="1"}strPaintRun()}
 function strEdit(fn){const {ph,day}=STR;const t=strType(day);const key=strKey(t,ph);const L=strList(t,key).map(x=>({...x}));fn(L);strSave(t,key,L);strPaint()}
 function strRm(i){strEdit(L=>L.splice(i,1))}
 function strSec(i,v){strEdit(L=>{L[i].s=v})}
 function strAdd(){const el=document.getElementById("stradd");const v=(el&&el.value||"").trim();if(!v)return;strEdit(L=>L.push(SI(v,STR.ph==="pre"?30:45,libNames().includes(v)?v:null)))}
 function strTick(i,on){const a=A();if(!a||!STR)return;a.str=a.str||{};a.str[STR.ph]=a.str[STR.ph]||{};a.str[STR.ph][i]=on;liveSave();const n=strCur(STR.day,STR.ph).length;
  if(on&&strDone(STR.ph)>=n){flash(LL("Stretched ✓","Étirée ✓"));setTimeout(strClose,350)}else strPaint()}
-function strRun(i){if(!STR)return;if(STR.run&&STR.run.i===i){STR.run=null;clearInterval(_strTick);strPaint();return}const L=strCur(STR.day,STR.ph);const s=+L[i].s||30;STR.run={i,end:Date.now()+s*1000};clearInterval(_strTick);
- _strTick=setInterval(()=>{if(!STR||!STR.run){clearInterval(_strTick);return}if(Date.now()>=STR.run.end){const j=STR.run.i;STR.run=null;clearInterval(_strTick);try{beep()}catch(e){}if(STR.live){strTick(j,true);const nx=strCur(STR.day,STR.ph).findIndex((x,k)=>k>j&&!((A().str||{})[STR.ph]||{})[k]);if(nx>=0&&STR)setTimeout(()=>STR&&strRun(nx),1500)}else strPaint();return}const b=document.querySelector("#sheetmodal .strt.on");if(b){const l=Math.max(0,Math.ceil((STR.run.end-Date.now())/1000));b.textContent=l>=60?Math.floor(l/60)+":"+String(l%60).padStart(2,"0"):l+" s"}},250);strPaint()}
+const STR_SIDES=/(each|per|both) side|quad stretch|figure 4|cross-body|overhead triceps|thread the needle|static lunge|upper trap|leg swings|pigeon|hamstring stretch|calf stretch|hip flexor/i;
+function strTone(f,d,v){try{const c=audioCtx();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=f;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(v||.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d)}catch(e){}}
+let _strWL=null;function strWake(on){try{if(on){if(!_strWL&&navigator.wakeLock)navigator.wakeLock.request("screen").then(w=>{_strWL=w}).catch(()=>{})}else if(_strWL){_strWL.release();_strWL=null}}catch(e){}}
+const strPrep=()=>{const p=prefs().strPrep;return p==null?5:+p};
+function strNextIdx(j){const L=strCur(STR.day,STR.ph);const d=STR.live&&A()?((A().str||{})[STR.ph]||{}):{};return L.findIndex((x,k)=>k>j&&!d[k])}
+function strRun(i,noPrep){if(!STR)return;if(STR.run&&STR.run.i===i&&!noPrep){strStop();return}const L=strCur(STR.day,STR.ph);if(!L[i])return;const s=+L[i].s||30;const pr=noPrep?0:strPrep();
+ STR.run={i,phase:pr?"prep":"hold",end:Date.now()+(pr||s)*1000,total:pr||s,hold:s,last:null,side:false};strWake(true);if(!pr)strTone(1320,.35,.6);
+ clearInterval(_strTick);_strTick=setInterval(strLoop,200);strPaint()}
+function strStop(){if(!STR)return;STR.run=null;clearInterval(_strTick);_strTick=null;strWake(false);strPaint()}
+function strPause(){const r=STR&&STR.run;if(!r)return;if(r.paused){r.end=Date.now()+r.paused;r.paused=0}else r.paused=Math.max(0,r.end-Date.now());strPaintRun()}
+function strSkip(){const r=STR&&STR.run;if(!r)return;if(r.phase==="prep"){r.phase="hold";r.end=Date.now()+r.hold*1000;r.total=r.hold;r.last=null;strTone(1320,.35,.6);strPaintRun()}else strFinish(false)}
+function strFinish(done){const r=STR.run;const j=r.i;STR.run=null;clearInterval(_strTick);_strTick=null;
+ if(done)try{beep()}catch(e){}
+ if(STR.live&&done){const a=A();a.str=a.str||{};a.str[STR.ph]=a.str[STR.ph]||{};a.str[STR.ph][j]=true;liveSave()}
+ const L=strCur(STR.day,STR.ph);const nx=STR.live?strNextIdx(j):(j+1<L.length?j+1:-1);
+ if(nx>=0){setTimeout(()=>{if(STR)strRun(nx)},done?700:0);strPaint()}
+ else{strWake(false);if(STR.live&&strDone(STR.ph)>=L.length){flash(LL("Stretched ✓","Étirée ✓"));setTimeout(strClose,600)}else strPaint()}}
+function strLoop(){const r=STR&&STR.run;if(!r){clearInterval(_strTick);return}if(r.paused)return;const ms=r.end-Date.now();const l=Math.ceil(ms/1000);
+ if(r.last!==l){r.last=l;if(l>0&&l<=3)strTone(r.phase==="prep"?660:880,.15,.45);
+  if(r.phase==="hold"&&r.sides&&!r.side&&ms<=r.hold*500){r.side=true;strTone(990,.18,.5);setTimeout(()=>strTone(990,.18,.5),220)}}
+ if(ms<=0){if(r.phase==="prep"){r.phase="hold";r.end=Date.now()+r.hold*1000;r.total=r.hold;r.last=null;strTone(1320,.35,.6)}else{strFinish(true);return}}
+ strPaintRun()}
+const strFmt=l=>l>=60?Math.floor(l/60)+":"+String(l%60).padStart(2,"0"):String(l);
+function strPaintRun(){const r=STR&&STR.run;if(!r)return;const ms=r.paused||Math.max(0,r.end-Date.now());const l=Math.ceil(ms/1000);
+ const big=document.getElementById("strbig"),bar=document.getElementById("strbar"),lab=document.getElementById("strlab"),pb=document.getElementById("strpb"),box=document.getElementById("strplay");if(!big)return;
+ big.textContent=strFmt(l);bar.style.width=(100*(1-ms/(r.total*1000)))+"%";
+ lab.textContent=r.phase==="prep"?LL("Get ready","Prépare-toi"):r.sides?(r.side?LL("Other side","Autre côté"):LL("First side","Premier côté")):LL("Hold","Tiens");
+ box.classList.toggle("prep",r.phase==="prep");box.classList.toggle("end",r.phase==="hold"&&l<=3);pb.textContent=r.paused?"▶":"⏸"}
+function strPlayHTML(){const L=strCur(STR.day,STR.ph);const r=STR.run;
+ if(!r){const d=STR.live&&A()?((A().str||{})[STR.ph]||{}):{};const first=L.findIndex((x,k)=>!d[k]);
+  return first<0||STR.edit?"":`<button style="width:100%;border-radius:999px;margin-bottom:.6rem;font-size:1.05rem;padding:.8rem" onclick="strRun(${first})">▶ ${first>0?LL("Continue","Continuer"):LL("Start","Commencer")} · ${esc(L[first].n)}</button>`}
+ const x=L[r.i];r.sides=STR_SIDES.test(x.n);const nx=STR.live?strNextIdx(r.i):(r.i+1<L.length?r.i+1:-1);
+ return`<div id="strplay" class="strplay"><div class="strname">${esc(x.n)}</div><div id="strlab" class="strlab"></div><div id="strbig" class="strbig">—</div><div class="strtrack"><div id="strbar"></div></div>
+ <div class="strnext">${nx>=0?LL("Next: ","Ensuite : ")+esc(L[nx].n):LL("Last stretch","Dernier étirement")}</div>
+ <div class="strctl"><button class="circbtn" aria-label="Stop" onclick="strStop()">■</button><button id="strpb" class="circbtn big" aria-label="Pause" onclick="strPause()">⏸</button><button class="circbtn" aria-label="Skip" onclick="strSkip()">⏭</button></div></div>`}
+function strPrepHTML(){if(STR.edit)return"";const p=strPrep();return`<div class="oneline" style="justify-content:center;gap:.35rem;margin:.5rem 0 0;font-size:.82rem"><span class="muted">${LL("Time to get in position","Temps pour se placer")}</span>${[0,3,5,10].map(v=>`<button class="chip ${p===v?"on":""}" style="padding:.2rem .6rem" onclick="prefs().strPrep=${v};save('core');strPaint()">${v?v+" s":LL("Off","Non")}</button>`).join("")}</div>`}
 function strWelcome(day){const L=strCur(day,"pre");if(!L.length)return;stDlg(`<div style="text-align:center"><div style="font-size:3.2rem">🧘🏾‍♀️</div><h2 style="margin:.2rem 0">${LL("Stretch Time","C'est l'heure de s'étirer")}</h2><p class="muted" style="margin:0 0 .9rem">${L.length} ${LL("stretches","étirements")} · ${Math.round(L.reduce((a,x)=>a+(+x.s||30),0)/60)} min</p>
  <button style="width:100%;border-radius:999px" onclick="closeStDlg();strOpen('pre','${day}',1)">${LL("Start stretching","Commencer")}</button><button class="x" style="width:100%;margin-top:.6rem" onclick="closeStDlg()">${LL("Skip","Passer")}</button></div>`)}
 function histMenu(key){const x=findSess(key)[0];if(!x)return;const kq=esc(JSON.stringify(key));stDlg(`<h3 style="text-align:center;margin:0 0 .5rem">${esc(sessTitle(x))}</h3>${sheetBtn("🗓",LL("All workouts (calendar)","Toutes les séances (calendrier)"),`closeStDlg();closeSheet();histCalSheet()`)}${sheetBtn("📅",LL("Open in calendar (edit)","Ouvrir dans le calendrier (modifier)"),`closeStDlg();closeSheet();go('cal');calJump('${x.date}')`)}${sheetBtn("↗",LL("Share","Partager"),`closeStDlg();sessShare(${kq})`)}${sheetBtn("🗑",LL("Delete workout","Supprimer la séance"),`closeStDlg();closeSheet();delSession(${kq})`,true)}`)}
@@ -4515,7 +4551,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.78a beta";
+const APP_VERSION="0.79 beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

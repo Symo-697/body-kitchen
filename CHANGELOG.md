@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79 beta · 2026-11-16
+Stretching now has a big timer, a get-ready countdown between poses, 3-2-1 beeps, side-switch cue, pause/skip, and keeps the screen on.
+
 ## 0.78a beta · 2026-11-14
 Exercise names restored (Lever Hip Thrust, Lever Seated Reverse Fly, Weighted Back Extension (Glute Focus)); history kept.
 
