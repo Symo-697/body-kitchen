@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79b beta · 2026-11-16
+Switching from a one-sided exercise (e.g. Bulgarian split squat) to a two-sided one (e.g. Smith RDL) now removes the left/right sets, and the reverse adds them.
+
 ## 0.79a beta · 2026-11-16
 One-arm, one-leg and one-side stretches run left then right; circles run forward then backward, with a switch countdown between.
 
