@@ -3718,7 +3718,7 @@ function strClose(){clearInterval(_strTick);_strTick=null;strWake(false);STR=nul
 function strPaint(){if(!STR)return;const {ph,day,live,edit}=STR;const t=strType(day);const key=strKey(t,ph);const L=strList(t,key);const d=live&&A()?((A().str=A().str||{})[ph]=A().str[ph]||{}):{};
  const ver=ph==="pre"&&strList(t,"pre2",true);const libs=new Set(libNames());const fmt=s=>s>=60?(s%60?Math.floor(s/60)+" min "+s%60:s/60+" min"):s+" s";
  const rows=L.map((x,i)=>{const run=STR.run&&STR.run.i===i;const left=run?Math.max(0,Math.ceil((STR.run.end-Date.now())/1000)):0;const lib=x.l&&libs.has(x.l)?x.l:libs.has(x.n)?x.n:null;
-  return`<div class="gitem ${d[i]?"got":""}">${edit?`<button class="x" aria-label="Remove" onclick="strRm(${i})">✕</button>`:live?`<input type="checkbox" ${d[i]?"checked":""} onchange="strTick(${i},this.checked)">`:""}<div style="flex:1;min-width:0"><div class="wkn" ${lib&&!edit?`style="cursor:pointer" onclick="showEx(${esc(JSON.stringify(lib))},true)"`:""}>${esc(x.n)}${x.note&&!edit?` <button class="x" style="font-size:.85rem;padding:0" onclick="event.stopPropagation();stDlg('<p>'+${esc(JSON.stringify(x.note))}+'</p>')">ⓘ</button>`:""}</div></div>
+  return`<div class="gitem ${d[i]?"got":""}">${edit?`<button class="x" aria-label="Remove" onclick="strRm(${i})">✕</button>`:live?`<input type="checkbox" ${d[i]?"checked":""} onchange="strTick(${i},this.checked)">`:""}<div style="flex:1;min-width:0"><div class="wkn" ${lib&&!edit?`style="cursor:pointer" onclick="showEx(${esc(JSON.stringify(lib))},true)"`:""}>${esc(x.n)}${x.note&&!edit?` <button class="x" style="font-size:.85rem;padding:0" onclick="event.stopPropagation();stDlg('<p>'+${esc(JSON.stringify(x.note))}+'</p>')">ⓘ</button>`:""}</div>${edit?`<select class="pillsel" style="font-size:.78rem;margin-top:.3rem;max-width:100%" onchange="strSet(${i},this.value)">${Object.keys(STR_SEGN).map(k=>`<option value="${k}" ${strSegType(x)===k?"selected":""}>${LL(STR_SEGN[k][0],STR_SEGN[k][1])}</option>`).join("")}</select>`:strSegType(x)!=="none"?`<div class="muted" style="font-size:.75rem">${LL(STR_SEGN[strSegType(x)][0],STR_SEGN[strSegType(x)][1])}</div>`:""}</div>
   ${edit?`<select class="pillsel" onchange="strSec(${i},+this.value)">${[20,30,40,45,60,90,120].map(v=>`<option value="${v}" ${+x.s===v?"selected":""}>${fmt(v)}</option>`).join("")}</select>`:`<button class="strt ${run?"on":""}" onclick="strRun(${i})">${run?"■":"▶ "+fmt(+x.s||30)}</button>`}</div>`}).join("");
  const html=`<div class="wkbar"><button class="circbtn" aria-label="Close" onclick="strClose()">✕</button><b>${ph==="pre"?LL("Pre-workout","Avant la séance"):LL("Post-workout","Après la séance")}</b><button class="circbtn" aria-label="Edit" onclick="STR.edit=!STR.edit;strPaint()">${edit?"✓":"✎"}</button></div>
  <div class="muted" style="text-align:center;margin:-.3rem 0 .6rem;font-size:.85rem">${LL(STR_T[t][0],STR_T[t][1])} · ${ph==="pre"?LL("dynamic","dynamiques"):LL("hold each stretch","maintiens chaque étirement")}</div>
@@ -3733,17 +3733,24 @@ function strSec(i,v){strEdit(L=>{L[i].s=v})}
 function strAdd(){const el=document.getElementById("stradd");const v=(el&&el.value||"").trim();if(!v)return;strEdit(L=>L.push(SI(v,STR.ph==="pre"?30:45,libNames().includes(v)?v:null)))}
 function strTick(i,on){const a=A();if(!a||!STR)return;a.str=a.str||{};a.str[STR.ph]=a.str[STR.ph]||{};a.str[STR.ph][i]=on;liveSave();const n=strCur(STR.day,STR.ph).length;
  if(on&&strDone(STR.ph)>=n){flash(LL("Stretched ✓","Étirée ✓"));setTimeout(strClose,350)}else strPaint()}
-const STR_SIDES=/(each|per|both) side|quad stretch|figure 4|cross-body|overhead triceps|thread the needle|static lunge|upper trap|leg swings|pigeon|hamstring stretch|calf stretch|hip flexor/i;
+const STR_SEGS={none:[],arm:[["Left arm","Bras gauche"],["Right arm","Bras droit"]],leg:[["Left leg","Jambe gauche"],["Right leg","Jambe droite"]],side:[["Left side","Côté gauche"],["Right side","Côté droit"]],dir:[["Forward","Vers l’avant"],["Backward","Vers l’arrière"]]};
+const STR_SEGN={none:["Both sides together","Les deux côtés ensemble"],arm:["One arm at a time","Un bras à la fois"],leg:["One leg at a time","Une jambe à la fois"],side:["One side at a time","Un côté à la fois"],dir:["Forward, then backward","Avant, puis arrière"]};
+function strSegType(x){if(x.seg&&STR_SEGS[x.seg])return x.seg;const n=x.n||"";
+ if(/arm circles|shoulder rolls|hip rotators|hip circles|around the worlds/i.test(n))return"dir";
+ if(/cross-body|overhead triceps|wrist|one[- ]arm|single[- ]arm/i.test(n))return"arm";
+ if(/quad stretch|figure 4|static lunge|calf stretch|leg swings|ankle circles|pigeon|hamstring stretch|hip flexor|one[- ]leg|single[- ]leg/i.test(n))return"leg";
+ if(/thread the needle|upper trap|neck|side bend|(each|per) side/i.test(n))return"side";return"none"}
+function strSet(i,v){strEdit(L=>{L[i].seg=v})}
 function strTone(f,d,v){try{const c=audioCtx();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=f;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(v||.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d)}catch(e){}}
 let _strWL=null;function strWake(on){try{if(on){if(!_strWL&&navigator.wakeLock)navigator.wakeLock.request("screen").then(w=>{_strWL=w}).catch(()=>{})}else if(_strWL){_strWL.release();_strWL=null}}catch(e){}}
 const strPrep=()=>{const p=prefs().strPrep;return p==null?5:+p};
 function strNextIdx(j){const L=strCur(STR.day,STR.ph);const d=STR.live&&A()?((A().str||{})[STR.ph]||{}):{};return L.findIndex((x,k)=>k>j&&!d[k])}
 function strRun(i,noPrep){if(!STR)return;if(STR.run&&STR.run.i===i&&!noPrep){strStop();return}const L=strCur(STR.day,STR.ph);if(!L[i])return;const s=+L[i].s||30;const pr=noPrep?0:strPrep();
- STR.run={i,phase:pr?"prep":"hold",end:Date.now()+(pr||s)*1000,total:pr||s,hold:s,last:null,side:false};strWake(true);if(!pr)strTone(1320,.35,.6);
+ const segs=STR_SEGS[strSegType(L[i])];const hs=segs.length?Math.max(5,Math.round(s/segs.length)):s;STR.run={i,phase:pr?"prep":"hold",end:Date.now()+(pr||hs)*1000,total:pr||hs,hold:hs,last:null,segs,seg:0};strWake(true);if(!pr)strTone(1320,.35,.6);
  clearInterval(_strTick);_strTick=setInterval(strLoop,200);strPaint()}
 function strStop(){if(!STR)return;STR.run=null;clearInterval(_strTick);_strTick=null;strWake(false);strPaint()}
 function strPause(){const r=STR&&STR.run;if(!r)return;if(r.paused){r.end=Date.now()+r.paused;r.paused=0}else r.paused=Math.max(0,r.end-Date.now());strPaintRun()}
-function strSkip(){const r=STR&&STR.run;if(!r)return;if(r.phase==="prep"){r.phase="hold";r.end=Date.now()+r.hold*1000;r.total=r.hold;r.last=null;strTone(1320,.35,.6);strPaintRun()}else strFinish(false)}
+function strSkip(){const r=STR&&STR.run;if(!r)return;if(r.phase==="hold"&&r.seg<r.segs.length-1){strNextSeg();strPaintRun();return}if(r.phase==="prep"){r.phase="hold";r.end=Date.now()+r.hold*1000;r.total=r.hold;r.last=null;strTone(1320,.35,.6);strPaintRun()}else strFinish(false)}
 function strFinish(done){const r=STR.run;const j=r.i;STR.run=null;clearInterval(_strTick);_strTick=null;
  if(done)try{beep()}catch(e){}
  if(STR.live&&done){const a=A();a.str=a.str||{};a.str[STR.ph]=a.str[STR.ph]||{};a.str[STR.ph][j]=true;liveSave()}
@@ -3752,19 +3759,20 @@ function strFinish(done){const r=STR.run;const j=r.i;STR.run=null;clearInterval(
  else{strWake(false);if(STR.live&&strDone(STR.ph)>=L.length){flash(LL("Stretched ✓","Étirée ✓"));setTimeout(strClose,600)}else strPaint()}}
 function strLoop(){const r=STR&&STR.run;if(!r){clearInterval(_strTick);return}if(r.paused)return;const ms=r.end-Date.now();const l=Math.ceil(ms/1000);
  if(r.last!==l){r.last=l;if(l>0&&l<=3)strTone(r.phase==="prep"?660:880,.15,.45);
-  if(r.phase==="hold"&&r.sides&&!r.side&&ms<=r.hold*500){r.side=true;strTone(990,.18,.5);setTimeout(()=>strTone(990,.18,.5),220)}}
- if(ms<=0){if(r.phase==="prep"){r.phase="hold";r.end=Date.now()+r.hold*1000;r.total=r.hold;r.last=null;strTone(1320,.35,.6)}else{strFinish(true);return}}
+}
+ if(ms<=0){if(r.phase==="hold"&&r.seg<r.segs.length-1){strTone(990,.18,.5);setTimeout(()=>strTone(990,.18,.5),220);strNextSeg();strPaintRun();return}if(r.phase==="prep"){r.phase="hold";r.end=Date.now()+r.hold*1000;r.total=r.hold;r.last=null;strTone(1320,.35,.6)}else{strFinish(true);return}}
  strPaintRun()}
+function strNextSeg(){const r=STR.run;r.seg++;r.last=null;const sw=Math.min(strPrep()||3,5);if(sw){r.phase="prep";r.end=Date.now()+sw*1000;r.total=sw}else{r.phase="hold";r.end=Date.now()+r.hold*1000;r.total=r.hold;strTone(1320,.35,.6)}}
 const strFmt=l=>l>=60?Math.floor(l/60)+":"+String(l%60).padStart(2,"0"):String(l);
 function strPaintRun(){const r=STR&&STR.run;if(!r)return;const ms=r.paused||Math.max(0,r.end-Date.now());const l=Math.ceil(ms/1000);
  const big=document.getElementById("strbig"),bar=document.getElementById("strbar"),lab=document.getElementById("strlab"),pb=document.getElementById("strpb"),box=document.getElementById("strplay");if(!big)return;
  big.textContent=strFmt(l);bar.style.width=(100*(1-ms/(r.total*1000)))+"%";
- lab.textContent=r.phase==="prep"?LL("Get ready","Prépare-toi"):r.sides?(r.side?LL("Other side","Autre côté"):LL("First side","Premier côté")):LL("Hold","Tiens");
+ const sg=r.segs[r.seg];lab.textContent=r.phase==="prep"?(sg?(r.seg?LL("Switch → ","On change → "):LL("Get ready · ","Prépare-toi · "))+LL(sg[0],sg[1]):LL("Get ready","Prépare-toi")):sg?LL(sg[0],sg[1])+" · "+(r.seg+1)+"/"+r.segs.length:LL("Hold","Tiens");
  box.classList.toggle("prep",r.phase==="prep");box.classList.toggle("end",r.phase==="hold"&&l<=3);pb.textContent=r.paused?"▶":"⏸"}
 function strPlayHTML(){const L=strCur(STR.day,STR.ph);const r=STR.run;
  if(!r){const d=STR.live&&A()?((A().str||{})[STR.ph]||{}):{};const first=L.findIndex((x,k)=>!d[k]);
   return first<0||STR.edit?"":`<button style="width:100%;border-radius:999px;margin-bottom:.6rem;font-size:1.05rem;padding:.8rem" onclick="strRun(${first})">▶ ${first>0?LL("Continue","Continuer"):LL("Start","Commencer")} · ${esc(L[first].n)}</button>`}
- const x=L[r.i];r.sides=STR_SIDES.test(x.n);const nx=STR.live?strNextIdx(r.i):(r.i+1<L.length?r.i+1:-1);
+ const x=L[r.i];const nx=STR.live?strNextIdx(r.i):(r.i+1<L.length?r.i+1:-1);
  return`<div id="strplay" class="strplay"><div class="strname">${esc(x.n)}</div><div id="strlab" class="strlab"></div><div id="strbig" class="strbig">—</div><div class="strtrack"><div id="strbar"></div></div>
  <div class="strnext">${nx>=0?LL("Next: ","Ensuite : ")+esc(L[nx].n):LL("Last stretch","Dernier étirement")}</div>
  <div class="strctl"><button class="circbtn" aria-label="Stop" onclick="strStop()">■</button><button id="strpb" class="circbtn big" aria-label="Pause" onclick="strPause()">⏸</button><button class="circbtn" aria-label="Skip" onclick="strSkip()">⏭</button></div></div>`}
@@ -4551,7 +4559,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.79 beta";
+const APP_VERSION="0.79a beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
