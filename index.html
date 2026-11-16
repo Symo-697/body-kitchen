@@ -318,8 +318,8 @@ function rowsSync(e){const R=e.rows||[];if(!R.length){delete e.rows;return}if(R.
 function planRows(k,i){const e=S.core.workout[k].ex[i];if(!e.rows){e.rows=genRows(k,e);rowsSync(e)}return e.rows}
 function wkRefresh(k){const sh=document.querySelector("#sheetmodal .sheet");const sc=sh?sh.scrollTop:0;wkEdit(k);const sh2=document.querySelector("#sheetmodal .sheet");if(sh2)sh2.scrollTop=sc;render()}
 const lbIn=(n,v)=>isLb(n)&&v!==""&&v!=null&&!isNaN(+v)?String(Math.round(+v*LB*10)/10):(v??"");
-function rowsHTML(k,i){const e=S.core.workout[k].ex[i];const md=exMode(e.name);const R=e.rows||genRows(k,e);const ex=!!e.rows;const g=md==="w"?"2.4rem minmax(0,1fr) minmax(0,1.2fr) minmax(0,1.2fr)":"2.4rem minmax(0,1fr) minmax(0,1.4fr)";const cnt={};
- const inp=(x,j,fld)=>{const v=fld==="w"?lbIn(e.name,x.w):x[fld];return`<input type="text" inputmode="${fld==="r"&&["M","P","PO"].includes(kindOf(x))?"text":"decimal"}" value="${ex?esc(v):""}" placeholder="${ex?"":esc(v)}" aria-label="${fld==="w"?"Weight":"Reps"}" onchange="planSetFld('${k}',${i},${j},'${fld}',this.value)">`};
+function rowsHTML(k,i){const e=S.core.workout[k].ex[i];const md=exMode(e.name);const R=e.rows||genRows(k,e);const ex=!!e.rows;let G=null;if(ex&&R.some(x=>x.w===""||x.r==="")){try{const sv=e.rows;delete e.rows;G=genRows(k,e);e.rows=sv}catch(_){}}const g=md==="w"?"2.4rem minmax(0,1fr) minmax(0,1.2fr) minmax(0,1.2fr)":"2.4rem minmax(0,1fr) minmax(0,1.4fr)";const cnt={};
+ const inp=(x,j,fld)=>{const v=fld==="w"?lbIn(e.name,x.w):x[fld];return`<input type="text" inputmode="${fld==="r"&&["M","P","PO"].includes(kindOf(x))?"text":"decimal"}" value="${ex?esc(v):""}" placeholder="${ex?(v===""&&G&&G[j]?esc(fld==="w"?lbIn(e.name,G[j].w):G[j][fld]):""):esc(v)}" aria-label="${fld==="w"?"Weight":"Reps"}" onchange="planSetFld('${k}',${i},${j},'${fld}',this.value)">`};
  return`<div class="setgrid sgp head" style="grid-template-columns:${g};margin-top:.35rem"><span>SET</span><span>PREVIOUS</span>${md==="w"?`<span>${isLb(e.name)?"LB":"KG"}</span>`:""}<span>REPS</span></div>${R.map((x,j)=>{const ty=SET_TYPES.find(t=>t[0]===x.t);let lab;if(isSideSet(x)){cnt[x.t]=(cnt[x.t]||0)+1;lab=cnt[x.t]+x.t+(x.sub?`<small style="font-size:.6rem">·${x.sub}</small>`:"")}else if(x.t)lab=x.t;else{cnt.n=(cnt.n||0)+1;lab=cnt.n}const p=prevSet(e.name,j);
   return`<div class="setgrid sgp" style="grid-template-columns:${g};margin-top:.25rem"><button class="setlab" style="${ty?`color:${ty[2]}`:""}" onclick="planTypeSheet('${k}',${i},${j})" aria-label="Set type">${lab}</button><span class="muted" style="font-size:.76rem">${p?fmtSet(e.name,p):"—"}</span>${md==="w"?inp(x,j,"w"):""}${inp(x,j,"r")}</div>`}).join("")}
  <button class="ghost small" style="width:100%;margin-top:.35rem" onclick="planAddSet('${k}',${i})">+ Add set</button>`}
@@ -328,7 +328,7 @@ function planAddSet(k,i){const R=planRows(k,i);const e=S.core.workout[k].ex[i];c
 function stDlg(html){closeStDlg();const ov=document.createElement("div");ov.className="modal";ov.id="stdlg";ov.style.zIndex=30;ov.onclick=e=>{if(e.target===ov)closeStDlg()};ov.innerHTML=`<div class="sheet">${html}</div>`;document.body.appendChild(ov)}
 function closeStDlg(){const m=document.getElementById("stdlg");if(m)m.remove()}
 function planTypeSheet(k,i,j){const R=planRows(k,i);stDlg(stPickerHTML(R[j],`planST('${k}',${i},${j},`))}
-function planST(k,i,j,what,v){const R=planRows(k,i);const e=S.core.workout[k].ex[i];if(what==="rm"){R.splice(j,1);if(!R.length)R.push({t:"",w:"",r:""})}else applyST(R,j,what,v,(o,s)=>({t:o,w:s.w,r:s.r}));rowsSync(e);save("core");closeStDlg();wkRefresh(k)}
+function planST(k,i,j,what,v){const R=planRows(k,i);const e=S.core.workout[k].ex[i];if(what==="rm"){R.splice(j,1);if(!R.length)R.push({t:"",w:"",r:""})}else{const was=kindOf(R[j]);applyST(R,j,what,v,(o,s)=>({t:o,w:s.w,r:s.r}));if(was!=="W"&&kindOf(R[j])==="W"&&exMode(e.name)!=="c")toWarm(R,j,true)}rowsSync(e);save("core");closeStDlg();wkRefresh(k)}
 function raiseRows(a){try{const pw=S.core.workout[a.day];if(!pw)return;a.ex.forEach(e=>{const pe=pw.ex.find(x=>x.name===e.name);if(!pe||!pe.rows||exMode(e.name)!=="w")return;if(methodFor(pe,a.day)==="hold"||painFor(e.name))return;
  pe.rows.forEach((row,j)=>{const st=e.sets[j];if(!st||!st.done||encT(st)!==encT(row))return;if(["W","FE","D","B","N"].includes(kindOf(st)))return;const w=+st.w||0;if(!w)return;const did=repsMain(st);const tgt=topReps(row.r||pe.reps);
   if(did>=tgt){const inc=incFor(e.name,w);row.w=String(Math.round((isAssisted(e.name)?Math.max(0,w-inc):w+inc)*100)/100)}else row.w=String(w)})})}catch(_){}}
@@ -3498,12 +3498,15 @@ function setInfoSheet(){dlg(`<h3 style="margin:0 0 .5rem">Set types</h3><div sty
  <p style="margin:.3rem 0"><b>L / R</b> · Left or right side only: ½ set. Combine it with any type (for example R + Failure). The next set switches side.</p>
  ${[["","Normal set"],...SET_TYPES.filter(t=>t[0]!=="L"&&t[0]!=="R")].map(t=>`<p style="margin:.3rem 0"><b style="color:${t[2]||"inherit"}">${t[0]||"#"}</b> · <b>${t[1]}</b>: ${esc(SETINFO[t[0]]||"")}</p>`).join("")}</div>
  <div class="row" style="justify-content:flex-end;margin-top:.6rem"><button data-v="ok">OK</button></div>`)}
+function toWarm(arr,j,plan){const s=arr[j];if(!s||isSideSet(s)||kindOf(s)!=="W")return;const work=arr.filter((x,q)=>q!==j&&kindOf(x)!=="W"&&!isSideSet(x));if(!work.length)return;
+ arr.splice(j,1);if(plan){s.w="";s.r=""}else if(!s.done){delete s.w;delete s.r}const fw=arr.findIndex(x=>kindOf(x)!=="W");arr.splice(fw<0?arr.length:fw,0,s);
+ const lastW=work[work.length-1];const li=arr.lastIndexOf(lastW);const cp=plan?{t:lastW.t||"",w:lastW.w,r:lastW.r}:{t:lastW.t||"",done:false};if(!cp.t)delete cp.t;arr.splice(li+1,0,cp)}
 function applyST(arr,k,what,v,mk){const s=arr[k];if(!s)return;
  if(what==="side"){if(v){const kind=kindOf(s);s.t=v;if(kind)s.sub=kind;else delete s.sub;const o=v==="L"?"R":"L";const nx=arr[k+1];if(!nx)arr.push(mk(o,s));else if(!nx.done&&(!nx.t||isSideSet(nx))&&nx.t!==o){const nk=kindOf(nx);nx.t=o;if(nk)nx.sub=nk;else delete nx.sub}}
   else if(isSideSet(s)){s.t=s.sub||"";delete s.sub}}
  else{if(isSideSet(s)){if(v)s.sub=v;else delete s.sub}else s.t=v}}
 function setTypeSheet(i,k){const s=A().ex[i].sets[k];openSheet(stPickerHTML(s,`liveST(${i},${k},`))}
-function liveST(i,k,what,v){if(what==="rm"){removeSet(i,k);return}const e=A().ex[i];applyST(e.sets,k,what,v,(o)=>({t:o,done:false}));liveSave();closeSheet();render()}
+function liveST(i,k,what,v){if(what==="rm"){removeSet(i,k);return}const e=A().ex[i];const was=kindOf(e.sets[k]);applyST(e.sets,k,what,v,(o)=>({t:o,done:false}));if(was!=="W"&&kindOf(e.sets[k])==="W"&&exMode(e.name)!=="c"){toWarm(e.sets,k,false);if(Array.isArray(e.plan))delete e.plan}liveSave();closeSheet();render()}
 function setType(i,k,t){liveST(i,k,(t==="L"||t==="R")?"side":"type",t)}
 function addLiveSet(i){const e=A().ex[i];const last=e.sets[e.sets.length-1];const t=last&&isSideSet(last)?(last.t==="L"?"R":"L"):last&&last.t==="W"?"":last&&["D","B"].includes(last.t)?last.t:"";const ns={t,done:false};if(last&&isSideSet(last)&&last.sub&&last.sub!=="W")ns.sub=last.sub;e.sets.push(ns);liveSave();render()}
 function removeSet(i,k){const e=A().ex[i];e.sets.splice(k,1);if(!e.sets.length)e.sets.push({t:"",done:false});sheetMore=false;liveSave();closeSheet();render()}
@@ -4569,7 +4572,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.79i beta";
+const APP_VERSION="0.79j beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
