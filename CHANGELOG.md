@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79i beta · 2026-11-16
+Leg press, hack squat, belt squats, Ground Base squat and hip thrust machine now go up in 5 kg steps (warm-ups included).
+
 ## 0.79h beta · 2026-11-16
 Each exercise in a workout shows its order number next to its picture; it updates when you reorder.
 
