@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79e beta · 2026-11-16
+Your past Romanian deadlift sets are now under Smith Romanian Deadlift; today's 3 Romanian deadlift sets are logged as Ground Base Romanian Deadlift.
+
 ## 0.79d beta · 2026-11-16
 New exercise Ground Base Romanian Deadlift. Switching an exercise whose sets are all logged now just renames it and keeps the sets.
 
