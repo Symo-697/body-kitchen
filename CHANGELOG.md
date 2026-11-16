@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79k beta · 2026-11-16
+When a photo or description shows cooked rice, pasta or lentils, the app now converts to the dry weight before matching your raw ingredients, so calories aren't tripled.
+
 ## 0.79j beta · 2026-11-16
 When you turn a working set into a warm-up, its weight and reps are set automatically from your first working set and a working set is added back.
 
