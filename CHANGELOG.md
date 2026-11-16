@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79d beta · 2026-11-16
+New exercise Ground Base Romanian Deadlift. Switching an exercise whose sets are all logged now just renames it and keeps the sets.
+
 ## 0.79c beta · 2026-11-16
 Romanian deadlift and other two-sided exercises saved with left/right sets are cleaned up in your workouts and start with normal sets.
 
