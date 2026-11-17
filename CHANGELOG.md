@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79l beta · 2026-11-17
+New 🍷 I drank yesterday button (+ menu): pick 1–5 and the app tells you whether to train normally, lightly, or rest; sessions after heavy drinking don't lower your targets.
+
 ## 0.79k beta · 2026-11-16
 When a photo or description shows cooked rice, pasta or lentils, the app now converts to the dry weight before matching your raw ingredients, so calories aren't tripled.
 
