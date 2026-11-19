@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79n beta · 2026-11-19
+- Warm-ups on plate exercises round to whole 5 kg (80, 115 instead of 77.5, 117.5); leg machines incl. Lever Hip Thrust step 5 kg
+
 ## 0.79m beta · 2026-11-19
 - Train: ⓘ button on the deload banner explains what a deload week is, why, how and when
 
