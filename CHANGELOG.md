@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79m beta · 2026-11-19
+- Train: ⓘ button on the deload banner explains what a deload week is, why, how and when
+
 ## 0.79l beta · 2026-11-17
 New 🍷 I drank yesterday button (+ menu): pick 1–5 and the app tells you whether to train normally, lightly, or rest; sessions after heavy drinking don't lower your targets.
 

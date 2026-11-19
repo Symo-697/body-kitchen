@@ -2618,7 +2618,7 @@ function vTrain(){
  const progBanner=S.core.setup&&S.core.programFor!==progKey()?`<div class="note good" style="margin-top:0"><b>Your program is ready</b> <button class="small" style="margin-left:.3rem" onclick="trainView='preview';render();window.scrollTo(0,0)">Preview</button></div>`:"";
  let h=tabsT+progBanner+`<div class="box"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${S.core.schedule?"Your week":"Days per week"} <button class="x" aria-label="Info" style="font-size:1rem;padding:0 .2rem;vertical-align:middle" onclick="weekInfo()">ⓘ</button></h3>${S.core.schedule?`<button class="ghost small" onclick="trainView='preview';render();window.scrollTo(0,0)">Program</button>`:`<div class="chips">${[4,5].map(n=>`<button class="chip ${S.core.days===n?"on":""}" onclick="S.core.days=${n};save('core');render()">${n}</button>`).join("")}</div>`}</div>
  <div class="scroll" style="margin-top:.7rem"><table><tr>${DAYS.map((d,i)=>`<th style="${i===idx?"color:var(--plum)":""}">${d}</th>`).join("")}</tr><tr>${sch.map((s,i)=>{const d=weekDate(i);const done=(S.core.sessions||[]).filter(x=>x.date===d&&x.day!=="CARDIO");return`<td data-wd="${i}" class="wcell${wkSel===i&&s===gymDay?" wsel":""}" onpointerdown="wdDown(event,${i})">${done.length?`<span class="dd" style="background:${DAYCOL[done[0].day]||"var(--plum)"}" title="Done: ${done.map(x=>x.day).join(", ")}">${done[0].day==="FREE"?"＋":done[0].day}${done.length>1?"+"+(done.length-1):""}✓</span>`:s==="rest"?`<span class="muted">Rest</span>`:`<b>${s}</b>`}</td>`}).join("")}</tr><tr>${DAYS.map((d,i)=>{const c=cardioFor(i);const did=(S.core.sessions||[]).some(x=>x.date===weekDate(i)&&x.day==="CARDIO");return`<td><button class="x" style="font-size:.78rem;padding:.1rem .2rem;color:${c?"#2BA3A3":"var(--muted)"}" onclick="cardioCell(${i})" aria-label="Cardio on ${d}${c?": "+esc(c.name||""):""}">${c?`🏃${c.mins}${did?"✓":""}`:"＋🏃"}</button></td>`}).join("")}</tr></table></div>${weekExtrasHTML(sch)}</div>`;
- const dl=deloadInfo();if(dl)h+=`<div class="note ${dl.due?"warn":""}">${dl.text}${dl.due?` <button class="small" style="margin-left:.4rem" onclick="S.core.lastDeload=today();save('core');render()">Deload done</button>`:""}</div>`;
+ const dl=deloadInfo();if(dl)h+=`<div class="note ${dl.due?"warn":""}">${dl.text} <button class="x" aria-label="Info" style="font-size:1rem;padding:0 .2rem;vertical-align:middle" onclick="deloadHelp()">ⓘ</button>${dl.due?` <button class="small" style="margin-left:.4rem" onclick="S.core.lastDeload=today();save('core');render()">Deload done</button>`:""}</div>`;
   const day=S.core.workout[gymDay];
  const lastS=(S.core.sessions||[]).filter(x=>x.day===gymDay).map(x=>x.date).sort().pop();const lastTxt=lastS?wkAgo(gymDay):"";
  const nSets=day.ex.reduce((a,e)=>a+setsFor(e),0);
@@ -2632,6 +2632,15 @@ function vTrain(){
   h+=`<h2 id="allwk" style="margin-top:1.4rem">Workouts</h2>`+vWorkouts();
   return h;
 }
+function deloadHelp(){stDlg(`<h3>${LL("What is a deload week?","C'est quoi une semaine de décharge ?")}</h3>
+<p>${LL("A planned <b>lighter week</b> every 6–8 weeks of training. You keep the same days and the same exercises, only lighter.","Une <b>semaine plus légère</b> prévue toutes les 6 à 8 semaines d'entraînement. Tu gardes les mêmes jours et les mêmes exercices, juste en plus léger.")}</p>
+<p><b>${LL("Why","Pourquoi")}</b><br>${LL("Hard training builds tiredness in your muscles, joints and nerves faster than it goes away. One easy week clears it: you usually come back <b>stronger</b> the week after, with less risk of pain or injury (knees included). You don't lose any muscle.","L'entraînement intense accumule de la fatigue dans les muscles, les articulations et le système nerveux plus vite qu'elle ne disparaît. Une semaine facile l'élimine : tu reviens en général <b>plus forte</b> la semaine d'après, avec moins de risque de douleur ou de blessure (genoux compris). Tu ne perds pas de muscle.")}</p>
+<p><b>${LL("How","Comment")}</b></p><ul style="margin:.2rem 0 .6rem 1.1rem;padding:0">
+<li>${LL("Same workouts on the same days","Mêmes séances, mêmes jours")}</li>
+<li>${LL("<b>Half the sets</b> (4 sets → 2)","<b>Moitié des séries</b> (4 séries → 2)")}</li>
+<li>${LL("<b>~60 % of your usual weight</b> (50 kg → 30 kg), easy reps, far from failure","<b>~60 % de tes charges habituelles</b> (50 kg → 30 kg), reps faciles, loin de l'échec")}</li>
+<li>${LL("Keep your steps and cardio, eat as usual","Garde tes pas et ton cardio, mange comme d'habitude")}</li></ul>
+<p><b>${LL("When","Quand")}</b><br>${LL("The app counts the weeks since your last deload. It warns you at 6 weeks and asks for it at 7. Once the light week is done, tap <b>Deload done</b> and the count starts again. A break of 2 weeks or more (holidays, illness) also resets it.","L'appli compte les semaines depuis ta dernière décharge. Elle te prévient à 6 semaines et la demande à 7. Une fois la semaine légère faite, touche <b>Décharge faite</b> et le compteur repart à zéro. Une pause de 2 semaines ou plus (vacances, maladie) le remet aussi à zéro.")}</p>`)}
 function deloadInfo(){const ss=S.core.sessions||[];if(!ss.length)return null;
  const ds=[...new Set(ss.map(x=>x.date))].sort();let from=ds[0];for(let i=1;i<ds.length;i++){if((new Date(ds[i])-new Date(ds[i-1]))/864e5>=14)from=ds[i]}if(S.core.lastDeload&&S.core.lastDeload>from)from=S.core.lastDeload;const wk=Math.floor((new Date(today())-new Date(from))/6048e5);
  if(wk>=7)return{due:true,text:`<b>Deload week due</b> (${wk} weeks). Half the sets, ~60 % weight.`};
@@ -4585,7 +4594,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.79l beta";
+const APP_VERSION="0.79m beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
