@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79o beta · 2026-11-19
+- PO (position) sets: progression uses the average reps per position, range 8–12 per position; history of the same set style only; PO carried to the next workout; placeholders per position
+
 ## 0.79n beta · 2026-11-19
 - Warm-ups on plate exercises round to whole 5 kg (80, 115 instead of 77.5, 117.5); leg machines incl. Lever Hip Thrust step 5 kg
 
