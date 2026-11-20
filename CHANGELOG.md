@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79p beta · 2026-11-20
+- App opens from the saved copy after 4 s when the connection is weak instead of staying white
+
 ## 0.79o beta · 2026-11-19
 - PO (position) sets: progression uses the average reps per position, range 8–12 per position; history of the same set style only; PO carried to the next workout; placeholders per position
 
