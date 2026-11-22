@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.80b beta · 2026-11-22
+- Male muscle map: black background patches replaced with white + thin outlines, same style as the female map
+
 ## 0.80a beta · 2026-11-22
 - New: app mode (Nutrition + training / Nutrition only / Training only), asked at first launch, switch in Settings, share links ?mode=food|train|full that open the app in that mode
 
