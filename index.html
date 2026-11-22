@@ -436,7 +436,7 @@ function meterMenu(){openSheet(`${sheetBtn("◔","Edit macro balance","MP=null;m
 function kcalSheet(){const T=targets();openSheet(`<h3 style="text-align:center;margin:0">Calories</h3><div style="text-align:center;font-size:2.4rem;font-weight:800">${T?r0(T.kcal):"—"}</div><p class="muted" style="text-align:center;margin:0 0 .6rem">kcal / day · adjustment ${(+S.core.phase.kcalAdjust||0)>0?"+":""}${+S.core.phase.kcalAdjust||0}</p><div class="row" style="justify-content:center"><button class="ghost" onclick="adj(-100);kcalSheet()">−100</button><button class="ghost" onclick="adj(100);kcalSheet()">+100</button></div>`)}
 /* Today layout */
 const TODAY_SEC=[["meter","Calories & macros"],["fast","Fasting"],["score","Nutrition score"],["log","Log food"],["supps","Supplements"],["chal","Challenges"],["recov","Muscle recovery"],["habits","Habits"],["weight","Weight"]];
-function todayOrder(period){const d=period==="morning"?["supps","meter","fast","score","log","chal","recov","habits","weight"]:["meter","fast","score","log","supps","chal","recov","habits","weight"];const o=prefs().todayOrder;if(!o)return d;return o.concat(d.filter(k=>!o.includes(k)))}
+function todayOrder(period){const d=period==="morning"?["supps","meter","fast","score","log","chal","recov","habits","weight"]:["meter","fast","score","log","supps","chal","recov","habits","weight"];const o=prefs().todayOrder;const r=o?o.concat(d.filter(k=>!o.includes(k))):d;const off=MODE()==="train"?["meter","fast","score","log","chal"]:MODE()==="food"?["recov"]:[];return r.filter(k=>!off.includes(k))}
 function todayAssemble(SEC,period){SEC.chal=challengeCardHTML();SEC.recov=recoveryCardHTML();SEC.fast=fastOn()?fastCardHTML():"";SEC.weight=weightCardHTML();const hid=prefs().todayHide||[];
  return todayOrder(period).filter(k=>!hid.includes(k)).map(k=>SEC[k]||"").join("")+`<div style="text-align:center;margin:1.2rem 0 .4rem"><button class="ghost small" onclick="arrangeSheet()">✎ Arrange Today</button></div>`}
 function arrangeSheet(){const o=todayOrder(new Date().getHours()<11&&new Date().getHours()>=5?"morning":"");const hid=prefs().todayHide||[];const list=o.filter(k=>k!=="fast"||fastOn());
@@ -470,8 +470,8 @@ function fastCardHTML(){const goal=(prefs().fast||{}).hours||16;const f=S.core.f
  const last=(S.core.fasts||[]).slice(-1)[0];return`<div class="box"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><div class="muted">Fasting · goal ${goal} h</div><b>Eating window open</b><div class="muted" style="font-size:.8rem">${last?"Last fast: "+fmtHM2(last.end-last.start):"Start after your last meal."}</div></div><button onclick="fastToggle()">▶ Start fast</button></div></div>`}
 /* quick ＋ menu */
 function fabMenu(){const L=dayLog(today());const T=targets();let left="";if(T){const k=L.food.reduce((a,x)=>a+(x.kcal||0),0);left=` <span class="muted" style="font-weight:400;font-size:.85rem">· ${r0(T.kcal-k)} kcal left</span>`}
- const w=latestWeight();openSheet(`${sheetBtn("🔎","Log food"+left,"fabFood('search')")}${sheetBtn("✨","Describe a meal","fabFood('ai')")}<label class="sheetbtn" style="cursor:pointer"><span class="sheeticon">📷</span>Photo of my meal<input type="file" accept="image/*" style="display:none" onchange="closeSheet();aiPhoto(this)"></label>
- ${sheetBtn("💧",`Water +250 ml <span class="muted" style="font-weight:400;font-size:.85rem">· ${(L.water||0)} ml</span>`,"fabWater()")}${sheetBtn("⚖️",`Weight <span class="muted" style="font-weight:400;font-size:.85rem">· ${w?r1(w)+" kg":"—"}</span>`,"closeSheet();fabWeight()")}${sheetBtn("🏋️",A()?"Resume workout":"Start a workout","fabWorkout()")}${sheetBtn("🍷",LL("I drank yesterday","J’ai bu hier")+(drinkLv()?` <span class="muted" style="font-weight:400;font-size:.85rem">· ${drinkLv()}/5</span>`:""),"drinkSheet()")}${fastOn()?sheetBtn("⏱",S.core.fast?"End fast":"Start fast","closeSheet();fastToggle()"):""}`)}
+ const w=latestWeight();openSheet(`${hasFood()?`${sheetBtn("🔎","Log food"+left,"fabFood('search')")}${sheetBtn("✨","Describe a meal","fabFood('ai')")}<label class="sheetbtn" style="cursor:pointer"><span class="sheeticon">📷</span>Photo of my meal<input type="file" accept="image/*" style="display:none" onchange="closeSheet();aiPhoto(this)"></label>`:""}
+ ${sheetBtn("💧",`Water +250 ml <span class="muted" style="font-weight:400;font-size:.85rem">· ${(L.water||0)} ml</span>`,"fabWater()")}${sheetBtn("⚖️",`Weight <span class="muted" style="font-weight:400;font-size:.85rem">· ${w?r1(w)+" kg":"—"}</span>`,"closeSheet();fabWeight()")}${!hasTrain()?"":sheetBtn("🏋️",A()?"Resume workout":"Start a workout","fabWorkout()")}${sheetBtn("🍷",LL("I drank yesterday","J’ai bu hier")+(drinkLv()?` <span class="muted" style="font-weight:400;font-size:.85rem">· ${drinkLv()}/5</span>`:""),"drinkSheet()")}${fastOn()?sheetBtn("⏱",S.core.fast?"End fast":"Start fast","closeSheet();fastToggle()"):""}`)}
 function fabFood(m){closeSheet();logDate=today();tab="today";settingsOpen=false;statsOpen=false;if(m==="ai"){aiOpen=true;crousOpen=false;qaOpen=false}render();setTimeout(()=>{const el=document.getElementById(m==="ai"?"aitext":"lf");if(el){el.scrollIntoView({block:"center"});el.focus()}},60)}
 function fabWater(){closeSheet();const L=dayLog(today());L.water=(L.water||0)+250;save(monthKey(today()));render();flash(`💧 ${L.water} ml today`)}
 async function fabWeight(){const v=await askText("Today's weight (kg)",latestWeight()||"");if(v==null||v===false)return;const n=parseFloat(String(v).replace(",","."));if(n>20&&n<400){addMeas("weight",n,today());flash(`⚖️ ${n} kg saved`)}}
@@ -922,10 +922,10 @@ function migHS(){try{const M={"Hammer Strength Abdominal Crunch":"Abdominal Crun
  ["lifts","baseW","dbCount","rest","restW","exUnit","sideRest","posSel","customEx","wsteps"].forEach(k=>{const o=c[k];if(!o)return;Object.keys(M).forEach(a=>{if(o[a]!==undefined){if(k==="lifts"&&o[M[a]])o[M[a]]=o[M[a]].concat(o[a]);else o[M[a]]=o[a];delete o[a];ch=true}})});
  if(ch)save("core")}catch(e){}}
 let _trOn=false;function rollPlan(){try{const p=S.core&&S.core.plan,m=mondayOf(today());if(p&&p.week&&p.week<m){p.week=m;save("core")}}catch(_){}}
-function render(){if(S.core&&(S.core._migHS||0)<2){migHS();S.core._migHS=2}rollPlan();ensureColors();setTimeout(fabPaint,0);if(S.core&&S.core.profile&&S.core.profile.age)migRecomp();if(!_trOn&&document.body){_trOn=true;trStart()}
+function render(){modeFromUrl();if(S.core&&(S.core._migHS||0)<2){migHS();S.core._migHS=2}rollPlan();ensureColors();setTimeout(fabPaint,0);if(S.core&&S.core.profile&&S.core.profile.age)migRecomp();if(!_trOn&&document.body){_trOn=true;trStart()}
  if(setupOn){$("#tabs").style.display="none";$("#app").innerHTML=vSetup();return}
- $("#tabs").style.display="";
- const tabs=[["today","◐","Today"],["kitchen","🍳","Kitchen"],["shop","🛒","Groceries"],["train","🏋️","Train"],["cal","📅","Calendar"],["me","◎","Me"]];
+ $("#tabs").style.display="";modeFromUrl();if(!tabOk(tab))tab=MODE()==="train"?"train":"today";
+ const tabs=[["today","◐","Today"],["kitchen","🍳","Kitchen"],["shop","🛒","Groceries"],["train","🏋️","Train"],["cal","📅","Calendar"],["me","◎","Me"]].filter(t=>tabOk(t[0]));
  $("#tabs").innerHTML=tabs.map(t=>`<button class="${tab===t[0]?"on":""}" onclick="go('${t[0]}')"><span aria-hidden="true">${t[1]}</span>${t[2]}</button>`).join("");
  const ph=PHASES[S.core.phase.name].label+(S.core.phase.name==="build"&&S.core.phase.miniCut?" · mini-cut":"");
  const view={today:vToday,kitchen:vKitchen,shop:vShop,train:vTrain,cal:vCal,me:vMe}[tab]();
@@ -977,7 +977,7 @@ function multi(k,opts,ranked){return`<div class="chips">${opts.map(([v,l])=>{con
 const q=(label,body,hint)=>`<div style="margin-top:1.1rem"><label style="color:var(--ink);font-weight:600;font-size:.95rem">${label}</label>${hint?`<div class="muted" style="margin:-.1rem 0 .35rem;font-size:.85rem">${hint}</div>`:""}${body}</div>`;
 const inp=(k,type,ph,extra="")=>`<input type="${type}" ${type==="number"?'inputmode="decimal"':""} value="${esc(SD[k])}" placeholder="${esc(ph)}" onchange='sdSet("${k}",this.type==="number"?(this.value===""?"":+this.value):this.value)' ${extra}>`;
 function vSetup(){const st=setupStep,last=SETUP_STEPS.length-1;let b="";
- if(st===0)b=q("First name",inp("name","text","Your name"))+q("Sex",single("sex",[["f","Female"],["m","Male"]]),"")
+ if(st===0)b=q(LL("What will you use the app for?","Tu veux utiliser l'appli pour quoi ?"),`<div class="chips">${APP_MODES.map(([k,ic,l])=>`<button class="chip ${MODE()===k?"on":""}" onclick="prefs().mode='${k}';save('core');render()">${ic} ${LL(l[0],l[1])}</button>`).join("")}</div>`,LL("You can change it later in Settings.","Tu pourras changer plus tard dans les Réglages."))+q("First name",inp("name","text","Your name"))+q("Sex",single("sex",[["f","Female"],["m","Male"]]),"")
   +`<div class="grid3">${q("Age",inp("age","number","years"))}${q("Height (cm)",inp("height","number","cm",`oninput="SD.height=this.value===''?'':+this.value;sdGoalPH()"`))}${q("Weight (kg)",inp("weight","number","kg",`oninput="SD.weight=this.value===''?'':+this.value;sdGoalPH()"`))}</div>`
   +q("Goal weight (optional)",inp("goalWeight","number",suggestGoal()?suggestGoal()+" kg":"kg",`id="sdgoal"`))+q("Daily activity outside the gym",single("activity",SO.activity));
  if(st===1)b=q("Main goal",single("goal",SO.goal))+q("Areas to prioritise",multi("areas",SO.areas,true),"Tap in order of importance (up to 3).")+q("Pace",single("pace",SO.pace),"")
@@ -1006,9 +1006,10 @@ function vSetup(){const st=setupStep,last=SETUP_STEPS.length-1;let b="";
  return`<div style="padding-top:.4rem"><div class="muted" style="font-size:.85rem">Step ${st+1} of ${SETUP_STEPS.length}</div><div class="track" style="margin:.4rem 0 1rem"><div class="fill" style="width:${(st+1)/SETUP_STEPS.length*100}%;background:var(--plum)"></div></div>
  <h1>${SETUP_STEPS[st]}</h1>${st===0&&!S.core.setup?`<p class="muted">About 2 minutes.</p>`:""}
  <div class="box" style="margin-top:.8rem">${b}</div>
- <div class="row" style="margin:1rem 0 2rem"><button class="ghost" onclick="${st===0?"cancelSetup()":"setupStep--;render();window.scrollTo(0,0)"}">${st===0?(S.core.setup||S.core.profile.age?"Cancel":"Skip for now"):"‹ Back"}</button><span class="grow"></span>
+ <div class="row" style="margin:1rem 0 2rem"><button class="ghost" onclick="${st===0?"cancelSetup()":"setupStep--;while(setupSkip(setupStep))setupStep--;render();window.scrollTo(0,0)"}">${st===0?(S.core.setup||S.core.profile.age?"Cancel":"Skip for now"):"‹ Back"}</button><span class="grow"></span>
  <button onclick="${st===last?"finishSetup()":"nextSetup()"}">${st===last?"Finish":"Next ›"}</button></div></div>`}
-function nextSetup(){if(setupStep===0&&(!+SD.age||!+SD.height||!+SD.weight)){toast("Enter age, height and weight.");return}setupStep++;render();window.scrollTo(0,0)}
+function nextSetup(){if(setupStep===0&&(!+SD.age||!+SD.height||!+SD.weight)){toast("Enter age, height and weight.");return}setupStep++;while(setupSkip(setupStep))setupStep++;render();window.scrollTo(0,0)}
+const setupSkip=i=>(MODE()==="food"&&i===2)||(MODE()==="train"&&(i===3||i===4));
 function cancelSetup(){setupOn=false;SD=null;render()}
 function finishSetup(){const d=SD,p=S.core.profile;
  Object.assign(p,{name:d.name,sex:d.sex,age:+d.age,height:+d.height,weight:+d.weight,goalWeight:d.goalWeight===""?"":+d.goalWeight,activity:+d.activity});
@@ -1033,7 +1034,7 @@ function finishSetup(){const d=SD,p=S.core.profile;
  progSeed=0;save("core");save("body");setupOn=false;
  if(d.planPhases){SD=null;tab="me";meView={page:"plan"};planDraft=tplSteps(defaultTemplate());render();window.scrollTo(0,0);return}
  SD=null;tab="train";trainView="preview";render();window.scrollTo(0,0)}
-function go(t){if(t==="shop"&&tab!=="shop")setTimeout(lowAsk,250);settingsOpen=false;statsOpen=false;if(t==="me"&&tab==="me")meView=null;tab=t;render();window.scrollTo(0,0)}
+function go(t){if(!tabOk(t))t=MODE()==="train"?"train":"today";if(t==="shop"&&tab!=="shop")setTimeout(lowAsk,250);settingsOpen=false;statsOpen=false;if(t==="me"&&tab==="me")meView=null;tab=t;render();window.scrollTo(0,0)}
 
 const DRINK=[null,{n:["1–2 drinks","1–2 verres"],a:["Train as planned. Drink a big glass of water first.","Séance normale. Bois un grand verre d’eau avant."],v:"ok"},
  {n:["3–4 drinks","3–4 verres"],a:["You can train, but lighter: same weights, stop 2 reps short, no record attempts. Hydrate well.","Tu peux t’entraîner, mais plus léger : mêmes charges, garde 2 reps en réserve, pas de record. Hydrate-toi bien."],v:"light"},
@@ -1053,7 +1054,7 @@ function vToday(){
  let h=`<div class="row" style="margin-bottom:.8rem"><input type="date" value="${logDate}" onchange="setLogDate(this.value)" style="max-width:11rem"><button class="ghost small" onclick="setLogDate('${today()}')">Today</button></div>`+drinkCard();
  const hr=new Date().getHours();const isToday=logDate===today();const period=!isToday?"":hr>=5&&hr<11?"morning":hr<18&&hr>=11?"afternoon":"evening";
  const SEC={};if(period==="morning")h+=`<p class="muted" style="margin:-.3rem 0 .6rem">☀️ Good morning: supplements and breakfast first.</p>`;SEC.supps=suppToday();
- if(period==="afternoon"){const di=(new Date().getDay()+6)%7;const dk=schedule()[di];const done=(S.core.sessions||[]).some(x=>x.date===today());if(A())h+=`<div class="note good">🏋️ Workout ${esc(A().day)} in progress. <button class="small" onclick="tab='train';trainView='live';render()">Resume</button></div>`;{const cc=cardioFor(di);const cdone=(S.core.sessions||[]).some(x=>x.date===today()&&x.day==="CARDIO");if(cc&&!cdone&&!A())h+=`<div class="box"><div class="row" style="justify-content:space-between"><div><div class="muted" style="font-size:.8rem">Cardio today</div><b>🏃 ${esc(cc.name)} · ${fmtMin(cc.mins)}</b></div><button class="ghost" onclick="startCardio(${di})">▶ Start</button></div></div>`}
+ if(period==="afternoon"&&hasTrain()){const di=(new Date().getDay()+6)%7;const dk=schedule()[di];const done=(S.core.sessions||[]).some(x=>x.date===today());if(A())h+=`<div class="note good">🏋️ Workout ${esc(A().day)} in progress. <button class="small" onclick="tab='train';trainView='live';render()">Resume</button></div>`;{const cc=cardioFor(di);const cdone=(S.core.sessions||[]).some(x=>x.date===today()&&x.day==="CARDIO");if(cc&&!cdone&&!A())h+=`<div class="box"><div class="row" style="justify-content:space-between"><div><div class="muted" style="font-size:.8rem">Cardio today</div><b>🏃 ${esc(cc.name)} · ${fmtMin(cc.mins)}</b></div><button class="ghost" onclick="startCardio(${di})">▶ Start</button></div></div>`}
  if(A()){}else if(dk&&dk!=="rest"&&!done&&S.core.workout[dk])h+=`<div class="box"><div class="row" style="justify-content:space-between"><div><div class="muted" style="font-size:.8rem">Today's workout</div><b>Day ${dk} · ${esc(S.core.workout[dk].title)}</b><div class="muted" style="font-size:.82rem">${S.core.workout[dk].ex.length} exercises</div></div><button onclick="startWorkout('${dk}')">▶ Start</button></div></div>`}
  if(!T)h+=`<div class="note">Fill in your age, height and weight in <b>Me</b> so your calories and macros can be calculated.</div>`;
  else{
@@ -2903,10 +2904,10 @@ function vLog(){const now=new Date(today()+"T12:00");const first=new Date(now.ge
  <div class="grid3" style="margin-top:.9rem"><div><div class="muted">Workouts</div><b>${ms.workouts}</b>${delta(ms.workouts,pm.workouts)}</div><div><div class="muted">Sets</div><b>${r0(ms.sets)}</b>${delta(ms.sets,pm.sets)}</div><div><div class="muted">Volume</div><b>${r0(ms.vol).toLocaleString()} kg</b>${delta(ms.vol,pm.vol)}</div></div></div>`;
  if(calSel){const ss=sessByDate[calSel]||[];const sc=dayScore((S.logs[monthKey(calSel)]||{days:{}}).days?.[calSel],T,calSel===today());
   h+=`<h2>${new Date(calSel+"T12:00").toLocaleDateString(LOC(),{weekday:"long",day:"numeric",month:"long"})}</h2>`;
-  if(sc)h+=`<p class="muted" style="margin:-.3rem 0 .6rem">Nutrition score: <b>${sc.score}/100</b></p>`;
+  if(sc&&hasFood())h+=`<p class="muted" style="margin:-.3rem 0 .6rem">Nutrition score: <b>${sc.score}/100</b></p>`;
   {const Ld=(S.logs[monthKey(calSel)]||{days:{}}).days?.[calSel]||{};const dd=suppsDue(calSel).filter(x=>x.due);if(dd.length)h+=`<p class="muted" style="margin:-.3rem 0 .6rem">Supplements: <b>${dd.filter(x=>(Ld.supps||{})[x.s.id]).length}/${dd.length}</b> taken${dd.some(x=>!(Ld.supps||{})[x.s.id])?` (missed: ${dd.filter(x=>!(Ld.supps||{})[x.s.id]).map(x=>esc(x.s.name)).join(", ")})`:""}</p>`}
-  {const wi=(new Date(calSel+"T12:00").getDay()+6)%7;const pk=calSel>=mondayOf(today())?schedule(mondayOf(calSel))[wi]:null;const cc=calSel>=mondayOf(today())?cardioFor(wi,mondayOf(calSel)):null;
-   if(!ss.length)h+=`<div class="box muted">${pk&&pk!=="rest"?(calSel<today()?`Planned: Day ${esc(pk)} · not done.`:calSel===today()?`Planned today: Day ${esc(pk)} · ${esc((S.core.workout[pk]||{}).title||"")}.`:`Planned: Day ${esc(pk)} · ${esc((S.core.workout[pk]||{}).title||"")}.`):pk==="rest"?"Rest day.":"No workout logged this day."} </div>`;
+  {const wi=(new Date(calSel+"T12:00").getDay()+6)%7;const pk=hasTrain()&&calSel>=mondayOf(today())?schedule(mondayOf(calSel))[wi]:null;const cc=hasTrain()&&calSel>=mondayOf(today())?cardioFor(wi,mondayOf(calSel)):null;
+   if(!ss.length&&hasTrain())h+=`<div class="box muted">${pk&&pk!=="rest"?(calSel<today()?`Planned: Day ${esc(pk)} · not done.`:calSel===today()?`Planned today: Day ${esc(pk)} · ${esc((S.core.workout[pk]||{}).title||"")}.`:`Planned: Day ${esc(pk)} · ${esc((S.core.workout[pk]||{}).title||"")}.`):pk==="rest"?"Rest day.":"No workout logged this day."} </div>`;
    if(cc&&!ss.some(x=>x.day==="CARDIO"))h+=`<div class="box muted">🏃 Cardio planned: ${esc(cc.name)} · ${fmtMin(cc.mins)}</div>`}
   ss.forEach((sess,si)=>{const key=sess.id||("legacy:"+sess.date);const L=sessionLifts(sess);const vol=L.reduce((a,x)=>a+(isCardio({name:x.name})?0:sessionStats(x.name,x.entry).volume||0),0);
    const editing=sessEdit===key;
@@ -4601,13 +4602,21 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.79s beta";
+const APP_VERSION="0.80a beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
  sunset:{l:"Sunset",light:["#B4472E","#F8E6DF","#6B4FA0"],dark:["#F29A80","#3A2621","#B9A2E6"]},
  rose:{l:"Rose",light:["#A33B62","#F7E3EB","#3F7E8C"],dark:["#EE9DBB","#3A2230","#8CC9D6"]}};
 const prefs=()=>S.core.prefs||(S.core.prefs={});
+const APP_URL="https://symo-697.github.io/body-kitchen/";
+const MODE=()=>{try{const m=prefs().mode;return m==="food"||m==="train"?m:"full"}catch(_){return"full"}};const hasFood=()=>MODE()!=="train",hasTrain=()=>MODE()!=="food";
+const APP_MODES=[["full","🍳🏋️",["Nutrition + training","Nutrition + entraînement"]],["food","🍳",["Nutrition only","Nutrition seulement"]],["train","🏋️",["Training only","Entraînement seulement"]]];
+function modeFromUrl(){try{if(window._modeUrl)return;window._modeUrl=1;const q=new URLSearchParams(location.search);const m=q.get("mode")||((location.hash||"").match(/mode=(\w+)/)||[])[1];if(m&&["full","food","train"].includes(m)&&S.core){prefs().mode=m;save("core");try{q.delete("mode");history.replaceState(null,"",location.pathname+(q.toString()?"?"+q:"")+(location.hash||"").replace(/[#&]?mode=\w+/,""))}catch(_){}}}catch(_){}}
+function setMode(m){prefs().mode=m;save("core");if(!tabOk(tab))tab=m==="train"?"train":"today";render()}
+const tabOk=t=>!((MODE()==="food"&&t==="train")||(MODE()==="train"&&(t==="kitchen"||t==="shop")));
+function modeLinksHTML(){return APP_MODES.map(([k,ic,l])=>`<div class="row" style="flex-wrap:nowrap;gap:.5rem;padding:.35rem 0;border-bottom:1px solid var(--line)"><span style="flex:1;min-width:0"><b>${ic} ${LL(l[0],l[1])}</b><div class="muted" style="font-size:.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${APP_URL}?mode=${k}</div></span><button class="ghost small" onclick="modeShare('${k}')">${LL("Share","Partager")}</button></div>`).join("")}
+async function modeShare(k){const u=APP_URL+"?mode="+k;const l=APP_MODES.find(x=>x[0]===k)[2];try{if(navigator.share){await navigator.share({title:"Body & Kitchen",text:LL("Body & Kitchen · "+l[0],"Body & Kitchen · "+l[1]),url:u});return}}catch(_){return}try{await navigator.clipboard.writeText(u);toast(LL("Link copied.","Lien copié."))}catch(_){toast(u)}}
 function isDarkNow(){const m=prefs().theme||"system";if(m==="dark")return true;if(m==="light")return false;if(m==="auto"){const P=prefs();const t=(v,d)=>{const [a,b]=String(v||d).split(":").map(Number);return a*60+(b||0)};const n=new Date().getHours()*60+new Date().getMinutes(),f=t(P.darkFrom,"20:00"),u=t(P.darkTo,"07:00");return f>u?(n>=f||n<u):(n>=f&&n<u)}
  try{return matchMedia("(prefers-color-scheme: dark)").matches}catch(e){return false}}
 function applyTheme(){try{const m=prefs().theme||"system";const root=document.documentElement;const dark=isDarkNow();
@@ -4626,6 +4635,9 @@ function openManual(){openSheet(`<h3>📖 How Body &amp; Kitchen works</h3><p cl
 function openSettings(){settingsOpen=true;render();window.scrollTo(0,0)}
 function vSettings(){const m=prefs().theme||"system",pal=prefs().palette||"plum";
  let h=`<button class="ghost small" onclick="settingsOpen=false;render();window.scrollTo(0,0)">‹ Back</button>
+ <h2>${LL("App mode","Mode de l'appli")}</h2><div class="box"><div class="seg cmp">${APP_MODES.map(([k,ic,l])=>`<button class="${MODE()===k?"on":""}" onclick="setMode('${k}')">${ic} ${LL(l[0],l[1]).replace(/ (only|seulement)$/,"")}</button>`).join("")}</div>
+ <p class="muted" style="font-size:.85rem;margin:.6rem 0 .3rem">${LL("Hidden parts keep their data: switch back any time.","Les parties masquées gardent leurs données : tu peux revenir quand tu veux.")}</p>
+ <details><summary class="muted" style="font-size:.85rem;cursor:pointer">🔗 ${LL("Links for friends","Liens pour tes amis")}</summary><p class="muted" style="font-size:.8rem;margin:.4rem 0">${LL("Each link opens the app straight in that mode.","Chaque lien ouvre l'appli directement dans ce mode.")}</p>${modeLinksHTML()}</details></div>
  <h2>Language</h2><div class="box"><div class="chips">${[["en","English"],["fr","Français"]].map(([k,l])=>`<button class="chip ${LANG()===k?"on":""}" translate="no" onclick="setLang('${k}')">${l}</button>`).join("")}</div></div>
  <h2>Appearance</h2><div class="box"><div class="seg cmp">${[["system",LL("System","Système")],["light",LL("Light","Clair")],["dark",LL("Dark","Sombre")],["auto","Auto"]].map(([k,l])=>`<button class="${m===k?"on":""}" onclick="prefs().theme='${k}';save('core');applyTheme();render()">${l}</button>`).join("")}</div>
  ${m==="auto"?`<div class="row" style="justify-content:center;gap:.5rem;margin-top:.6rem;flex-wrap:nowrap"><span>🌙</span><input type="time" style="width:auto" value="${esc(prefs().darkFrom||"20:00")}" onchange="prefs().darkFrom=this.value;save('core');applyTheme();render()"><span class="muted">→</span><span>☀️</span><input type="time" style="width:auto" value="${esc(prefs().darkTo||"07:00")}" onchange="prefs().darkTo=this.value;save('core');applyTheme();render()"></div>`:""}
