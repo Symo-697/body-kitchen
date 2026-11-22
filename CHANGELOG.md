@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79r beta · 2026-11-22
+- History: 22 Nov session put back in the order performed, with its 3 supersets
+
 ## 0.79q beta · 2026-11-22
 - Workouts are saved in the order you actually did the exercises (first ticked set), supersets kept together and shown with a 🔗 Superset bracket in History
 
