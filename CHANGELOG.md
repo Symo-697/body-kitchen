@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.79q beta · 2026-11-22
+- Workouts are saved in the order you actually did the exercises (first ticked set), supersets kept together and shown with a 🔗 Superset bracket in History
+
 ## 0.79p beta · 2026-11-20
 - App opens from the saved copy after 4 s when the connection is weak instead of staying white
 
