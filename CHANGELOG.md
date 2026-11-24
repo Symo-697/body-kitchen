@@ -2,6 +2,13 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.81a beta · 2026-11-25
+- Weekly calorie budget (Monday → Sunday). New setting Settings › Nutrition › Track calories: by week (default) / by day; also asked in the first-launch Food step
+- Weekly mode: budget = 7 × daily calories, carbs and fat. Today shows kcal left today, "today you can eat ≈ X kcal" (what's left ÷ days left, today included), the week eaten / budget, and a Mon–Sun bar. Carbs and fat bars follow today's share; protein stays a daily minimum
+- Guardrails: a day is never suggested under 70 % or over 130 % of a normal day. If the week is too far over, it says so plainly ("this week will finish +600 kcal over") instead of starving the last days. Past days with nothing logged count as on target
+- Me › This week and the Calendar day view show the week bar; the nutrition score judges calories against the day's share of the week
+- Daily mode is unchanged
+
 ## 0.80g beta · 2026-11-24
 - Weighted holds: the 🏋️ Dumbbells × 1 / × 2 setting now works for weight × time exercises. Weighted Butterfly Stretch defaults to × 2: you write one dumbbell (4 kg) and the app shows "2×4 kg × 45 s", counts 8 kg in Records and Progress, and progresses in 2 kg dumbbell steps (4 → 6 kg each). Kg box reads "KG (EACH)". ⚖️ Steps button also offered for weighted holds
 
