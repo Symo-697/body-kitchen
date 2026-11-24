@@ -2,6 +2,12 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.80f beta · 2026-11-24
+- New logging mode: weight × time (weighted holds). Sets store kg + seconds; PREVIOUS, History and session cards show "5 kg × 45 s". Default for Weighted Butterfly Stretch and loaded holds (weighted / dumbbell / kettlebell / plate … planks, holds, dead bugs, wall sits); offered in the exercise's "How do you want to log it?" switch
+- Records: heaviest weight held, longest hold, best hold at each weight. Progress: heaviest weight + longest hold charts. Volume counts 0
+- Progression: +5 s per set up to the top of the time range, then the next weight step and back to the bottom of the range
+- Old seconds-only sets still show (as 0 kg). History edit now also offers fields the old set didn't have (e.g. kg)
+
 ## 0.80e beta · 2026-11-24
 - New exercise: Weighted Butterfly Stretch (stretch, adductors): seated, soles together, plate or dumbbell on the knees
 
