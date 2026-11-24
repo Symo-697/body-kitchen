@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.80e beta · 2026-11-24
+- New exercise: Weighted Butterfly Stretch (stretch, adductors): seated, soles together, plate or dumbbell on the knees
+
 ## 0.80d beta · 2026-11-24
 - Fix: the PREVIOUS column (live workout and Edit workout) matches each row to last time's set of the same kind and side (1L ↔ last 1L, warm-up ↔ warm-up) instead of the set in the same row position, so changing the order of L/R rows no longer shows the other side's numbers (bug since the Lyfta-style set rows)
 
