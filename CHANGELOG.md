@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.80g beta · 2026-11-24
+- Weighted holds: the 🏋️ Dumbbells × 1 / × 2 setting now works for weight × time exercises. Weighted Butterfly Stretch defaults to × 2: you write one dumbbell (4 kg) and the app shows "2×4 kg × 45 s", counts 8 kg in Records and Progress, and progresses in 2 kg dumbbell steps (4 → 6 kg each). Kg box reads "KG (EACH)". ⚖️ Steps button also offered for weighted holds
+
 ## 0.80f beta · 2026-11-24
 - New logging mode: weight × time (weighted holds). Sets store kg + seconds; PREVIOUS, History and session cards show "5 kg × 45 s". Default for Weighted Butterfly Stretch and loaded holds (weighted / dumbbell / kettlebell / plate … planks, holds, dead bugs, wall sits); offered in the exercise's "How do you want to log it?" switch
 - Records: heaviest weight held, longest hold, best hold at each weight. Progress: heaviest weight + longest hold charts. Volume counts 0
