@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.80d beta · 2026-11-24
+- Fix: the PREVIOUS column (live workout and Edit workout) matches each row to last time's set of the same kind and side (1L ↔ last 1L, warm-up ↔ warm-up) instead of the set in the same row position, so changing the order of L/R rows no longer shows the other side's numbers (bug since the Lyfta-style set rows)
+
 ## 0.80c beta · 2026-11-24
 - Fix: left/right sets with "Rep range, set by set" each get their own target and placeholders (weight and reps from that side's last sets) instead of one weight for both sides (bug since 0.71, when this method was added)
 
