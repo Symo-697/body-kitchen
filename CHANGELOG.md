@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.80c beta · 2026-11-24
+- Fix: left/right sets with "Rep range, set by set" each get their own target and placeholders (weight and reps from that side's last sets) instead of one weight for both sides (bug since 0.79o)
+
 ## 0.80b beta · 2026-11-22
 - Male muscle map: black background patches replaced with white + thin outlines, same style as the female map
 
