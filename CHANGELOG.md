@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.82b beta · 2026-11-25
+- Fix: Groceries › Plan the week now really restarts on Monday. Before, only the week date changed and last week's recipes, portions and ticks stayed. Now a fresh, empty week starts (same as "Start a new week"), last week's plan is kept in history (last 12 weeks), and cooked portions not eaten yet carry over to "already cooked" (bug since the planner's automatic week change)
+
 ## 0.82a beta · 2026-11-25
 - Settings › Goals: one row per goal with its value (Calories, Macros, Fasting, Water, Weight goal, Steps, Burned calories) and ↻ Recalculate plan (redoes targets from profile, phase and pace, shows old → new before saving; clears the manual calorie adjustment and manual targets)
 - Pace slider Slow / Optimal / Fast in kg per week (loss 0.25–1 % of body weight, Optimal 0.5 %; gain 0.1–0.5 kg). Sets the deficit / surplus and so the weekly budget; shows the deficit and the date the goal weight is reached. Only used once moved; hidden in maintain / recomp phases
