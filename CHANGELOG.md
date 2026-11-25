@@ -2,6 +2,31 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.83d beta · 2026-11-25
+
+Text review applied: Serena's 30 decisions (`claude/bk-text-review-decisions.md`, bk-045 → bk-074). Shorter texts everywhere, details moved into small ⓘ buttons. FR labels added for every changed text. No logic changes.
+
+- **Setup:**
+  - Removed "About 2 minutes." and "You can change it later in Settings."
+  - Shorter labels: "Gain weight", "Up to 3, in order", "Injuries or pain to avoid", "Batch cooking?", "Hide calorie numbers? ⓘ", "Habits to work on (optional)" (same in Settings › Personal details), "Does any of this apply?", "Medication that can cause weight gain ⓘ", "Finish sets your targets. Your logs stay."
+  - Brackets cut on the Goal step options: Legs, Middle back, Back width, Back, Triceps, Arms, Gentle.
+  - "Plan phases in a row? ⓘ" (the example is in the ⓘ).
+- **Today:**
+  - "Good morning".
+  - "kcal left today" with "Week 3,572 / 12,501 ⓘ". The ⓘ holds today's share, eaten, what's left of the week, days left, unlogged days and the week-bar legend.
+  - The empty Supplements card is hidden.
+  - "What's new" shows a single line, once, on Today only.
+- **Train:** program header "4 × 60 min a week"; footnote "Tap an exercise for its muscles · swap any later" (the outdated "+1 on glute work" is gone).
+- **Progress › Stats:** week-bar legend removed; "Weigh in 3 mornings a week"; VisBody upload line removed; "Same light & pose: front, side, back".
+- **Settings:**
+  - Pace: "−446 kcal / day" (the goal date is kept).
+  - App mode: an ⓘ ("Hidden parts keep their data").
+  - Nutrition: "A big day is balanced over the week. Protein stays daily. ⓘ" (the 70–130 % rule is in the ⓘ).
+- **Fixes:**
+  - The empty-supplements text in the morning check-in now points to Progress › Stats › Supplements & medication (it said "Me").
+  - "Back width" is now translated in FR.
+- New helpers: `ib(en, fr)` draws a small ⓘ that opens the text; `frAdd()` adds FR labels the translator really picks up.
+
 ## 0.83c beta · 2026-11-25
 
 Design pass, rule 2: Today shows 3 things first.
