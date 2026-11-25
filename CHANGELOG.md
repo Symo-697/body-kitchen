@@ -2,6 +2,19 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.83c beta · 2026-11-25
+
+Design pass, rule 2: Today shows 3 things first.
+
+- **Top of Today, always:**
+  1. Calories left, with protein, carbs, fat and fibre as small rings instead of bars. The week line and week bars stay.
+  2. A quick-log row: 🍽 Log food · 💧 +250 ml (shows today's water) · ⚖️ Weight (shows your latest).
+  3. Today's workout, all day instead of afternoon only: Resume, ▶ Start, the cardio card, "✓ Done" once logged, or "Rest day".
+- Everything else (supplements, tip, fasting, score, meal log, challenge, recovery, habits, weight) moves into a **More today** fold. It remembers if you left it open.
+- **📌 Pin** in "✎ Arrange Today" keeps a section above the fold. "Log food" opens the fold by itself.
+- Tab bar: back to the colourful icons ☀️ Today · 🍳 Kitchen · 🏋️ Train · 📈 Progress, as Serena preferred.
+- No logic changes: same numbers, same data.
+
 ## 0.83b beta · 2026-11-25
 - Design pass, step 2 (beginner rule 3): **4 tabs instead of 6: Today · Kitchen · Train · Progress**
   - Kitchen has Groceries inside it (switch at the top: Recipes / Plan & groceries); Progress = Calendar + Me (Calendar / Stats). Each remembers the last one used
