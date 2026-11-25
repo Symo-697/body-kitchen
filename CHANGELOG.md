@@ -9,6 +9,13 @@ Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
   - Beginner rule 4, one text font: Figtree everywhere (headings too); Bricolage Grotesque only for big numbers, now 32 px (`--fs-num`); labels 14 px
   - Keyboard focus ring on every focusable element
 
+## B&K Prep v3 · 2026-11-25
+- Design pass to Serena's UI design system, same features, no logic changes: OKLCH colour tokens (plum palette, light + dark), concentric radii (cards 22 px with 14 px padding → 8 px inside; sheet, segmented controls and inputs follow the same rule), semi-transparent borders, one light-only shadow scale (dark mode = lighter surfaces), motion tokens with prefers-reduced-motion
+- Beginner-friendly rules: going over the week is a calm plum note, never red; red stays only on delete buttons. One text font (Figtree, headings included); Bricolage Grotesque only for big numbers (24–32 px). Labels 12–14 px muted, no all-caps
+- Tab bar: line icons matched to the label weight instead of emoji, translucent bar with blur; selected icon and ticked boxes appear with a short fade + blur
+- 44 px touch targets, visible keyboard focus on every control, 100dvh sheets, picker header on the sheet surface in dark mode
+- Service worker cache bumped to bk-prep-v3
+
 ## B&K Prep v2 · 2026-11-25
 - Weekly calorie budget (Mon → Sun), following Body & Kitchen's Settings › Nutrition › Track calories (Prep's own By week / By day switch in Goals when not linked)
 - Plan tab: Week budget card with kcal left, "≈ X kcal a day until Sunday", a bar Eaten / Prepped / Out + extras, the same 70–130 % guardrails and plain "+X kcal over" message as B&K, and a daily protein line (what the prepped meals bring, what has to come from meals out)
