@@ -2,6 +2,15 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.83b beta · 2026-11-25
+- Design pass, step 2 (beginner rule 3): **4 tabs instead of 6: Today · Kitchen · Train · Progress**
+  - Kitchen has Groceries inside it (switch at the top: Recipes / Plan & groceries); Progress = Calendar + Me (Calendar / Stats). Each remembers the last one used
+  - Settings ⚙︎ on Today and Progress
+  - Modes: nutrition only = Today · Kitchen · Progress; training only = Today · Train · Progress
+  - Old names keep working: every button that opened Groceries, Calendar or Me opens the new place; new `?tab=` / `#tab=` links (today, kitchen/recipes, shop/groceries/plan, train, cal/calendar, me/stats, progress)
+  - Bottom bar uses 4 matching line icons instead of mixed emoji; segmented switches have nested corners (inner = outer − padding)
+  - One-time "What's new" note
+
 ## 0.83a beta · 2026-11-25
 - Design pass, step 1 (foundations), no change in how anything works:
   - Design tokens in `:root`: colours in OKLCH (same plum palette, light + dark), radius scale (xs 4 · sm 8 · md 10 · lg 14 · xl 18 · pill) with nested cards one step smaller, spacing scale, semi-transparent borders, one shadow scale (dark mode: no shadows, sheets sit on a lighter surface instead), motion tokens, and everything still on prefers-reduced-motion. Hard-coded radii, shadows, transitions, overlay colour and white text on accents in the stylesheet now use the tokens; full-height sizes use `dvh`

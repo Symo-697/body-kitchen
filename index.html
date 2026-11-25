@@ -117,8 +117,8 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .done{text-decoration:line-through;color:var(--muted)}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:.35rem .25rem;padding-bottom:calc(.35rem + env(safe-area-inset-bottom,0px));z-index:5}
 nav.tabs button{background:transparent;color:var(--muted);flex:1;padding:.35rem 0;font-size:.68rem;min-width:0;display:flex;flex-direction:column;align-items:center;gap:.1rem}
-@media (max-width:360px){nav.tabs button{font-size:0;gap:0}nav.tabs button span{font-size:1.35rem}}
-nav.tabs button span{font-size:1.25rem;line-height:1}
+@media (max-width:330px){nav.tabs button .lab{font-size:.64rem}}
+nav.tabs button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform var(--dur-1) var(--ease)}nav.tabs button.on svg{stroke-width:2.1}nav.tabs button .lab{font-size:.72rem;line-height:1.1}nav.tabs button:active svg{transform:scale(.92)}
 nav.tabs button.on{color:var(--plum)}
 .status{font-size:.78rem;color:var(--muted)}
 .spark{width:100%;height:120px;display:block}
@@ -235,8 +235,8 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .sheetbtn.sel{background:var(--plum-soft)}
 .sheeticon{width:2.6rem;height:2.6rem;border-radius:50%;background:var(--plum-soft);display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem;flex:none}
 .seg{display:flex;background:var(--plum-soft);border-radius:var(--r-lg);padding:.25rem;gap:.25rem;margin-bottom:.8rem}
-.seg button{flex:1;background:transparent;color:var(--ink)}
-.seg button.on{background:var(--card);box-shadow:var(--shadow-1)}
+.seg button{flex:1;background:transparent;color:var(--ink);border-radius:calc(var(--r-lg) - .25rem)}
+.seg button.on{background:var(--card);box-shadow:var(--shadow-1)}.subtabs{margin:-.2rem 0 1rem}.subtabs button{font-size:.9rem;padding:.45rem .5rem}
 .restgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
 .roundbtn{width:4.4rem;height:4.4rem;border-radius:50%;background:var(--line);color:var(--ink);font-weight:700;padding:0}
 .roundbtn.go{background:var(--sage);color:var(--on-accent);width:5rem;height:5rem}
@@ -1004,15 +1004,15 @@ function freshWeek(keepLeft){const p=S.core.plan;const left=keepLeft&&p?planLeft
 function rollPlan(){try{const p=S.core&&S.core.plan,m=mondayOf(today());if(p&&p.week&&p.week<m){const left=freshWeek(true);save("core");const n=Object.values(left).reduce((a,v)=>a+v,0);setTimeout(()=>flash(LL("🗓 New week: meal plan cleared","🗓 Nouvelle semaine : planning vidé")+(n?LL(` · ${n} cooked portion${n>1?"s":""} kept`,` · ${n} portion${n>1?"s":""} cuisinée${n>1?"s":""} gardée${n>1?"s":""}`):"")),400)}}catch(_){}}
 function render(){modeFromUrl();if(S.core&&(S.core._migHS||0)<2){migHS();S.core._migHS=2}rollPlan();ensureColors();setTimeout(fabPaint,0);if(S.core&&S.core.profile&&S.core.profile.age)migRecomp();if(!_trOn&&document.body){_trOn=true;trStart()}
  if(setupOn){$("#tabs").style.display="none";$("#app").innerHTML=vSetup();return}
- $("#tabs").style.display="";modeFromUrl();if(!tabOk(tab))tab=MODE()==="train"?"train":"today";
- const tabs=[["today","◐","Today"],["kitchen","🍳","Kitchen"],["shop","🛒","Groceries"],["train","🏋️","Train"],["cal","📅","Calendar"],["me","◎","Me"]].filter(t=>tabOk(t[0]));
- $("#tabs").innerHTML=tabs.map(t=>`<button class="${tab===t[0]?"on":""}" onclick="go('${t[0]}')"><span aria-hidden="true">${t[1]}</span>${t[2]}</button>`).join("");
+ $("#tabs").style.display="";modeFromUrl();tabFromUrl();if(!tabOk(tab))tab=MODE()==="train"?"train":"today";
+ const nv=navOf(tab);$("#tabs").innerHTML=NAV().filter(([n])=>n==="progress"||tabOk(n)).map(([n,l])=>`<button class="${nv===n?"on":""}" ${nv===n?'aria-current="page"':""} onclick="goNav('${n}')">${NAV_ICON[n]}<span class="lab">${l}</span></button>`).join("");
+ if(!prefs().wn83b){prefs().wn83b=1;save("core");if(S.core.setup||(S.core.profile&&S.core.profile.age))setTimeout(whatsNew83b,700)}
  const ph=PHASES[S.core.phase.name].label+(S.core.phase.name==="build"&&S.core.phase.miniCut?" · mini-cut":"");
  const view={today:vToday,kitchen:vKitchen,shop:vShop,train:vTrain,cal:vCal,me:vMe}[tab]();
  if(A())startTicker();
- applyTheme();const gear=(tab==="today"||tab==="me")&&!settingsOpen?`<button class="iconbtn" aria-label="Settings" onclick="openSettings()" style="font-size:1.35rem;padding:.1rem .3rem">⚙︎</button>`:"";
+ applyTheme();const gear=(tab==="today"||navOf(tab)==="progress")&&!settingsOpen?`<button class="iconbtn" aria-label="Settings" onclick="openSettings()" style="font-size:1.35rem;padding:.1rem .3rem">⚙︎</button>`:"";
  const v2=settingsOpen?vSettings():view;
- $("#app").innerHTML=liveBarHTML()+`<header class="top"><div><h1>${settingsOpen?"Settings":{today:"Today",kitchen:"Kitchen",shop:"Groceries",train:"Train",cal:"Calendar",me:"Me"}[tab]}</h1><div class="status" id="status">${esc(statusShown())}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">${gear}${S.core.setup||S.core.profile.age?`<div class="phase-pill">${esc(ph)}</div>`:`<button class="phase-pill" style="border:0" onclick="askSetup()">＋ Set up</button>`}</div></div></header>`+v2;
+ $("#app").innerHTML=liveBarHTML()+`<header class="top"><div><h1>${settingsOpen?"Settings":(NAV().find(x=>x[0]===nv)||[0,""])[1]}</h1><div class="status" id="status">${esc(statusShown())}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">${gear}${S.core.setup||S.core.profile.age?`<div class="phase-pill">${esc(ph)}</div>`:`<button class="phase-pill" style="border:0" onclick="askSetup()">＋ Set up</button>`}</div></div></header>`+subTabsHTML()+v2;
 }
 
 /* ---------- personal setup questionnaire ---------- */
@@ -1114,7 +1114,25 @@ function finishSetup(){const d=SD,p=S.core.profile;
  progSeed=0;save("core");save("body");setupOn=false;
  if(d.planPhases){SD=null;tab="me";meView={page:"plan"};planDraft=tplSteps(defaultTemplate());render();window.scrollTo(0,0);return}
  SD=null;tab="train";trainView="preview";render();window.scrollTo(0,0)}
-function go(t){if(!tabOk(t))t=MODE()==="train"?"train":"today";if(t==="shop"&&tab!=="shop")setTimeout(lowAsk,250);settingsOpen=false;statsOpen=false;if(t==="me"&&tab==="me")meView=null;tab=t;render();window.scrollTo(0,0)}
+
+/* ---------- 4 tabs (0.83b): Today · Kitchen · Train · Progress ----------
+   Internal tab ids stay the same (kitchen/shop, cal/me) so every existing link keeps working. */
+const navOf=t=>t==="shop"?"kitchen":t==="cal"||t==="me"?"progress":t;
+const NAV_ICON={
+ today:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>',
+ kitchen:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h16v3a6 6 0 0 1-6 6h-4a6 6 0 0 1-6-6z"/><path d="M2.5 11h19M9 7c0-1 1-1.5 1-2.5M14 7c0-1 1-1.5 1-2.5"/></svg>',
+ train:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>',
+ progress:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="m5 15 4.5-4.5 3.5 3 6-6.5"/><path d="M15 7h4v4"/></svg>'};
+const NAV=()=>[["today",LL("Today","Aujourd'hui")],["kitchen",LL("Kitchen","Cuisine")],["train",LL("Train","Sport")],["progress",LL("Progress","Progrès")]];
+function goNav(n){if(n==="kitchen")go(prefs().kSub==="shop"?"shop":"kitchen");else if(n==="progress")go(prefs().pSub==="me"?"me":"cal");else go(n)}
+function subTabsHTML(){const nv=navOf(tab);if(settingsOpen||(nv!=="kitchen"&&nv!=="progress"))return"";
+ const opts=nv==="kitchen"?[["kitchen",LL("Recipes","Recettes")],["shop",LL("Plan & groceries","Plan & courses")]]:[["cal",LL("Calendar","Calendrier")],["me",LL("Stats","Stats")]];
+ return`<div class="seg cmp subtabs" role="tablist">${opts.map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" class="${tab===k?"on":""}" onclick="go('${k}')">${l}</button>`).join("")}</div>`}
+const TAB_ALIAS={today:"today",home:"today",kitchen:"kitchen",recipes:"kitchen",shop:"shop",groceries:"shop",plan:"shop",train:"train",workout:"train",cal:"cal",calendar:"cal",me:"me",stats:"me",progress:"progress"};
+function tabFromUrl(){try{if(window._tabUrl)return;window._tabUrl=1;const q=new URLSearchParams(location.search);const t=(q.get("tab")||((location.hash||"").match(/tab=(\w+)/)||[])[1]||"").toLowerCase();const k=TAB_ALIAS[t];if(!k)return;
+ if(k==="progress")tab=prefs().pSub==="me"?"me":"cal";else tab=k;try{q.delete("tab");history.replaceState(null,"",location.pathname+(q.toString()?"?"+q:"")+(location.hash||"").replace(/[#&]?tab=\w+/,""))}catch(_){}}catch(_){}}
+function whatsNew83b(){stDlg(`<h3 style="margin:0 0 .5rem">✨ ${LL("New: 4 tabs","Nouveau : 4 onglets")}</h3><p style="margin:0 0 .5rem">${LL("The app now has <b>Today · Kitchen · Train · Progress</b>.","L'appli a maintenant <b>Aujourd'hui · Cuisine · Sport · Progrès</b>.")}</p><ul style="margin:0 0 .9rem;padding-left:1.1rem;line-height:1.6"><li>${LL("<b>Groceries</b> is in Kitchen › Plan &amp; groceries.","<b>Courses</b> est dans Cuisine › Plan &amp; courses.")}</li><li>${LL("<b>Calendar</b> and <b>Me</b> are in Progress (Calendar / Stats).","<b>Calendrier</b> et <b>Moi</b> sont dans Progrès (Calendrier / Stats).")}</li><li>${LL("Settings: the ⚙︎ on Today and Progress.","Réglages : le ⚙︎ sur Aujourd'hui et Progrès.")}</li></ul><button style="width:100%" onclick="closeStDlg()">${LL("Got it","Compris")}</button>`)}
+function go(t){if(t==="progress"){goNav("progress");return}if(!tabOk(t))t=MODE()==="train"?"train":"today";if(t==="kitchen"||t==="shop")prefs().kSub=t;if(t==="cal"||t==="me")prefs().pSub=t;if(t==="shop"&&tab!=="shop")setTimeout(lowAsk,250);settingsOpen=false;statsOpen=false;if(t==="me"&&tab==="me")meView=null;tab=t;render();window.scrollTo(0,0)}
 
 const DRINK=[null,{n:["1–2 drinks","1–2 verres"],a:["Train as planned. Drink a big glass of water first.","Séance normale. Bois un grand verre d’eau avant."],v:"ok"},
  {n:["3–4 drinks","3–4 verres"],a:["You can train, but lighter: same weights, stop 2 reps short, no record attempts. Hydrate well.","Tu peux t’entraîner, mais plus léger : mêmes charges, garde 2 reps en réserve, pas de record. Hydrate-toi bien."],v:"light"},
@@ -4826,7 +4844,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.83a beta";
+const APP_VERSION="0.83b beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
