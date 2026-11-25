@@ -3,7 +3,7 @@
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
 ## 0.82b beta · 2026-11-25
-- Fix: Groceries › Plan the week now really restarts on Monday. Before, only the week date changed and last week's recipes, portions and ticks stayed. Now a fresh, empty week starts (same as "Start a new week"), last week's plan is kept in history (last 12 weeks), and cooked portions not eaten yet carry over to "already cooked" (bug since the planner's automatic week change)
+- Fix: Groceries › Plan the week now really restarts on Monday. Before, only the week date changed and last week's recipes, portions and ticks stayed. Now a fresh, empty week starts (same as "Start a new week"), last week's plan is kept in history (last 12 weeks), and cooked portions not eaten yet carry over to "already cooked" (bug since 0.77o, when the plan started rolling over to the current week)
 
 ## 0.82a beta · 2026-11-25
 - Settings › Goals: one row per goal with its value (Calories, Macros, Fasting, Water, Weight goal, Steps, Burned calories) and ↻ Recalculate plan (redoes targets from profile, phase and pace, shows old → new before saving; clears the manual calorie adjustment and manual targets)
