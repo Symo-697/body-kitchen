@@ -78,6 +78,13 @@ button.sm{padding:.3rem .6rem;font-size:.85rem}
 .count.full{background:var(--sage);color:#fff}
 .note{border-left:3px solid var(--apricot);padding:.5rem .75rem;background:var(--card);border-radius:0 10px 10px 0;margin:.5rem 0;font-size:.95rem}
 .note.good{border-color:var(--sage)}
+.note.warn{border-color:var(--warn)}
+.wkbar2{display:flex;height:12px;border-radius:999px;overflow:hidden;background:rgb(127 127 127 / 14%)}
+.wkbar2 span{display:block;height:100%;transition:width .3s}
+.wklegend{display:flex;flex-wrap:wrap;gap:.35rem .9rem;margin-top:.45rem;font-size:.78rem;color:var(--muted,inherit)}
+.wklegend i{display:inline-block;width:.6rem;height:.6rem;border-radius:3px;margin-right:.3rem;vertical-align:-1px}
+.rs{font-size:.72rem;font-weight:600;color:var(--sage);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.wkbar2 span{transition:none}}
 .seg{display:flex;background:var(--plum-soft);border-radius:12px;padding:.25rem;gap:.25rem;margin-bottom:.8rem}
 .seg button{flex:1;background:transparent;color:var(--ink);padding:.45rem .3rem;font-size:.9rem}
 .seg button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12)}
@@ -317,10 +324,10 @@ const SAUCE=Object.fromEntries(SAUCES.map(s=>[s.id,s]));
 const SEASONINGS=["Salt","Pepper","Garlic powder","Paprika","Ground ginger","Dried herbs (thyme, oregano, herbes de Provence)","Fajita / taco spice mix (great on mince)","A ready seasoning blend you like"];
 
 /* ---------- Body & Kitchen goal formula (same as the app) ---------- */
-const PHASES={cut:{label:"Fat loss",kf:.8,prot:2.1},build:{label:"Build & define",kf:1.07,prot:1.8},maintain:{label:"Maintain",kf:1,prot:1.8},minicut:{label:"Mini-cut",kf:.85,prot:2.1},gain:{label:"Weight gain",kf:1.12,prot:1.8}};
+const PHASES={recomp:{label:"Recomposition",kf:.9,prot:2},cut:{label:"Fat loss",kf:.8,prot:2.1},build:{label:"Build & define",kf:1.07,prot:1.8},maintain:{label:"Maintain",kf:1,prot:1.8},minicut:{label:"Mini-cut",kf:.85,prot:2.1},gain:{label:"Weight gain",kf:1.12,prot:1.8}};
 const today=()=>new Date().toLocaleDateString("sv-SE");
 const dPlus=(d,n)=>{const x=new Date(d+"T12:00");x.setDate(x.getDate()+n);return x.toLocaleDateString("sv-SE")};
-function calcTargets(p,w,phase,adEst){
+function calcTargets(p,w,phase,adEst,pf){pf=pf||{};
  const h=+p.height,a=+p.age;if(!w||!h||!a)return null;
  const bmr=10*w+6.25*h-5*a+(p.sex==="m"?5:-161);
  const tdeeF=bmr*(+p.activity||1.55);let tdee=tdeeF;
@@ -330,14 +337,17 @@ function calcTargets(p,w,phase,adEst){
  let kf=ph.kf;if(phase.name==="build"&&phase.miniCut)kf=.85;
  const gentle=phase.pace==="gentle";if(gentle&&phase.name==="cut")kf=.9;if(gentle&&phase.name==="build"&&!phase.miniCut)kf=1.04;
  if(phase.name==="gain")kf=(gentle||a<18)?1.08:1.12;
- const under=w/((h/100)**2)<18.5,safe=!!p.noDeficit||under;if(safe&&kf<1)kf=1;
+ const under=w/((h/100)**2)<18.5,safe=!!p.noDeficit||under;const recomp=phase.name==="recomp";if(recomp&&w/((h/100)**2)<20)kf=1;if(safe&&kf<1)kf=1;
  let kcal=tdee*kf+(safe?Math.max(0,+phase.kcalAdjust||0):(+phase.kcalAdjust||0));
+ // pace slider (B&K 0.82a): kg per week sets the deficit / surplus once it has been moved
+ {const loss=["cut","minicut"].includes(phase.name),gain=["gain","build"].includes(phase.name)&&!phase.miniCut,pr=loss?{min:.0025*w,max:.01*w}:gain?{min:.1,max:.5}:null,rt=+phase.rate;
+  if(pr&&rt&&!recomp){kcal=tdee+(loss?-1:1)*Math.min(pr.max,Math.max(pr.min,rt))*7700/7+(+phase.kcalAdjust||0);if(safe&&kcal<tdee)kcal=tdee}}
  kcal=Math.max(kcal,Math.max(bmr,p.sex==="m"?1500:1200));
  const isGain=phase.name==="gain",basis=isGain?w:Math.min(w,25*(h/100)**2);
  const conds=p.conditions||[];
- const prot=basis*((["cut","minicut"].includes(phase.name)||phase.miniCut?2.1:ph.prot)+(conds.some(c=>["pcos","insulin","menopause","glp1"].includes(c))?.1:0));
- const fat=Math.max(.8*basis,kcal*(isGain?.3:.25)/9);
- return{kcal,p:prot,f:fat,c:Math.max(0,(kcal-prot*4-fat*9)/4),adaptive:!!adEst}
+ let prot=basis*((["cut","minicut"].includes(phase.name)||phase.miniCut?2.1:recomp?2:ph.prot)+(conds.some(c=>["pcos","insulin","menopause","glp1"].includes(c))?.1:0));if(pf.hiProt&&!isGain)prot=Math.max(prot,Math.min(220,2*w));
+ let fat=Math.max(.8*basis,kcal*(isGain||recomp?.3:.25)/9),carbs=Math.max(0,(kcal-prot*4-fat*9)/4);const mp=pf.macroPct;if(mp&&mp.c+mp.f+mp.p===100){prot=kcal*mp.p/400;fat=kcal*mp.f/900;carbs=kcal*mp.c/400}
+ return{kcal,p:prot,f:fat,c:carbs,adaptive:!!adEst}
 }
 function adaptiveFromBackup(body,logs){
  const t=today(),daysAgo=n=>dPlus(t,-n);let kc=0,n=0;
@@ -465,7 +475,7 @@ function bowls(){
  const bfy=b=>(["blancoeuf","oeuf","skyr","avoine","cremeriz"].filter(x=>[b.p,b.c,b.f].includes(x)).length+(FOODS[b.v].fruit?1:0))*1.5;
  const TS=snTarget(),tg=sl=>sl==="b"?TB:sl==="s"?TS:T,mine=(B.custom||[]).flatMap(cu=>slotsOf(cu).map(sl=>customBowl(cu,tg(sl),sl))).filter(Boolean),mS=mine.filter(b=>b.snack),slist=mS.concat(SNACKS.map(cu=>customBowl(cu,TS)).filter(Boolean));mine.splice(0,mine.length,...mine.filter(b=>!b.snack));const mM=mine.filter(b=>!b.bf),mB=B.slots.b?mine.filter(b=>b.bf):[];
  const dup=b=>mine.some(m=>m.combo===b.key),gl=list.filter(b=>!dup(b)),gb=blist.filter(b=>!dup(b));
- _cache={key,val:{list:mM.concat(gl),base:mM.concat(pickBase(gl,Math.max(4,10-mM.length))),blist:mB.concat(gb),bbase:mB.concat(pickBase(gb,Math.max(4,10-mB.length),bfy)),gen:list.concat(blist),slist,T,TB,TS}};return _cache.val
+ _sc={};_cache={key,val:{list:mM.concat(gl),base:mM.concat(pickBase(gl,Math.max(4,10-mM.length))),blist:mB.concat(gb),bbase:mB.concat(pickBase(gb,Math.max(4,10-mB.length),bfy)),gen:list.concat(blist),slist,T,TB,TS}};return _cache.val
 }
 const fmtServ=x=>{x=Math.round(x*4)/4;const w=Math.floor(x),fr={.25:"¼",.5:"½",.75:"¾"}[x-w];return fr?(w?w:"")+fr:String(x)};
 function recipeMacros(cu){const n=Math.max(.5,num(cu.servings)||1);let p=0,c=0,f=0,k=0,cost=0;
@@ -501,6 +511,7 @@ function weekGrid(){
    if(!b){if(!B.home[s][i]){if(B.slots[s]){cell.state="off";out.push(cell)}return}
     if(past){cell.state="past";return out.push(cell)}
     if(kd==="s"){if(slist.length)b=slist[ns%slist.length];ns++}else{const pool=bf?bbase:base;if(pool.length)b=pool[(bf?nb:n)%pool.length];if(bf)nb++;else n++}}
+   if(b&&!past){const r=dayRatio(date);if(r!==1)b=scaleMeal(b,s,r)}
    cell.b=b;cell.state=b?"meal":"none";out.push(cell)})}
  return out
 }
@@ -542,6 +553,33 @@ function buyQty(id,g){const x=FOODS[id];
  if(x.pw&&x.cat!=="f"){const n=Math.max(1,Math.ceil(g/x.pw-.15));const r=Math.ceil(g/50)*50;return{txt:r>=1000?(r/1000).toFixed(2).replace(/0$/,"")+" kg":r+" g",sub:`≈ ${n} piece${n>1?"s":""}`}}
  if(g<50)return{txt:Math.max(1,Math.ceil(g/5)*5)+" g",sub:""};
  const r=Math.ceil(g/50)*50;return{txt:r>=1000?(r/1000).toFixed(2).replace(/\.?0+$/,"")+" kg":r+" g",sub:x.cat==="c"&&(x.cook>1||x.dry)?"dry weight":""}}
+
+/* ---------- weekly budget (Mon → Sun, same rules as Body & Kitchen 0.81a) ---------- */
+function mondayOf(d){const x=new Date(d+"T12:00");x.setDate(x.getDate()-(x.getDay()+6)%7);return x.toLocaleDateString("sv-SE")}
+// linked to B&K: follow its Settings › Nutrition › Track calories. Otherwise Prep's own switch (default: by week)
+function byWeek(){if(B.mode==="bk"&&B.bk)return B.bk.kcalBy!=="day";return B.kcalBy!=="day"}
+const loggedOn=d=>(B.mode==="bk"&&B.bk&&B.bk.days||{})[d]||null;
+let _wk={};
+// where the Mon → Sun week containing d stands today: what's left, and the share for each remaining day
+function wkBudget(d){const T=dayTargets(),mon=mondayOf(d),td=today(),key=mon+td+T.kcal+JSON.stringify(B.bk&&[B.bk.days,B.bk.week]);if(_wk[mon]&&_wk[mon].key===key)return _wk[mon];
+ const days=Array.from({length:7},(_,i)=>dPlus(mon,i)),idx=Math.max(0,days.indexOf(td)),cur=days.includes(td);
+ const per=days.map(x=>{const L=loggedOn(x);return{date:x,L,past:x<td,used:x<td?(L?L.kcal:T.kcal):0}});
+ const before=per.slice(0,idx).reduce((a,x)=>a+x.used,0),daysLeft=cur?7-idx:7,week=7*T.kcal;
+ let raw=cur?(week-before)/daysLeft:T.kcal,ratio=Math.min(1.3,Math.max(.7,raw/T.kcal));
+ let status=raw<.7*T.kcal?"over":raw>1.3*T.kcal?"under":"ok",finish=before+ratio*T.kcal*daysLeft-week;
+ const K=B.mode==="bk"&&B.bk&&B.bk.week;let before2=before;if(cur&&K&&K.mon===mon&&B.bk.weekDay===td&&+K.ratio){ratio=+K.ratio;status=K.status||status;finish=+K.finish;before2=+K.before;raw=status==="ok"?ratio*T.kcal:raw}
+ const W={key,mon,days,idx,cur,per,week,before:before2,daysLeft,raw,ratio,status,finish,T,unlogged:per.slice(0,idx).filter(x=>!x.L).length,todayK:(loggedOn(td)||{}).kcal||0};
+ return(_wk[mon]=W)}
+// how big each meal on day d should be, compared with a normal day (1 = normal). Protein never moves.
+function dayRatio(d){if(!byWeek()||d<today())return 1;const W=wkBudget(d);return W.cur?Math.round(W.ratio*20)/20:1}
+const scaleT=(T,r)=>r===1?T:{kcal:T.kcal*r,p:T.p,c:T.c*r,f:T.f*r};
+let _sc={};
+function scaleMeal(b,slot,r){if(r===1||!b||b.recipe)return b; // recipes keep their portion, so their protein never drops
+const k=b.key+"@"+slot+"@"+r;if(_sc[k])return _sc[k];
+ const R=bowls(),T=scaleT(slot==="b"?R.TB:slot==="s"?R.TS:R.T,r);let n=null;
+ if(b.key.startsWith("c|")){const cu=(B.custom||[]).find(c=>c.id===b.id);n=cu?customBowl(cu,T,slot):null}
+ else{n=makeBowl(b.p,b.c,b.f,b.v,b.sid?SAUCE[b.sid]:null,T,b.bf,b.tex);n.key=b.key;n.name=b.name}
+ if(!n)return b;n.key=b.key;n.scaled=r;return(_sc[k]=n)}
 
 /* ---------- views ---------- */
 function header(t){const T=dayTargets();
@@ -707,18 +745,47 @@ function vBowls(){const R=bowls(),D=dayTargets(),bf=B.slots.b&&bowlView==="b",sn
  if(list.some(b=>Math.abs(b.sol.kcal-T.kcal)>T.kcal*.12))h+=`<p class="note">Orange numbers are more than 10% away from the target. That happens when a portion hits its sensible limit (for example a quarter avocado or one egg minimum). Swapping that ingredient on the Build tab fixes it.</p>`;
  return h
 }
+
+const kc=x=>Math.round(x).toLocaleString("en-GB");
+function weekCard(){if(!byWeek())return"";const ws=weekStart(),td=today();
+ // the B&K week that matters for this Prep week: the one holding today, else the one holding most of it (Mon → Sun)
+ const ref=ws<=td&&td<=dPlus(ws,6)?td:dPlus(ws,1),W=wkBudget(ref),T=W.T,linked=B.mode==="bk"&&B.bk;
+ const inW=c=>c.date>=W.mon&&c.date<=dPlus(W.mon,6);
+ // meals of this B&K week that Prep plans (both Prep weeks can overlap it)
+ const plans=[weekGrid(),(()=>{const o=weekOff;weekOff=o+(ws<W.mon?1:-1);const g=weekGrid();weekOff=o;return g})()].flat().filter(c=>inW(c)&&c.state==="meal"&&c.date>=td);
+ const seen={},home=plans.filter(c=>seen[c.k+c.date]?0:(seen[c.k+c.date]=1));
+ const homeK=home.reduce((a,c)=>a+c.b.sol.kcal,0),homeP=home.reduce((a,c)=>a+c.b.sol.p,0);
+ const todayEaten=W.cur?W.todayK:0,eaten=W.before+todayEaten;
+ const outK=Math.max(0,W.week-eaten-homeK);
+ const dl=W.cur?W.daysLeft:7,homeDays=new Set(home.map(c=>c.date)).size;
+ const pct=x=>Math.max(0,Math.min(100,x/W.week*100));
+ const bar=`<div class="wkbar2" role="img" aria-label="Week budget: ${kc(eaten)} eaten, ${kc(homeK)} prepped at home, ${kc(outK)} left for meals out and extras"><span style="width:${pct(eaten)}%;background:var(--plum)"></span><span style="width:${pct(homeK)}%;background:var(--sage)"></span><span style="width:${pct(outK)}%;background:var(--apricot);opacity:.55"></span></div>
+ <div class="wklegend"><span><i style="background:var(--plum)"></i>Eaten ${kc(eaten)}</span><span><i style="background:var(--sage)"></i>Prepped ${kc(homeK)}</span><span><i style="background:var(--apricot);opacity:.55"></i>Out + extras ${kc(outK)}</span></div>`;
+ const share=W.ratio*T.kcal,dpct=Math.round(W.ratio*20)*5;
+ const msg=!W.cur?`<p class="muted small" style="margin:.5rem 0 0">This week hasn't started: every meal is planned at your normal size (${kc(T.kcal)} kcal a day).</p>`
+  :W.status==="over"?`<div class="note warn" style="margin:.6rem 0 0">This week is already well over budget. Meals stay at 70 % of a normal day (≈ ${kc(share)} kcal) so the last days aren't starved: <b>the week will finish +${kc(W.finish)} kcal over</b>. That's fine, next week starts fresh.</div>`
+  :W.status==="under"?`<div class="note" style="margin:.6rem 0 0">Lots left this week. Meals are capped at 130 % of a normal day (≈ ${kc(share)} kcal): the week will finish ${kc(-W.finish)} kcal under.</div>`
+  :dpct===100?`<p class="muted small" style="margin:.5rem 0 0">On track: the rest of the week's meals are planned at their normal size.</p>`
+  :`<p class="muted small" style="margin:.5rem 0 0">So the week lands on budget, the meals from today to Sunday are planned with <b>${dpct<100?(100-dpct)+" % less":(dpct-100)+" % more"}</b> carbs and fat. Protein doesn't move, and recipes keep their portion.</p>`;
+ const pDay=homeDays?homeP/homeDays:0;
+ return`<section class="box"><div class="sechead"><h3>Week budget</h3><span class="muted small">${fmt(W.mon,{weekday:"short",day:"numeric",month:"short"})} → ${fmt(dPlus(W.mon,6),{weekday:"short",day:"numeric",month:"short"})}</span></div>
+ <div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:.5rem"><div><div class="big">${kc(Math.max(0,W.week-eaten))}</div><div class="muted small">kcal left of ${kc(W.week)}</div></div>${W.cur?`<div style="text-align:right"><div style="font-weight:700">≈ ${kc(share)} kcal</div><div class="muted small">a day until Sunday (${dl} day${dl>1?"s":""})</div></div>`:""}</div>
+ ${bar}${msg}
+ <p class="small" style="margin:.6rem 0 0"><b style="color:var(--p)">Protein stays daily:</b> at least ${kc(T.p)} g every day.${homeDays?` Your prepped meals bring ≈ ${kc(pDay)} g a day${pDay<T.p?`, so ≈ ${kc(T.p-pDay)} g comes from meals out and extras`:""}.`:""}</p>
+ ${linked?(W.cur&&W.unlogged?`<p class="muted small" style="margin:.4rem 0 0">${W.unlogged} past day${W.unlogged>1?"s":""} with nothing logged count${W.unlogged>1?"":"s"} as on target.</p>`:""):`<p class="muted small" style="margin:.4rem 0 0">Link Body &amp; Kitchen on the Goals tab to count what you've already eaten this week.</p>`}</section>`}
 function vPlan(){const ws=weekStart(),ms=weekMeals(),sess=sessions(),td=today();
  let h=header("Prep plan");
  h+=`<div class="row" style="justify-content:space-between;margin-bottom:.6rem"><button class="ghost sm" onclick="weekOff--;render()" aria-label="Previous week">‹</button><b>Week of ${fmt(ws,{weekday:"short",day:"numeric",month:"short"})}</b><button class="ghost sm" onclick="weekOff++;render()" aria-label="Next week">›</button></div>`;
  if(!B.homeAsked)h+=`<section class="box" style="border-color:var(--plum)"><h3>Which meals do you eat at home?</h3><p class="muted small" style="margin:.2rem 0 .7rem">Only these get planned, prepped and bought. You can still add or remove a single meal by tapping it.</p>${homeGrid()}<button style="margin-top:.8rem" onclick="B.homeAsked=true;save();render()">Save</button></section>`;
  if(!slotsOn().length)return h+`<div class="box">Choose at least one meal you eat at home.</div>`;
+ h+=weekCard();
  const grid=weekGrid(),E=effPrep();
  h+=`<div class="box">`;
  for(let i=0;i<7;i++){const d=dPlus(ws,i),isPrep=E.days.includes(i),cells=grid.filter(c=>c.day===i);
   if(d<td){h+=`<div class="day" style="opacity:.45"><div class="dlab">${DN[i]}<span>${fmt(d)}</span></div><div class="meals"><span class="muted small" style="padding:.45rem 0">Past</span></div></div>`;continue}
   h+=`<div class="day"><div class="dlab${d===td?" today":""}">${DN[i]}<span>${fmt(d)}</span>${isPrep?`<span class="prepbadge">${i===E.extra?"Prep today":"Prep"}</span>`:""}</div><div class="meals">`;
   cells.forEach(c=>{const txt=c.state==="meal"?esc(c.b.name):c.state==="skip"?"No meal":c.state==="off"?"Not at home":"No suggestion yet";
-   h+=`<button class="meal${c.state==="meal"?"":" empty"}" onclick="pickMeal('${c.k}')"><span class="slot">${c.lab}</span><span class="mn">${txt}</span><span class="muted small">${c.state==="meal"?"›":"+"}</span></button>`});
+   h+=`<button class="meal${c.state==="meal"?"":" empty"}" onclick="pickMeal('${c.k}')"><span class="slot">${c.lab}</span><span class="mn">${txt}</span><span class="muted small">${c.state==="meal"&&c.b.scaled?`<span class="rs" title="Sized to this week's budget">${c.b.scaled<1?"−":"+"}${Math.round(Math.abs(1-c.b.scaled)*100)} %</span> `:""}${c.state==="meal"?"›":"+"}</span></button>`});
   const tom=grid.filter(c=>c.day===i+1&&c.state==="meal"&&c.slot!=="b");
   if(i<6&&tom.length)h+=`<span class="muted small">Tonight: pack tomorrow's ${tom.map(c=>c.lab.toLowerCase()).join(" + ")}</span>`;
   h+=`</div></div>`}
@@ -784,6 +851,7 @@ function vShop(){const ws=weekStart(),sess=sessions();
   rows[x.cat]+=`<div class="shoprow${ck?" got":""}" role="checkbox" aria-checked="${!!ck}" tabindex="0" onclick="tick('${id}')" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();tick('${id}')}"><span class="box3">${ck?"✓":""}</span><span class="nm"><b>${esc(x.name)}</b><br><span class="q">${q.txt}${q.sub?" · "+q.sub:""}${x.fr?` · <span lang="fr">${esc(x.fr)}</span>`:""}</span></span><button class="eur" onclick="event.stopPropagation();editPrice('${id}')" aria-label="Price of ${esc(x.name)}" title="${priceSrc(id)==="est"?"Estimate: tap to enter the real price":"Tap to change"}">${priceSrc(id)==="est"?"≈ ":""}${eur(c)}${priceSrc(id)==="mine"?" ✓":""}</button></div>`});
  const budget=B.bk&&B.bk.budget;
  h+=`<div class="box"><div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="muted small">These bowls cost about</div><div class="big">${eur(total)}</div></div><div class="muted small" style="text-align:right">${meals.length} bowls · ${meals.length?eur(total/meals.length):"–"} each${budget?`<br>${Math.round(total/budget*100)}% of your ${eur(+budget)} weekly budget`:""}</div></div>
+ ${byWeek()&&meals.length?(()=>{const k=meals.reduce((a,m)=>a+m.b.sol.kcal,0),pr=meals.reduce((a,m)=>a+m.b.sol.p,0),nd=new Set(meals.map(m=>m.date)).size,T=dayTargets(),sc=meals.filter(m=>m.b.scaled).length;return`<p class="small" style="margin:.6rem 0 0">Covers <b>${kc(k)} kcal</b> and <b>${kc(pr)} g protein</b> over ${nd} day${nd>1?"s":""} at home (≈ ${kc(pr/nd)} g of your ${kc(T.p)} g protein a day).${sc?` ${sc} meal${sc>1?"s":""} sized to this week's budget.`:""}</p>`})():""}
  <p class="muted small" style="margin:.5rem 0 0">Cost of what you'll use this week. Tap a price to change it: ≈ is an estimate, ✓ is a price you entered. ${(()=>{const n=Object.keys(t).filter(id=>priceSrc(id)==="est").length;return n?`${n} still estimated.`:"All prices are real."})()}</p></div>`;
  h+=`<div class="box">`;["p","c","f","v","x"].forEach(c=>{if(rows[c])h+=`<span class="catlab ${c}">${CAT[c]}</span>${rows[c]}`});h+=`</div>`;
  h+=`<h2>Sauces + extras</h2><div class="box">${B.sauces.length?B.sauces.map(id=>{const s=SAUCE[id],ck=B.checked["s"+id];return`<div class="shoprow${ck?" got":""}" role="checkbox" aria-checked="${!!ck}" tabindex="0" onclick="tick('s${id}',1)"><span class="box3">${ck?"✓":""}</span><span class="nm"><b>${esc(s.name)}</b><br><span class="q">${esc(s.buy)}${sauces[id]?` · ${sauces[id]} bowl${sauces[id]>1?"s":""}`:""}</span></span></div>`}).join(""):`<span class="muted">No sauces picked. Add some on the Build tab.</span>`}</div>`;
@@ -824,9 +892,10 @@ function savePrice(){const k=peKg();if(k==null||!(k>=0)){toast(PE.mode==="pack"?
 function vGoals(){const D=dayTargets(),T=bowlTarget();
  let h=header("Goals");
  h+=`<div class="box"><div class="sechead"><h3>Your day</h3><span class="muted small">${esc(D.src)}</span></div>${tgtStrip(D,"/ day")}</div>`;
+ h+=`<div class="box"><div class="sechead"><h3>Plan calories</h3>${B.mode==="bk"&&B.bk?`<span class="muted small">From Body &amp; Kitchen</span>`:""}</div>${B.mode==="bk"&&B.bk?`<p style="margin:0">${byWeek()?"<b>By week</b> (Mon → Sun): the week's budget is "+kc(7*D.kcal)+" kcal; protein stays daily.":"<b>By day</b>: every meal is planned at its normal size."}</p><p class="muted small" style="margin:.3rem 0 0">Change it in Body &amp; Kitchen › Settings › Nutrition › Track calories.</p>`:`<div class="seg" style="margin:0"><button class="${byWeek()?"on":""}" onclick="B.kcalBy='week';save();render()">By week</button><button class="${byWeek()?"":"on"}" onclick="B.kcalBy='day';save();render()">By day</button></div><p class="muted small" style="margin:.4rem 0 0">By week: ${kc(7*D.kcal)} kcal from Monday to Sunday, protein stays daily.</p>`}</div>`;
  h+=`<h2>Where your targets come from</h2><div class="seg"><button class="${B.mode==="bk"||B.mode==="example"?"on":""}" onclick="B.mode=B.bk?'bk':'example';save();render()">Body &amp; Kitchen</button><button class="${B.mode==="quick"?"on":""}" onclick="B.mode='quick';save();render()">Quick profile</button><button class="${B.mode==="manual"?"on":""}" onclick="B.mode='manual';save();render()">My numbers</button></div>`;
  if(B.mode==="bk"||B.mode==="example"){
-  if(bkLive)h+=`<div class="box"><p style="margin:0 0 .4rem"><b>Linked to Body &amp; Kitchen on this phone</b> · ${esc(B.bk.phase||"")}${B.bk.weight?` · ${B.bk.weight} kg`:""}${B.bk.adaptive?" · adaptive maintenance":""}</p><p class="muted small" style="margin:0">Your goal, weight, prices and budget update by themselves each time you open B&amp;K Prep.</p></div>`;
+  if(bkLive)h+=`<div class="box"><p style="margin:0 0 .4rem"><b>Linked to Body &amp; Kitchen on this phone</b>${B.bk.exact?" · exact targets":""} · ${esc(B.bk.phase||"")}${B.bk.weight?` · ${B.bk.weight} kg`:""}${B.bk.adaptive?" · adaptive maintenance":""}</p><p class="muted small" style="margin:0">Your goal, weight, prices and budget update by themselves each time you open B&amp;K Prep.</p></div>`;
   else h+=`<div class="box">${B.bk?`<p style="margin:0 0 .4rem"><b>Imported ${fmt(B.bk.at,{day:"numeric",month:"long"})}</b> · ${esc(B.bk.phase||"")}${B.bk.weight?` · ${B.bk.weight} kg`:""}${B.bk.adaptive?" · adaptive maintenance":""}</p><p class="muted small" style="margin:0 0 .8rem">Same formula as the app, plus your prices, shop and weekly budget. Import again when your weight or phase changes.</p>`:`<p style="margin:0 0 .4rem">Bring in your profile, goal phase, prices and budget.</p>`}
   <ol class="small" style="margin:0 0 .8rem;padding-left:1.2rem"><li>In Body &amp; Kitchen, open <b>Me → Backup → Download backup</b>.</li><li>Choose that file here. Only your goal, weight, prices and budget are kept.</li></ol>
   <label class="file">${B.bk?"Import a newer backup":"Choose backup file"}<input type="file" accept=".json,application/json" onchange="importBK(this)"></label></div>`}
@@ -857,15 +926,21 @@ const BK_URL=ON_PAGES?"../":"https://claude.ai/code/artifact/40cbce96-3b8f-42de-
 // turns Body & Kitchen data (a backup file or the app's own storage) into targets, prices and budget
 function bkFrom(o){if(!o||!o.core||!o.core.profile)return{err:"notbk"};
  const core=o.core,p=core.profile,ent=((o.body||{}).entries||[]).filter(e=>e.weight).sort((a,b)=>a.date.localeCompare(b.date));
- const w=ent.length?+ent[ent.length-1].weight:+p.weight||0,ad=adaptiveFromBackup(o.body,o.logs),t=calcTargets(p,w,core.phase,ad);
+ const w=ent.length?+ent[ent.length-1].weight:+p.weight||0,ad=adaptiveFromBackup(o.body,o.logs),t=calcTargets(p,w,core.phase,ad,core.prefs||{});
  if(!t)return{err:"profile"};
+ const pf=core.prefs||{},days={},lg=o.logs||{};
+ // only the last two Mon → Sun weeks: what was eaten this week decides how much is left
+ for(let x=dPlus(mondayOf(today()),-7);x<=today();x=dPlus(x,1)){const L=((lg["log-"+x.slice(0,7)]||{}).days||{})[x];if(L&&L.food&&L.food.length){const d={kcal:0,p:0,c:0,f:0,n:L.food.length};L.food.forEach(e=>{d.kcal+=e.kcal||0;d.p+=e.p||0;d.c+=e.c||0;d.f+=e.f||0});days[x]=d}}
  const sp=core.shopPrices||{},shops=core.shops&&core.shops.length?core.shops:[((core.setup||{}).answers||{}).shop||"Intermarché"],fs=core.foodShop||{},prices={};
  Object.keys(FOODS).forEach(id=>{const sh=fs[id]||shops[0];let v=null;if(sp[sh]&&sp[sh][id]!=null)v=sp[sh][id];else if(core.prices&&core.prices[id]!=null)v=core.prices[id];else for(const k in sp)if(sp[k][id]!=null){v=sp[k][id];break}if(v!=null&&+v>0)prices[id]=+v});
- return{bk:{at:today(),t:{kcal:t.kcal,p:t.p,c:t.c,f:t.f},phase:t.manual?"Custom targets":(PHASES[(core.phase||{}).name]||PHASES.cut).label,weight:w||null,adaptive:t.adaptive&&!t.manual,prices,budget:+core.budget||null,shop:shops[0]},t}}
+ return{bk:{at:today(),t:{kcal:t.kcal,p:t.p,c:t.c,f:t.f},phase:t.manual?"Custom targets":(PHASES[(core.phase||{}).name]||PHASES.cut).label,weight:w||null,adaptive:t.adaptive&&!t.manual,prices,budget:+core.budget||null,shop:shops[0],kcalBy:pf.kcalBy==="day"?"day":"week",days},t}}
 // on GitHub Pages both apps live on the same site, so Prep can read Body & Kitchen's data on this phone directly
 let bkLive=false;
 function linkLocalBK(){if(!ON_PAGES)return;let o=null;try{const r=localStorage.getItem("serena-fit-v1");if(r)o=JSON.parse(r)}catch(e){}
- if(!o)return;const res=bkFrom(o);if(!res.bk)return;const changed=JSON.stringify((B.bk||{}).t)!==JSON.stringify(res.bk.t)||JSON.stringify((B.bk||{}).prices)!==JSON.stringify(res.bk.prices);
+ if(!o)return;const res=bkFrom(o);if(!res.bk)return;
+ // B&K 0.82e writes its exact targets and this week's numbers here on every save
+ try{const k=JSON.parse(localStorage.getItem("bk-targets-v1")||"null");if(k&&k.t&&+k.t.kcal){res.bk.t={kcal:+k.t.kcal,p:+k.t.p,c:+k.t.c,f:+k.t.f};res.bk.kcalBy=k.kcalBy==="day"?"day":"week";res.bk.exact=true;
+  const day=new Date(+k.at||0).toLocaleDateString("sv-SE");res.bk.week=k.week&&day===today()?k.week:null;res.bk.weekDay=day}}catch(e){}const changed=["t","prices","kcalBy","days","week"].some(k=>JSON.stringify((B.bk||{})[k])!==JSON.stringify(res.bk[k]));
  B.bk=res.bk;bkLive=true;if(B.mode==="example")B.mode="bk";if(changed)save()}
 function importBK(input){const file=input.files&&input.files[0];if(!file)return;const rd=new FileReader();
  rd.onload=()=>{try{const o=JSON.parse(rd.result);if(!o||o.app!=="serena-body-kitchen"){toast("That isn't a Body & Kitchen backup. Use Me → Backup → Download backup.");return}

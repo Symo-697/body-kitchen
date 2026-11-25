@@ -2,6 +2,13 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## B&K Prep v2 · 2026-11-25
+- Weekly calorie budget (Mon → Sun), following Body & Kitchen's Settings › Nutrition › Track calories (Prep's own By week / By day switch in Goals when not linked)
+- Plan tab: Week budget card with kcal left, "≈ X kcal a day until Sunday", a bar Eaten / Prepped / Out + extras, the same 70–130 % guardrails and plain "+X kcal over" message as B&K, and a daily protein line (what the prepped meals bring, what has to come from meals out)
+- Bowls from today to Sunday are re-solved for the day's share of the week in 5 % steps: carbs and fat change, protein stays; recipes and snacks keep their portion. Resized meals show "−15 %"; the Shop list uses the resized bowls and says how many kcal and grams of protein it covers
+- Reads `bk-targets-v1` (B&K 0.82e) first: exact B&K targets, and B&K's own week numbers when written today. Fallback formula caught up with 0.82a (pace slider, Recomposition, macro %, high protein)
+- Service worker cache bumped to bk-prep-v2
+
 ## 0.82e beta · 2026-11-25
 - New local key `bk-targets-v1` for B&K Prep on the same site, written (debounced) on each save: `{at, kcalBy, t:{kcal,p,c,f}, week:{mon, before, ratio, status, finish}}` straight from `targets()` and `weekBudget(today)`. Read-only for Prep; nothing changes for B&K users
 
