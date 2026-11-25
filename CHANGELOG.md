@@ -2,6 +2,29 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.83e beta · 2026-11-25
+
+HQ's answer to the two leftovers from the 0.83d text review.
+
+- **Every "Me" pointer updated** (EN and FR). Since 0.83b, "Me" is Progress › Stats, so these now point to:
+  - Progress › Stats › Setup
+  - Progress › Stats › Body composition
+  - Progress › Stats › Health (for the doctor's targets)
+  - Progress › Stats › Supplements & medication
+  - Settings › AI (API key messages)
+  - Settings › My body (age, height and weight)
+  - The back button on the scan and phase-plan pages now says "‹ Stats".
+- **Logic change: in build phase, +1 set follows your target zones.** An exercise gets one extra set when its primary muscles are under a zone picked in Settings › About you › Target zones:
+  - belly → abs
+  - arms → biceps, triceps, forearms
+  - glutes / hips → glutes
+  - chest → chest
+  - legs → quads, hamstrings, adductors, calves
+  - back → back, traps, lower back
+  - shoulders → shoulders
+
+  No zones picked = no extra sets. Not during a mini-cut. Maintain keeps one set fewer; other phases are unchanged. Cardio stays 1 set. The old `glute` flag on exercises is no longer used for sets. The app's earlier "+1 on glute work" had already stopped adding sets; only the sentence was left, and it was removed in 0.83d.
+
 ## 0.83d beta · 2026-11-25
 
 Text review applied: Serena's 30 decisions (`claude/bk-text-review-decisions.md`, bk-045 → bk-074). Shorter texts everywhere, details moved into small ⓘ buttons. FR labels added for every changed text. No logic changes.
