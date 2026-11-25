@@ -2,6 +2,12 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.81b beta · 2026-11-25
+- Fasting from the ＋ button: "⏳ Fasting" shows the running fast (elapsed / goal) with End fast now and "I ended at…", or Start fast now and "I started at…" (a time later than now means yesterday)
+- Fasting settings sheet (Settings › Fasting and from the ＋ sheet): Enable fasting, preset cards Light 12 h · Moderate 14 h · Classic 16:8 · Custom 12–20 h (nothing above 20 h), usual start time, "start automatically at my usual time" (counts from that time unless food is logged after it), short safety note
+- Logging food during a fast asks "End your fast now?" (Yes ends it at the food's time / No, it was a drink). Sport water is ignored
+- History: each fast saves start, end, goal and goal met. Calendar day shows "⏳ 16 h 10 ✓"; Me › This week shows the week's fasts, goals met and the streak
+
 ## 0.81a beta · 2026-11-25
 - Weekly calorie budget (Monday → Sunday). New setting Settings › Nutrition › Track calories: by week (default) / by day; also asked in the first-launch Food step
 - Weekly mode: budget = 7 × daily calories, carbs and fat. Today shows kcal left today, "today you can eat ≈ X kcal" (what's left ÷ days left, today included), the week eaten / budget, and a Mon–Sun bar. Carbs and fat bars follow today's share; protein stays a daily minimum
