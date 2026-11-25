@@ -2,6 +2,21 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.84b beta · 2026-11-25
+
+Design pass: fades on sideways-scrolling strips (Serena's UI rule 6, missed in 0.83a).
+
+- Every strip you can swipe sideways now fades softly at the edge where there is more to see, instead of cutting the last item off:
+  - chip rows (meal types, cuisines, phases…)
+  - recipe carousels
+  - the workout summary cards
+  - Stats cards
+  - photo strips
+  - wide tables
+- The fade is a CSS mask (`min(12 %, 2.5 rem)` wide), so it never blocks taps, scrolling or selecting.
+- The fade disappears on an edge when that edge is reached: only the right edge fades at the start, both in the middle, only the left at the end. Strips that fit on screen get no fade. It adjusts as you scroll, rotate the phone or images load. With reduced motion on, it appears and disappears without the transition.
+- How it works: one helper (`hfadeUpd`) watches `.scroll`, `.hscroll`, `.sumcar`, `.statscroll` and `.phstrip` after every screen update. A new strip only needs one of those classes. No logic changes.
+
 ## 0.84a beta · 2026-11-25
 
 Design pass, rule 5 (Train step): Focus mode in the live workout, and a small celebration when a workout is saved.

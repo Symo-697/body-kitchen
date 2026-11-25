@@ -136,6 +136,9 @@ details summary{cursor:pointer;font-weight:600;color:var(--plum)}
 .ndot{width:6px;height:6px;border-radius:50%;display:inline-block}
 .wkmark{font-size:.75rem;color:var(--sage);font-weight:700}
 .dd{display:inline-block;min-width:1.6rem;padding:.05rem .35rem;border-radius:var(--r-pill);color:var(--on-accent);font-weight:700;font-size:.8rem;text-align:center}
+@property --fl{syntax:"<length-percentage>";inherits:false;initial-value:0px}@property --fr{syntax:"<length-percentage>";inherits:false;initial-value:0px}
+.hfade{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl),#000 calc(100% - var(--fr)),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl),#000 calc(100% - var(--fr)),transparent 100%);transition:--fl var(--dur-2) var(--ease),--fr var(--dur-2) var(--ease)}
+.hfade.fl{--fl:min(12%,2.5rem)}.hfade.fr{--fr:min(12%,2.5rem)}
 .livehead .focustog{white-space:nowrap;width:auto;flex:none;line-height:1.2;display:inline-flex;align-items:center;gap:.25rem;}.focustog{background:transparent;border:1px solid var(--line);color:var(--plum);font-weight:600;font-size:.85rem;padding:.3rem .7rem;border-radius:var(--r-pill);min-height:2rem}.focustog.on{background:var(--plum);color:var(--on-accent);border-color:transparent}
 .focusnav{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);margin:0 0 var(--sp-3)}.focusnav .circbtn:disabled{opacity:.3}.fpos{text-align:center}.fdots{display:flex;gap:5px;justify-content:center;margin-top:5px;flex-wrap:wrap}.fdots i{width:7px;height:7px;border-radius:50%;background:var(--line-strong)}.fdots i.done{background:var(--sage)}.fdots i.on{background:var(--plum);width:18px;border-radius:var(--r-pill)}
 .fcard .fname{font-size:1.2rem;font-weight:700;text-align:left}
@@ -3651,6 +3654,11 @@ function liveStatsSheet(){const L=livePlan();
  <button class="ghost" style="width:100%" onclick="shareWorkout()">↗ Share workout</button>`)}
 function liveInputsHTML(i,k,e,s,f){return f.map(([fld])=>fld==="r"&&kindOf(s)==="PO"?posInputs(i,k,e,s):(fld==="r"?`<span class="rirwrap">`:fld==="sec"?`<span class="holdwrap">`:"")+`<input type="text" inputmode="${fld==="r"&&["M","P","PO"].includes(kindOf(s))?"text":"decimal"}" value="${esc(dispFld(e,s,fld))}" placeholder="${esc(fld==="r"&&kindOf(s)==="PO"?posPH(e.name):fld==="r"&&kindOf(s)==="M"?"15+4+4":fld==="r"&&kindOf(s)==="P"?"10+5":fld==="w"&&isLb(e.name)&&+phFor(e,k,fld)?String(Math.round(+phFor(e,k,fld)*LB)):phFor(e,k,fld))}" oninput="setFld(${i},${k},'${fld}',this.value)" onchange="liveSave()" aria-label="${fld}">`+(fld==="sec"?holdBtnHTML(i,k)+"</span>":"")+(fld==="r"?`<button class="rirb${s.rir!=null&&s.rir!==""?" on":""}" aria-label="Reps in reserve" onclick="rirPick(${i},${k})">${s.rir!=null&&s.rir!==""?(+s.rir>=5?"5+":s.rir):"RIR"}</button></span>`:"")).join("")}
 /* ---------- Focus mode (0.84a): one exercise (or superset) at a time ---------- */
+/* sideways-scroll fades (0.84b): soft edge where there is more to swipe, none at the end */
+const HF_SEL=".scroll,.hscroll,.sumcar,.statscroll,.phstrip";
+function hfadeUpd(el){const m=el.scrollWidth-el.clientWidth;const x=Math.abs(el.scrollLeft);const on=m>4;el.classList.toggle("hfade",on);el.classList.toggle("fl",on&&x>4);el.classList.toggle("fr",on&&x<m-4)}
+let _hfq=0;function hfadeScan(){if(_hfq)return;_hfq=requestAnimationFrame(()=>{_hfq=0;document.querySelectorAll(HF_SEL).forEach(el=>{if(!el._hf){el._hf=1;el.addEventListener("scroll",()=>hfadeUpd(el),{passive:true})}hfadeUpd(el)})})}
+(function hfadeInit(){const go=()=>{try{new MutationObserver(hfadeScan).observe(document.body,{childList:true,subtree:true})}catch(_){}window.addEventListener("resize",hfadeScan,{passive:true});document.addEventListener("load",e=>{if(e.target&&e.target.tagName==="IMG")hfadeScan()},true);hfadeScan()};if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go()})();
 function focusToggle(){prefs().liveFocus=!prefs().liveFocus;save("core");render();window.scrollTo(0,0)}
 function focusGroups(a){const out=[],seen=new Set();a.ex.forEach((e,i)=>{if(seen.has(i))return;const si=ssInfo(a.ex,i);const mem=si?si.mem:[i];mem.forEach(j=>seen.add(j));out.push(mem)});return out}
 const grpDone=(a,g)=>g.every(i=>a.ex[i].sets.every(x=>x.done));
@@ -4917,7 +4925,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.84a beta";
+const APP_VERSION="0.84b beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
