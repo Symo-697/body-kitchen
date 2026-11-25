@@ -11,7 +11,8 @@ Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
 ## B&K Prep v3 · 2026-11-25
 - Design pass to Serena's UI design system, same features, no logic changes: OKLCH colour tokens (plum palette, light + dark), concentric radii (cards 22 px with 14 px padding → 8 px inside; sheet, segmented controls and inputs follow the same rule), semi-transparent borders, one light-only shadow scale (dark mode = lighter surfaces), motion tokens with prefers-reduced-motion
-- Beginner-friendly rules: going over the week is a calm plum note, never red; red stays only on delete buttons. One text font (Figtree, headings included); Bricolage Grotesque only for big numbers (24–32 px). Labels 12–14 px muted, no all-caps
+- Same colour tokens and names as Body & Kitchen 0.83a (`--over` calm violet, `--warn` soft amber, `--danger` red, `--font-text` / `--font-num`).
+- Beginner-friendly rules: going over the week is a calm violet note (`--over`), never red; red (`--danger`) stays only on delete buttons. One text font (Figtree, headings included); Bricolage Grotesque only for big numbers (24–32 px). Labels 12–14 px muted, no all-caps
 - Tab bar: line icons matched to the label weight instead of emoji, translucent bar with blur; selected icon and ticked boxes appear with a short fade + blur
 - 44 px touch targets, visible keyboard focus on every control, 100dvh sheets, picker header on the sheet surface in dark mode
 - Service worker cache bumped to bk-prep-v3

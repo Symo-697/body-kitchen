@@ -25,23 +25,23 @@
 /* B&K Prep v3 · Serena's UI design system. One phone column, bottom tab bar, colour codes the four bowl parts.
    Tokens: OKLCH colours (plum palette), concentric radii (inner = outer − padding), semi-transparent borders,
    one light-only shadow scale (dark = lighter surfaces), motion tokens. Text = Figtree; Bricolage only for big numbers.
-   Red (--warn) is only for delete buttons; going over is amber ("a bit over") or calm plum ("over"). */
+   Same token names and colours as Body & Kitchen 0.83a: --danger (red) only for delete buttons, --warn = soft amber ("a bit over"), --over = calm violet ("over"). */
 :root{
   color-scheme:light;
-  --s0:oklch(97% .005 315);--s1:oklch(100% 0 0);--s2:oklch(96.6% .007 315);--s3:oklch(94% .012 320);--sheet:var(--s1);--seg-on:var(--s1);
-  --ink:oklch(24% .03 310);--muted:oklch(49% .028 314);
-  --line:oklch(24% .03 310 / 11%);--line-strong:oklch(24% .03 310 / 20%);
-  --plum:oklch(40% .11 338);--plum-soft:oklch(93.5% .022 333);--on-plum:oklch(99% .004 338);
+  --s0:oklch(97% .004 315);--s1:oklch(100% 0 0);--s2:oklch(96.6% .007 315);--s3:oklch(94% .012 320);--sheet:var(--s1);--seg-on:var(--s1);
+  --ink:oklch(23.8% .029 310);--muted:oklch(51.9% .029 314);
+  --line:oklch(25% .03 315 / 13%);--line-strong:oklch(25% .03 315 / 22%);
+  --plum:oklch(40.1% .108 338);--plum-soft:oklch(93.2% .019 334);--on-plum:oklch(99% .004 338);
   --apricot:oklch(70% .14 52);--amber-ink:oklch(55% .13 55);--amber-soft:oklch(94.5% .03 70);
   --sage:oklch(54% .075 152);--on-sage:oklch(99% .005 152);
   --p:var(--plum);--c:oklch(68% .15 49);--f:var(--sage);--v:oklch(55% .077 203);
   --v-soft:oklch(94.4% .018 197);--c-soft:oklch(94.8% .026 55);--f-soft:oklch(94.2% .018 152);
-  --warn:oklch(53% .15 31);
+  --warn:oklch(64% .13 68);--over:oklch(52% .085 295);--danger:oklch(53.1% .152 31.5);
   --scrim:oklch(18% .03 320 / 45%);
   --shadow-1:0 1px 2px oklch(24% .03 310 / 6%),0 1px 1px oklch(24% .03 310 / 4%);
   --shadow-2:0 10px 30px oklch(24% .03 310 / 14%),0 2px 6px oklch(24% .03 310 / 6%);
-  --body:Figtree,system-ui,-apple-system,"Segoe UI",sans-serif;
-  --num:"Bricolage Grotesque",Figtree,system-ui,sans-serif;
+  --font-text:Figtree,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-num:"Bricolage Grotesque",Figtree,system-ui,sans-serif;
   --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;
   --r-card:22px;--pad-card:14px;--r-in:calc(var(--r-card) - var(--pad-card));
   --r-sheet:26px;--pad-sheet:16px;--r-sheet-in:calc(var(--r-sheet) - var(--pad-sheet) - 2px);
@@ -53,33 +53,33 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   color-scheme:dark;
-  --s0:oklch(16.5% .016 313);--s1:oklch(21.5% .02 313);--s2:oklch(26% .024 313);--s3:oklch(30.5% .028 315);--sheet:var(--s2);--seg-on:oklch(37% .032 316);
-  --ink:oklch(94% .014 319);--muted:oklch(73% .026 314);
-  --line:oklch(100% 0 0 / 9%);--line-strong:oklch(100% 0 0 / 17%);
-  --plum:oklch(74% .105 337);--plum-soft:oklch(31% .045 334);--on-plum:oklch(18% .02 330);
+  --s0:oklch(19.2% .018 313);--s1:oklch(23.5% .023 313);--s2:oklch(27.5% .027 313);--s3:oklch(31.5% .03 315);--sheet:var(--s2);--seg-on:oklch(37% .032 316);
+  --ink:oklch(93.9% .014 319);--muted:oklch(71.1% .027 314);
+  --line:oklch(100% 0 0 / 11%);--line-strong:oklch(100% 0 0 / 20%);
+  --plum:oklch(72.2% .107 337);--plum-soft:oklch(29.7% .042 334);--on-plum:oklch(18% .02 330);
   --apricot:oklch(79% .11 56);--amber-ink:oklch(82% .1 62);--amber-soft:oklch(31% .04 60);
   --sage:oklch(76% .07 151);--on-sage:oklch(18% .02 151);
   --c:oklch(79% .11 56);--v:oklch(78% .072 201);
   --v-soft:oklch(30.5% .03 200);--c-soft:oklch(30.5% .034 58);--f-soft:oklch(30.5% .034 151);
-  --warn:oklch(74% .13 31);--scrim:oklch(5% .01 320 / 60%);
+  --warn:oklch(80% .11 72);--over:oklch(76% .075 295);--danger:oklch(73.9% .128 31);--scrim:oklch(8% .01 313 / 62%);
   --shadow-1:none;--shadow-2:none}}
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --s0:oklch(16.5% .016 313);--s1:oklch(21.5% .02 313);--s2:oklch(26% .024 313);--s3:oklch(30.5% .028 315);--sheet:var(--s2);--seg-on:oklch(37% .032 316);
-  --ink:oklch(94% .014 319);--muted:oklch(73% .026 314);
-  --line:oklch(100% 0 0 / 9%);--line-strong:oklch(100% 0 0 / 17%);
-  --plum:oklch(74% .105 337);--plum-soft:oklch(31% .045 334);--on-plum:oklch(18% .02 330);
+  --s0:oklch(19.2% .018 313);--s1:oklch(23.5% .023 313);--s2:oklch(27.5% .027 313);--s3:oklch(31.5% .03 315);--sheet:var(--s2);--seg-on:oklch(37% .032 316);
+  --ink:oklch(93.9% .014 319);--muted:oklch(71.1% .027 314);
+  --line:oklch(100% 0 0 / 11%);--line-strong:oklch(100% 0 0 / 20%);
+  --plum:oklch(72.2% .107 337);--plum-soft:oklch(29.7% .042 334);--on-plum:oklch(18% .02 330);
   --apricot:oklch(79% .11 56);--amber-ink:oklch(82% .1 62);--amber-soft:oklch(31% .04 60);
   --sage:oklch(76% .07 151);--on-sage:oklch(18% .02 151);
   --c:oklch(79% .11 56);--v:oklch(78% .072 201);
   --v-soft:oklch(30.5% .03 200);--c-soft:oklch(30.5% .034 58);--f-soft:oklch(30.5% .034 151);
-  --warn:oklch(74% .13 31);--scrim:oklch(5% .01 320 / 60%);
+  --warn:oklch(80% .11 72);--over:oklch(76% .075 295);--danger:oklch(73.9% .128 31);--scrim:oklch(8% .01 313 / 62%);
   --shadow-1:none;--shadow-2:none}
 @media (prefers-reduced-motion:reduce){:root{--dur:0ms;--dur-slow:0ms}}
 *,*::before,*::after{box-sizing:border-box}
 html{min-height:100%;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--s0);color:var(--ink);font:16px/1.5 var(--body);min-height:100dvh;-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:var(--body);line-height:1.2;margin:0;text-wrap:balance}
+body{margin:0;background:var(--s0);color:var(--ink);font:16px/1.5 var(--font-text);min-height:100dvh;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-text);line-height:1.2;margin:0;text-wrap:balance}
 h1{font-size:1.75rem;font-weight:800;letter-spacing:-.02em}
 h2{font-size:1.2rem;font-weight:700;margin:var(--sp-5) 0 .6rem}
 h3{font-size:1.02rem;font-weight:700}
@@ -121,7 +121,7 @@ button.sm{padding:.35rem .7rem;font-size:.86rem;min-height:36px}
 .count.full{background:var(--sage);color:var(--on-sage)}
 .note{border-left:3px solid var(--apricot);padding:.55rem .75rem;background:var(--s2);border-radius:0 var(--r-in) var(--r-in) 0;margin:var(--sp-2) 0;font-size:.94rem}
 .note.good{border-color:var(--sage)}
-.note.over{border-color:var(--plum);background:var(--plum-soft)}
+.note.over{border-color:var(--over)}
 .wkbar2{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--s3);gap:2px}
 .wkbar2 span{display:block;height:100%;border-radius:999px;transition:width var(--dur-slow) var(--ease)}
 .wklegend{display:flex;flex-wrap:wrap;gap:.35rem .9rem;margin-top:.5rem;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -133,9 +133,9 @@ button.sm{padding:.35rem .7rem;font-size:.86rem;min-height:36px}
 /* target strip */
 .tgt{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;text-align:center}
 .tgt div{background:var(--s2);border-radius:var(--r-in);padding:.5rem .2rem}
-.tgt b{display:block;font-family:var(--num);font-weight:700;font-size:1.5rem;line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.tgt b{display:block;font-family:var(--font-num);font-weight:700;font-size:1.5rem;line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .tgt span{font-size:.78rem;color:var(--muted)}
-.big{font-family:var(--num);font-weight:700;font-size:2rem;line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.big{font-family:var(--font-num);font-weight:700;font-size:2rem;line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 /* bowl card */
 .bowl{background:var(--s1);border:1px solid var(--line);border-radius:var(--r-card);padding:var(--pad-card);margin-bottom:var(--sp-3);box-shadow:var(--shadow-1)}
 .bhead{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--sp-3)}
@@ -173,7 +173,7 @@ button.sm{padding:.35rem .7rem;font-size:.86rem;min-height:36px}
 .hgrid .hl{font-size:.86rem;font-weight:600}
 .hcell{height:2.5rem;min-height:0;padding:0;border-radius:var(--r-in);background:var(--s2);border:1px solid var(--line);color:var(--on-sage);font-weight:800}
 .hcell.on{background:var(--sage);border-color:transparent;animation:swap-in var(--dur-slow) var(--ease)}
-.minetag{font:700 .7rem/1.4 var(--body);background:var(--amber-soft);color:var(--amber-ink);border-radius:999px;padding:.05rem .5rem;vertical-align:middle}
+.minetag{font:700 .7rem/1.4 var(--font-text);background:var(--amber-soft);color:var(--amber-ink);border-radius:999px;padding:.05rem .5rem;vertical-align:middle}
 .catlab.x{background:var(--s3);color:var(--muted)}
 .mine-row{display:flex;align-items:center;gap:var(--sp-3);padding:.6rem 0;border-top:1px solid var(--line)}
 .mine-row:first-child{border-top:0}.mine-row .nm{flex:1;min-width:0}
@@ -686,7 +686,7 @@ function foodOptions(cat,sel){const picks=cat?B.picks[cat]||[]:[],ids=cat?ORDER[
  if(!cat)return`<option value="">Choose…</option><option value="__new">+ New ingredient…</option>${mineF.length?`<optgroup label="My ingredients">${mineF.map(o).join("")}</optgroup>`:""}`+["p","c","f","v","x"].map(k=>`<optgroup label="${CAT[k]}">${ids.filter(id=>FOODS[id].cat===k&&!mineF.includes(id)).map(o).join("")}</optgroup>`).join("");
  return`<optgroup label="Your picks">${picks.map(o).join("")}</optgroup><optgroup label="Others">${ids.filter(id=>!picks.includes(id)).map(o).join("")}</optgroup>`}
 function sheetWrap(title,body){document.getElementById("sheet").innerHTML=`<div class="modal" onclick="if(event.target===this)closeSheet()"><form class="sheet" role="dialog" aria-label="${title}" onsubmit="event.preventDefault();saveCustom()"><div class="sechead"><h3>${title}</h3><button type="button" class="ghost sm" onclick="closeSheet()">Cancel</button></div>${body}
- <div class="row" style="margin-top:1rem"><button type="submit">Save</button>${CE.id?`<button type="button" class="ghost" style="color:var(--warn)" onclick="delCustom()">${delArm?"Tap again to delete":"Delete"}</button>`:""}</div></form></div>`}
+ <div class="row" style="margin-top:1rem"><button type="submit">Save</button>${CE.id?`<button type="button" class="ghost" style="color:var(--danger)" onclick="delCustom()">${delArm?"Tap again to delete":"Delete"}</button>`:""}</div></form></div>`}
 function slotSeg(){if(CE.type==="recipe"){CE.slots=CE.slots&&CE.slots.length?CE.slots:[CE.slot||"b"];
   return`<label>Eat it as</label><div class="chips" style="margin:.2rem 0 .3rem">${[["b","Breakfast"],["m","Lunch & dinner"],["s","Snack"]].map(([k,l])=>`<button type="button" class="chip${CE.slots.includes(k)?" on":""}" aria-pressed="${CE.slots.includes(k)}" onclick="toggleCeSlot('${k}')">${l}</button>`).join("")}</div><p class="muted small" style="margin:0 0 .7rem">Pick one or more. The portion is sized for each.</p>`}
  return`<div class="seg" style="margin:.2rem 0 .7rem"><button type="button" class="${CE.slot==="b"?"on":""}" onclick="CE.slot='b';reSheet()">Breakfast</button><button type="button" class="${CE.slot!=="b"?"on":""}" onclick="CE.slot='m';reSheet()">Lunch &amp; dinner</button></div>`}
@@ -748,7 +748,7 @@ function foodSheet(){const n=(k,l,ph)=>`<div><label for="fe${k}">${l}</label><in
  <div class="grid2" style="margin-top:.6rem">${n("dens","Grams per ml","1 for liquids")}${FE.cat==="v"||FE.cat==="fruit"?n("portion","Portion per meal (g)","120"):"<div></div>"}</div>
  ${["p","c","f"].includes(FE.cat)?`<label class="row" style="margin-top:.7rem;color:var(--ink);font-size:.95rem"><input type="checkbox" style="width:auto" ${FE.sweet?"checked":""} onchange="FE.sweet=this.checked"> Goes in sweet breakfasts (with fruit)</label>`:""}
  <p id="fekcal" class="muted small" style="margin:.6rem 0 0"></p>
- <div class="row" style="margin-top:1rem"><button type="submit">Save</button>${FE.id?`<button type="button" class="ghost" style="color:var(--warn)" onclick="delFood()">${delArm?"Tap again to delete":"Delete"}</button>`:""}</div></form></div>`;feKcal()}
+ <div class="row" style="margin-top:1rem"><button type="submit">Save</button>${FE.id?`<button type="button" class="ghost" style="color:var(--danger)" onclick="delFood()">${delArm?"Tap again to delete":"Delete"}</button>`:""}</div></form></div>`;feKcal()}
 function feKcal(){const el=document.getElementById("fekcal");if(!el)return;const auto=Math.round(4*num(FE.p)+4*num(FE.c)+9*num(FE.f));
  el.textContent=num(FE.kcal)?(Math.abs(num(FE.kcal)-auto)>Math.max(25,auto*.15)&&auto?`Check the numbers: protein, carbs and fat add up to about ${auto} kcal.`:""):auto?`Calories will be ${auto} kcal per 100 g.`:""}
 function foodCancel(){const back=FE&&FE.back;FE=null;if(back){CE=back;recipeSheet()}else closeSheet()}
