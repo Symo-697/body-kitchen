@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.82d beta · 2026-11-25
+- ▶ hold countdown on every timed and kg × s set row (inside the SEC box): counts down from the set's target seconds, short beeps at 3-2-1 and the long beep at 0, keeps the screen awake, then fills the seconds box. Tap ■ to stop early: it fills the seconds actually held. Doesn't tick the set by itself
+
 ## 0.82c beta · 2026-11-25
 - Plan the week: leftovers only carry over to the new week if they were cooked in the last 3 days (Friday or later). The app now saves the date when you raise "already cooked"; portions without a date (cooked before this update) start the new week at zero
 
