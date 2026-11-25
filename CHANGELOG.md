@@ -2,6 +2,15 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.82a beta · 2026-11-25
+- Settings › Goals: one row per goal with its value (Calories, Macros, Fasting, Water, Weight goal, Steps, Burned calories) and ↻ Recalculate plan (redoes targets from profile, phase and pace, shows old → new before saving; clears the manual calorie adjustment and manual targets)
+- Pace slider Slow / Optimal / Fast in kg per week (loss 0.25–1 % of body weight, Optimal 0.5 %; gain 0.1–0.5 kg). Sets the deficit / surplus and so the weekly budget; shows the deficit and the date the goal weight is reached. Only used once moved; hidden in maintain / recomp phases
+- Burned calories: Don't add · Add half · Smart (default: half of training above your usual 4-week average, max +300 kcal/day) · Add all. Uses each session's estimated kcal; added to the day in daily mode and to the week in weekly mode
+- Target zones (belly, arms, glutes, hips, chest, legs, back, shoulders): one line says it isn't spot fat loss; zones add priority muscles when a program is built
+- Personal details: sleep, water, habits (also in the first-launch Tracking step). Drive one kind tip at a time on Today (↻ for the next), the water goal (≈ 33 ml/kg, starts lower if you drink little; manual choice in Goals › Water) and the sleep target in Me. Water score and challenges use the water goal instead of a fixed 2 L
+- Special occasion + date: countdown on Today and what's realistic by then at the current pace (never changes the pace)
+- Body type now → target with simple drawings (Lean / Average / Soft / Fuller → Toned / Athletic / Curvy / Strong). Optional, private, only sets a first body-fat estimate when there's no scan
+
 ## 0.81b beta · 2026-11-25
 - Fasting from the ＋ button: "⏳ Fasting" shows the running fast (elapsed / goal) with End fast now and "I ended at…", or Start fast now and "I started at…" (a time later than now means yesterday)
 - Fasting settings sheet (Settings › Fasting and from the ＋ sheet): Enable fasting, preset cards Light 12 h · Moderate 14 h · Classic 16:8 · Custom 12–20 h (nothing above 20 h), usual start time, "start automatically at my usual time" (counts from that time unless food is logged after it), short safety note
