@@ -2,6 +2,21 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.84a beta · 2026-11-25
+
+Design pass, rule 5 (Train step): Focus mode in the live workout, and a small celebration when a workout is saved.
+
+- **◎ Focus** button in the live workout header (next to ⏱). It shows one exercise at a time:
+  - "Exercise 2 / 5" with ‹ › and progress dots. A superset counts as one step, with all its exercises shown together.
+  - Set chips: ✓ for done sets, the current set outlined, ＋ to add a set. Tap a chip to edit that set.
+  - The current set is big: last time, today's target 🎯, large KG / REPS (or SEC) boxes in the big-number font, and a large **✓ Complete set** button. RIR and the ▶ hold timer work as in the list.
+  - Rest time ⏱ (opens the rest settings). The rest pill appears as usual.
+  - When the last set of an exercise is completed, it moves to the next unfinished exercise. After the last one: **Finish workout**.
+  - "☰ Show the full list" (or ☰ List in the header) goes back to the list. The choice is remembered (`prefs().liveFocus`). The list stays the default.
+- **Workout logged!** After saving a workout, a checkmark draws itself with "Consistency beats perfection" for about 2 s, then the usual summary. Tap to close it early. Phones that can vibrate do a short pattern; iPhone shows the animation only. With reduced motion on, the checkmark appears without animating.
+- The ▶ hold countdown now uses the rest timer's 3-2-1 `tick()` sound instead of its own tones (vibration kept).
+- Same set logic as the list: Focus calls the same functions (`toggleSetDone`, `setFld`, `addLiveSet`, `restSheet`), and the set inputs come from one shared helper (`liveInputsHTML`).
+
 ## 0.83e beta · 2026-11-25
 
 HQ's answer to the two leftovers from the 0.83d text review.
