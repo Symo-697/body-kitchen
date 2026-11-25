@@ -2,6 +2,13 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.83a beta · 2026-11-25
+- Design pass, step 1 (foundations), no change in how anything works:
+  - Design tokens in `:root`: colours in OKLCH (same plum palette, light + dark), radius scale (xs 4 · sm 8 · md 10 · lg 14 · xl 18 · pill) with nested cards one step smaller, spacing scale, semi-transparent borders, one shadow scale (dark mode: no shadows, sheets sit on a lighter surface instead), motion tokens, and everything still on prefers-reduced-motion. Hard-coded radii, shadows, transitions, overlay colour and white text on accents in the stylesheet now use the tokens; full-height sizes use `dvh`
+  - Beginner rule 1, no "punishment red": going over (calories, week bar, week total, budget), a low nutrition score and the macro balance check use a calm plum-blue (`--over`); real warnings use a soft amber; red (`--danger`) is kept only for delete / discard buttons. Kind words when over ("a bit over today, that happens" · "the week can balance it")
+  - Beginner rule 4, one text font: Figtree everywhere (headings too); Bricolage Grotesque only for big numbers, now 32 px (`--fs-num`); labels 14 px
+  - Keyboard focus ring on every focusable element
+
 ## B&K Prep v2 · 2026-11-25
 - Weekly calorie budget (Mon → Sun), following Body & Kitchen's Settings › Nutrition › Track calories (Prep's own By week / By day switch in Goals when not linked)
 - Plan tab: Week budget card with kcal left, "≈ X kcal a day until Sunday", a bar Eaten / Prepped / Out + extras, the same 70–130 % guardrails and plain "+X kcal over" message as B&K, and a daily protein line (what the prepped meals bring, what has to come from meals out)
