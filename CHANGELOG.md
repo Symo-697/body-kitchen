@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.82e beta · 2026-11-25
+- New local key `bk-targets-v1` for B&K Prep on the same site, written (debounced) on each save: `{at, kcalBy, t:{kcal,p,c,f}, week:{mon, before, ratio, status, finish}}` straight from `targets()` and `weekBudget(today)`. Read-only for Prep; nothing changes for B&K users
+
 ## 0.82d beta · 2026-11-25
 - ▶ hold countdown on every timed and kg × s set row (inside the SEC box): counts down from the set's target seconds, short beeps at 3-2-1 and the long beep at 0, keeps the screen awake, then fills the seconds box. Tap ■ to stop early: it fills the seconds actually held. Doesn't tick the set by itself
 

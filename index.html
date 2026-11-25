@@ -715,9 +715,12 @@ let db=null,uid=null,assets=null;
 const LS="serena-fit-v1";
 function localLoad(){try{const r=localStorage.getItem(LS);if(r){const o=JSON.parse(r);S.core=Object.assign(defaultCore(),o.core||{});S.body=o.body||S.body;S.logs=o.logs||{}}}catch(e){}}
 function localSave(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+/* bk-targets-v1: small read-only summary for B&K Prep on the same site (written on each save) */
+let _bkt=null;function bkTargetsWrite(){clearTimeout(_bkt);_bkt=setTimeout(()=>{try{const T=targets();if(!T)return;const r=x=>Math.round(x*10)/10;const W=weekBudget(today(),T);
+ localStorage.setItem("bk-targets-v1",JSON.stringify({at:Date.now(),kcalBy:kcalByWeek()?"week":"day",t:{kcal:r(T.kcal),p:r(T.p),c:r(T.c),f:r(T.f)},week:W?{mon:W.mon,before:r(W.before),ratio:Math.round(W.ratio*1000)/1000,status:W.status,finish:r(W.finish)}:null}))}catch(e){}},300)}
 const timers={},chains={};
 function save(which){ // which: "core" | "body" | month key
- localSave();try{if(which!=="core"&&which!=="body"&&S.core.fast&&which===monthKey(today()))fastFoodCheck()}catch(_){}
+ localSave();bkTargetsWrite();try{if(which!=="core"&&which!=="body"&&S.core.fast&&which===monthKey(today()))fastFoodCheck()}catch(_){}
  if(!db||!uid)return;
  clearTimeout(timers[which]);
  timers[which]=setTimeout(()=>{
@@ -4796,7 +4799,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.82d beta";
+const APP_VERSION="0.82e beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
