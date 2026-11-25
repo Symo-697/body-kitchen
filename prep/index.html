@@ -126,6 +126,8 @@ button.sm{padding:.35rem .7rem;font-size:.86rem;min-height:36px}
 .wkbar2 span{display:block;height:100%;border-radius:999px;transition:width var(--dur-slow) var(--ease)}
 .wklegend{display:flex;flex-wrap:wrap;gap:.35rem .9rem;margin-top:.5rem;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .wklegend i{display:inline-block;width:.6rem;height:.6rem;border-radius:3px;margin-right:.3rem;vertical-align:-1px}
+.ti{display:inline}.ti .tib{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;min-height:0;padding:0;margin-left:2px;border-radius:999px;background:transparent;color:var(--muted);font-size:.85rem;font-weight:500;vertical-align:-2px}.ti .tib:hover{background:var(--s3)}.ti .tib[aria-expanded=true]{color:var(--plum)}.ti .tip[hidden]{display:none}.ti .tip{display:block;margin:.35rem 0 .2rem;padding:.5rem .65rem;background:var(--s2);border-radius:var(--r-in);font-size:.86rem;color:var(--muted);font-weight:400;line-height:1.45}
+.ptrack{height:6px;background:var(--s3);border-radius:99px;overflow:hidden;margin-top:.3rem}.ptrack span{display:block;height:100%;background:var(--p);border-radius:99px}
 .rs{font-size:.75rem;font-weight:600;color:var(--sage);white-space:nowrap;font-variant-numeric:tabular-nums}
 .seg{display:flex;background:var(--s3);border-radius:var(--r-seg);padding:var(--pad-seg);gap:var(--pad-seg);margin-bottom:var(--sp-3)}
 .seg button{flex:1;background:transparent;color:var(--muted);padding:.4rem .3rem;min-height:38px;font-size:.9rem;border-radius:var(--r-seg-in)}
@@ -156,7 +158,7 @@ button.sm{padding:.35rem .7rem;font-size:.86rem;min-height:36px}
 .fill{height:100%;border-radius:99px}
 .off{color:var(--amber-ink)!important}
 /* plan */
-.day{display:grid;grid-template-columns:4.1rem minmax(0,1fr);gap:var(--sp-3);padding:.65rem 0;border-top:1px solid var(--line);align-items:start}
+.day{display:grid;grid-template-columns:4.9rem minmax(0,1fr);gap:var(--sp-3);padding:.65rem 0;border-top:1px solid var(--line);align-items:start}
 .day:first-child{border-top:0}
 .dlab{font-weight:700;line-height:1.2}
 .dlab span{display:block;font-weight:500;font-size:.8rem;color:var(--muted)}
@@ -180,6 +182,7 @@ button.sm{padding:.35rem .7rem;font-size:.86rem;min-height:36px}
 .irow{display:grid;grid-template-columns:minmax(0,1fr) 4.2rem 4.6rem 2.75rem;gap:6px;align-items:center;margin-bottom:6px}
 .status-line{border-radius:var(--r-in);padding:.55rem .75rem;font-size:.92rem;margin:var(--sp-3) 0}
 .status-line.dup{background:var(--c-soft)}.status-line.new{background:var(--f-soft)}
+.dlab span.prepbadge{display:inline-block;font-size:.7rem;font-weight:700;color:var(--on-sage)}
 .prepbadge{display:inline-block;white-space:nowrap;margin-top:.3rem;font-size:.72rem;font-weight:700;color:var(--on-sage);background:var(--sage);border-radius:999px;padding:.05rem .5rem}
 .tl{display:grid;grid-template-columns:3.4rem minmax(0,1fr);gap:.2rem .8rem;margin-top:var(--sp-3)}
 .tl .t{font-weight:700;font-variant-numeric:tabular-nums;color:var(--plum);font-size:.92rem}
@@ -187,6 +190,7 @@ button.sm{padding:.35rem .7rem;font-size:.86rem;min-height:36px}
 .tl .blk h3{font-size:.98rem;margin-bottom:.2rem}
 .tl ul{margin:.2rem 0 0;padding-left:1.1rem}
 .tl li{margin:.2rem 0}
+.rcp summary{cursor:pointer;list-style:none}.rcp summary::-webkit-details-marker{display:none}.rcp[open] summary{margin-bottom:.2rem}.rcp>span{display:block}
 .bar{display:flex;height:10px;border-radius:99px;overflow:hidden;margin:var(--sp-2) 0 .2rem;gap:2px}
 /* shop */
 .shoprow{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:var(--sp-3);width:100%;min-height:52px;padding:.55rem 0;border-bottom:1px solid var(--line)}
@@ -202,6 +206,7 @@ button.sm{padding:.35rem .7rem;font-size:.86rem;min-height:36px}
 .eur:focus-visible{outline:2px solid var(--plum)}
 .catlab{display:inline-block;font-size:.8rem;font-weight:700;padding:.2rem .6rem;border-radius:7px;margin:var(--sp-3) 0 .2rem}
 .catlab.p{background:var(--plum-soft);color:var(--p)}.catlab.c{background:var(--c-soft);color:var(--amber-ink)}.catlab.f{background:var(--f-soft);color:var(--f)}.catlab.v{background:var(--v-soft);color:var(--v)}
+details.base summary{cursor:pointer;list-style:none;min-height:28px}details.base summary::-webkit-details-marker{display:none}
 .base10{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.25rem 1rem;font-size:.88rem}
 .base10 div{min-width:0}
 @media (max-width:520px){.base10{grid-template-columns:minmax(0,1fr)}.grid4,.tgt{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -375,7 +380,7 @@ const SAUCES=[
  {id:"poivronsauce",name:"Roasted red pepper sauce",style:"Red pepper",bf:1,p:.4,c:2,f:.8,kcal:18,buy:"Jar of roasted peppers, blended (or ready-made)"}
 ];
 const SAUCE=Object.fromEntries(SAUCES.map(s=>[s.id,s]));
-const SEASONINGS=["Salt","Pepper","Garlic powder","Paprika","Ground ginger","Dried herbs (thyme, oregano, herbes de Provence)","Fajita / taco spice mix (great on mince)","A ready seasoning blend you like"];
+const SEASONINGS=["Salt","Pepper","Garlic powder","Paprika","Ground ginger","Dried herbs (thyme, oregano, herbes de Provence)","Fajita spice mix","A ready seasoning blend you like"];
 
 /* ---------- Body & Kitchen goal formula (same as the app) ---------- */
 const PHASES={recomp:{label:"Recomposition",kf:.9,prot:2},cut:{label:"Fat loss",kf:.8,prot:2.1},build:{label:"Build & define",kf:1.07,prot:1.8},maintain:{label:"Maintain",kf:1,prot:1.8},minicut:{label:"Mini-cut",kf:.85,prot:2.1},gain:{label:"Weight gain",kf:1.12,prot:1.8}};
@@ -600,7 +605,7 @@ function amount(id,g,ctx){const x=FOODS[id];
  if(x.fruit&&x.pw)return`${r0(g)} g · ≈ ${Math.round(g/x.pw*2)/2} piece${g>x.pw?"s":""}`;
  return`${r0(g)} g${x.cat==="c"&&(x.cook!==1||x.dry)?" dry":x.cat==="p"&&x.cook!==1?" raw":""}`}
 function cooked(id,g){const x=FOODS[id];if(x.cook===1)return"";const cg=Math.round(g*x.cook/5)*5;
- return x.cat==="c"?(x.cook>1?`scoop ≈ ${cg} g cooked`:`≈ ${cg} g once cooked`):`scoop ≈ ${cg} g cooked`}
+ return x.cat==="c"?(x.cook>1?`scoop ≈ ${cg} g cooked`:`→ ${cg} g cooked`):`scoop ≈ ${cg} g cooked`}
 function buyQty(id,g){const x=FOODS[id];
  if(id==="avocat")return{txt:`${Math.ceil(g/170-.01)} avocado${Math.ceil(g/170-.01)>1?"s":""}`,sub:`${r0(g)} g used`};
  if(id==="oeuf")return{txt:`${Math.round(g/55)} eggs`,sub:""};
@@ -637,13 +642,13 @@ const k=b.key+"@"+slot+"@"+r;if(_sc[k])return _sc[k];
 
 /* ---------- views ---------- */
 function header(t){const T=dayTargets();
- return`<header class="top"><div><div class="eyebrow">B&amp;K Prep · <a href="${BK_URL}" ${ON_PAGES?"":`target="_blank" rel="noopener"`}>Body &amp; Kitchen ↗</a></div><h1>${t}</h1></div><span class="pill${T.example?" ex":""}" role="button" tabindex="0" onclick="go('goals')" style="cursor:pointer">${T.example?"Example targets":r0(T.kcal)+" kcal/day"}</span></header>`}
+ return`<header class="top"><div><div class="eyebrow">B&amp;K Prep <a href="${BK_URL}" ${ON_PAGES?"":`target="_blank" rel="noopener"`} aria-label="Open Body &amp; Kitchen">↗</a></div><h1>${t}</h1></div><span class="pill${T.example?" ex":""}" role="button" tabindex="0" onclick="go('goals')" style="cursor:pointer">${T.example?"Example targets":r0(T.kcal)+" kcal/day"}</span></header>`}
 function tgtStrip(T,lab){return`<div class="tgt"><div><b>${r0(T.kcal)}</b><span>kcal ${lab||""}</span></div><div><b style="color:var(--p)">${r0(T.p)} g</b><span>protein</span></div><div><b style="color:var(--c)">${r0(T.c)} g</b><span>carbs</span></div><div><b style="color:var(--f)">${r0(T.f)} g</b><span>fat</span></div></div>`}
 
 function vBuild(){
  const lim={p:limOf("p"),c:limOf("c"),f:limOf("f"),v:4};
  let h=header("Build your bowls");
- h+=`<p class="muted" style="margin:-.4rem 0 1rem">Cook a few ingredients once, then mix them into a different meal every time. ${B.slots.b?"With breakfast in the plan, pick 3 of each macro and 4 fruits or veggies.":"Pick 2 of each macro and 4 veggies."}</p>`;
+ h+=`<p class="muted" style="margin:-.4rem 0 1rem">${B.slots.b?"Pick 3 of each, 4 fruit &amp; veg":"Pick 2 of each, 4 veg"}</p>`;
  ["p","c","f","v"].forEach(cat=>{const sel=B.picks[cat];
   h+=`<section class="box cat-${cat}"><div class="sechead"><h3>${CAT[cat]}</h3><span class="count${sel.length===lim[cat]?" full":""}">${sel.length} / ${lim[cat]}</span></div><div class="chips">`;
   const chip=id=>{const x=FOODS[id],on=sel.includes(id);return`<button class="chip${on?" on":""}" aria-pressed="${on}" onclick="pick('${cat}','${id}')">${esc(x.name)}${x.bf?` <span class="n">breakfast</span>`:""}${on?`<span class="n">${sel.indexOf(id)+1}</span>`:""}</button>`};
@@ -651,7 +656,7 @@ function vBuild(){
   else h+=ORDER[cat].map(chip).join("");
   const fruitN=cat==="v"?sel.filter(id=>FOODS[id].fruit).length:0;
   h+=`</div>${cat==="v"&&sel.length&&fruitN===sel.length?`<p class="note" style="margin-bottom:0">Lunch and dinner need at least one vegetable; fruit only goes into breakfasts.</p>`:""}${cat==="v"&&B.slots.b&&!fruitN?`<p class="muted small" style="margin:.5rem 0 0">Add a fruit to unlock sweet oatmeal breakfasts.</p>`:""}${sel.length<1?`<p class="note" style="margin-bottom:0">Pick at least one ${CAT[cat].toLowerCase()} to build bowls.</p>`:""}</section>`});
- h+=`<section class="box cat-s"><div class="sechead"><h3>Sauces &amp; flavours</h3><span class="count">${B.sauces.length}</span></div><p class="muted" style="margin:-.3rem 0 .6rem">Same base, different taste. Each bowl gets one, counted in its macros.</p><div class="chips">`;
+ h+=`<section class="box cat-s"><div class="sechead"><h3>Sauces &amp; flavours</h3><span class="count">${B.sauces.length}</span></div><p class="muted" style="margin:-.3rem 0 .6rem">One per bowl, counted in macros</p><div class="chips">`;
  SAUCES.forEach(s=>{const on=B.sauces.includes(s.id);h+=`<button class="chip${on?" on":""}" aria-pressed="${on}" onclick="toggleSauce('${s.id}')">${esc(s.name)}</button>`});
  h+=`</div></section>`;
  h+=mineSection();
@@ -663,7 +668,7 @@ function vBuild(){
    if(x.fruit||id==="avoine"||id==="cremeriz"||id==="skyr")return B.slots.b?"Fruit, oats, cream of rice and skyr go into sweet breakfasts, which need egg whites or skyr, oats, cream of rice, bread or dates, and a fruit. Savoury oatmeal needs egg whites.":"These only go into breakfasts, and breakfast is off.";
    if(x.cat==="v")return"Lunch and dinner need a vegetable, not a fruit.";return"It doesn't combine with your other picks."};
   h+=`<p class="note">${unused.map(id=>`<b>${esc(FOODS[id].name)}</b>`).join(", ")} ${unused.length>1?"aren't":"isn't"} in any meal yet. ${esc(why(unused[0]))}</p>`}
- h+=`<div class="box" style="display:flex;align-items:center;gap:1rem;justify-content:space-between;flex-wrap:wrap"><div><b class="big" style="font-size:2.2rem">${n}</b> <span class="muted">meals from ${B.picks.p.length+B.picks.c.length+B.picks.f.length+B.picks.v.length} ingredients: ${R.list.length} lunch &amp; dinner bowls${B.slots.b?` + ${R.blist.length} breakfasts`:""}</span></div><button onclick="go('bowls')" ${n?"":"disabled"}>See my meals</button></div>`;
+ h+=`<div class="box" style="display:flex;align-items:center;gap:1rem;justify-content:space-between;flex-wrap:wrap"><div><b class="big" style="font-size:2.2rem">${n}</b> <span class="muted">meals from ${B.picks.p.length+B.picks.c.length+B.picks.f.length+B.picks.v.length} ingredients</span></div><button onclick="go('bowls')" ${n?"":"disabled"}>See my meals</button></div>`;
  return h
 }
 /* ---------- my own meals & recipes ---------- */
@@ -672,7 +677,7 @@ function mineSection(){const cs=B.custom||[],R=bowls(),all=R.list.concat(R.blist
  h+=cs.length?cs.map(cu=>{const b=all.find(x=>x.id===cu.id);return`<div class="mine-row"><span class="nm"><b>${esc(cu.name||"Untitled")}</b><br><span class="muted small">${cu.type==="recipe"?"Recipe":"Bowl"} · ${slotsOf(cu).map(x=>({b:"breakfast",s:"snack",m:"lunch & dinner"})[x]).join(" + ")}${b?` · ${r0(b.sol.kcal)} kcal, ${r0(b.sol.p)} g protein`:cu.slot==="b"&&!B.slots.b?" · breakfast is off":""}</span></span><button class="ghost sm" onclick="editCustom('${cu.id}')">Edit</button></div>`}).join(""):`<p class="muted small" style="margin:0">Meals you save here go first in your plan.</p>`;
  h+=`<div class="row" style="margin-top:.7rem"><button class="ghost" onclick="newCombo()">+ Build a bowl</button><button class="ghost" onclick="newRecipe()">+ Add a recipe</button></div></section>`;
  const fs=B.foods||[];
- h+=`<section class="box"><div class="sechead"><h3>My ingredients</h3><span class="count">${fs.length}</span></div>${fs.length?fs.map(u=>`<div class="mine-row"><span class="nm"><b>${esc(u.name)}</b><br><span class="muted small">${u.cat==="fruit"?"Fruit":CAT[u.cat]} · per 100 g: ${r0(u.kcal)} kcal, ${u.p} g protein, ${u.c} g carbs, ${u.f} g fat</span></span><button class="ghost sm" onclick="openFood('${u.id}')">Edit</button></div>`).join(""):`<p class="muted small" style="margin:0">Anything missing from the lists: add it with its label values. Proteins, carbs, fats, veggies and fruit also become picks above.</p>`}
+ h+=`<section class="box"><div class="sechead"><h3>My ingredients</h3><span class="count">${fs.length}</span></div>${fs.length?fs.map(u=>`<div class="mine-row"><span class="nm"><b>${esc(u.name)}</b><br><span class="muted small">${u.cat==="fruit"?"Fruit":CAT[u.cat]} · per 100 g: ${r0(u.kcal)} kcal, ${u.p} g protein, ${u.c} g carbs, ${u.f} g fat</span></span><button class="ghost sm" onclick="openFood('${u.id}')">Edit</button></div>`).join(""):`<p class="muted small" style="margin:0">Missing a food? Add it from its label.</p>`}
  <button class="ghost" style="margin-top:.7rem" onclick="openFood()">+ New ingredient</button></section>`;
  return h}
 let CE=null,delArm=false;
@@ -793,7 +798,7 @@ function vBowls(){const R=bowls(),D=dayTargets(),bf=B.slots.b&&bowlView==="b",sn
  h+=viewSeg();
  if(!list.length)return h+`<div class="box">${bf?"Breakfasts need a protein, carb, fat and a fruit or veggie. Sweet ones need egg whites or skyr, oats, cream of rice or bread, a nut butter, nuts, seeds or Greek yogurt, and a fruit.":"Pick at least one item in each group, including a vegetable, on the Build tab."}</div>`;
  h+=`<div class="box"><div class="sechead"><h3>Every ${bf?"breakfast":"bowl"} aims for</h3><span class="muted small">${Math.round(share*100)}% of your day</span></div>${tgtStrip(T,bf?"/ breakfast":"/ bowl")}
- <p class="muted small" style="margin:.6rem 0 0">${esc(D.src)}. Weights are raw for meat and dry for rice, oats and grains, so they match how you buy and cook. The scoop line is what to weigh out of your prepped box.</p>${D.example?`<p class="note" style="margin-bottom:0">These are example targets. <a href="#" onclick="go('goals');return false" style="color:var(--plum);font-weight:600">Import yours from Body &amp; Kitchen</a> for exact amounts.</p>`:""}</div>`;
+ <p class="muted small" style="margin:.6rem 0 0">Raw / dry weights · scoop = cooked weight to serve</p>${D.example?`<p class="note" style="margin-bottom:0">These are example targets. <a href="#" onclick="go('goals');return false" style="color:var(--plum);font-weight:600">Import yours from Body &amp; Kitchen</a> for exact amounts.</p>`:""}</div>`;
  h+=`<div class="seg"><button class="${showAll?"":"on"}" onclick="showAll=false;render()">${base.length} base meals</button><button class="${showAll?"on":""}" onclick="showAll=true;render()">All ${list.length}</button></div>`;
  (showAll?list:base).forEach(b=>h+=bowlCard(b,T));
  if(list.some(b=>Math.abs(b.sol.kcal-T.kcal)>T.kcal*.12))h+=`<p class="note">Orange numbers are more than 10% away from the target. That happens when a portion hits its sensible limit (for example a quarter avocado or one egg minimum). Swapping that ingredient on the Build tab fixes it.</p>`;
@@ -801,6 +806,8 @@ function vBowls(){const R=bowls(),D=dayTargets(),bf=B.slots.b&&bowlView==="b",sn
 }
 
 const kc=x=>Math.round(x).toLocaleString("en-GB");
+// small ⓘ that opens the longer explanation in place (text review, Prep v4)
+const info=t=>`<span class="ti"><button type="button" class="tib" aria-label="More info" aria-expanded="false" onclick="event.stopPropagation();const x=this.nextElementSibling,o=x.hidden;x.hidden=!o;this.setAttribute('aria-expanded',o)">ⓘ</button><span class="tip" hidden>${t}</span></span>`;
 function weekCard(){if(!byWeek())return"";const ws=weekStart(),td=today();
  // the B&K week that matters for this Prep week: the one holding today, else the one holding most of it (Mon → Sun)
  const ref=ws<=td&&td<=dPlus(ws,6)?td:dPlus(ws,1),W=wkBudget(ref),T=W.T,linked=B.mode==="bk"&&B.bk;
@@ -816,21 +823,21 @@ function weekCard(){if(!byWeek())return"";const ws=weekStart(),td=today();
  const bar=`<div class="wkbar2" role="img" aria-label="Week budget: ${kc(eaten)} eaten, ${kc(homeK)} prepped at home, ${kc(outK)} left for meals out and extras"><span style="width:${pct(eaten)}%;background:var(--plum)"></span><span style="width:${pct(homeK)}%;background:var(--sage)"></span><span style="width:${pct(outK)}%;background:var(--apricot);opacity:.55"></span></div>
  <div class="wklegend"><span><i style="background:var(--plum)"></i>Eaten ${kc(eaten)}</span><span><i style="background:var(--sage)"></i>Prepped ${kc(homeK)}</span><span><i style="background:var(--apricot);opacity:.55"></i>Out + extras ${kc(outK)}</span></div>`;
  const share=W.ratio*T.kcal,dpct=Math.round(W.ratio*20)*5;
- const msg=!W.cur?`<p class="muted small" style="margin:.5rem 0 0">This week hasn't started: every meal is planned at your normal size (${kc(T.kcal)} kcal a day).</p>`
-  :W.status==="over"?`<div class="note over" style="margin:.6rem 0 0">This week is already well over budget. Meals stay at 70 % of a normal day (≈ ${kc(share)} kcal) so the last days aren't starved: <b>the week will finish +${kc(W.finish)} kcal over</b>. That's fine, next week starts fresh.</div>`
-  :W.status==="under"?`<div class="note" style="margin:.6rem 0 0">Lots left this week. Meals are capped at 130 % of a normal day (≈ ${kc(share)} kcal): the week will finish ${kc(-W.finish)} kcal under.</div>`
-  :dpct===100?`<p class="muted small" style="margin:.5rem 0 0">On track: the rest of the week's meals are planned at their normal size.</p>`
-  :`<p class="muted small" style="margin:.5rem 0 0">So the week lands on budget, the meals from today to Sunday are planned with <b>${dpct<100?(100-dpct)+" % less":(dpct-100)+" % more"}</b> carbs and fat. Protein doesn't move, and recipes keep their portion.</p>`;
+ const msg=!W.cur?""
+  :W.status==="over"?`<div class="note over" style="margin:.6rem 0 0">Week ends <b>+${kc(W.finish)} kcal</b>. Next week starts fresh.${info(`Meals stay at 70 % of a normal day (≈ ${kc(share)} kcal) so the last days aren't starved.`)}</div>`
+  :W.status==="under"?`<div class="note" style="margin:.6rem 0 0">Week ends ${kc(-W.finish)} kcal under.${info(`Meals are capped at 130 % of a normal day (≈ ${kc(share)} kcal).`)}</div>`
+  :dpct===100?`<p class="muted small" style="margin:.5rem 0 0">On track</p>`
+  :`<p class="muted small" style="margin:.5rem 0 0">Meals until Sunday: <b>${dpct<100?"−"+(100-dpct):"+"+(dpct-100)} % carbs &amp; fat</b>${info("So the week lands on budget. Protein doesn't move, and recipes keep their portion.")}</p>`;
  const pDay=homeDays?homeP/homeDays:0;
  return`<section class="box"><div class="sechead"><h3>Week budget</h3><span class="muted small">${fmt(W.mon,{weekday:"short",day:"numeric",month:"short"})} → ${fmt(dPlus(W.mon,6),{weekday:"short",day:"numeric",month:"short"})}</span></div>
- <div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:.5rem"><div><div class="big">${kc(Math.max(0,W.week-eaten))}</div><div class="muted small">kcal left of ${kc(W.week)}</div></div>${W.cur?`<div style="text-align:right"><div style="font-weight:700">≈ ${kc(share)} kcal</div><div class="muted small">a day until Sunday (${dl} day${dl>1?"s":""})</div></div>`:""}</div>
+ <div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:.5rem"><div><div class="big">${kc(Math.max(0,W.week-eaten))}</div><div class="muted small">kcal left of ${kc(W.week)}${linked&&W.cur&&W.unlogged?info(`${W.unlogged} past day${W.unlogged>1?"s":""} with nothing logged count${W.unlogged>1?"":"s"} as on target.`):""}</div></div>${W.cur?`<div style="text-align:right"><div style="font-weight:700">≈ ${kc(share)} kcal</div><div class="muted small">/ day until Sun</div></div>`:""}</div>
  ${bar}${msg}
- <p class="small" style="margin:.6rem 0 0"><b style="color:var(--p)">Protein stays daily:</b> at least ${kc(T.p)} g every day.${homeDays?` Your prepped meals bring ≈ ${kc(pDay)} g a day${pDay<T.p?`, so ≈ ${kc(T.p-pDay)} g comes from meals out and extras`:""}.`:""}</p>
- ${linked?(W.cur&&W.unlogged?`<p class="muted small" style="margin:.4rem 0 0">${W.unlogged} past day${W.unlogged>1?"s":""} with nothing logged count${W.unlogged>1?"":"s"} as on target.</p>`:""):`<p class="muted small" style="margin:.4rem 0 0">Link Body &amp; Kitchen on the Goals tab to count what you've already eaten this week.</p>`}</section>`}
+ <div class="small" style="margin:.7rem 0 0">${homeDays?`Protein from prep: <b>${kc(pDay)} / ${kc(T.p)} g</b> a day<div class="ptrack" role="img" aria-label="${kc(pDay)} of ${kc(T.p)} g protein a day"><span style="width:${Math.min(100,pDay/T.p*100)}%"></span></div>`:`Protein: at least <b>${kc(T.p)} g</b> a day`}</div>
+ ${linked?"":`<p class="muted small" style="margin:.4rem 0 0">Link B&amp;K in Goals to count what you've eaten.</p>`}</section>`}
 function vPlan(){const ws=weekStart(),ms=weekMeals(),sess=sessions(),td=today();
  let h=header("Prep plan");
  h+=`<div class="row" style="justify-content:space-between;margin-bottom:.6rem"><button class="ghost sm" onclick="weekOff--;render()" aria-label="Previous week">‹</button><b>Week of ${fmt(ws,{weekday:"short",day:"numeric",month:"short"})}</b><button class="ghost sm" onclick="weekOff++;render()" aria-label="Next week">›</button></div>`;
- if(!B.homeAsked)h+=`<section class="box" style="border-color:var(--plum)"><h3>Which meals do you eat at home?</h3><p class="muted small" style="margin:.2rem 0 .7rem">Only these get planned, prepped and bought. You can still add or remove a single meal by tapping it.</p>${homeGrid()}<button style="margin-top:.8rem" onclick="B.homeAsked=true;save();render()">Save</button></section>`;
+ if(!B.homeAsked)h+=`<section class="box" style="border-color:var(--plum)"><h3>Which meals do you eat at home?</h3><p class="muted small" style="margin:.2rem 0 .7rem">Only these get planned and bought.</p>${homeGrid()}<button style="margin-top:.8rem" onclick="B.homeAsked=true;save();render()">Save</button></section>`;
  if(!slotsOn().length)return h+`<div class="box">Choose at least one meal you eat at home.</div>`;
  h+=weekCard();
  const grid=weekGrid(),E=effPrep();
@@ -841,35 +848,36 @@ function vPlan(){const ws=weekStart(),ms=weekMeals(),sess=sessions(),td=today();
   cells.forEach(c=>{const txt=c.state==="meal"?esc(c.b.name):c.state==="skip"?"No meal":c.state==="off"?"Not at home":"No suggestion yet";
    h+=`<button class="meal${c.state==="meal"?"":" empty"}" onclick="pickMeal('${c.k}')"><span class="slot">${c.lab}</span><span class="mn">${txt}</span><span class="muted small">${c.state==="meal"&&c.b.scaled?`<span class="rs" title="Sized to this week's budget">${c.b.scaled<1?"−":"+"}${Math.round(Math.abs(1-c.b.scaled)*100)} %</span> `:""}${c.state==="meal"?"›":"+"}</span></button>`});
   const tom=grid.filter(c=>c.day===i+1&&c.state==="meal"&&c.slot!=="b");
-  if(i<6&&tom.length)h+=`<span class="muted small">Tonight: pack tomorrow's ${tom.map(c=>c.lab.toLowerCase()).join(" + ")}</span>`;
+  if(i<6&&tom.length)h+=`<span class="muted small">Tonight: pack tomorrow</span>`;
   h+=`</div></div>`}
  h+=`</div>`;
  sess.forEach(s=>{if(!s.meals.length)return;h+=prepCard(s)});
  return h
 }
 function prepCard(s){const {t,tex,sauces,rec}=totals(s.meals);
- const recs=Object.values(rec).map(r=>{const f=r.serv/Math.max(.5,num(r.cu.servings)||1);return`<b>${esc(r.cu.name)}</b>: ${r.cu.builtin?`${fmtServ(Math.round(r.serv*4)/4)} snack${r.serv>1?"s":""} in total`:`make ${fmtServ(r.serv)} serving${r.serv>1?"s":""} (${Math.round(f*100)/100}× the recipe)`}: ${(r.cu.items||[]).filter(it=>FOODS[it.food]&&+it.g).map(it=>`${qtyText(it,f)}${["oeuf","avocat"].includes(it.food)&&(it.unit||"g")==="g"?"":" "+esc(FOODS[it.food].name.toLowerCase())}`).join(", ")}.${r.cu.steps?` ${esc(r.cu.steps)}`:""}${r.cu.keep?` <span class="muted">Keeps ${esc(r.cu.keep)}.</span>`:""}`});const ids=k=>Object.keys(t).filter(id=>FOODS[id].cat===k);
+ const recs=Object.values(rec).map(r=>{const f=r.serv/Math.max(.5,num(r.cu.servings)||1);return`<details class="rcp"><summary><b>${esc(r.cu.name)} ×${fmtServ(Math.round(r.serv*4)/4)}</b> · recipe ›</summary><span class="muted small">${r.cu.builtin?"":`${Math.round(f*100)/100}× the recipe: `}${(r.cu.items||[]).filter(it=>FOODS[it.food]&&+it.g).map(it=>`${qtyText(it,f)}${["oeuf","avocat"].includes(it.food)&&(it.unit||"g")==="g"?"":" "+esc(FOODS[it.food].name.toLowerCase())}`).join(", ")}.${r.cu.steps?` ${esc(r.cu.steps)}`:""}${r.cu.keep?` Keeps ${esc(r.cu.keep)}.`:""}</span></details>`});const ids=k=>Object.keys(t).filter(id=>FOODS[id].cat===k);
  const covers=s.days.length?`${DN[Math.min(...s.days)]}–${DN[Math.max(...s.days)]}`:"";
  const g=id=>buyQty(id,t[id]).txt;
- const how={poulet:"",cuisses:"",dinde:"air-fry 200 °C, 15–18 min",boeuf5:"sauté in a hot pan 8–10 min, breaking it up; drain",crevettes:"pan 3–4 min",saumon:"bake 180 °C, 15 min",cabillaud:"bake 200 °C, 12 min",tilapia:"bake 200 °C, 12 min",thon:"nothing to cook, just drain",blancoeuf:"bake as a frittata, 180 °C, 30 min",avoine:"cook in water or milk 5 min",cremeriz:"whisk into simmering water or milk, 2 min",orge:"simmer 30 min, drain",tofu:"press, cube, air-fry 200 °C 15 min",seitan:"slice and pan-fry 5 min",skyr:"nothing to cook; for the creamy dinner bowls, stir garlic, herbs, lemon and a pinch of salt into their portion when you pack",
-  riz:"rinse; 1 part rice to 1.5 water, 12 min covered, rest 10 min",patated:"cube; microwave 8 min for soft, or air-fry/oven 200 °C 20–25 min for crispy",pdt:"cube; air-fry/oven 200 °C 25 min",quinoa:"rinse; 1 part to 2 water, 15 min",pates:"boil, drain, toss with a drop of oil",boulgour:"1 part to 2 water, 12 min",semoule:"pour boiling water 1:1, cover 5 min, fluff",lentvertes:"boil 20–25 min, salt at the end",pain:"nothing to cook; freeze slices you won't eat by day 3",attieke:"steam or microwave 2 min when you eat it",plantain:"slice; air-fry 200 °C 12 min",dattes:"pit and chop"};
+ const how={poulet:"",cuisses:"",dinde:"air-fry 200 °C, 15–18 min",boeuf5:"pan 8–10 min, drain",crevettes:"pan 3–4 min",saumon:"bake 180 °C, 15 min",cabillaud:"bake 200 °C, 12 min",tilapia:"bake 200 °C, 12 min",thon:"drain",blancoeuf:"frittata, 180 °C 30 min",avoine:"water or milk, 5 min",cremeriz:"whisk into simmering milk, 2 min",orge:"simmer 30 min",tofu:"press, cube, air-fry 200 °C 15 min",seitan:"slice, pan 5 min",skyr:"mix in garlic, herbs, lemon when packing",
+  riz:"1 : 1.5 water, 12 min + 10 rest",patated:"cube, air-fry 200 °C 20–25 min",pdt:"cube, air-fry 200 °C 25 min",quinoa:"1 : 2 water, 15 min",pates:"boil, drain, drop of oil",boulgour:"1 : 2 water, 12 min",semoule:"boiling water 1 : 1, cover 5 min",lentvertes:"boil 20–25 min, salt at the end",pain:"freeze what you won't eat by day 3",attieke:"steam 2 min when you eat it",plantain:"slice, air-fry 200 °C 12 min",dattes:"pit, chop"};
+ const nm=x=>esc(x.name);
  const oatG=tex.oats||0,ewOat=tex.oatmeal||0,ewFrit=tex.frittata||0;
  let pr=[];ids("p").forEach(id=>{const x=FOODS[id];
-  if(x.chicken&&(tex.crispy||tex.shredded)){if(tex.crispy)pr.push(`<b>${buyQty(id,tex.crispy).txt} ${esc(x.name.toLowerCase())}</b>: air-fry 200 °C, 15–18 min (crispy)`);if(tex.shredded)pr.push(`<b>${buyQty(id,tex.shredded).txt} ${esc(x.name.toLowerCase())}</b>: poach 20 min in broth, then shred with two forks`)}
-  else if(id==="blancoeuf"){if(ewFrit)pr.push(`<b>Egg-white frittata</b>: ${buyQty(id,ewFrit).txt} egg whites + a handful of your chopped veggies, bake 180 °C for about 30 min, cut into portions`);if(ewOat)pr.push(`Keep <b>${buyQty(id,ewOat).txt} egg whites</b> for the oatmeal in the carbs step`)}
-  else pr.push(`<b>${g(id)} ${esc(x.name.toLowerCase())}</b>: ${how[id]||"cook"}`)});
+  if(x.chicken&&(tex.crispy||tex.shredded)){if(tex.crispy)pr.push(`<b>${nm(x)} ${buyQty(id,tex.crispy).txt}</b> · air-fry 200 °C, 15–18 min`);if(tex.shredded)pr.push(`<b>${nm(x)} ${buyQty(id,tex.shredded).txt}</b> · poach 20 min, shred`)}
+  else if(id==="blancoeuf"){if(ewFrit)pr.push(`<b>Egg-white frittata ${buyQty(id,ewFrit).txt}</b> · + chopped veggies, 180 °C 30 min`)}
+  else pr.push(`<b>${nm(x)} ${g(id)}</b> · ${how[id]||"cook"}`)});
  const cr=ids("c").map(id=>{const x=FOODS[id];
-  if(id==="avoine"&&ewOat){const plain=t[id]-oatG;return`<b>Egg-white oatmeal</b>: cook ${buyQty(id,oatG).txt} oats in water or milk for 5 min, then stir in ${buyQty("blancoeuf",ewOat).txt} egg whites over low heat until fully cooked`+(plain>20?`. Cook another ${buyQty(id,plain).txt} oats plain for the other bowls`:"")}
-  return`<b>${g(id)} ${esc(x.name.toLowerCase())}</b>${x.cook>1||x.dry?" (dry)":""}: ${how[id]||"cook"}`});
+  if(id==="avoine"&&ewOat){const plain=t[id]-oatG;return`<b>Egg-white oatmeal</b> · ${buyQty(id,oatG).txt} oats 5 min, stir in ${buyQty("blancoeuf",ewOat).txt} egg whites on low heat`+(plain>20?` · ${buyQty(id,plain).txt} oats plain`:"")}
+  return`<b>${nm(x)} ${g(id)}</b>${x.cook>1||x.dry?" dry":""} · ${how[id]||"cook"}`});
  const vr=ids("v").map(id=>{const x=FOODS[id];
-  if(x.fruit)return`<b>${g(id)} ${esc(x.name.toLowerCase())}</b>: ${["fraises","myrtilles"].includes(id)?"wash, dry well and portion into small boxes":id==="fruitsr"?"keep frozen; take out the night before":id==="banane"||id==="pomme"?"keep whole, slice when you pack":"peel, cut and portion"}`;
-  return`<b>${g(id)} ${esc(x.name.toLowerCase())}</b>: ${["hverts","brocoli","choufleur","choubx","asperges","edamame","gombo","legwok"].includes(id)?"steam or microwave 4–5 min":["aubergine","courgette","champi"].includes(id)?"slice and roast 200 °C 15 min":id==="epinards"?"wash and dry; eat raw or let it wilt on the warm bowl":id==="poivron"?"slice; sauté 5 min or keep raw":"wash and chop"}`});
- const fr=ids("f").map(id=>id==="avocat"?`<b>${g(id)}</b>: keep whole; cut what you need when you pack, lemon on the cut side`:id==="oeuf"?`<b>${g(id)}</b>: soft-boil 6½ min for the next 2 days, hard-boil 9–10 min for the rest of the week; cool in cold water`:`<b>${esc(FOODS[id].name)}</b>: nothing to cook, portion it when you pack`);
- const sc=Object.entries(sauces).map(([id,n])=>`${esc(SAUCE[id].name)} ×${n}`).join(", ");
+  if(x.fruit)return`<b>${nm(x)} ${g(id)}</b> · ${["fraises","myrtilles"].includes(id)?"wash, dry, box":id==="fruitsr"?"thaw the night before":id==="banane"||id==="pomme"?"slice when packing":"peel, cut, box"}`;
+  return`<b>${nm(x)} ${g(id)}</b> · ${["hverts","brocoli","choufleur","choubx","asperges","edamame","gombo","legwok"].includes(id)?"steam 4–5 min":["aubergine","courgette","champi"].includes(id)?"slice, roast 200 °C 15 min":id==="epinards"?"wash, dry":id==="poivron"?"slice, sauté 5 min or raw":"wash, chop"}`});
+ const fr=ids("f").map(id=>id==="avocat"?`<b>${g(id)}</b> · cut when packing`:id==="oeuf"?`<b>${g(id)}</b> · 6½ min soft (2 days), 9–10 min hard`:"").filter(Boolean);
+ const sc=Object.entries(sauces).map(([id,n])=>`${esc(SAUCE[id].name)} ×${n}`).join(" · ");
  const blk=(time,title,items)=>`<div class="t">${time}</div><div class="blk"><h3>${title}</h3><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`;
  return`<section class="box"><div class="sechead"><h3>${s.extra?"Today’s prep":DNL[s.d]+" prep"} · ${fmt(s.date)}</h3><span class="count">${s.meals.length} bowls</span></div>
- <p class="muted small" style="margin:-.3rem 0 0">Covers ${covers}. About 90 minutes. Season all protein with the same base: salt, pepper, garlic powder.</p>
- <div class="tl">${blk("0:00","Protein · 30 min",pr)}${blk("0:30","Carbs · 30 min",cr)}${blk("1:00","Fruits, veggies + fats · 15 min",vr.concat(fr))}${recs.length?blk("1:15","Recipes & snacks",recs):""}${blk(recs.length?"1:45":"1:15","Clean up · 15 min",["Cool everything fast and fridge it within the hour, in separate boxes.","Cooked meat and rice keep 3–4 days, which is why the week has two prep days."+(sc?` Sauces for these bowls: ${sc}.`:"")])}</div></section>`}
+ <p class="muted small" style="margin:-.3rem 0 0">${covers} · ~90 min${info("Season all protein with the same base: salt, pepper, garlic powder.")}</p>
+ <div class="tl">${blk("0:00","Protein · 30 min",pr)}${blk("0:30","Carbs · 30 min",cr)}${blk("1:00","Fruits, veggies + fats · 15 min",vr.concat(fr))}${recs.length?blk("1:15","Recipes & snacks",recs):""}${blk(recs.length?"1:45":"1:15","Clean up · 15 min",["Fridge within 1 h, separate boxes"].concat(sc?[`Sauces: ${sc}`]:[]))}</div></section>`}
 let PM={k:null,q:"",p:""};
 const fold=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 function pmList(){const r=bowls();return PM.k[1]==="b"?r.blist:PM.k[1]==="s"?r.slist:r.list}
@@ -902,17 +910,16 @@ function vShop(){const ws=weekStart(),sess=sessions();
  h+=`<div class="seg"><button class="${shopSess==="all"?"on":""}" onclick="shopSess='all';render()">Whole week</button>${sess.filter(s=>s.meals.length).map(s=>`<button class="${shopSess===String(s.d)?"on":""}" onclick="shopSess='${s.d}';render()">${s.extra?"Today’s prep":DNL[s.d]+" prep"}</button>`).join("")}</div>`;
  let total=0;const rows={p:"",c:"",f:"",v:"",x:""};
  Object.keys(t).forEach(id=>{const x=FOODS[id],q=buyQty(id,t[id]),c=t[id]/1000*price(id);total+=c;const ck=B.checked[ws+id];
-  rows[x.cat]+=`<div class="shoprow${ck?" got":""}" role="checkbox" aria-checked="${!!ck}" tabindex="0" onclick="tick('${id}')" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();tick('${id}')}"><span class="box3">${ck?"✓":""}</span><span class="nm"><b>${esc(x.name)}</b><br><span class="q">${q.txt}${q.sub?" · "+q.sub:""}${x.fr?` · <span lang="fr">${esc(x.fr)}</span>`:""}</span></span><button class="eur" onclick="event.stopPropagation();editPrice('${id}')" aria-label="Price of ${esc(x.name)}" title="${priceSrc(id)==="est"?"Estimate: tap to enter the real price":"Tap to change"}">${priceSrc(id)==="est"?"≈ ":""}${eur(c)}${priceSrc(id)==="mine"?" ✓":""}</button></div>`});
+  rows[x.cat]+=`<div class="shoprow${ck?" got":""}" role="checkbox" aria-checked="${!!ck}" tabindex="0" onclick="tick('${id}')" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();tick('${id}')}"><span class="box3">${ck?"✓":""}</span><span class="nm"><b${x.fr?' lang="fr"':""}>${esc(x.fr||x.name)}</b><br><span class="q">${q.txt}${q.sub?" · "+q.sub:""}</span></span><button class="eur" onclick="event.stopPropagation();editPrice('${id}')" aria-label="Price of ${esc(x.name)}" title="${priceSrc(id)==="est"?"Estimate: tap to enter the real price":"Tap to change"}">${priceSrc(id)==="est"?"≈ ":""}${eur(c)}${priceSrc(id)==="mine"?" ✓":""}</button></div>`});
  const budget=B.bk&&B.bk.budget;
- h+=`<div class="box"><div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="muted small">These bowls cost about</div><div class="big">${eur(total)}</div></div><div class="muted small" style="text-align:right">${meals.length} bowls · ${meals.length?eur(total/meals.length):"–"} each${budget?`<br>${Math.round(total/budget*100)}% of your ${eur(+budget)} weekly budget`:""}</div></div>
- ${byWeek()&&meals.length?(()=>{const k=meals.reduce((a,m)=>a+m.b.sol.kcal,0),pr=meals.reduce((a,m)=>a+m.b.sol.p,0),nd=new Set(meals.map(m=>m.date)).size,T=dayTargets(),sc=meals.filter(m=>m.b.scaled).length;return`<p class="small" style="margin:.6rem 0 0">Covers <b>${kc(k)} kcal</b> and <b>${kc(pr)} g protein</b> over ${nd} day${nd>1?"s":""} at home (≈ ${kc(pr/nd)} g of your ${kc(T.p)} g protein a day).${sc?` ${sc} meal${sc>1?"s":""} sized to this week's budget.`:""}</p>`})():""}
- <p class="muted small" style="margin:.5rem 0 0">Cost of what you'll use this week. Tap a price to change it: ≈ is an estimate, ✓ is a price you entered. ${(()=>{const n=Object.keys(t).filter(id=>priceSrc(id)==="est").length;return n?`${n} still estimated.`:"All prices are real."})()}</p></div>`;
+ h+=`<div class="box"><div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="muted small">This week ≈</div><div class="big">${eur(total)}</div></div><div class="muted small" style="text-align:right">${meals.length} bowls · ${meals.length?eur(total/meals.length):"–"} each${budget?`<br>${Math.round(total/budget*100)}% of your ${eur(+budget)} weekly budget`:""}</div></div>
+ ${byWeek()&&meals.length?(()=>{const k=meals.reduce((a,m)=>a+m.b.sol.kcal,0),pr=meals.reduce((a,m)=>a+m.b.sol.p,0),nd=new Set(meals.map(m=>m.date)).size,T=dayTargets(),sc=meals.filter(m=>m.b.scaled).length;return`<p class="small" style="margin:.6rem 0 0">${nd} day${nd>1?"s":""} · <b>${kc(pr/nd)} / ${kc(T.p)} g</b> protein a day${info(`Covers ${kc(k)} kcal and ${kc(pr)} g protein over ${nd} day${nd>1?"s":""} at home.${sc?` ${sc} meal${sc>1?"s":""} sized to this week's budget.`:""}`)}</p>`})():""}
+ <p class="muted small" style="margin:.5rem 0 0">Tap a price to fix it${(()=>{const n=Object.keys(t).filter(id=>priceSrc(id)==="est").length;return n?` · ${n} estimated`:" · all prices yours"})()}</p></div>`;
  h+=`<div class="box">`;["p","c","f","v","x"].forEach(c=>{if(rows[c])h+=`<span class="catlab ${c}">${CAT[c]}</span>${rows[c]}`});h+=`</div>`;
- h+=`<h2>Sauces + extras</h2><div class="box">${B.sauces.length?B.sauces.map(id=>{const s=SAUCE[id],ck=B.checked["s"+id];return`<div class="shoprow${ck?" got":""}" role="checkbox" aria-checked="${!!ck}" tabindex="0" onclick="tick('s${id}',1)"><span class="box3">${ck?"✓":""}</span><span class="nm"><b>${esc(s.name)}</b><br><span class="q">${esc(s.buy)}${sauces[id]?` · ${sauces[id]} bowl${sauces[id]>1?"s":""}`:""}</span></span></div>`}).join(""):`<span class="muted">No sauces picked. Add some on the Build tab.</span>`}</div>`;
- h+=`<h2>Seasonings to keep on hand</h2><div class="box">${SEASONINGS.map((s,i)=>{const ck=B.checked["z"+i];return`<div class="shoprow${ck?" got":""}" role="checkbox" aria-checked="${!!ck}" tabindex="0" onclick="tick('z${i}',1)"><span class="box3">${ck?"✓":""}</span><span class="nm"><b>${esc(s)}</b></span></div>`}).join("")}<p class="muted small" style="margin:.5rem 0 0">These ticks stay on, since they last for months. Untick one when it runs out.</p></div>`;
+ h+=`<h2>Sauces + extras</h2><div class="box">${B.sauces.length?B.sauces.map(id=>{const s=SAUCE[id],ck=B.checked["s"+id];return`<div class="shoprow${ck?" got":""}" role="checkbox" aria-checked="${!!ck}" tabindex="0" onclick="tick('s${id}',1)"><span class="box3">${ck?"✓":""}</span><span class="nm"><b>${esc(s.name)}</b><br><span class="q">${sauces[id]?`${sauces[id]} bowl${sauces[id]>1?"s":""}`:""}${info(esc(s.buy))}</span></span></div>`}).join(""):`<span class="muted">No sauces picked. Add some on the Build tab.</span>`}</div>`;
+ h+=`<h2>Seasonings to keep on hand</h2><div class="box">${SEASONINGS.map((s,i)=>{const ck=B.checked["z"+i];return`<div class="shoprow${ck?" got":""}" role="checkbox" aria-checked="${!!ck}" tabindex="0" onclick="tick('z${i}',1)"><span class="box3">${ck?"✓":""}</span><span class="nm"><b>${esc(s)}</b></span></div>`}).join("")}<p class="muted small" style="margin:.5rem 0 0">Untick when empty</p></div>`;
  const {base,bbase}=bowls(),bl=arr=>`<div class="base10">${arr.map((b,i)=>`<div><b style="color:var(--plum)">${i+1}.</b> ${b.recipe?esc(b.name)+" (my recipe)":b.mine?esc(b.name):[b.p,b.c,b.f,b.v].map(x=>esc(FOODS[x].name)).join(" + ")}</div>`).join("")}</div>`;
- h+=`<h2>Base meals</h2><div class="box">${B.slots.b&&bbase.length?`<h3 style="margin-bottom:.4rem">Breakfast</h3>${bl(bbase)}<h3 style="margin:.9rem 0 .4rem">Lunch &amp; dinner</h3>`:""}${bl(base)}
- <p class="muted small" style="margin:.6rem 0 0"><b>Flavour variety:</b> pour any sauce or seasoning above on the same base ingredients to get a completely different meal.</p></div>`;
+ h+=`<details class="box base"><summary><b>Base meals (${base.length+(B.slots.b?bbase.length:0)})</b> ›</summary><div style="margin-top:.6rem">${B.slots.b&&bbase.length?`<h3 style="margin-bottom:.4rem">Breakfast</h3>${bl(bbase)}<h3 style="margin:.9rem 0 .4rem">Lunch &amp; dinner</h3>`:""}${bl(base)}</div></details>`;
  return h
 }
 function tick(id,keep){const k=keep?id:weekStart()+id;if(B.checked[k])delete B.checked[k];else B.checked[k]=1;
@@ -946,10 +953,10 @@ function savePrice(){const k=peKg();if(k==null||!(k>=0)){toast(PE.mode==="pack"?
 function vGoals(){const D=dayTargets(),T=bowlTarget();
  let h=header("Goals");
  h+=`<div class="box"><div class="sechead"><h3>Your day</h3><span class="muted small">${esc(D.src)}</span></div>${tgtStrip(D,"/ day")}</div>`;
- h+=`<div class="box"><div class="sechead"><h3>Plan calories</h3>${B.mode==="bk"&&B.bk?`<span class="muted small">From Body &amp; Kitchen</span>`:""}</div>${B.mode==="bk"&&B.bk?`<p style="margin:0">${byWeek()?"<b>By week</b> (Mon → Sun): the week's budget is "+kc(7*D.kcal)+" kcal; protein stays daily.":"<b>By day</b>: every meal is planned at its normal size."}</p><p class="muted small" style="margin:.3rem 0 0">Change it in Body &amp; Kitchen › Settings › Nutrition › Track calories.</p>`:`<div class="seg" style="margin:0"><button class="${byWeek()?"on":""}" onclick="B.kcalBy='week';save();render()">By week</button><button class="${byWeek()?"":"on"}" onclick="B.kcalBy='day';save();render()">By day</button></div><p class="muted small" style="margin:.4rem 0 0">By week: ${kc(7*D.kcal)} kcal from Monday to Sunday, protein stays daily.</p>`}</div>`;
+ h+=`<div class="box"><div class="sechead"><h3>Plan calories</h3>${B.mode==="bk"&&B.bk?`<span class="muted small">From Body &amp; Kitchen</span>`:""}</div>${B.mode==="bk"&&B.bk?`<p style="margin:0">${byWeek()?"<b>By week</b> · "+kc(7*D.kcal)+" kcal":"<b>By day</b>"}</p><p class="muted small" style="margin:.3rem 0 0">Change in B&amp;K Settings</p>`:`<div class="seg" style="margin:0"><button class="${byWeek()?"on":""}" onclick="B.kcalBy='week';save();render()">By week</button><button class="${byWeek()?"":"on"}" onclick="B.kcalBy='day';save();render()">By day</button></div><p class="muted small" style="margin:.4rem 0 0">By week · ${kc(7*D.kcal)} kcal</p>`}</div>`;
  h+=`<h2>Where your targets come from</h2><div class="seg"><button class="${B.mode==="bk"||B.mode==="example"?"on":""}" onclick="B.mode=B.bk?'bk':'example';save();render()">Body &amp; Kitchen</button><button class="${B.mode==="quick"?"on":""}" onclick="B.mode='quick';save();render()">Quick profile</button><button class="${B.mode==="manual"?"on":""}" onclick="B.mode='manual';save();render()">My numbers</button></div>`;
  if(B.mode==="bk"||B.mode==="example"){
-  if(bkLive)h+=`<div class="box"><p style="margin:0 0 .4rem"><b>Linked to Body &amp; Kitchen on this phone</b>${B.bk.exact?" · exact targets":""} · ${esc(B.bk.phase||"")}${B.bk.weight?` · ${B.bk.weight} kg`:""}${B.bk.adaptive?" · adaptive maintenance":""}</p><p class="muted small" style="margin:0">Your goal, weight, prices and budget update by themselves each time you open B&amp;K Prep.</p></div>`;
+  if(bkLive)h+=`<div class="box"><p style="margin:0"><b>Linked to Body &amp; Kitchen on this phone</b>${B.bk.exact?" · exact targets":""} · ${esc(B.bk.phase||"")}${B.bk.weight?` · ${B.bk.weight} kg`:""}${B.bk.adaptive?" · adaptive maintenance":""}</p></div>`;
   else h+=`<div class="box">${B.bk?`<p style="margin:0 0 .4rem"><b>Imported ${fmt(B.bk.at,{day:"numeric",month:"long"})}</b> · ${esc(B.bk.phase||"")}${B.bk.weight?` · ${B.bk.weight} kg`:""}${B.bk.adaptive?" · adaptive maintenance":""}</p><p class="muted small" style="margin:0 0 .8rem">Same formula as the app, plus your prices, shop and weekly budget. Import again when your weight or phase changes.</p>`:`<p style="margin:0 0 .4rem">Bring in your profile, goal phase, prices and budget.</p>`}
   <ol class="small" style="margin:0 0 .8rem;padding-left:1.2rem"><li>In Body &amp; Kitchen, open <b>Me → Backup → Download backup</b>.</li><li>Choose that file here. Only your goal, weight, prices and budget are kept.</li></ol>
   <label class="file">${B.bk?"Import a newer backup":"Choose backup file"}<input type="file" accept=".json,application/json" onchange="importBK(this)"></label></div>`}
@@ -966,9 +973,9 @@ function vGoals(){const D=dayTargets(),T=bowlTarget();
  h+=`<h2>How big is each meal?</h2><div class="box"><div class="eyebrow" style="margin-bottom:.4rem">Lunch &amp; dinner bowls</div><div class="chips">${[.25,.3,.35,.4,.5].map(s=>`<button class="chip${Math.abs(B.share-s)<.001?" on":""}" onclick="B.share=${s};save();render()">${s*100}%</button>`).join("")}</div>
  ${B.slots.s?`<div class="eyebrow" style="margin:.9rem 0 .4rem">Snack</div><div class="chips">${[.1,.12,.15,.2].map(s=>`<button class="chip${Math.abs(B.shareS-s)<.001?" on":""}" onclick="B.shareS=${s};save();render()">${Math.round(s*100)}%</button>`).join("")}</div>`:""}
  ${B.slots.b?`<div class="eyebrow" style="margin:.9rem 0 .4rem">Breakfast</div><div class="chips">${[.15,.2,.25,.3].map(s=>`<button class="chip${Math.abs(B.shareB-s)<.001?" on":""}" onclick="B.shareB=${s};save();render()">${s*100}%</button>`).join("")}</div>`:""}
- <p class="muted small" style="margin:.7rem 0 0">Each lunch or dinner bowl ≈ <b>${r0(T.kcal)} kcal</b>${B.slots.b?`, each breakfast ≈ <b>${r0(bfTarget().kcal)} kcal</b>`:""}${B.slots.s?`, each snack ≈ <b>${r0(snTarget().kcal)} kcal</b> with ${r0(snTarget().p)} g protein`:""}. ${(()=>{const left=D.kcal-T.kcal*mainSlots().length-(B.slots.b?bfTarget().kcal:0)-(B.slots.s?snTarget().kcal:0);return left>=0?`On a day with every meal at home, ${r0(left)} kcal are left for ${B.slots.b?"anything else":"breakfast and anything else"}.`:`<span class="off">That's ${r0(-left)} kcal more than your day. Lower a share.</span>`})()}</p></div>`;
- h+=`<h2>Meals I eat at home</h2><div class="box">${homeGrid()}<p class="muted small" style="margin:.7rem 0 0">Only ticked meals are planned, prepped and bought.</p></div>`;
- h+=`<h2>Prep days</h2><div class="box"><div class="chips">${DNL.map((d,i)=>`<button class="chip${B.prepDays.includes(i)?" on":""}" onclick="togglePrep(${i})">${d}</button>`).join("")}</div><p class="muted small" style="margin:.7rem 0 0">Each prep day cooks for the days until the next one. Two a week keeps everything fresh.</p></div>`;
+ <p class="muted small" style="margin:.7rem 0 0">Bowl <b>${r0(T.kcal)}</b>${B.slots.b?` · Breakfast <b>${r0(bfTarget().kcal)}</b>`:""}${B.slots.s?` · Snack <b>${r0(snTarget().kcal)}</b>`:""} kcal${(()=>{const left=D.kcal-T.kcal*mainSlots().length-(B.slots.b?bfTarget().kcal:0)-(B.slots.s?snTarget().kcal:0);return left>=0?"":`<br><span class="off">That's ${r0(-left)} kcal more than your day. Lower a share.</span>`})()}</p></div>`;
+ h+=`<h2>Meals I eat at home</h2><div class="box">${homeGrid()}</div>`;
+ h+=`<h2>Prep days</h2><div class="box"><div class="chips">${DNL.map((d,i)=>`<button class="chip${B.prepDays.includes(i)?" on":""}" onclick="togglePrep(${i})">${d}</button>`).join("")}</div><p class="muted small" style="margin:.7rem 0 0">2 prep days keep food fresh</p></div>`;
  h+=`<p class="status" id="status">${status}</p>`;
  return h
 }

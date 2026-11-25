@@ -31,6 +31,15 @@ Design pass, rule 2: Today shows 3 things first.
   - Beginner rule 4, one text font: Figtree everywhere (headings too); Bricolage Grotesque only for big numbers, now 32 px (`--fs-num`); labels 14 px
   - Keyboard focus ring on every focusable element
 
+## B&K Prep v4 · 2026-11-25
+- Text review applied (Serena's 45 choices on the text review page): about a third fewer words (3,069 → 2,053 on the sample week; Plan −42 %, Shop −57 %). Same features, no logic changes
+- Plan: week budget says "/ day until Sun", "Week ends +X kcal. Next week starts fresh.", "Meals until Sunday: −X % carbs & fat", "On track"; protein is one line with a small bar ("Protein from prep: 99 / 140 g a day"); nothing shown before the week starts; the "why" lines moved behind a small ⓘ
+- Prep sessions: every step reads "Food amount · method" (one method each), recipes and snacks fold open on tap, no line for food that needs no cooking, "Fridge within 1 h, separate boxes", sauces on one line; seasoning tip behind ⓘ
+- Build, Bowls, Goals: one short line each instead of explanations; meal sizes as three numbers (Bowl · Breakfast · Snack kcal); repeated sentences removed
+- Shop: "This week ≈", "N days · X / Y g protein a day" (details behind ⓘ), "Tap a price to fix it · N estimated", one name per item (the French shop name), where to buy each sauce behind ⓘ, base meals folded
+- Fix: the "Prep today" badge was grey and cut off since v3; it is readable again
+- Service worker cache bumped to bk-prep-v4
+
 ## B&K Prep v3 · 2026-11-25
 - Design pass to Serena's UI design system, same features, no logic changes: OKLCH colour tokens (plum palette, light + dark), concentric radii (cards 22 px with 14 px padding → 8 px inside; sheet, segmented controls and inputs follow the same rule), semi-transparent borders, one light-only shadow scale (dark mode = lighter surfaces), motion tokens with prefers-reduced-motion
 - Same colour tokens and names as Body & Kitchen 0.83a (`--over` calm violet, `--warn` soft amber, `--danger` red, `--font-text` / `--font-num`).
