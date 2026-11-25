@@ -968,8 +968,8 @@ function migHS(){try{const M={"Hammer Strength Abdominal Crunch":"Abdominal Crun
  if(ch)save("core")}catch(e){}}
 let _trOn=false;
 function planArchive(p){if(!p||!p.week)return;const has=Object.keys(p.slots||{}).length||Object.values(p.extras||{}).some(v=>+v>0);if(!has)return;let eat={};try{eat=eatenCounts()}catch(_){}S.core.planHist=(S.core.planHist||[]).filter(x=>x.week!==p.week).concat([{week:p.week,slots:Object.assign({},p.slots),extras:Object.assign({},p.extras),have:Object.assign({},p.have||{}),eaten:eat}]).slice(-12)}
-function planLeft(p){const out={};let eat={};try{eat=eatenCounts()}catch(_){}Object.entries(p.have||{}).forEach(([id,v])=>{const l=(+v||0)-(eat[id]||0);if(l>0&&S.core.recipes.some(r=>r.id===id))out[id]=l});return out}
-function freshWeek(keepLeft){const p=S.core.plan;const left=keepLeft&&p?planLeft(p):{};planArchive(p);S.core.plan={week:mondayOf(today()),slots:{},extras:{},have:left};S.core.checked={};S.core.pantry={};S.core.bought={};S.core.buyPantry={};S.core.forceBuy={};return left}
+function planLeft(p){const out={};let eat={};try{eat=eatenCounts()}catch(_){}const from=weekDate(-3,mondayOf(today()));const at=p.haveAt||{};Object.entries(p.have||{}).forEach(([id,v])=>{const l=(+v||0)-(eat[id]||0);if(l>0&&at[id]&&at[id]>=from&&S.core.recipes.some(r=>r.id===id))out[id]=l});return out}
+function freshWeek(keepLeft){const p=S.core.plan;const left=keepLeft&&p?planLeft(p):{};const la={};Object.keys(left).forEach(id=>la[id]=p.haveAt[id]);planArchive(p);S.core.plan={week:mondayOf(today()),slots:{},extras:{},have:left,haveAt:la};S.core.checked={};S.core.pantry={};S.core.bought={};S.core.buyPantry={};S.core.forceBuy={};return left}
 function rollPlan(){try{const p=S.core&&S.core.plan,m=mondayOf(today());if(p&&p.week&&p.week<m){const left=freshWeek(true);save("core");const n=Object.values(left).reduce((a,v)=>a+v,0);setTimeout(()=>flash(LL("🗓 New week: meal plan cleared","🗓 Nouvelle semaine : planning vidé")+(n?LL(` · ${n} cooked portion${n>1?"s":""} kept`,` · ${n} portion${n>1?"s":""} cuisinée${n>1?"s":""} gardée${n>1?"s":""}`):"")),400)}}catch(_){}}
 function render(){modeFromUrl();if(S.core&&(S.core._migHS||0)<2){migHS();S.core._migHS=2}rollPlan();ensureColors();setTimeout(fabPaint,0);if(S.core&&S.core.profile&&S.core.profile.age)migRecomp();if(!_trOn&&document.body){_trOn=true;trStart()}
  if(setupOn){$("#tabs").style.display="none";$("#app").innerHTML=vSetup();return}
@@ -2474,7 +2474,7 @@ async function shareGroceries(){const rows=groceryRows;if(!rows.length){toast("Y
  try{if(navigator.share){await navigator.share({title:"Grocery list",text:txt});return}}catch(e){if(e&&e.name==="AbortError")return}
  try{await navigator.clipboard.writeText(txt);toast("List copied.")}catch(e){toast(txt)}}
 function setSlot(k,v){if(v==="__add"){tab="kitchen";kView="discover";render();window.scrollTo(0,0);return}if(v)S.core.plan.slots[k]=v;else delete S.core.plan.slots[k];save("core");render()}
-function setHave(id,v){const pl=S.core.plan;pl.have=pl.have||{};if(+v>0)pl.have[id]=+v;else delete pl.have[id];save("core");render()}
+function setHave(id,v){const pl=S.core.plan;pl.have=pl.have||{};pl.haveAt=pl.haveAt||{};const was=+pl.have[id]||0;if(+v>0){pl.have[id]=+v;if(+v>was)pl.haveAt[id]=today()}else{delete pl.have[id];delete pl.haveAt[id]}save("core");render()}
 function setExtra(id,v){S.core.plan.extras[id]=+v||0;save("core");render()}
 function toggle(map,id){S.core[map][id]=!S.core[map][id];save("core");render()}
 async function newWeek(){if(!await ask("Start a new week?"))return;freshWeek(false);save("core");render()}
@@ -4782,7 +4782,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.82b beta";
+const APP_VERSION="0.82c beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

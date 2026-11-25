@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.82c beta · 2026-11-25
+- Plan the week: leftovers only carry over to the new week if they were cooked in the last 3 days (Friday or later). The app now saves the date when you raise "already cooked"; portions without a date (cooked before this update) start the new week at zero
+
 ## 0.82b beta · 2026-11-25
 - Fix: Groceries › Plan the week now really restarts on Monday. Before, only the week date changed and last week's recipes, portions and ticks stayed. Now a fresh, empty week starts (same as "Start a new week"), last week's plan is kept in history (last 12 weeks), and cooked portions not eaten yet carry over to "already cooked" (bug since 0.77o, when the plan started rolling over to the current week)
 
