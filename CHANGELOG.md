@@ -2,6 +2,14 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86g beta · 2026-11-26
+
+Position sets (PO) fixes from Serena's screenshot (Lever Seated Hip Abduction in Focus).
+
+- **Wrong weight suggestion:** the strength maths added the reps of all positions together (10 forward + 10 back counted as one set of 20), so the estimated max was inflated (230 kg instead of 184 kg) and the heavy day suggested 196.5 kg. Position sets now count the reps of one position (the average) for the estimated max, progression and records; sets and volume are unchanged. Same suggestion now: 157 kg × 5 per position.
+- **Choosing positions in Focus:** the PO row (forward / upright / back chips, same as the list view) now shows on the Focus card under the target line, and each reps box has its position name under it.
+- Tested: the same exercise and history before / after (196.5 → 157 kg, "Last: 138×10"), Focus card, every screen on a copy of Serena's real data (sets / reps / volume identical), all earlier tests.
+
 ## 0.86f beta · 2026-11-26
 
 Focus mode fixes (Serena).
