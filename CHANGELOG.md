@@ -2,6 +2,15 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86e beta · 2026-11-26
+
+Fixes from Serena's screenshots (sheet headers, calendar, back-to-top button).
+
+- **Sheet headers** (session detail, Calendar, recipe, recovery, edit workout, photos…): the ‹ / title / ••• bar was laid out as a 7-column grid because the week calorie bars (0.81a) reused its class name `wkbar`. ••• sat in the middle over the name and the 🔥 streak pill covered "Calendar". The week bars now use `wkbars`; headers are back to ‹ left, title centred, button right.
+- **Calendar:** nothing shows any more in the gap between the header and the M T W … row while scrolling.
+- **↑ back-to-top button** no longer floats over sheets (it covered calendar days). In a sheet, tap its title to jump back to the top; on the main screens the button works as before.
+- Tested: session sheet and Calendar layout measured at iPhone size, scroll header, every screen on a copy of Serena's real data, all earlier tests.
+
 ## 0.86d beta · 2026-11-26
 
 Redesign, tab 3 of 4: **Train** (main screen; Library, exercise page and live workout come with the detail screens).
