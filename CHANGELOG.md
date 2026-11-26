@@ -2,6 +2,15 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.84c beta · 2026-11-26
+
+Rest timer after the last set (Serena's answer to the 0.84b question).
+
+- When you log the last set of the workout, the rest timer is now a 1-minute **cool-off** instead of a full rest, labelled "Cool-off · then stretch". When it ends, the alert says "Cool-off done · Time to stretch" instead of pointing to a next set.
+- "Last set" means every set of every exercise is done. Stretching and mobility exercises don't count, so the cool-off starts before your stretches.
+- If you add an exercise after that, a running cool-off turns back into a normal rest (same time left), and the cool-off moves to the last set of the new exercise.
+- `COOL_SEC=60`; the rest entry carries `cool:true`.
+
 ## 0.84b beta · 2026-11-25
 
 Design pass: fades on sideways-scrolling strips (Serena's UI rule 6, missed in 0.83a).
