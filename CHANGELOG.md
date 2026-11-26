@@ -2,6 +2,14 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86h beta · 2026-11-26
+
+History correction (Serena): her Lever Seated Hip Abduction sets before 26 Oct were position sets saved as normal sets.
+
+- Runs once on start (`poFix1`, flag `_poFix1` with the count): every normal working set of that exercise dated before 26 Oct 2026 with **30 reps becomes 10 + 10 + 10** (3 positions) and with **20 reps becomes 10 + 10** (2 positions). Warm-ups, drop sets, partials and other rep counts (e.g. 70 kg × 24 on 21 Jan, 70 kg × 10 on 5 Oct) are untouched. On her data: 65 sets.
+- Volume and total reps for the exercise are unchanged (147,079 kg, 1,942 reps): positions are still added up for volume. The strength estimate now reads each position's 10 reps, so the 1-rep-max chart climbs steadily: ~93 kg (70 kg) through May → 141 kg (105.5 kg, Oct) → 184 kg (138 kg, Nov) instead of jumping to 140 / 176.
+- Tested on a copy of Serena's real data: conversion per session checked, volume and reps identical, every screen without errors, all earlier tests.
+
 ## 0.86g beta · 2026-11-26
 
 Position sets (PO) fixes from Serena's screenshot (Lever Seated Hip Abduction in Focus).
