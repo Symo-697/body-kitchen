@@ -2,6 +2,13 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86k beta · 2026-11-26
+
+Kitchen › "✨ Describe your meal" opens in place (Serena: it jumped to Log food on Today).
+
+- It now opens a sheet over Kitchen with the meal choice (Breakfast / Lunch / Dinner / Snack), the text box, Estimate, 📷 Photo and Close. Estimated items are checked and added to today's log as before; the sheet closes after adding and you stay in Kitchen. The ＋ menu's Describe still opens it inside Log food on Today.
+- Tested: open from Kitchen, meal switch, estimate, add (2 items logged to the chosen meal), sheet closes, stays on Kitchen; ＋ menu path unchanged; all earlier tests.
+
 ## 0.86j beta · 2026-11-26
 
 Redesign, tab 4 of 4: **Progress › Stats** (A's tiles row + B's chips).

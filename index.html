@@ -695,7 +695,7 @@ async function fabWeight(){const v=await askText("Today's weight (kg)",latestWei
 function fabWorkout(){closeSheet();if(A()){tab="train";trainView="live";render();window.scrollTo(0,0);return}const di=(new Date().getDay()+6)%7;const dk=schedule()[di];if(dk&&dk!=="rest"&&S.core.workout[dk]){startWorkout(dk);return}tab="train";trainView="plan";render();window.scrollTo(0,0)}
 function fabPaint(){let b=document.getElementById("fab");if(!b){b=document.createElement("button");b.id="fab";b.setAttribute("aria-label","Quick add");b.textContent="＋";b.onclick=()=>fabMenu();document.body.appendChild(b)}b.style.display=(typeof setupOn!=="undefined"&&setupOn)||(tab==="train"&&trainView==="live")?"none":""}
 /* photo logging */
-async function aiPhoto(inp){const file=inp.files&&inp.files[0];inp.value="";if(!file)return;tab="today";logDate=today();settingsOpen=false;aiOpen=true;crousOpen=false;qaOpen=false;aiDraft={text:""};render();
+async function aiPhoto(inp){const file=inp.files&&inp.files[0];inp.value="";if(!file)return;if(inAISheet()){logDate=today();aiOpen=true;aiDraft={text:""};paintAI()}else{tab="today";logDate=today();settingsOpen=false;aiOpen=true;crousOpen=false;qaOpen=false;aiDraft={text:""};render()}
  const eng=await aiEngine();if(eng==="local"){aiErr="Photos need Claude: open the app in claude.ai, or add an API key in Settings › AI.";paintAI();return}
  aiBusy=true;aiErr="";paintAI();const list=allFoods().map(f=>`${f.id}: ${f.name}`).join("\n");
  const prompt=`This photo shows a meal someone is about to eat or just ate. Identify each food and estimate the eaten weight in grams (realistic portions; use the plate, cutlery and packaging for scale). If a food matches one of the ingredients below, give its id; otherwise give null and estimate its values per 100 g.\n\nIngredients (id: name):\n${list}\n\nReply with ONLY a JSON array, no other text, like:\n[{"name":"grilled chicken","grams":150,"id":"poulet","kcal100":null,"p100":null,"c100":null,"f100":null,"fib100":null}]\nFor foods with id null, fill kcal100, p100, c100, f100 and fib100 as numbers. Include visible sauces and likely cooking oil as their own items.\n\nCOOKED vs DRY: estimate weights as eaten (cooked). Some ingredients in the list are stored raw/dry (names with cru, sec, sèche, raw, dry, uncooked: rice, pasta, couscous, bulgur, quinoa, lentils, dried beans, oats). If you match one of those, convert the cooked weight you see to the dry weight before giving grams: rice ÷ 3, pasta ÷ 2.5, couscous or bulgur ÷ 2.5, quinoa ÷ 2.7, lentils or dried beans ÷ 2.5, oats eaten as porridge ÷ 4. Example: 270 g of cooked rice → "grams":90 with the id of "Riz basmati cru". Never give a cooked weight with a raw/dry ingredient id.${LANG()==="fr"?" Write the names in French.":""}`;
@@ -1597,7 +1597,7 @@ function recCard(r,m,mine,on){const hk=(S.core.prefs||{}).hideKcal;return`<div c
 function vKitchen(){migrateShops();
  if(kView==="discover")return`<button class="chip" style="margin-bottom:.8rem" onclick="kView='home';render();window.scrollTo(0,0)">‹ ${LL("Recipes","Recettes")}</button>`+vDiscover();
  let h=kitchenForm();const a=(S.core.setup||{}).answers;
- h+=`<button class="sheetbtn kdesc" onclick="fabFood('ai')"><span class="sheeticon">✨</span>${LL("Describe your meal","Décris ton repas")}<span class="muted" style="margin-left:auto" aria-hidden="true">›</span></button>`;
+ h+=`<button class="sheetbtn kdesc" onclick="aiSheet()"><span class="sheeticon">✨</span>${LL("Describe your meal","Décris ton repas")}<span class="muted" style="margin-left:auto" aria-hidden="true">›</span></button>`;
  h+=kFiltChips("render()");
  const mineAll=S.core.recipes.filter(kFiltOK).slice().reverse();
  const menu=`stDlg('<label class=&quot;sheetbtn&quot; style=&quot;cursor:pointer&quot;><span class=&quot;sheeticon&quot;>⬆</span>'+LL('Import recipe file','Importer un fichier de recettes')+'<input type=&quot;file&quot; accept=&quot;.json,application/json&quot; onchange=&quot;closeStDlg();importRecipes(this)&quot; style=&quot;display:none&quot;></label>'+sheetBtn('⬇',LL('Export my recipes','Exporter mes recettes'),'closeStDlg();exportRecipes()'))`;
@@ -1816,11 +1816,17 @@ async function getSample(){if(sampleFn!==undefined)return sampleFn;try{sampleFn=
 function aiBoxHTML(){if(!aiOpen)return"";
  let h=`<div class="box" style="margin-top:.6rem;background:var(--bg)"><h3>✨ Describe your meal · ${(MEALS.find(m=>m[0]===mealNow())||[0,""])[1]}</h3>
  <textarea id="aitext" rows="3" placeholder="e.g. a bowl of attiéké with half a grilled tilapia, some tomato-onion salad and a glass of bissap">${esc((aiDraft&&aiDraft.text)||"")}</textarea>
- <div class="row" style="margin-top:.5rem"><button ${aiBusy?"disabled":""} onclick="aiAnalyse()">${aiBusy?"Thinking…":"Estimate"}</button><label class="chip" style="cursor:pointer;margin:0">📷 Photo<input type="file" accept="image/*" style="display:none" onchange="aiPhoto(this)"></label><button class="ghost small" onclick="aiOpen=false;aiDraft=null;aiErr='';render()">Close</button></div>
+ <div class="row" style="margin-top:.5rem"><button ${aiBusy?"disabled":""} onclick="aiAnalyse()">${aiBusy?"Thinking…":"Estimate"}</button><label class="chip" style="cursor:pointer;margin:0">📷 Photo<input type="file" accept="image/*" style="display:none" onchange="aiPhoto(this)"></label><button class="ghost small" onclick="aiOpen=false;aiDraft=null;aiErr='';inAISheet()?aiSheetClose():render()">Close</button></div>
  ${aiErr?`<p class="muted" style="margin:.5rem 0 0">${esc(aiErr)}</p>`:""}`;
  if(aiDraft&&aiDraft.items){h+=`<p class="muted" style="margin:.7rem 0 .3rem;font-size:.85rem">${aiDraft.engine==="local"?"Offline estimate":aiDraft.engine==="api"?"Estimated by Claude":"Estimated by Claude"}: check, then add.</p>`+aiDraft.items.map((it,i)=>`<div class="row" style="padding:.35rem 0;border-bottom:1px solid var(--line);flex-wrap:nowrap"><input type="checkbox" style="width:1.1rem" ${it.on?"checked":""} onchange="aiDraft.items[${i}].on=this.checked;paintAI()"><span class="grow" style="min-width:0"><b>${esc(it.name)}</b><br><span class="muted" style="font-size:.8rem">${it.unknown?"not recognised: log it with search":it.recipe?"your recipe":it.food?"matched: "+esc((food(it.food)||{}).name||""):"estimated"}${it.unknown?"":` · ${r0(aiItemMacros(it).kcal)} kcal · P ${r0(aiItemMacros(it).p)} g`}</span></span>${it.unknown?"":it.recipe?`<input type="number" step="0.5" style="width:4.6rem" value="${it.portions}" onchange="aiDraft.items[${i}].portions=+this.value;paintAI()"><span class="muted">port.</span>`:`<input type="number" style="width:4.6rem" value="${r0(it.g)}" onchange="aiDraft.items[${i}].g=+this.value;paintAI()"><span class="muted">g</span>`}</div>`).join("")
   +`<button style="width:100%;margin-top:.7rem" onclick="aiAddReal()">Add ${aiDraft.items.filter(x=>x.on).length} item${aiDraft.items.filter(x=>x.on).length===1?"":"s"} to ${(MEALS.find(m=>m[0]===mealNow())||[0,""])[1].toLowerCase()}</button>`}
  return h+`</div>`}
+/* 0.86k · Describe your meal opens in place (sheet) from Kitchen, without leaving the page */
+function inAISheet(){return!!document.querySelector("#sheetmodal #aibox")}
+function aiSheetSeg(){return`<div class="seg cmp" role="group" aria-label="Meal" style="margin:.2rem 0 .2rem">${MEALS.map(([k,l])=>`<button class="${mealNow()===k?"on":""}" onclick="curMeal='${k}';aiSheetPaint()">${l}</button>`).join("")}</div>`}
+function aiSheetPaint(){const a=document.getElementById("aiseg");if(a)a.innerHTML=aiSheetSeg();paintAI()}
+function aiSheet(){logDate=today();aiOpen=true;crousOpen=false;qaOpen=false;aiErr="";openSheet(`<div class="wkbar"><button class="circbtn" aria-label="Back" onclick="aiSheetClose()">‹</button><b>${LL("Describe your meal","Décris ton repas")}</b><span></span></div><div id="aiseg">${aiSheetSeg()}</div><div id="aibox">${aiBoxHTML()}</div>`);setTimeout(()=>{const e=document.getElementById("aitext");if(e)e.focus()},80)}
+function aiSheetClose(){aiOpen=false;aiDraft=null;aiErr="";closeSheet();render()}
 function paintAI(){const el=document.getElementById("aibox");if(el)el.innerHTML=aiBoxHTML()}
 function aiItemMacros(it){if(it.recipe){const r=S.core.recipes.find(x=>x.id===it.recipe);if(r){const m=portionWith(r,false);const o={};for(const k in m)o[k]=m[k]*(it.portions||1);return o}}const f=it.food&&food(it.food);if(f)return macrosFood(f,it.g);const k=it.g/100;return{kcal:(+it.kcal100||0)*k,p:(+it.p100||0)*k,c:(+it.c100||0)*k,f:(+it.f100||0)*k,fib:(+it.fib100||0)*k}}
 
@@ -1874,7 +1880,7 @@ async function aiAnalyse(){const t=($("#aitext")||{}).value||"";if(!t.trim())ret
 async function aiAddReal(){const items=(aiDraft&&aiDraft.items||[]).filter(x=>x.on&&!x.food&&!x.recipe&&!x.unknown);if(items.length){status="Looking up the products…";paintStatus();const tmp=items.map(it=>({id:null,name:it.name,per:{kcal:+it.kcal100||0,p:+it.p100||0,c:+it.c100||0,f:+it.f100||0,fib:+it.fib100||0}}));await realValues(tmp);tmp.forEach((t,i)=>{const it=items[i];it.name=t.name;it.kcal100=t.per.kcal;it.p100=t.per.p;it.c100=t.per.c;it.f100=t.per.f;it.fib100=t.per.fib});status=""}aiAdd()}
 function aiAdd(){const items=(aiDraft&&aiDraft.items||[]).filter(x=>x.on&&(x.g>0||x.recipe));if(!items.length)return;
  items.forEach(it=>{if(it.recipe)addEntry({type:"recipe",ref:it.recipe,qty:it.portions||1,sides:false});else if(it.food)addEntry({type:"food",ref:it.food,qty:r0(it.g)});else{const m=aiItemMacros(it);dayLog(logDate).food.push({label:`${it.name} · ${r0(it.g)} g`,...m,veg:0,meal:mealNow(),at:mealAt||(logDate===today()?nowHM():""),est:{name:it.name,g:it.g}})}});
- aiOpen=false;aiDraft=null;commitLog()}
+ const wasSheet=inAISheet();aiOpen=false;aiDraft=null;commitLog();if(wasSheet)aiSheetClose()}
 
 /* ---------- planned meals ↔ log ---------- */
 let logMode=null,modDraft=null,modBusy=false,modErr="";
@@ -5155,7 +5161,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.86j beta";
+const APP_VERSION="0.86k beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
