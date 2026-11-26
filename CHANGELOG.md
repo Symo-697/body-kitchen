@@ -2,6 +2,13 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.87c beta · 2026-11-27
+- More today part 2. Log food is now a sheet: Today shows a small card with Search / Describe / Barcode / Saved meals / Crous; each opens the sheet on that tab (meal, "Eaten at" time, tabs, and a running total for the chosen meal). The ＋ menu's Log food / Describe open the same sheet. Adding stays in the sheet so you can log several foods in a row.
+- Habits are four tiles: Steps (📲 sync), Sleep (☀️ check-in), Energy 1–5 as buttons, Coffee −/+ (moved from Supplements). Water left Habits: it's in the quick-log card, with a small − to undo 250 ml.
+- Supplements are tick-off chips. Challenges and Muscle recovery are compact tiles side by side; tap for the full view (challenges sheet / recovery sheet).
+- Tip of the day is one line with ↻ and × (hides it for today). Crous counter is one line.
+- "Arrange Today" opens the More today page: each section with a drag handle ⠿ (arrow keys work too), a one-line summary, ◇/◆ pin and a show tick-box. The ＋ menu is titled "A little check-in".
+
 ## 0.87b beta · 2026-11-26
 - Today › meals: foods logged together (a described meal, a saved meal, or a "Save as…" meal) are now grouped in a tinted block with one "🕐 time · Edit" for the whole group.
 - Each meal card has a "🕐 time · Edit" pill: one sheet changes the meal (Breakfast/Lunch/Dinner/Snack) and the time for every food at once, with tick-boxes to leave some out and "Keep them together as one meal" to group foods you logged one by one.
