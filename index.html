@@ -325,6 +325,46 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .note.over{border-color:var(--over)}
 .danger{color:var(--danger)!important}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* 0.86a · Today redesign (spec: B · Daily journal + A's quick-log row) */
+.dateline{position:relative;display:inline-flex;align-items:center;gap:.25rem;font-size:.82rem;font-weight:600;color:var(--muted);margin:-.6rem 0 -.5rem;min-height:44px;border-radius:var(--r-sm)}
+.dateline input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:0;padding:0}
+.dateline:focus-within{outline:2px solid var(--plum);outline-offset:2px}
+.dlrow{display:flex;align-items:center;gap:.5rem}
+.dlrow .chip{min-height:28px;padding:.1rem .7rem;font-size:.75rem;position:relative}.dlrow .chip::after{content:"";position:absolute;inset:-8px -4px}
+.wkstrip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.3rem;margin:0 0 var(--sp-4)}
+.wkd{display:flex;flex-direction:column;align-items:center;gap:.2rem;min-height:56px;padding:.45rem 0 .5rem;background:transparent;color:var(--ink);border:1px solid transparent;border-radius:var(--r-lg);transition:transform 150ms ease-out,background-color 200ms ease-out}
+.wkd .l{font-size:.7rem;font-weight:600;color:var(--muted)}
+.wkd .n{font-size:1rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.wkd .b{width:56%;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.wkd .b i{display:block;height:100%;border-radius:2px}
+.wkd.today{background:var(--plum);color:var(--bg)}
+.wkd.today .l{color:inherit;opacity:.8}
+.wkd.today .b{background:rgb(255 255 255 / 30%)}
+.wkd.sel:not(.today){border-color:var(--plum)}
+.wkd:active{transform:scale(.96)}
+.wkd:focus-visible{outline:2px solid var(--plum);outline-offset:2px}
+.quicklog{grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);overflow:hidden}
+.quicklog button{border:0;border-radius:0;box-shadow:none;background:transparent;min-height:72px;justify-content:center;transition:background-color 150ms ease-out}
+.quicklog button+button{border-left:1px solid var(--line)}
+.quicklog button:active{background:var(--plum-soft)}
+.quicklog small{font-size:.75rem;font-weight:500;color:var(--muted)}
+.plantoday{padding:.3rem .9rem;margin:-.4rem 0 1rem}
+.plrow{display:flex;align-items:center;gap:.75rem;width:100%;min-height:52px;padding:.5rem 0;background:transparent;color:var(--ink);border-radius:0;text-align:left;font-weight:600}
+.plrow+.plrow{border-top:1px solid var(--line)}
+.plrow .ic{flex:none;width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;background:var(--plum-soft);font-size:1rem}
+.plrow .tx{flex:1;min-width:0}
+.plrow .tx small{display:block;font-size:.75rem;font-weight:500;color:var(--muted)}
+.plrow .tx span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plrow .go{flex:none;color:var(--plum);font-size:1.2rem;font-weight:700}
+.plrow.pldone{opacity:.55}
+.nextup{padding:1rem}
+.nextup .lab{font-size:.8rem;color:var(--muted);font-weight:600}
+.nextup .ttl{font-size:1.1rem;font-weight:700;margin:.15rem 0 .1rem}
+.nextup .meta{font-size:.85rem;color:var(--muted)}
+.nextup .cta{display:flex;gap:.5rem;margin-top:.8rem}
+.nextup .cta button{flex:1;min-height:44px;border-radius:var(--r-md)}
+@media (prefers-reduced-motion:reduce){.wkd,.quicklog button{transition:none}.wkd:active{transform:none}}
 </style>
 </head>
 <body>
@@ -1046,7 +1086,7 @@ function render(){modeFromUrl();if(S.core&&(S.core._migHS||0)<2){migHS();S.core.
  if(A())startTicker();
  applyTheme();const gear=(tab==="today"||navOf(tab)==="progress")&&!settingsOpen?`<button class="iconbtn" aria-label="Settings" onclick="openSettings()" style="font-size:1.35rem;padding:.1rem .3rem">⚙︎</button>`:"";
  const v2=settingsOpen?vSettings():view;
- $("#app").innerHTML=liveBarHTML()+`<header class="top"><div><h1>${settingsOpen?"Settings":(NAV().find(x=>x[0]===nv)||[0,""])[1]}</h1><div class="status" id="status">${esc(statusShown())}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">${gear}${S.core.setup||S.core.profile.age?`<div class="phase-pill">${esc(ph)}</div>`:`<button class="phase-pill" style="border:0" onclick="askSetup()">＋ Set up</button>`}</div></div></header>`+subTabsHTML()+v2;
+ $("#app").innerHTML=liveBarHTML()+`<header class="top"><div>${nv==="today"&&!settingsOpen?todayDateLine():""}<h1>${settingsOpen?"Settings":(NAV().find(x=>x[0]===nv)||[0,""])[1]}</h1><div class="status" id="status">${esc(statusShown())}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">${gear}${S.core.setup||S.core.profile.age?`<div class="phase-pill">${esc(ph)}</div>`:`<button class="phase-pill" style="border:0" onclick="askSetup()">＋ Set up</button>`}</div></div></header>`+subTabsHTML()+v2;
 }
 
 /* ---------- personal setup questionnaire ---------- */
@@ -1181,20 +1221,30 @@ function drinkSheet(){closeSheet();const cur=drinkLv();openSheet(`<h3 style="mar
 function drinkSet(n){S.core.drink=S.core.drink||{};if(n)S.core.drink[today()]=n;else delete S.core.drink[today()];save("core");closeSheet();render();if(n)flash(LL(DRINK[n].a[0],DRINK[n].a[1]))}
 function drinkCard(){const n=logDate===today()?drinkLv():0;if(!n)return"";const D=DRINK[n];const col=D.v==="rest"?"#c0392b":D.v==="light"?"#b7791f":"#2f7d5b";
  return`<div class="box" style="border-left:4px solid ${col};margin-bottom:.8rem;cursor:pointer" onclick="drinkSheet()"><b>🍷 ${LL("Last night","Hier soir")} · ${n}/5 · ${LL(D.n[0],D.n[1])}</b><div class="muted" style="font-size:.88rem;margin-top:.2rem">${D.v==="rest"?"🛌 ":D.v==="light"?"🪶 ":"✅ "}${LL(D.a[0],D.a[1])}</div></div>`}
+function todayDateLine(){const d=new Date(logDate+"T12:00");const t=d.toLocaleDateString(LOC(),{weekday:"long",day:"numeric",month:"long"});
+ return`<div class="dlrow"><label class="dateline"><span>${esc(t.charAt(0).toUpperCase()+t.slice(1))}</span><span aria-hidden="true">▾</span><input type="date" value="${logDate}" aria-label="${LL("Date","Date")}" onchange="setLogDate(this.value)"></label>${logDate!==today()?`<button class="chip" onclick="setLogDate('${today()}')">${LL("Today","Aujourd'hui")}</button>`:""}</div>`}
+function todayWeekStrip(T){const fr=LANG()==="fr";const DN=fr?["L","M","M","J","V","S","D"]:["M","T","W","T","F","S","S"];const mon=mondayOf(logDate);let W=null;try{W=T&&kcalByWeek()?weekBudget(logDate,T):null}catch(e){}
+ const days=[...Array(7)].map((_,i)=>{const d=new Date(mon+"T12:00");d.setDate(d.getDate()+i);const ds=d.toLocaleDateString("sv-SE");let k=0,lg=false;
+  if(W&&W.per&&W.per[i]){k=W.per[i].t.kcal;lg=W.per[i].logged}else{const m=(S.logs[monthKey(ds)]||{}).days||{};const L=m[ds];if(L&&L.food&&L.food.length){lg=true;k=L.food.reduce((a,x)=>a+(x.kcal||0),0)}}
+  const v=T&&T.kcal?k/T.kcal:0;const col=v>1.15?"var(--over)":v>1.05?"var(--apricot)":v<.7?"var(--apricot)":"var(--sage)";
+  return`<button class="wkd ${ds===today()?"today":""} ${ds===logDate?"sel":""}" aria-label="${esc(d.toLocaleDateString(LOC(),{weekday:"long",day:"numeric",month:"long"}))}${lg&&!prefs().hideKcal?` · ${r0(k)} kcal`:""}" aria-current="${ds===logDate?"date":"false"}" onclick="setLogDate('${ds}')"><span class="l">${DN[i]}</span><span class="n">${d.getDate()}</span><span class="b">${lg&&T?`<i style="width:${Math.min(100,v*100)}%;background:${col}"></i>`:""}</span></button>`}).join("");
+ return`<div class="wkstrip" role="group" aria-label="${fr?"Semaine":"Week"}">${days}</div>`}
+function plannedRowsHTML(L){if(!hasFood())return"";let pt=[];try{pt=plannedSlots(logDate)}catch(e){}if(!pt.length)return"";const done=L.slotsDone||{};
+ return`<div class="box plantoday">${pt.map(([k,l,id])=>`<button class="plrow ${done[k]?"pldone":""}" onclick="logSlot('${k}')"><span class="ic" aria-hidden="true">${{b:"🌅",l:"☀️",d:"🌙",s:"🍎"}[k]||"🍽"}</span><span class="tx"><small>${esc(l)}</small><span>${esc(slotName(id))}</span></span><span class="go" aria-hidden="true">${done[k]?"✓":"＋"}</span></button>`).join("")}</div>`}
 function vToday(){
  const T0=targets();const L=dayLog(logDate);const BB=T0&&hasFood()&&!kcalByWeek()?burnBonus(logDate):0;const T=BB?Object.assign({},T0,{kcal:T0.kcal+BB}):T0;
  const tot={kcal:0,p:0,c:0,f:0,fib:0};L.food.forEach(x=>{for(const k in tot)tot[k]+=x[k]||0});
- let h=`<div class="row" style="margin-bottom:.8rem"><input type="date" value="${logDate}" onchange="setLogDate(this.value)" style="max-width:11rem"><button class="ghost small" onclick="setLogDate('${today()}')">Today</button></div>`+drinkCard();
+ let h=(hasFood()?todayWeekStrip(T):"")+drinkCard();
  const hr=new Date().getHours();const isToday=logDate===today();const period=!isToday?"":hr>=5&&hr<11?"morning":hr<18&&hr>=11?"afternoon":"evening";
  const SEC={};if(period==="morning")h+=`<p class="muted" style="margin:-.3rem 0 .6rem">${LL("Good morning","Bonjour")}</p>`;SEC.supps=suppToday();
- SEC.work="";if(isToday&&hasTrain()){let h="";const di=(new Date().getDay()+6)%7;const dk=schedule()[di];const done=(S.core.sessions||[]).some(x=>x.date===today());if(A())h+=`<div class="note good">🏋️ Workout ${esc(A().day)} in progress. <button class="small" onclick="tab='train';trainView='live';render()">Resume</button></div>`;{const cc=cardioFor(di);const cdone=(S.core.sessions||[]).some(x=>x.date===today()&&x.day==="CARDIO");if(cc&&!cdone&&!A())h+=`<div class="box"><div class="row" style="justify-content:space-between"><div><div class="muted" style="font-size:.8rem">Cardio today</div><b>🏃 ${esc(cc.name)} · ${fmtMin(cc.mins)}</b></div><button class="ghost" onclick="startCardio(${di})">▶ Start</button></div></div>`}
- if(A()){}else if(dk&&dk!=="rest"&&!done&&S.core.workout[dk])h+=`<div class="box"><div class="row" style="justify-content:space-between"><div><div class="muted" style="font-size:.8rem">Today's workout</div><b>Day ${dk} · ${esc(S.core.workout[dk].title)}</b><div class="muted" style="font-size:.82rem">${S.core.workout[dk].ex.length} exercises</div></div><button onclick="startWorkout('${dk}')">▶ Start</button></div></div>`;else if(!A()&&done)h+=`<div class="box"><div class="row" style="justify-content:space-between"><div><div class="muted" style="font-size:.8rem">${LL("Today's workout","Séance du jour")}</div><b>✓ ${LL("Done, well done!","Faite, bravo !")}</b></div><button class="ghost small" onclick="go('cal')">${LL("See it","Voir")}</button></div></div>`;else if(!A()&&(!dk||dk==="rest"))h+=`<div class="box"><div class="muted" style="font-size:.8rem">${LL("Today's workout","Séance du jour")}</div><b>🌿 ${LL("Rest day: recovery is part of the plan","Jour de repos : la récupération fait partie du plan")}</b></div>`;SEC.work=h}
+ SEC.work="";if(isToday&&hasTrain()){let h="";const di=(new Date().getDay()+6)%7;const dk=schedule()[di];const done=(S.core.sessions||[]).some(x=>x.date===today());if(A())h+=`<div class="box nextup"><div class="lab">Today's workout</div><div class="ttl">🏋️ Workout ${esc(A().day)} in progress.</div><div class="cta"><button onclick="tab='train';trainView='live';render()">Resume</button></div></div>`;{const cc=cardioFor(di);const cdone=(S.core.sessions||[]).some(x=>x.date===today()&&x.day==="CARDIO");if(cc&&!cdone&&!A())h+=`<div class="box nextup"><div class="lab">Cardio today</div><div class="ttl">🏃 ${esc(cc.name)} · ${fmtMin(cc.mins)}</div><div class="cta"><button class="ghost" onclick="startCardio(${di})">▶ Start</button></div></div>`}
+ if(A()){}else if(dk&&dk!=="rest"&&!done&&S.core.workout[dk])h+=`<div class="box nextup"><div class="lab">Today's workout</div><div class="ttl">Day ${dk} · ${esc(S.core.workout[dk].title)}</div><div class="meta">${S.core.workout[dk].ex.length} exercises</div><div class="cta"><button onclick="startWorkout('${dk}')">▶ Start</button></div></div>`;else if(!A()&&done)h+=`<div class="box nextup"><div class="lab">${LL("Today's workout","Séance du jour")}</div><div class="ttl">✓ ${LL("Done, well done!","Faite, bravo !")}</div><div class="cta"><button class="ghost" onclick="go('cal')">${LL("See it","Voir")}</button></div></div>`;else if(!A()&&(!dk||dk==="rest"))h+=`<div class="box nextup"><div class="lab">${LL("Today's workout","Séance du jour")}</div><div class="ttl">🌿 ${LL("Rest day: recovery is part of the plan","Jour de repos : la récupération fait partie du plan")}</div></div>`;SEC.work=h}
  if(!T)h+=`<div class="note">Fill in your age, height and weight in <b>Me</b> so your calories and macros can be calculated.</div>`;
  else{
   const left=T.kcal-tot.kcal;
   const bar=(lab,v,t,col)=>{const pc=t?Math.min(1,v/t):0,C=2*Math.PI*21;return`<div class="ring"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" class="rtrack"/><circle cx="26" cy="26" r="21" class="rfill" style="stroke:${col};stroke-dasharray:${(pc*C).toFixed(1)} ${C.toFixed(1)}"/></svg><div class="rval">${r0(v)}</div><div class="rlab">${lab}</div><div class="rsub">/ ${r0(t)} g</div></div>`};
   const hk=(S.core.prefs||{}).hideKcal;const WB=kcalByWeek()?weekBudget(logDate,T):null;SEC.meter=`<div class="box meter"><button class="iconbtn" style="float:right;margin:-.3rem -.4rem 0 0" aria-label="Calories & macros options" onclick="meterMenu()">•••</button>${WB?(hk?`<div class="muted" style="margin-bottom:.2rem">${LL("This week's balance","Bilan de la semaine")}</div>`:`<div class="left-num ${WB.todayLeft<0?"over":""}">${r0(Math.abs(WB.todayLeft))}</div><div class="muted">${WB.todayLeft<0?LL("kcal over today's share · the week can balance it","kcal au-dessus de la part du jour · la semaine peut équilibrer"):LL("kcal left today","kcal restantes aujourd'hui")}</div><div class="muted" style="font-size:.82rem;margin-top:.15rem">${LL("Week","Semaine")} ${fmtN(WB.eaten)} / ${fmtN(WB.week)}${(()=>{const n=x=>fmtN(x);const en=[`Today you can eat ≈ ${n(WB.allow)} kcal${WB.bToday?` (+${WB.bToday} from training)`:""} · eaten ${n(tot.kcal)}.`,`Week: ${n(WB.eaten)} / ${n(WB.week)} kcal · ${WB.left<0?n(-WB.left)+" over":n(WB.left)+" left"} · ${WB.daysLeft} ${WB.daysLeft>1?"days left, today included":"day left (today)"}${WB.unlogged?` · ${WB.unlogged} day(s) not logged counted at target`:""}.`,"Week bars: the line = your normal daily target."],fr=[`Aujourd'hui tu peux manger ≈ ${n(WB.allow)} kcal${WB.bToday?` (+${WB.bToday} grâce à l'entraînement)`:""} · mangé ${n(tot.kcal)}.`,`Semaine : ${n(WB.eaten)} / ${n(WB.week)} kcal · ${WB.left<0?n(-WB.left)+" en trop":n(WB.left)+" restantes"} · ${WB.daysLeft} ${WB.daysLeft>1?"jours restants, aujourd'hui compris":"jour restant (aujourd'hui)"}${WB.unlogged?` · ${WB.unlogged} jour(s) non noté(s) compté(s) à la cible`:""}.`,"Barres de la semaine : le trait = ta cible normale du jour."];return ib(en.join("<br>"),fr.join("<br>"))})()}</div>`):hk?`<div class="muted" style="margin-bottom:.2rem">Today's balance</div>`:`<div class="left-num ${left<0?"over":""}">${r0(Math.abs(left))}</div><div class="muted">${left<0?LL("kcal over","kcal en plus"):"kcal left"} of ${r0(T.kcal)} · eaten ${r0(tot.kcal)}${left<0?` · ${LL("a bit over today, that happens","un peu au-dessus aujourd'hui, ça arrive")}`:""}${BB?` · <span title="${LL("from training","grâce à l'entraînement")}">+${BB} 🏃</span>`:""}</div>`}
-  <div class="bars rings">${bar(WB?LL("Protein/day","Protéines/j"):"Protein",tot.p,T.p,"var(--p)")}${bar("Carbs",tot.c,WB?WB.c:T.c,"var(--c)")}${bar("Fat",tot.f,WB?WB.f:T.f,"var(--f)")}${bar("Fibre",tot.fib,T.fib,"#8C6D46")}</div>${WB?`<div style="margin-top:.8rem">${weekBarHTML(logDate,T)}</div>${weekMsg(WB,T)}`:""}
+  <div class="bars rings">${bar(WB?LL("Protein/day","Protéines/j"):"Protein",tot.p,T.p,"var(--p)")}${bar("Carbs",tot.c,WB?WB.c:T.c,"var(--c)")}${bar("Fat",tot.f,WB?WB.f:T.f,"var(--f)")}${bar("Fibre",tot.fib,T.fib,"#8C6D46")}</div>${WB?weekMsg(WB,T):""}
   ${T.floored?`<p class="muted" style="margin:.7rem 0 0">Calories are held at a safe minimum rather than a bigger deficit.</p>`:""}${T.recomp&&!T.safe?`<p class="muted" style="margin:.7rem 0 0">Recomposition: small deficit until body fat is lower.</p>`:""}${T.safe?`<p class="muted" style="margin:.7rem 0 0">No deficit (health answers): check with a doctor.</p>`:""}</div>`;
   const sc=dayScore(L,T,logDate===today(),logDate);
   if(sc)SEC.score=`<div class="box"><div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="muted">Nutrition score${logDate===today()?" · today so far":""}</div><div class="left-num" style="font-size:2.6rem">${sc.score}<span style="font-size:1rem;font-weight:600"> / 100</span></div></div><b style="color:${sc.score>=70?"var(--sage)":sc.score>=50?"var(--apricot)":"var(--over)"}">${scoreWord(sc.score)}</b></div>
@@ -1230,7 +1280,7 @@ function vToday(){
  <div><label>${LL("Sleep","Sommeil")} <button class="x" aria-label="Morning check-in" style="font-size:.9rem;padding:0" onclick="prefs().ciOff=false;ciOpen()">☀️</button></label><input type="text" inputmode="decimal" step="0.25" value="${esc(L.sleep)}" onchange="setDay('sleep',this.value)"></div>
  <div><label>Energy (1–5) <button class="x" aria-label="Info" style="font-size:.9rem;padding:0" onclick="stDlg('<p>'+LL('Energy at 1–2 or sleep under 6 h for a week? Your deficit may be too big.','Énergie à 1–2 ou moins de 6 h de sommeil pendant une semaine ? Ton déficit est peut-être trop grand.')+'</p>')">ⓘ</button></label><select onchange="setDay('energy',this.value)">${["","1","2","3","4","5"].map(v=>`<option ${String(L.energy)===v?"selected":""}>${v}</option>`).join("")}</select></div></div></div>`;
  const qrow=`<div class="quicklog">${hasFood()?`<button onclick="fabFood('search')"><span aria-hidden="true">🍽</span>${LL("Log food","Noter un repas")}</button>`:""}<button onclick="${isToday?"fabWater()":"addWater(250)"}"><span aria-hidden="true">💧</span>+250 ml<small>${r1((L.water||0)/1000)} / ${r1(waterGoal()/1000)} L</small></button><button onclick="fabWeight()"><span aria-hidden="true">⚖️</span>${LL("Weight","Poids")}<small>${latestWeight()?r1(latestWeight())+" kg":"—"}</small></button></div>`;
- return h+todayAssemble(SEC,period,qrow);
+ return h+todayAssemble(SEC,period,qrow+plannedRowsHTML(L));
 }
 async function setLogDate(d){if(!d)return;logDate=d;logMode=null;modDraft=null;await ensureMonth(monthKey(d));render()}
 const PRODUCE_EXTRA=["hverts","fruitsr","legwok"],NOT_VEG=["pdt","patated","ail","gingembre"];
@@ -4997,7 +5047,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.85b beta";
+const APP_VERSION="0.86a beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

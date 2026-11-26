@@ -2,6 +2,18 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86a beta · 2026-11-26
+
+Redesign, tab 1 of 4: **Today** (`claude/bk-redesign-spec.md`: B · Daily journal with A's quick-log row). Every feature kept, no new text.
+
+- **Date line** above the title ("Thursday 26 November ▾", in the app language) replaces the date field. Tapping it opens the date picker; on another day a "Today" chip brings you back.
+- **Week strip** (M T W … with the date, today filled in plum): the daily budget week. Each day has a small bar for what you ate vs your target (same colours as before) and opens that day when tapped. It replaces the bars that were inside the calories card; the week message stays in the card.
+- **Quick-log card:** Log food · +250 ml · Weight in one card with dividers, taller tap areas.
+- **This week's planned meals** for the day show as rows under it (breakfast, lunch, dinner, snack); tap ＋ logs the meal, logged ones show ✓. The Log food section keeps its planned / modify / another meal options.
+- **Workout card** (B's "Next up" layout): label, session name, exercise count, full-width ▶ Start. Same for cardio, Resume, ✓ Done and 🌿 Rest day.
+- More today, Arrange and 📌 pins unchanged. Taps ≥ 44 px, reduced motion respected, light + dark checked.
+- Tested: date line, strip, Today chip, picker, FR labels; every screen on a copy of Serena's real data; all earlier tests.
+
 ## 0.85b beta · 2026-11-26
 
 Upper and lower chest shown as two muscles (HQ decision 25 Nov, step 2 after the data in 0.85a).
