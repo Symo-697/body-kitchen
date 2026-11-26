@@ -2,6 +2,30 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.85a beta · 2026-11-26
+
+Exercise review part 1 (`claude/bk-review-apply-1.md`, Chest + Biceps + her gym, not Triceps) and **stable exercise IDs**. Biggest data migration so far.
+
+**What changes for Serena**
+- 25 renames and 13 duplicate merges from the review: one name per exercise everywhere (history, plan, last week's plan, workout in progress, starting weights, rest times, weight steps, dumbbell counts, her own exercises). Old names still find the exercise in search.
+- 137 reviewed exercises get her reviewed muscles, machine / equipment / handle, notes; the exercise page shows them with "At your gym" / "Not at your gym". The 15 ✕ exercises stay in the library but are never offered as swaps.
+- Library grouped by the 14 areas (toggle "Areas" / "Zones").
+- Reverse-Grip Biceps Curl is not merged (the library one is a barbell wrist curl).
+
+**Safety**
+- Before the one-time migration the app saves the untouched data to IndexedDB (`backup-pre-0.85a`); Settings › Data › "Backup from before 0.85a" downloads it.
+- Runs once (flag `_exCat`, catalog `EXCAT_V=1`); what it changed is logged in `_exMig`. Importing an old backup goes through the same migration. Cloud loads too.
+- When two names are merged and the same session (same `sid`) exists under both, sets are joined; an exact duplicate copy is kept once.
+
+**Tested** on a copy of Serena's real backup (26 Nov): 16 renames / merges, 65 sessions kept, sets / reps / volume unchanged except one double-imported session (1 Aug 2025, Lever Shoulder Press 2 × 10 @ 60 kg, stored under two names) now counted once; pre-migration backup identical to the original key by key; second start changes nothing; old backup imports; every screen renders without errors. Same checks on a synthetic tricky backup (trailing spaces, case-only duplicates, conflicting rest times).
+
+**Architecture (for every chat)**
+- Built-ins get `x-<slug>` IDs, her own exercises `u-<slug>-<time>`; registry `S.core.exIds`; plan and live entries carry `.id`. Data stays keyed by the readable label, so older versions can still read it.
+- `EX_ALIAS` (old → new) + `canonEx()`; `exResolve()` re-keys on every load and every `save("core")`.
+- **Never edit a library label in place:** add old → new to `EX_ALIAS` and bump `EXCAT_V`.
+- Chest heads stored as `pec_clavicular` / `pec_sternal` on reviewed exercises, rolled up to `pectoralis_major` by `musRoll` (nothing visible changes yet); `musclesRaw()` returns the heads. Her own muscle edits after 0.85a (`customEx[n].at`) win over the review.
+- 14 areas via `exArea()`; `atGym()` uses `GYM_GEAR`.
+
 ## 0.84d beta · 2026-11-26
 
 Spacing fix (Serena): in a live workout, the progress bar under Focus / Finish sat right on top of the Duration · Volume · Sets card.
