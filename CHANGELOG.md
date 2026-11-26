@@ -2,6 +2,18 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.85b beta · 2026-11-26
+
+Upper and lower chest shown as two muscles (HQ decision 25 Nov, step 2 after the data in 0.85a).
+
+- **Muscles:** `pectoralis_major` is replaced by `pec_clavicular` "Upper chest" / `pec_sternal` "Lower chest" (FR "Haut / Bas des pectoraux"), both in the Chest group. Exercises that only say "pectoralis_major" (not reviewed yet, your own older exercises, old backups) count as both (`expandM`).
+- **Body maps** (exercise page, Stats, workout summary, editor, body-sculpting areas): each pec is split at a line into an upper and a lower part, each coloured on its own. Done at start-up by clipping the existing shapes (`splitPec`), no new artwork.
+- **Exercise page:** muscle lists name Upper chest / Lower chest (never collapsed into "Chest"); the "target:" line names the head the exercise mainly works.
+- **Muscle recovery:** Push now has Upper chest and Lower chest rows, each with its own %, detail sheet and soreness buttons (today's "Chest" soreness applies to both). An incline press now tires the upper chest more than the lower. The overall % can move by about 1 point because chest counts as two rows.
+- **Stats:** sets per muscle count the two heads separately; the radar and target zones stay per group (Chest).
+- Edit an exercise: the Chest chips are Upper chest / Lower chest.
+- No data migration. Tested: every screen on a copy of Serena's real data (no errors, totals unchanged), recovery with an incline press vs a bench press, all earlier tests.
+
 ## 0.85a beta · 2026-11-26
 
 Exercise review part 1 (`claude/bk-review-apply-1.md`, Chest + Biceps + her gym, not Triceps) and **stable exercise IDs**. Biggest data migration so far.
