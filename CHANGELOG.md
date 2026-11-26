@@ -2,6 +2,16 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86c beta · 2026-11-26
+
+Kitchen follow-up (Serena): no ingredients list, Open Food Facts in the recipe form, receipts filed by shop.
+
+- **My ingredients removed from Kitchen.** Home stock is the pantry; its bars still move when you plan meals. The ingredient data stays (recipes, prices and stock use it); the list, its search and "＋ New ingredient" are no longer shown.
+- **New recipe:** the Open Food Facts search / 📷 barcode scan now sits inside the recipe form, under "+ Ingredient". A product you pick is added to the recipe. The separate "Add a supermarket product" box below the recipes is gone (Log food keeps its own barcode search).
+- **Receipts:** the receipt sheet shows your shops as chips under "Shop" (the one read on the receipt is preselected; you can still type a new one). Every ticked item is now filed under that shop, even if it was filed under another one before, so the grocery list's shop groups follow where you last bought each thing.
+- Shops note updated (EN + FR) so it no longer points to My ingredients.
+- Tested: Kitchen page, recipe form + product search, receipt shop chips and filing; every screen on a copy of Serena's real data; all earlier tests.
+
 ## 0.86b beta · 2026-11-26
 
 Redesign, tab 2 of 4: **Kitchen** (`claude/bk-redesign-spec.md`). Every feature kept, no new text.
