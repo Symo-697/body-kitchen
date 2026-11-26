@@ -2,6 +2,13 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86i beta · 2026-11-26
+
+Focus mode: pre- and post-workout stretches (Serena).
+
+- Focus now shows the same 🧘🏾‍♀️ Pre-workout stretches row (done / total · minutes) above "Exercise x / y" and the Post-workout stretches row under the card, like the list view. Tapping opens the stretch player as before.
+- Tested: rows present with the right counts in Focus, all earlier tests.
+
 ## 0.86h beta · 2026-11-26
 
 History correction (Serena): her Lever Seated Hip Abduction sets before 26 Oct were position sets saved as normal sets.

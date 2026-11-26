@@ -3812,7 +3812,7 @@ function vLive(){const a=A();if(!a){trainView="plan";return vTrain()}const st=li
  <div class="muted" style="text-align:center;margin-top:.4rem;font-size:.85rem">${a.day==="CARDIO"?"Cardio session":a.day==="FREE"?"Free workout":`Day ${esc(a.day)} · ${esc((S.core.workout[a.day]||{}).title||"")}`} · tap for live stats</div></div>`;
  if(a.notes)h+=`<div class="note" style="white-space:pre-wrap">📝 ${esc(a.notes)}</div>`;
  const ps=livePhotoSrc(a.photo);if(ps)h+=`<img src="${esc(ps)}" alt="Workout photo" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:.8rem">`;
- if(prefs().liveFocus&&a.ex.length)return h+focusHTML(a)+`<div style="height:7rem" aria-hidden="true"></div>`;
+ if(prefs().liveFocus&&a.ex.length)return h+strRowHTML("pre",a.day,true)+focusHTML(a)+strRowHTML("post",a.day,true)+`<div style="height:7rem" aria-hidden="true"></div>`;
  h+=strRowHTML("pre",a.day,true);
  a.ex.forEach((e,i)=>{const done=e.sets.filter(s=>s.done).length;const f=liveFields(e.name);const g=exMode(e.name)!=="w"&&exMode(e.name)!=="wt"&&exMode(e.name)!=="c"?"2.4rem minmax(0,1fr) minmax(0,1.4fr) 2.6rem":"2.4rem minmax(0,1fr) minmax(0,1.15fr) minmax(0,1.15fr) 2.6rem";
   const si=ssInfo(a.ex,i);h+=`<div class="box livecard" data-li="${i}" style="${si?`border-left:5px solid ${si.col};${si.last?"":"margin-bottom:.35rem;"}`:""}">${ssTag(a.ex,i)}<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div style="flex:1;min-width:0"><button class="exname" onclick="showEx(${esc(JSON.stringify(e.name))})">${esc(e.name)}</button>${impBadge(e.name,(S.core.workout[A().day]||{ex:[]}).ex.find(x=>x.name===e.name)||e)}
@@ -5146,7 +5146,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.86h beta";
+const APP_VERSION="0.86i beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
