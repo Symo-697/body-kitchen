@@ -2,6 +2,12 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.84d beta · 2026-11-26
+
+Spacing fix (Serena): in a live workout, the progress bar under Focus / Finish sat right on top of the Duration · Volume · Sets card.
+
+- The bar now has the same gap above and below it (`--sp-3`): `.liveprog` sits at `bottom: var(--sp-3)` and the sticky header's bottom padding is `calc(var(--sp-3) * 2 + 4px)`. No logic changes.
+
 ## 0.84c beta · 2026-11-26
 
 Rest timer after the last set (Serena's answer to the 0.84b question).
