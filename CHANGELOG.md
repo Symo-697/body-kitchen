@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.87e beta · 2026-11-27
+- Supplements: the tiles are centred in their card (up to 4 per row, same size), instead of sitting on the left.
+
 ## 0.87d beta · 2026-11-27
 - Supplements back to tiles (as before 0.87c), smaller: 4 per row.
 - Water − button in the quick-log card fixed: it stretched over the whole cell; now a small round − in the corner.
