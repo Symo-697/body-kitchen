@@ -429,6 +429,13 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .fflds.poslab{margin-top:.25rem}
 .posnames{display:flex;gap:3px}
 .posnames span{flex:1;text-align:center;font-size:.72rem;font-weight:600;color:var(--muted);text-transform:capitalize}
+
+/* 0.86j · Progress › Stats: tiles row + chips */
+.ptiles{gap:.6rem;margin:0 -1rem .9rem;padding:.1rem 1rem .3rem;scroll-padding:0 1rem;scroll-snap-type:x proximity}
+.ptile{flex:0 0 auto;min-width:8.6rem;max-width:11rem;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);padding:.75rem .85rem;scroll-snap-align:start;display:flex;flex-direction:column;gap:.1rem}
+.ptile .muted:first-child{font-size:.78rem;font-weight:600}
+.ptile b{font-size:1.2rem;font-variant-numeric:tabular-nums}
+.mechips{margin:0 0 .9rem}
 </style>
 </head>
 <body>
@@ -5030,21 +5037,23 @@ function saveSession(){const day=S.core.workout[gymDay];let any=false;const sid=
  if(!any){toast("Enter at least one set.");return}S.core.sessions=(S.core.sessions||[]).concat([{id:sid,date:sdate,day:gymDay,dur:sdur}]).sort((a,b)=>a.date.localeCompare(b.date)).slice(-400);save("core");render();toast("Workout saved.")}
 
 /* me */
+function meShow(c){const k=prefs().meChip||"all";return k==="all"||k===c}
+function meChipsHTML(){const k=prefs().meChip||"all";return`<div class="hscroll mechips" role="tablist">${[["all",LL("Overview","Aperçu")],["nutrition",LL("Nutrition","Nutrition")],["training",LL("Training","Entraînement")],["body",LL("Body","Corps")]].map(([v,l])=>`<button role="tab" aria-selected="${k===v}" class="chip ${k===v?"on":""}" onclick="prefs().meChip='${v}';save('core');render()">${l}</button>`).join("")}</div>`}
 function vMe(){
  if(meView)return measPage();
  if(statsOpen)return vStats();
  const p=S.core.profile;const T=targets();const ci=checkin();const I=ci.I;
  const wkSessions=(S.core.sessions||[]).filter(x=>x.date>daysAgo(7)).length;
  const wChange=ci.cur&&avgWeight(14,7)?ci.cur-avgWeight(14,7):null;
- const cell=(lab,val,sub="")=>`<div><div class="muted">${lab}</div><b>${val}</b>${sub?`<div class="muted" style="font-size:.8rem">${sub}</div>`:""}</div>`;
- const summary=`<div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">This week</h2><button class="ghost small" onclick="openStats()">📊 Statistics ›</button></div><div style="height:.6rem"></div><div class="box"><div class="grid3">
+ const cell=(lab,val,sub="")=>`<div class="ptile"><div class="muted">${lab}</div><b>${val}</b>${sub?`<div class="muted" style="font-size:.78rem">${sub}</div>`:""}</div>`;
+ const summary=`<div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">This week</h2><button class="ghost small" onclick="openStats()">📊 Statistics ›</button></div><div style="height:.6rem"></div><div class="hscroll ptiles">
  ${cell("Food logged",I.days+" / 7 days")}${cell("Avg calories",I.kcal!=null?r0(I.kcal):"—",T?"target "+r0(T.kcal):"")}${cell("Avg protein",I.p!=null?r0(I.p)+" g":"—",T?"target "+r0(T.p)+" g":"")}
  ${cell("Avg steps",I.steps!=null?r0(I.steps).toLocaleString():"—",T?"goal "+T.steps.toLocaleString():"")}${cell("Avg sleep",I.sleep!=null?r1(I.sleep)+" h":"—",LL("target","cible")+" "+sleepTarget()+" h")}${cell("Avg energy",I.energy!=null?r1(I.energy)+" / 5":"—")}
- ${cell("Nutrition score",(()=>{const sc=[];for(let i=0;i<7;i++){const d=daysAgo(i);const x=dayScore((S.logs[monthKey(d)]||{days:{}}).days?.[d],T,false,d);if(x)sc.push(x.score)}return sc.length?r0(sc.reduce((a,b)=>a+b,0)/sc.length)+" / 100":"—"})(),"7-day average")}${cell("Supplements",(()=>{let due=0,tk=0;for(let i=0;i<7;i++){const d=daysAgo(i);const L=(S.logs[monthKey(d)]||{days:{}}).days?.[d]||{};suppsDue(d).filter(x=>x.due).forEach(x=>{due++;if((L.supps||{})[x.s.id])tk++})}return due?`${tk}/${due}`:"—"})(),"doses taken")}${(()=>{const fs=(S.core.fasts||[]).filter(x=>x.end&&new Date(x.end).toLocaleDateString("sv-SE")>=mondayOf(today()));if(!fastOn()&&!fs.length)return"";const met=fs.filter(x=>x.met??((x.end-x.start)/36e5>=(x.goal||16))).length;const st=fastStreak();return cell(LL("Fasts","Jeûnes"),`${fs.length} · ${met} ✓`,st?`🔥 ${st} ${LL("goals met in a row","objectifs atteints d'affilée")}`:LL("goal met / done","objectif atteint / faits"))})()}${cell("Workouts",wkSessions)}${cell("Weight change",wChange!=null?(wChange>0?"+":"")+r1(wChange)+" kg":"—","vs last week's average")}</div>${T&&hasFood()&&kcalByWeek()?`<div style="margin-top:.9rem">${weekBarHTML(today(),T,{head:1})}</div>`:""}</div>`;
+ ${cell("Nutrition score",(()=>{const sc=[];for(let i=0;i<7;i++){const d=daysAgo(i);const x=dayScore((S.logs[monthKey(d)]||{days:{}}).days?.[d],T,false,d);if(x)sc.push(x.score)}return sc.length?r0(sc.reduce((a,b)=>a+b,0)/sc.length)+" / 100":"—"})(),"7-day average")}${cell("Supplements",(()=>{let due=0,tk=0;for(let i=0;i<7;i++){const d=daysAgo(i);const L=(S.logs[monthKey(d)]||{days:{}}).days?.[d]||{};suppsDue(d).filter(x=>x.due).forEach(x=>{due++;if((L.supps||{})[x.s.id])tk++})}return due?`${tk}/${due}`:"—"})(),"doses taken")}${(()=>{const fs=(S.core.fasts||[]).filter(x=>x.end&&new Date(x.end).toLocaleDateString("sv-SE")>=mondayOf(today()));if(!fastOn()&&!fs.length)return"";const met=fs.filter(x=>x.met??((x.end-x.start)/36e5>=(x.goal||16))).length;const st=fastStreak();return cell(LL("Fasts","Jeûnes"),`${fs.length} · ${met} ✓`,st?`🔥 ${st} ${LL("goals met in a row","objectifs atteints d'affilée")}`:LL("goal met / done","objectif atteint / faits"))})()}${cell("Workouts",wkSessions)}${cell("Weight change",wChange!=null?(wChange>0?"+":"")+r1(wChange)+" kg":"—","vs last week's average")}</div>${meChipsHTML()}${meShow("nutrition")&&T&&hasFood()&&kcalByWeek()?`<div class="box">${weekBarHTML(today(),T,{head:1})}</div>`:""}`;
  const f=(k,lab,type="number",extra="")=>`<div><label>${lab}</label><input type="${type}" inputmode="decimal" value="${esc(p[k])}" onchange="setProf('${k}',this.value)" ${extra}></div>`;
- let h=(!S.core.setup?`<div class="note" style="margin-top:0"><b>Personal setup</b> <button class="small" style="margin-left:.3rem" onclick="startSetup()">Start</button></div>`:"")+summary+`<div class="box"><div class="row" style="justify-content:space-between"><div><b>My body & profile</b><div class="muted" style="font-size:.85rem">${p.age?`${p.age} y · ${p.height} cm · ${r1(latestWeight()||p.weight)} kg`:"Not filled in yet"}${T?` · target ${r0(T.kcal)} kcal`:""}</div></div><button class="ghost small" onclick="openSettings()">Edit in ⚙︎</button></div></div>`;
+ let h=(!S.core.setup?`<div class="note" style="margin-top:0"><b>Personal setup</b> <button class="small" style="margin-left:.3rem" onclick="startSetup()">Start</button></div>`:"")+summary+(meShow("body")?`<div class="box"><div class="row" style="justify-content:space-between"><div><b>My body & profile</b><div class="muted" style="font-size:.85rem">${p.age?`${p.age} y · ${p.height} cm · ${r1(latestWeight()||p.weight)} kg`:"Not filled in yet"}${T?` · target ${r0(T.kcal)} kcal`:""}</div></div><button class="ghost small" onclick="openSettings()">Edit in ⚙︎</button></div></div>`:"");
  // phase
- {const pn=S.core.phase.name;const pc=PHASE_COL[pn]||"var(--plum)";
+ if(meShow("training")){const pn=S.core.phase.name;const pc=PHASE_COL[pn]||"var(--plum)";
  h+=`<h2>Phase</h2><div class="box"><div class="row" style="gap:.8rem;flex-wrap:nowrap;align-items:center"><div class="wkth" style="background:${pc};color:#fff;border:0;width:56px;height:56px;font-size:1.5rem">${({cut:"🔥",minicut:"✂️",recomp:"⚖️",maintain:"🟰",build:"💪",gain:"📈"})[pn]||"•"}</div><div style="flex:1;min-width:0"><div class="wkn" style="font-size:1.15rem">${PHASES[pn].label} <button class="x" aria-label="Info" style="font-size:.95rem;padding:0 .2rem" onclick="stDlg('<p>'+${esc(JSON.stringify(PHASES[pn].info))}+'</p>')">ⓘ</button></div><div class="muted" style="font-size:.82rem">${LL("Week","Semaine")} ${ci.wk+1} · ${LL("since","depuis le")} ${new Date(S.core.phase.start+"T12:00").toLocaleDateString(LOC(),{day:"numeric",month:"short"})}</div></div></div>
  <div class="hscroll" style="margin-top:.8rem">${PHASE_ORDER.map(k=>`<button class="chip ${pn===k?"on":""}" onclick="setPhase('${k}')">${PHASES[k].label}</button>`).join("")}</div>
  <div class="stgrid" style="margin-top:.8rem;grid-template-columns:1fr 1fr 1fr">
@@ -5054,20 +5063,20 @@ function vMe(){
  ${pn==="build"?`<label class="check" style="margin-top:.7rem;color:inherit"><input type="checkbox" ${S.core.phase.miniCut?"checked":""} onchange="S.core.phase.miniCut=this.checked;save('core');render()">Mini-cut</label>`:""}
  ${pn!=="gain"?`<label class="check" style="margin-top:.7rem;color:inherit"><input type="checkbox" ${prefs().hiProt?"checked":""} onchange="prefs().hiProt=this.checked;save('core');render()">${LL("High protein","Riche en protéines")} <button class="x" aria-label="Info" style="font-size:.9rem;padding:0 .2rem" onclick="event.preventDefault();stDlg('<p>'+LL('2 g of protein per kg of body weight, max 220 g.','2 g de protéines par kg de poids, max 220 g.')+'</p>')">ⓘ</button></label>`:""}</div>`}
  // check-in
- h+=`<h2>Weekly check-in</h2><div class="box"><div class="grid3"><div><div class="muted">7-day average</div><b>${ci.cur?r1(ci.cur)+" kg":"—"}</b></div><div><div class="muted">BMI <button class="x" style="font-size:.8rem;color:var(--plum)" aria-label="About BMI" onclick="aboutBMI()">ⓘ</button></div><b>${ci.B?r1(ci.B):"—"}</b></div><div><div class="muted">Waist ÷ height</div><b>${ci.whtr?r1(ci.whtr*100)+"%":"—"}</b></div></div>
+ if(meShow("nutrition")||meShow("body"))h+=`<h2>Weekly check-in</h2><div class="box"><div class="grid3"><div><div class="muted">7-day average</div><b>${ci.cur?r1(ci.cur)+" kg":"—"}</b></div><div><div class="muted">BMI <button class="x" style="font-size:.8rem;color:var(--plum)" aria-label="About BMI" onclick="aboutBMI()">ⓘ</button></div><b>${ci.B?r1(ci.B):"—"}</b></div><div><div class="muted">Waist ÷ height</div><b>${ci.whtr?r1(ci.whtr*100)+"%":"—"}</b></div></div>
  ${ci.out.length?`<div style="margin-top:.6rem">${ci.out.map(([k,t])=>`<div class="row" style="gap:.5rem;flex-wrap:nowrap;align-items:flex-start;padding:.35rem 0;font-size:.88rem"><span>${k==="warn"?"⚠️":k==="good"?"✅":"💡"}</span><span>${t}</span></div>`).join("")}</div>`:""}
  </div>`;
  // measurements
- h+=scansSection();h+=measSection("Body measurements","body")+measSection("Other measurements","other")+measSection("Custom measurements","custom");
+ if(meShow("body")){h+=scansSection();h+=measSection("Body measurements","body")+measSection("Other measurements","other")+measSection("Custom measurements","custom");
  // photos
- h+=phSection();
- {const ad=adaptiveTDEE();const man=(S.core.profile.manual||{}).kcal;
+ h+=phSection()}
+ if(meShow("body")){const ad=adaptiveTDEE();const man=(S.core.profile.manual||{}).kcal;
  h+=`<h2>${LL("Health","Santé")}</h2><div class="box" style="padding:.3rem .9rem">
  ${sheetBtn("🩺",conds().length?conds().map(c=>esc((COND[c]||{l:c}).l.split(" (")[0])).join(" · "):LL("No condition noted","Aucune condition notée"),"startSetup();setupStep=6;render()")}
  ${conds().filter(c=>COND_TIPS[c]).map(c=>`<div class="note">${esc(COND_TIPS[c])}</div>`).join("")}
  ${sheetBtn("🔥",LL("Maintenance","Maintenance")+": "+(ad?r0(ad.est).toLocaleString(LOC())+" kcal":LL("learning…","en apprentissage…")),"maintInfo()")}
  ${sheetBtn("👩‍⚕️",LL("Doctor-guided targets","Objectifs du médecin")+(man?` · ${man} kcal`:""),"docSheet()")}</div>`}
- h+=`<h2>Supplements & medication</h2><div class="box"><p class="muted" style="margin:0 0 .6rem">${(S.core.supps||[]).length} supplement${(S.core.supps||[]).length===1?"":"s"} · ${(S.core.meds||[]).length} medication${(S.core.meds||[]).length===1?"":"s"}${interactions().some(x=>x.sev==="warn")?" · <b style='color:var(--warn)'>check interactions</b>":""}</p><button class="ghost" onclick="meView={page:'supps'};render();window.scrollTo(0,0)">Manage</button></div>`;
+ if(meShow("nutrition"))h+=`<h2>Supplements & medication</h2><div class="box"><p class="muted" style="margin:0 0 .6rem">${(S.core.supps||[]).length} supplement${(S.core.supps||[]).length===1?"":"s"} · ${(S.core.meds||[]).length} medication${(S.core.meds||[]).length===1?"":"s"}${interactions().some(x=>x.sev==="warn")?" · <b style='color:var(--warn)'>check interactions</b>":""}</p><button class="ghost" onclick="meView={page:'supps'};render();window.scrollTo(0,0)">Manage</button></div>`;
  return h;
 }
 async function exportData(){status="Preparing backup…";paintStatus();
@@ -5146,7 +5155,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.86i beta";
+const APP_VERSION="0.86j beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

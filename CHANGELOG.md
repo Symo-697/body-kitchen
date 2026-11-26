@@ -2,6 +2,16 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86j beta · 2026-11-26
+
+Redesign, tab 4 of 4: **Progress › Stats** (A's tiles row + B's chips).
+
+- **Tiles row:** the This week stats (Food logged, Avg calories, Avg protein, Avg steps, Avg sleep, Avg energy, Nutrition score, Supplements, Fasts when used, Workouts, Weight change) are now one card each in a sideways row with edge fades, instead of one big grid. 📊 Statistics › stays next to the title.
+- **Chips Overview / Nutrition / Training / Body** (FR Aperçu / Nutrition / Entraînement / Corps, remembered) filter the sections below: Nutrition = week calorie bars, Weekly check-in, Supplements & medication; Training = Phase; Body = My body & profile, Weekly check-in, Body composition, measurements, photos, Health. Overview shows everything as before.
+- The week calorie bars are their own card under the chips.
+- Calendar unchanged (it already has the month grid, markers and ⓘ Legend); its selected-day panel comes with the detail screens.
+- Tested: tiles, every chip's sections, every screen on a copy of Serena's real data, all earlier tests.
+
 ## 0.86i beta · 2026-11-26
 
 Focus mode: pre- and post-workout stretches (Serena).
