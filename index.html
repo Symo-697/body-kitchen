@@ -3618,7 +3618,7 @@ function exIdFor(n){const C=S.core;C.exIds=C.exIds||{};if(C.exIds[n])return C.ex
 const exPlanLists=C=>{const out=[];Object.values(C.workout||{}).forEach(d=>d&&d.ex&&out.push(d));const pw=C.prevWorkout&&C.prevWorkout.workout;if(pw)Object.values(pw).forEach(d=>d&&d.ex&&out.push(d));return out};
 function exAllLabels(){const C=S.core;const s=new Set(Object.keys(C.lifts||{}));exPlanLists(C).forEach(d=>d.ex.forEach(e=>e&&e.name&&s.add(e.name)));if(C.active&&C.active.ex)C.active.ex.forEach(e=>e&&e.name&&s.add(e.name));EXMAPS.forEach(k=>{const o=C[k];if(o&&typeof o==="object")Object.keys(o).forEach(n=>s.add(n))});return s}
 function exRekey(a,b){const C=S.core;if(a===b)return;const L=C.lifts=C.lifts||{};
- if(L[a]){if(L[b]){const B=L[b];L[a].forEach(en=>{const m=en.sid&&B.find(x=>x.sid===en.sid);if(m)m.sets=[...(m.sets||[]),...(en.sets||[])];else B.push(en)});B.sort((x,y)=>String(x.date).localeCompare(String(y.date)))}else L[b]=L[a];delete L[a]}
+ if(L[a]){if(L[b]){const B=L[b];L[a].forEach(en=>{const m=en.sid&&B.find(x=>x.sid===en.sid);if(m){if(JSON.stringify(m.sets||[])!==JSON.stringify(en.sets||[]))m.sets=[...(m.sets||[]),...(en.sets||[])]}else B.push(en)});B.sort((x,y)=>String(x.date).localeCompare(String(y.date)))}else L[b]=L[a];delete L[a]}
  exPlanLists(C).forEach(d=>{const had=d.ex.some(x=>x.name===b);d.ex=d.ex.filter(x=>!(had&&x.name===a));d.ex.forEach(x=>{if(x.name===a)x.name=b})});
  if(C.active&&C.active.ex)C.active.ex.forEach(x=>{if(x.name===a)x.name=b});
  EXMAPS.forEach(k=>{const o=C[k];if(o&&typeof o==="object"&&o[a]!==undefined){if(o[b]===undefined)o[b]=o[a];delete o[a]}});
