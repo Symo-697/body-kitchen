@@ -2,6 +2,23 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86b beta · 2026-11-26
+
+Redesign, tab 2 of 4: **Kitchen** (`claude/bk-redesign-spec.md`). Every feature kept, no new text.
+
+**Recipes** is now one page instead of the Discover / My recipes chips:
+- "✨ Describe your meal" row on top (opens the describe box on Today, as the ＋ menu does).
+- Meal and cuisine filter chips, applied to both rows below and to the full list.
+- **My recipes** as a sideways carousel (newest first, 12 cards, edge fade): picture, kcal · time, and P · C · F. "See all (n)" opens the full list with search and the same filters; ••• keeps Import / Export.
+- **Discover** as a second carousel (best matches first); "See all (n)" opens the full Discover page as before (search, grid), with "‹ Recipes" to come back.
+- Plan my week (with ⓘ and the week preview), New recipe, My ingredients, shops and Open Food Facts follow below, unchanged.
+
+**Plan & groceries:**
+- Plan the week is a 7-day strip (date, a dot per planned meal, 🍳 on your cook days from Meal prep) and the chosen day's Breakfast / Lunch / Dinner / Snack below, each with the same picker as before (★ suggestions, Crous, ＋ Add recipes…). Opens on today when the plan is this week's.
+- Portions to cook, Meal prep, Crous, grocery list (by shop with totals when you have more than one shop, then by aisle), Home stock and Leftovers unchanged.
+
+Tested: carousels, filters, See all list + filters, Discover page and back, Plan my week, recipe sheet, planner day switch + slot change, describe row; every screen on a copy of Serena's real data; all earlier tests.
+
 ## 0.86a beta · 2026-11-26
 
 Redesign, tab 1 of 4: **Today** (`claude/bk-redesign-spec.md`: B · Daily journal with A's quick-log row). Every feature kept, no new text.

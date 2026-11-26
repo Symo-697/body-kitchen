@@ -365,6 +365,33 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .nextup .cta{display:flex;gap:.5rem;margin-top:.8rem}
 .nextup .cta button{flex:1;min-height:44px;border-radius:var(--r-md)}
 @media (prefers-reduced-motion:reduce){.wkd,.quicklog button{transition:none}.wkd:active{transform:none}}
+
+/* 0.86b · Kitchen redesign (B, recipes as carousels, week planner strip) */
+.kdesc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:.7rem .9rem;margin:0 0 .8rem;min-height:52px;box-shadow:var(--shadow-1)}
+.ksec{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:1.3rem 0 .55rem}
+.ksec h2{margin:0}
+.ksec .seeall{background:transparent;color:var(--plum);padding:.5rem .3rem;min-height:44px;font-size:.9rem}
+.ksec .iconbtn{min-height:44px;min-width:44px}
+.rcar{gap:.7rem;scroll-snap-type:x mandatory;padding:.1rem 0 .4rem;margin:0 -1rem;padding-left:1rem;padding-right:1rem;scroll-padding:0 1rem}
+.rcar .rtile{flex:0 0 44%;scroll-snap-align:start}
+.rcar .rimg{margin-bottom:.4rem}
+.rcar b{font-size:.95rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rcar .mac{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.kfilt{margin:0 0 .45rem}
+.pstrip{margin:0 0 .6rem}
+.wkd.on{background:var(--plum);color:var(--bg)}
+.wkd.on .l{color:inherit;opacity:.8}
+.wkd .pdots{display:flex;gap:2px;height:5px}
+.wkd .pdots i{width:5px;height:5px;border-radius:50%;background:var(--line)}
+.wkd .pdots i.f{background:var(--plum)}
+.wkd.on .pdots i{background:rgb(255 255 255 / 35%)}
+.wkd.on .pdots i.f{background:var(--bg)}
+.wkd .ck{font-size:.65rem;line-height:1;height:.7rem}
+.pslots{padding:.3rem .9rem}
+.pslot{display:flex;align-items:center;gap:.7rem;min-height:56px;padding:.45rem 0}
+.pslot+.pslot{border-top:1px solid var(--line)}
+.pslot .lab{flex:0 0 5.6rem;font-size:.85rem;font-weight:600;color:var(--muted)}
+.pslot select{flex:1;min-width:0;min-height:44px;padding:.45rem .6rem}
 </style>
 </head>
 <body>
@@ -1520,12 +1547,27 @@ function setDay(k,v){dayLog(logDate)[k]=v;save(monthKey(logDate))}
 
 /* kitchen */
 let editing=null;
+function kFiltOK(r){const m=r.meal||"";const cui=r.cui||(BANK.find(x=>x.id===r.id)||{}).cui||"";return(discMeal==="all"||!m||m.includes(discMeal)||(discMeal==="ld"&&(m.includes("l")||m.includes("d"))))&&(discCui==="all"||cui===discCui)}
+function kFiltChips(after){return`<div class="hscroll kfilt">${[["all",LL("All","Tout")],["b",LL("Breakfast","Petit-déj")],["ld",LL("Lunch & dinner","Déj & dîner")],["s",LL("Snacks","Collations")]].map(([k,l])=>`<button class="chip ${discMeal===k?"on":""}" onclick="discMeal='${k}';${after}">${l}</button>`).join("")}</div><div class="hscroll kfilt" style="margin-bottom:.8rem">${[["all","🌍 "+LL("All","Toutes")],...SO_CUIS.map(([k,l])=>[k,CUI_EMO[k]+" "+l])].map(([k,l])=>`<button class="chip ${discCui===k?"on":""}" onclick="discCui='${k}';${after}">${l}</button>`).join("")}</div>`}
+function recCard(r,m,mine,on){const hk=(S.core.prefs||{}).hideKcal;return`<div class="rtile" role="button" tabindex="0" onclick="${on}" onkeydown="if(event.key==='Enter')this.click()"><div class="rimg" style="background:${CUI_BG[r.cui]||CUI_BG[""]}"><span style="${emoSz(recEmo(r))}">${recEmo(r)}</span>${mine?`<i class="radded">✓</i>`:""}</div><b>${esc(r.name)}</b><span class="muted" style="font-size:.8rem">${hk?"":r0(m.kcal)+" kcal"}${r.time?`${hk?"":" · "}${r.time}′`:""}</span><span class="mac">${r0(m.p)} g P · ${r0(m.c)} g C · ${r0(m.f)} g F</span></div>`}
 function vKitchen(){migrateShops();
- const kt=`<div class="chips" style="margin-bottom:.9rem">${[["discover","Discover"],["mine","My recipes"]].map(([k,l])=>`<button class="chip ${kView===k?"on":""}" onclick="kView='${k}';render()">${l}</button>`).join("")}</div>`;
- if(kView==="discover")return kt+vDiscover();
- let h=kt+kitchenForm();
- h+=`<div class="libsearch"><span aria-hidden="true">🔍</span><input type="search" placeholder="${LL("Search my recipes","Chercher dans mes recettes")}" value="${esc(recipeQuery)}" oninput="recipeQuery=this.value;paintRecipes()"><button class="iconbtn" aria-label="Recipe options" onclick="stDlg('<label class=&quot;sheetbtn&quot; style=&quot;cursor:pointer&quot;><span class=&quot;sheeticon&quot;>⬆</span>'+LL('Import recipe file','Importer un fichier de recettes')+'<input type=&quot;file&quot; accept=&quot;.json,application/json&quot; onchange=&quot;closeStDlg();importRecipes(this)&quot; style=&quot;display:none&quot;></label>'+sheetBtn('⬇',LL('Export my recipes','Exporter mes recettes'),'closeStDlg();exportRecipes()'))">•••</button></div><div id="rlist">${recipeCards(undefined,12)}</div>${S.core.recipes.length>12?`<button class="ghost" style="width:100%;margin:.8rem 0" onclick="openAllRecipes()">${LL("See all","Tout voir")} (${S.core.recipes.length})</button>`:""}<div style="height:.8rem"></div>`;
+ if(kView==="discover")return`<button class="chip" style="margin-bottom:.8rem" onclick="kView='home';render();window.scrollTo(0,0)">‹ ${LL("Recipes","Recettes")}</button>`+vDiscover();
+ let h=kitchenForm();const a=(S.core.setup||{}).answers;
+ h+=`<button class="sheetbtn kdesc" onclick="fabFood('ai')"><span class="sheeticon">✨</span>${LL("Describe your meal","Décris ton repas")}<span class="muted" style="margin-left:auto" aria-hidden="true">›</span></button>`;
+ h+=kFiltChips("render()");
+ const mineAll=S.core.recipes.filter(kFiltOK).slice().reverse();
+ const menu=`stDlg('<label class=&quot;sheetbtn&quot; style=&quot;cursor:pointer&quot;><span class=&quot;sheeticon&quot;>⬆</span>'+LL('Import recipe file','Importer un fichier de recettes')+'<input type=&quot;file&quot; accept=&quot;.json,application/json&quot; onchange=&quot;closeStDlg();importRecipes(this)&quot; style=&quot;display:none&quot;></label>'+sheetBtn('⬇',LL('Export my recipes','Exporter mes recettes'),'closeStDlg();exportRecipes()'))`;
+ h+=`<div class="ksec"><h2>${LL("My recipes","Mes recettes")}</h2><div class="row" style="gap:.1rem">${S.core.recipes.length?`<button class="seeall" onclick="openAllRecipes()">${LL("See all","Tout voir")} (${S.core.recipes.length})</button>`:""}<button class="iconbtn" aria-label="Recipe options" onclick="${menu}">•••</button></div></div>`;
+ h+=mineAll.length?`<div class="hscroll rcar">${mineAll.slice(0,12).map(r=>{const b=BANK.find(x=>x.id===r.id);const rr={...r,cui:r.cui||(b&&b.cui)||"",time:r.time||(b&&b.time)||0};return recCard(rr,perPortion(r),false,`mySheet('${r.id}')`)}).join("")}</div>`:`<div class="box muted">${S.core.recipes.length?LL("No recipe matches.","Aucune recette trouvée."):LL("No recipes yet: add one from Discover or ＋ New recipe.","Pas encore de recette : ajoute-en depuis Découvrir ou ＋ Nouvelle recette.")}</div>`;
+ const disc=BANK.filter(r=>bankFits(r,a)).filter(kFiltOK).map(r=>({r,...bankScore(r,a)})).sort((x,y)=>y.sc-x.sc).map(x=>x.r);
+ h+=`<div class="ksec"><h2>${LL("Discover","Découvrir")}</h2><button class="seeall" onclick="kView='discover';render();window.scrollTo(0,0)">${LL("See all","Tout voir")} (${disc.length})</button></div>`;
+ h+=disc.length?`<div class="hscroll rcar">${disc.slice(0,12).map(r=>recCard(r,portionWith(r,true),S.core.recipes.some(x=>x.id===r.id),`bankSheet('${r.id}')`)).join("")}</div>`:`<div class="box muted">${LL("No recipe matches.","Aucune recette trouvée.")}</div>`;
+ const pinfo=a?LL(`Builds a week from these recipes: ${a.meals} meals a day${a.snacks?" + snack":""}, ${a.batch?"batch cooking twice a week":"varied meals"}, around your ${a.budget} € budget.`,`Crée une semaine avec ces recettes : ${a.meals} repas par jour${a.snacks?" + collation":""}, ${a.batch?"cuisine en lot deux fois par semaine":"repas variés"}, pour ton budget de ${a.budget} €.`):LL("Do the setup in Progress › Stats › Setup for better suggestions.","Fais la configuration dans Progrès › Stats › Configuration pour de meilleures suggestions.");
+ h+=`<div class="planbtn" style="margin-top:.6rem" role="button" tabindex="0" onclick="weekDraft=weekDraft?null:buildWeek();render()"><span style="font-size:1.6rem">📅</span><div style="flex:1"><b>${LL("Plan my week","Planifier ma semaine")}</b><div class="muted" style="font-size:.8rem">${LL("From these recipes","Avec ces recettes")}</div></div><button class="x" aria-label="Info" onclick="event.stopPropagation();stDlg('<p>'+${esc(JSON.stringify(pinfo))}+'</p>')">ⓘ</button></div>`;
+ if(weekDraft)h+=weekPreviewHTML();
+ h+=`<div style="height:1rem"></div>`;
  return h+KF.edit+KF.ing+KF.shops+KF.off}
+
 /* ---------- recipe bank (original recipes written for this app) ---------- */
 const RB=(id,name,portions,items,o,steps)=>({id:"b-"+id,name,portions,items:items.map(([food,g])=>({food,g})),sides:(o.sides||[]).map(([food,g])=>({food,g})),keeps:o.keeps??3,meal:o.meal||"ld",cui:o.cui||"",time:o.time||30,skill:o.skill||"ok",eq:o.eq||[],batch:!!o.batch,steps,note:o.note||""});
 const RICE=[["riz",65]];
@@ -1624,7 +1666,7 @@ function bankScore(r,a){const m=portionWith(r,true);let sc=0;const why=[];
  if(a&&+a.budget){const per=+a.budget/(7*(+a.meals||3));if(recipeCost(r,true)<=per){sc+=1;why.push(`${recipeCost(r,true).toFixed(2)} €/portion`)}}
  return{sc,why}}
 STARTER_RECIPES.filter(r=>BS_IDS.includes(r.id)).forEach(r=>{if(!BANK.some(b=>b.id===r.id))BANK.push({...JSON.parse(JSON.stringify(r)),meal:/Snack/.test(r.name)?"s":"b",cui:"",time:r.id==="s-oats"?10:r.id==="s-wrap"?10:5,skill:"beginner",eq:r.id==="s-wrap"?["stovetop"]:[],batch:r.id==="s-oats",steps:[r.note||"Mix and enjoy."].filter(Boolean)})});
-let discMeal="all",discCui="all",discQuery="",weekDraft=null;
+let discMeal="all",discCui="all",discQuery="",weekDraft=null,planDay=null;
 const CUI_EMO={french:"🥐",westafrican:"🍲",asian:"🥢",mediterranean:"🫒",latin:"🌮",middleeast:"🧆",indian:"🍛","":"🍽"};
 const CUI_BG={french:"#F3E3C8",westafrican:"#F6D3B8",asian:"#F7D9D9",mediterranean:"#DCEBD3",latin:"#F8E3B5",middleeast:"#EADCC8",indian:"#F6D7A8","":"#E7E3EE"};
 const REC_EMOS=["🍲","🍛","🍝","🍜","🍚","🥘","🥣","🍳","🥚","🥞","🌯","🌮","🥪","🍔","🥗","🥙","🫓","🍕","🍞","🍗","🍖","🥩","🍢","🐟","🍤","🦪","🥦","🥕","🧅","🍅","🌽","🥔","🍠","🫘","🥜","🌶️","🌾","🍌","🍍","🥭","🥑","🍓","🧀","🍫","🥤","🔥","🇨🇮","🇸🇳"];
@@ -1693,7 +1735,7 @@ function wkSlotPick(d,sl){const a=(S.core.setup||{}).answers;const m=sl==="b"?"b
 async function applyWeek(){const w=weekDraft;if(!w)return;const has=Object.keys(S.core.plan.slots||{}).length&&S.core.plan.week===mondayOf(today());
  if(has&&!await ask("Replace this week's planner?"))return;w.ids.forEach(id=>addBankRecipe(id,true));
  S.core.plan={week:mondayOf(today()),slots:{...w.slots},extras:{}};S.core.checked={};weekDraft=null;save("core");tab="shop";render();window.scrollTo(0,0)}
-let kView="discover";
+let kView="home";
 
 /* ---------- units: spoons, pieces, cans ---------- */
 const DENS={huile:.91,huileneutre:.91,huilesesame:.91,huilepiment:.91,miel:1.42,soja:1.07,x_sojanoir:1.1,x_oyster:1.2,x_hoisin:1.2,teriyaki:1.15,sriracha:1.1,chilidoux:1.2,x_ketchup:1.15,x_prune:1.2,mayo:.95,srirachamayo:.95,moutarde:1.05,
@@ -1949,9 +1991,9 @@ function recipeUse(r,qty,sides){const n=Math.max(1,+r.portions||1);const u={};r.
 let recipeQuery="";
 function paintRecipes(){const el=document.getElementById("rlist");if(el)el.innerHTML=recipeCards(undefined,recipeQuery.trim()?undefined:12)}
 let allRQ="";
-function openAllRecipes(){allRQ="";openSheet(`<div class="row" style="justify-content:space-between"><h3 style="margin:0">All my recipes (${S.core.recipes.length})</h3><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeSheet()">×</button></div><input type="search" placeholder="Search recipes or ingredients…" oninput="allRQ=this.value;const el=document.getElementById('allrl');if(el)el.innerHTML=recipeCards(allRQ)" style="margin:.6rem 0"><div id="allrl">${recipeCards("")}</div>`)}
+function openAllRecipes(keep){if(!keep)allRQ="";openSheet(`<div class="row" style="justify-content:space-between"><h3 style="margin:0">All my recipes (${S.core.recipes.length})</h3><button class="x" style="font-size:1.5rem" aria-label="Close" onclick="closeSheet()">×</button></div><input type="search" placeholder="Search recipes or ingredients…" value="${esc(allRQ)}" oninput="allRQ=this.value;const el=document.getElementById('allrl');if(el)el.innerHTML=recipeCards(allRQ)" style="margin:.6rem 0">${kFiltChips("openAllRecipes(1);render()")}<div id="allrl">${recipeCards(allRQ)}</div>`)}
 function recipeCards(qArg,limit){const q=norm(qArg!==undefined?qArg:recipeQuery).trim();
- let list=S.core.recipes.filter(r=>!q||searchMatch(r.name+" "+r.items.concat(r.sides||[]).map(it=>(food(it.food)||{}).name||"").join(" "),q)).slice().reverse();if(limit)list=list.slice(0,limit);
+ let list=S.core.recipes.filter(kFiltOK).filter(r=>!q||searchMatch(r.name+" "+r.items.concat(r.sides||[]).map(it=>(food(it.food)||{}).name||"").join(" "),q)).slice().reverse();if(limit)list=list.slice(0,limit);
  if(!list.length)return`<div class="box muted">${S.core.recipes.length?LL("No recipe matches.","Aucune recette trouvée."):LL("No recipes yet: add one from Discover or ＋ New recipe.","Pas encore de recette : ajoute-en depuis Découvrir ou ＋ Nouvelle recette.")}</div>`;
  return`<div class="rgrid">${list.map(r=>{const b=BANK.find(x=>x.id===r.id);const rr={...r,cui:r.cui||(b&&b.cui)||"",time:r.time||(b&&b.time)||0};return recTile(rr,perPortion(r),false,`mySheet('${r.id}')`)}).join("")}</div>`}
 function myMenu(id){stDlg(`${sheetBtn("✎",LL("Edit recipe","Modifier la recette"),`closeStDlg();editRecipe('${id}')`)}${sheetBtn("🙂",LL("Change picture","Changer l'image"),`closeStDlg();emoPick('${id}')`)}${sheetBtn("🗑",LL("Delete recipe","Supprimer la recette"),`closeStDlg();closeSheet();delRecipe('${id}')`,true)}`)}
@@ -2192,7 +2234,9 @@ function vShop(){migrateShops();
  let h=`<div class="row" style="justify-content:space-between"><div class="muted">Week of ${new Date(pl.week+"T12:00").toLocaleDateString(LOC(),{day:"numeric",month:"long"})}</div><button class="ghost small" onclick="newWeek()">Start a new week</button></div>`;
  if(!R.length)return h+`<div class="box"><p style="margin:0 0 .6rem">No recipes yet.</p><div class="row"><button onclick="tab='kitchen';kView='discover';render();window.scrollTo(0,0)">Discover recipes</button><button class="ghost" onclick="tab='kitchen';kView='mine';render();window.scrollTo(0,0)">Log a new recipe</button></div></div>`;
  const ro=(sel,slot)=>`<option value="">—</option><option value="__add">＋ Add recipes…</option><option value="crous" ${sel==="crous"?"selected":""}>🍽 Crous</option>`+(slot?R.slice().sort((a,b)=>((b.meal||"").includes(slot))-((a.meal||"").includes(slot))):R).map(r=>`<option value="${r.id}" ${sel===r.id?"selected":""}>${recipeConflicts(r).length?"⚠ ":""}${slot&&(r.meal||"").includes(slot)?"★ ":""}${esc(r.name)}</option>`).join("");
- h+=`<h2>Plan the week</h2><div class="box scroll"><table><tr><th></th>${SLOTS.map(s=>`<th>${s[1]}</th>`).join("")}</tr>${DAYS.map((d,i)=>`<tr><th>${d}</th>${SLOTS.map(s=>`<td class="slot"><select style="min-width:7.5rem;padding:.35rem" onchange="setSlot('${i}-${s[0]}',this.value)">${ro(pl.slots[i+"-"+s[0]],s[0])}</select></td>`).join("")}</tr>`).join("")}</table></div>`;
+ {const fr=LANG()==="fr";const DN=fr?["L","M","M","J","V","S","D"]:["M","T","W","T","F","S","S"];const ck=[6,(prefs().prepMode||"sunthu")==="sunwed"?2:3];if(planDay==null){const ti=Math.round((new Date(today()+"T12:00")-new Date(pl.week+"T12:00"))/864e5);planDay=ti>=0&&ti<7?ti:0}const pd=planDay;
+ h+=`<h2>Plan the week</h2><div class="wkstrip pstrip" role="group" aria-label="Plan the week">${DAYS.map((d,i)=>{const dt=new Date(pl.week+"T12:00");dt.setDate(dt.getDate()+i);const ds=dt.toLocaleDateString("sv-SE");return`<button class="wkd ${i===pd?"on":""} ${ds===today()&&i!==pd?"sel":""}" aria-pressed="${i===pd}" aria-label="${esc(dt.toLocaleDateString(LOC(),{weekday:"long",day:"numeric",month:"long"}))}" onclick="planDay=${i};render()"><span class="l">${DN[i]}</span><span class="n">${dt.getDate()}</span><span class="pdots" aria-hidden="true">${SLOTS.map(sl=>`<i class="${pl.slots[i+"-"+sl[0]]?"f":""}"></i>`).join("")}</span><span class="ck" aria-hidden="true">${ck.includes(i)?"🍳":""}</span></button>`}).join("")}</div>
+ <div class="box pslots">${SLOTS.map(sl=>`<div class="pslot"><span class="lab">${sl[1]}</span><select aria-label="${DAYS[pd]} · ${sl[1]}" onchange="setSlot('${pd}-${sl[0]}',this.value)">${ro(pl.slots[pd+"-"+sl[0]],sl[0])}</select></div>`).join("")}</div>`}
  const counts=planCounts();const eaten=eatenCounts(),eS=eatenSlots();
  const slotC={};Object.values(pl.slots).forEach(id=>{if(id)slotC[id]=(slotC[id]||0)+1});
  const used=R.filter(r=>slotC[r.id]||+pl.extras[r.id]>0);const unused=R.filter(r=>!used.includes(r));
@@ -5047,7 +5091,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.86a beta";
+const APP_VERSION="0.86b beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
