@@ -2,6 +2,16 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.87a beta · 2026-11-26
+
+More today redesign, part 1 (Serena: no Figma screen for it, so in the style of the rest of the app; her asks on the nutrition score and the weekly budget).
+
+- **Weekly budget, more visible:** in the calories card the week now has its own tinted block: "Week ⓘ  3,140 / 15,697 kcal", a progress bar, and "12,558 kcal left · 4 days left" (apricot when over). Replaces the small grey "Week x / y" line; the ⓘ explanation is unchanged.
+- **Nutrition score as rings:** a big ring for **Today** and one for **This week** (average of the days logged since Monday), then four small rings for the **week's average macros per day** (Protein, Carbs, Fat, Fibre vs your daily targets; today's macros stay in the calories card). The five score bars are kept under "Details"; the tip stays below.
+- **Meals as cards:** each meal is a card with "Lunch 418 kcal · 13 g protein" + Save as…; each food is one row: name and amount, then "P · C · F · time" in small text, kcal on the right, ★ and ×. Tap the name to edit, as before. Replaces the 5-column tables where names wrapped.
+- Next (part 2): Log food as a sheet, habits as tiles, supplements / challenges / recovery as compact tiles, More today arrange page as drawn.
+- Tested: rings with and without food, weekly bar, meal rows (edit / ★ / ×), every screen on a copy of Serena's real data, all earlier tests.
+
 ## 0.86k beta · 2026-11-26
 
 Kitchen › "✨ Describe your meal" opens in place (Serena: it jumped to Log food on Today).
