@@ -442,6 +442,20 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .mch{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.2rem}
 .mch h3{margin:0;font-size:1rem}
 .mch h3 .muted{font-weight:500;font-size:.85rem}
+.mtime{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--muted);padding:.25rem .6rem;margin:.1rem 0 .3rem;border:1px solid var(--line);border-radius:999px;font-variant-numeric:tabular-nums;min-height:28px}
+.mtime .mte{color:var(--plum);font-weight:600}
+.mtime:focus-visible{outline:2px solid var(--plum);outline-offset:2px}
+.mtime.in{margin:0;border-color:transparent;padding:.15rem .4rem}
+.mgrp{margin:.3rem -.25rem .4rem;padding:.2rem .55rem .1rem;border-radius:calc(var(--r-sm) + 2px);background:color-mix(in oklch,var(--plum) 5%,transparent);border:1px solid color-mix(in oklch,var(--plum) 14%,transparent)}
+.mgh{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.3rem 0 .1rem}
+.mgn{font-size:.8rem;font-weight:700;color:var(--plum);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me2list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-sm);padding:.1rem .7rem}
+.me2row{display:flex;align-items:center;gap:.6rem;margin:0;min-height:44px;color:inherit}
+.me2row+.me2row{border-top:1px solid var(--line)}
+.me2row input{accent-color:var(--plum)}
+.me2row .mn{flex:1;min-width:0;font-weight:500}
+.aitime{display:flex;align-items:center;gap:.5rem;margin:.1rem 0 .6rem;font-size:.9rem}
+.aitime input{width:7.5rem;padding:.35rem .5rem}
 .mrow{display:flex;align-items:center;gap:.35rem;min-height:52px;padding:.35rem 0}
 .mrow+.mrow{border-top:1px solid var(--line)}
 .mtx{all:unset;flex:1;min-width:0;cursor:pointer;display:flex;flex-direction:column;gap:.1rem;padding:.2rem 0;border-radius:var(--r-sm)}
@@ -1388,7 +1402,7 @@ function vToday(){
  ${plannedToday().length&&showForm?`<button class="ghost small" style="margin-top:.7rem" onclick="logPlanned()">Add all today's planned meals (${plannedToday().length})</button>`:""}</div>`;
  if(L.food.length){const groups=MEALS.concat([["o","Other"]]).map(([k,l])=>[k,l,L.food.map((x,i)=>[x,i]).filter(([x])=>(x.meal||"o")===k)]).filter(g=>g[2].length);
   SEC.log+=groups.map(([k,l,items])=>{const kc=items.reduce((a,[x])=>a+(x.kcal||0),0),pp=items.reduce((a,[x])=>a+(x.p||0),0);
-   const hk=(S.core.prefs||{}).hideKcal;return`<div class="box mealcard"><div class="mch"><h3>${l} <span class="muted">${hk?"":r0(kc)+" kcal · "}${r0(pp)} g protein</span></h3>${k!=="o"?`<button class="ghost small" onclick="saveMeal('${k}')">Save as…</button>`:""}</div>${items.map(([x,i])=>{const fav=x.spec&&(S.core.favs||[]).some(f=>specKey(f)===specKey(x.spec));return`<div class="mrow"><button class="mtx" onclick="editLog(${i})" aria-label="Edit this entry"><span class="mn">${esc(x.label)}</span><span class="mm">P ${r0(x.p)} · C ${r0(x.c)} · F ${r0(x.f)}${x.at?` · ${esc(x.at)}`:""}</span></button>${hk?"":`<span class="mk">${r0(x.kcal)}<small> kcal</small></span>`}${x.spec?`<button class="x mfav" aria-label="Favourite" aria-pressed="${!!fav}" title="Favourite" onclick="toggleFav(${i})" style="color:${fav?"var(--apricot)":"var(--muted)"}">★</button>`:`<span class="mfav" aria-hidden="true"></span>`}<button class="x" aria-label="Remove" onclick="rmLog(${i})">×</button></div>`}).join("")}</div>`}).join("")}
+   const hk=(S.core.prefs||{}).hideKcal;return`<div class="box mealcard"><div class="mch"><h3>${l} <span class="muted">${hk?"":r0(kc)+" kcal · "}${r0(pp)} g protein</span></h3>${k!=="o"?`<button class="ghost small" onclick="saveMeal('${k}')">Save as…</button>`:""}</div>${(()=>{const bl=mealBlocks(items);const one=bl.length===1&&bl[0].g;return mealTimeBtn(k,items,one?bl[0].g:null).replace(' in"','"')+(one&&bl[0].n?`<div class="mgn" style="margin:-.1rem 0 .1rem">${esc(bl[0].n)}</div>`:"")})()}${mealBlocks(items).map(b=>b.g&&!(mealBlocks(items).length===1)?`<div class="mgrp"><div class="mgh"><span class="mgn">${esc(b.n||LL("Meal","Repas"))}</span>${mealTimeBtn(k,b.items,b.g)}</div>${b.items.map(rowF).join("")}</div>`:b.items.map(rowF).join("")).join("")}</div>`;function rowF([x,i]){const fav=x.spec&&(S.core.favs||[]).some(f=>specKey(f)===specKey(x.spec));const showAt=x.at&&!x.grp&&!items.every(([y])=>y.at===x.at);return`<div class="mrow"><button class="mtx" onclick="editLog(${i})" aria-label="Edit this entry">${(()=>{const j=String(x.label).lastIndexOf(" · ");const nm=j>0?x.label.slice(0,j):x.label,qt=j>0?x.label.slice(j+3):"";return`<span class="mn">${esc(nm)}</span><span class="mm">${qt?esc(qt)+" · ":""}P ${r0(x.p)} · C ${r0(x.c)} · F ${r0(x.f)}${showAt?` · ${esc(x.at)}`:""}</span>`})()}</button>${hk?"":`<span class="mk">${r0(x.kcal)}<small> kcal</small></span>`}${x.spec?`<button class="x mfav" aria-label="Favourite" aria-pressed="${!!fav}" title="Favourite" onclick="toggleFav(${i})" style="color:${fav?"var(--apricot)":"var(--muted)"}">★</button>`:`<span class="mfav" aria-hidden="true"></span>`}<button class="x" aria-label="Remove" onclick="rmLog(${i})">×</button></div>`}}).join("")}
  const water=L.water||0;
  if(S.core.phase.name==="gain")SEC.log+=`<div class="note"><b>Gain tips:</b> eat every 3–4 h, add shakes and calorie-dense extras.</div>`;
  SEC.habits=`<h2>Habits</h2><div class="box"><div class="row" style="justify-content:space-between"><div><b>Water</b> <span class="muted">${r1(water/1000)} L of 2–2.5 L</span></div><div class="row"><button class="ghost small" onclick="addWater(-250)">−</button><button class="small" onclick="addWater(250)">+ 250 ml</button></div></div>
@@ -1586,14 +1600,14 @@ async function offScan(){offPaint(`<div style="margin-top:.5rem"><video id="offv
  catch(e){offStop();offPaint(`<p class="muted" style="margin:.5rem 0 0">No camera here: type the barcode number.</p>`)}}
 function offStop(){try{offStream&&offStream.reset()}catch(e){}offStream=null;if(offResHTML.includes("offvideo"))offPaint("")}
 function specKey(sp){return[sp.type,sp.ref,sp.qty,sp.sides?1:0].join("|")}
-let curMeal=null,mealAt="";const nowHM=()=>new Date().toTimeString().slice(0,5);const MEALS=[["b","Breakfast"],["l","Lunch"],["d","Dinner"],["s","Snack"]];
+let curMeal=null,mealAt="",logGrp=null;const newGrp=(n)=>({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),n:n||""});const nowHM=()=>new Date().toTimeString().slice(0,5);const MEALS=[["b","Breakfast"],["l","Lunch"],["d","Dinner"],["s","Snack"]];
 function defaultMeal(){const d=new Date(),m=d.getHours()*60+d.getMinutes();return m<630?"b":m<870?"l":m<1050?"s":"d"}
 const mealNow=()=>curMeal||defaultMeal();
 function addEntry(sp,meal){let e;
  if(sp.type==="food"){const f=food(sp.ref);if(!f)return false;e={label:`${f.name.split(" (")[0]} · ${sp.qty} g`,...macrosFood(f,sp.qty)}}
  else{const r=S.core.recipes.find(x=>x.id===sp.ref);if(!r)return false;const m=portionWith(r,sp.sides&&hasSides(r));e={label:`${r.name} · ${sp.qty} portion${sp.qty>1?"s":""}${sp.sides&&hasSides(r)?" + sides":""}`};for(const k in m)e[k]=m[k]*sp.qty}
  e.veg=vegOf(sp);e.spec=sp;e.meal=meal||mealNow();
- if(sp.type==="food")e.used={[sp.ref]:sp.qty};else{const rr=S.core.recipes.find(x=>x.id===sp.ref);if(rr)e.used=recipeUse(rr,sp.qty,sp.sides&&hasSides(rr))}stockUse(e.used,1);e.at=mealAt||(logDate===today()?nowHM():"");dayLog(logDate).food.push(e);
+ if(sp.type==="food")e.used={[sp.ref]:sp.qty};else{const rr=S.core.recipes.find(x=>x.id===sp.ref);if(rr)e.used=recipeUse(rr,sp.qty,sp.sides&&hasSides(rr))}stockUse(e.used,1);e.at=mealAt||(logDate===today()?nowHM():"");if(logGrp){e.grp=logGrp.id;if(logGrp.n)e.gn=logGrp.n}dayLog(logDate).food.push(e);
  const k=specKey(sp);S.core.recent=[sp].concat((S.core.recent||[]).filter(x=>specKey(x)!==k)).slice(0,8);return true}
 function commitLog(){save(monthKey(logDate));save("core");render()}
 let recQ="";function recentAll(){recQ="";openSheet(`${(S.core.meals||[]).length?`<h3>${LL("Saved meals","Repas enregistrés")}</h3>${S.core.meals.map((m,i)=>`<div class="row" style="flex-wrap:nowrap"><button class="sheetbtn" style="flex:1" onclick="closeSheet();addSavedMeal(${i})"><span class="sheeticon">🍽</span>${esc(m.name)} <span class="muted">(${m.items.length})</span></button><button class="x" aria-label="Delete saved meal" onclick="delSavedMeal(${i});recentAll()">×</button></div>`).join("")}`:""}<h3>${LL("Recent","Récents")}</h3><input type="search" placeholder="Search…" oninput="recQ=this.value;document.getElementById('reclist').innerHTML=recentList()" style="position:sticky;top:0;margin-bottom:.5rem"><div id="reclist">${recentList()}</div>`)}
@@ -1614,10 +1628,33 @@ function estFood(e){const id="c"+uidGen();const g=e.est.g||100;const k=100/g;S.c
 async function saveMeal(meal){const entries=dayLog(logDate).food.filter(x=>(x.meal||"o")===meal&&(x.spec||x.est));if(!entries.length){toast("Only foods, recipes and meal estimates can be saved.");return}
  const how=await choose("Save these foods as…","A quick meal","A recipe (in Kitchen › My recipes)");if(!how)return;
  const lab=(MEALS.find(m=>m[0]===meal)||[0,"Meal"])[1];const name=await askText(how==="a"?"Name this meal":"Name this recipe",`${lab} ${new Date(logDate+"T12:00").toLocaleDateString(LOC(),{day:"numeric",month:"short"})}`);if(!name)return;
+ if(entries.length>1){const gg=newGrp(name.trim());entries.forEach(x=>{x.grp=gg.id;x.gn=gg.n})}
  if(how==="a"){const items=entries.map(x=>{if(x.spec)return x.spec;const f=estFood(x);x.spec={type:"food",ref:f.id,qty:f.g};return x.spec});S.core.meals=(S.core.meals||[]).concat([{id:uidGen(),name:name.trim(),items}]);save("core");save(monthKey(logDate));render();toast("Saved: tap it under Saved meals in Today.");return}
  const items=[];entries.forEach(x=>{if(x.spec&&x.spec.type==="food")items.push({food:x.spec.ref,g:+x.spec.qty});else if(x.spec&&x.spec.type==="recipe"){const r=S.core.recipes.find(y=>y.id===x.spec.ref);if(r){const u=recipeUse(r,x.spec.qty,x.spec.sides&&hasSides(r));Object.entries(u).forEach(([food,g])=>items.push({food,g:r1(g)}))}}else{const f=estFood(x);items.push({food:f.id,g:f.g})}});
  S.core.recipes.push({id:"r"+uidGen(),name:name.trim(),portions:1,items,sides:[],keeps:1,note:"Saved from a logged meal."});save("core");toast("Saved in Kitchen › My recipes.");render()}
-function addSavedMeal(i){const m=(S.core.meals||[])[i];if(!m)return;m.items.forEach(sp=>addEntry(sp));commitLog()}
+function mealBlocks(items){const out=[],seen={};items.forEach(it=>{const g=it[0].grp;if(g){if(seen[g]){seen[g].items.push(it);return}const b={g,n:it[0].gn||"",items:[it]};seen[g]=b;out.push(b)}else out.push({g:null,items:[it]})});
+ return out.reduce((a,b)=>{const p=a[a.length-1];if(!b.g&&p&&!p.g)p.items=p.items.concat(b.items);else a.push(b);return a},[])}
+function mealTimeTxt(items){const t=items.map(([x])=>x.at).filter(Boolean).sort();if(!t.length)return"";return t[0]===t[t.length-1]?t[0]:t[0]+"–"+t[t.length-1]}
+function mealTimeBtn(k,items,g){const t=mealTimeTxt(items);
+ if(g)return`<button class="mtime in" onclick="mealEdit('${k}','${g}')" aria-label="${LL("Change time or meal for this group","Changer l'heure ou le repas du groupe")}"><span>🕐 ${esc(t||"—")}</span><span class="mte">${LL("Edit","Modifier")}</span></button>`;
+ return`<button class="mtime" onclick="mealEdit('${k}',null)" aria-label="${LL("Change time or meal for all of these","Changer l'heure ou le repas de tout")}"><span>🕐 ${esc(t||"—")}</span><span class="mte">${LL("Edit","Modifier")}</span></button>`}
+let me2=null;
+function mealEdit(k,g){const L=dayLog(logDate);const idx=L.food.map((x,i)=>[x,i]).filter(([x])=>(x.meal||"o")===k).map(([,i])=>i);const sel=g?idx.filter(i=>L.food[i].grp===g):idx.slice();
+ const first=sel.map(i=>L.food[i].at).filter(Boolean).sort()[0]||"";me2={k,g,idx,sel,meal:k==="o"?mealNow():k,at:first,keep:sel.length>1&&(!!g||sel.every(i=>L.food[i].grp&&L.food[i].grp===L.food[sel[0]].grp)),name:g?(L.food[sel[0]].gn||""):""};openSheet(mealEditHTML())}
+function mealEditHTML(){const L=dayLog(logDate);const lab=(MEALS.find(m=>m[0]===me2.k)||[0,LL("Other","Autre")])[1];
+ return`<div class="wkbar"><button class="circbtn" aria-label="${LL("Close","Fermer")}" onclick="me2=null;closeSheet()">‹</button><b>${me2.g?esc(me2.name||LL("Meal","Repas")):esc(lab)}</b><span></span></div>
+ <label>${LL("Meal","Repas")}</label><div class="seg cmp" role="group" aria-label="${LL("Meal","Repas")}" style="margin:.2rem 0 .7rem">${MEALS.map(([k,l])=>`<button class="${me2.meal===k?"on":""}" onclick="me2.meal='${k}';openSheet(mealEditHTML())">${l}</button>`).join("")}</div>
+ <label for="me2at">${LL("Eaten at","Mangé à")}</label><input id="me2at" type="time" value="${esc(me2.at)}" onchange="me2.at=this.value" style="max-width:9rem">
+ <label style="margin-top:.8rem">${LL("Applies to","S'applique à")}</label><div class="me2list">${me2.idx.map(i=>{const x=L.food[i];const on=me2.sel.includes(i);return`<label class="check me2row"><input type="checkbox" ${on?"checked":""} onchange="me2Tog(${i},this.checked)"><span class="mn">${esc(x.label)}</span><span class="mm">${esc(x.at||"")}</span></label>`}).join("")}</div>
+ <label class="check" style="margin-top:.6rem;color:inherit"><input type="checkbox" ${me2.keep?"checked":""} onchange="me2.keep=this.checked;openSheet(mealEditHTML())">${LL("Keep them together as one meal","Les garder ensemble comme un repas")}</label>
+ ${me2.keep?`<input id="me2n" placeholder="${LL("Name (optional)","Nom (facultatif)")}" value="${esc(me2.name)}" onchange="me2.name=this.value" style="margin-top:.4rem">`:""}
+ <div class="row" style="margin-top:1rem;justify-content:flex-end"><button class="ghost" onclick="me2=null;closeSheet()">${LL("Cancel","Annuler")}</button><button onclick="mealEditSave()">${LL("Apply","Appliquer")}</button></div>`}
+function me2Tog(i,on){me2.sel=on?me2.sel.concat([i]):me2.sel.filter(j=>j!==i)}
+function mealEditSave(){const a=document.getElementById("me2at");if(a)me2.at=a.value;const n=document.getElementById("me2n");if(n)me2.name=n.value.trim();const L=dayLog(logDate);if(!me2.sel.length){toast(LL("Tick at least one food.","Coche au moins un aliment."));return}
+ const gid=me2.keep&&me2.sel.length>1?(me2.g||L.food[me2.sel[0]].grp&&me2.sel.every(i=>L.food[i].grp===L.food[me2.sel[0]].grp)&&L.food[me2.sel[0]].grp||newGrp().id):null;
+ me2.sel.forEach(i=>{const e=L.food[i];if(!e)return;e.meal=me2.meal;e.at=me2.at||"";if(gid){e.grp=gid;if(me2.name)e.gn=me2.name;else delete e.gn}else if(!me2.keep&&me2.g){delete e.grp;delete e.gn}});
+ me2=null;closeSheet();commitLog()}
+function addSavedMeal(i){const m=(S.core.meals||[])[i];if(!m)return;logGrp=m.items.length>1?newGrp(m.name):null;m.items.forEach(sp=>addEntry(sp));logGrp=null;commitLog()}
 async function delSavedMeal(i){const m=S.core.meals[i];if(!await ask(`Delete the saved meal “${m.name}”?`))return;S.core.meals.splice(i,1);save("core");render()}
 function rmLog(i){const x=dayLog(logDate).food[i];if(x&&x.used)stockUse(x.used,-1);if(x&&x.slot){const L=dayLog(logDate);if(L.slotsDone)delete L.slotsDone[x.slot]}dayLog(logDate).food.splice(i,1);save(monthKey(logDate));render()}
 function addWater(v){const L=dayLog(logDate);L.water=Math.max(0,(L.water||0)+v);save(monthKey(logDate));render()}
@@ -1868,10 +1905,10 @@ function aiBoxHTML(){if(!aiOpen)return"";
  return h+`</div>`}
 /* 0.86k · Describe your meal opens in place (sheet) from Kitchen, without leaving the page */
 function inAISheet(){return!!document.querySelector("#sheetmodal #aibox")}
-function aiSheetSeg(){return`<div class="seg cmp" role="group" aria-label="Meal" style="margin:.2rem 0 .2rem">${MEALS.map(([k,l])=>`<button class="${mealNow()===k?"on":""}" onclick="curMeal='${k}';aiSheetPaint()">${l}</button>`).join("")}</div>`}
+function aiSheetSeg(){return`<div class="seg cmp" role="group" aria-label="Meal" style="margin:.2rem 0 .5rem">${MEALS.map(([k,l])=>`<button class="${mealNow()===k?"on":""}" onclick="curMeal='${k}';aiSheetPaint()">${l}</button>`).join("")}</div><label class="aitime">🕐 ${LL("Eaten at","Mangé à")} <input type="time" value="${esc(mealAt||nowHM())}" onchange="mealAt=this.value"></label>`}
 function aiSheetPaint(){const a=document.getElementById("aiseg");if(a)a.innerHTML=aiSheetSeg();paintAI()}
-function aiSheet(){logDate=today();aiOpen=true;crousOpen=false;qaOpen=false;aiErr="";openSheet(`<div class="wkbar"><button class="circbtn" aria-label="Back" onclick="aiSheetClose()">‹</button><b>${LL("Describe your meal","Décris ton repas")}</b><span></span></div><div id="aiseg">${aiSheetSeg()}</div><div id="aibox">${aiBoxHTML()}</div>`);setTimeout(()=>{const e=document.getElementById("aitext");if(e)e.focus()},80)}
-function aiSheetClose(){aiOpen=false;aiDraft=null;aiErr="";closeSheet();render()}
+function aiSheet(){logDate=today();mealAt="";aiOpen=true;crousOpen=false;qaOpen=false;aiErr="";openSheet(`<div class="wkbar"><button class="circbtn" aria-label="Back" onclick="aiSheetClose()">‹</button><b>${LL("Describe your meal","Décris ton repas")}</b><span></span></div><div id="aiseg">${aiSheetSeg()}</div><div id="aibox">${aiBoxHTML()}</div>`);setTimeout(()=>{const e=document.getElementById("aitext");if(e)e.focus()},80)}
+function aiSheetClose(){aiOpen=false;aiDraft=null;aiErr="";mealAt="";closeSheet();render()}
 function paintAI(){const el=document.getElementById("aibox");if(el)el.innerHTML=aiBoxHTML()}
 function aiItemMacros(it){if(it.recipe){const r=S.core.recipes.find(x=>x.id===it.recipe);if(r){const m=portionWith(r,false);const o={};for(const k in m)o[k]=m[k]*(it.portions||1);return o}}const f=it.food&&food(it.food);if(f)return macrosFood(f,it.g);const k=it.g/100;return{kcal:(+it.kcal100||0)*k,p:(+it.p100||0)*k,c:(+it.c100||0)*k,f:(+it.f100||0)*k,fib:(+it.fib100||0)*k}}
 
@@ -1924,7 +1961,7 @@ async function aiAnalyse(){const t=($("#aitext")||{}).value||"";if(!t.trim())ret
  aiBusy=false;paintAI()}
 async function aiAddReal(){const items=(aiDraft&&aiDraft.items||[]).filter(x=>x.on&&!x.food&&!x.recipe&&!x.unknown);if(items.length){status="Looking up the products…";paintStatus();const tmp=items.map(it=>({id:null,name:it.name,per:{kcal:+it.kcal100||0,p:+it.p100||0,c:+it.c100||0,f:+it.f100||0,fib:+it.fib100||0}}));await realValues(tmp);tmp.forEach((t,i)=>{const it=items[i];it.name=t.name;it.kcal100=t.per.kcal;it.p100=t.per.p;it.c100=t.per.c;it.f100=t.per.f;it.fib100=t.per.fib});status=""}aiAdd()}
 function aiAdd(){const items=(aiDraft&&aiDraft.items||[]).filter(x=>x.on&&(x.g>0||x.recipe));if(!items.length)return;
- items.forEach(it=>{if(it.recipe)addEntry({type:"recipe",ref:it.recipe,qty:it.portions||1,sides:false});else if(it.food)addEntry({type:"food",ref:it.food,qty:r0(it.g)});else{const m=aiItemMacros(it);dayLog(logDate).food.push({label:`${it.name} · ${r0(it.g)} g`,...m,veg:0,meal:mealNow(),at:mealAt||(logDate===today()?nowHM():""),est:{name:it.name,g:it.g}})}});
+ logGrp=items.length>1?newGrp(LL("Described meal","Repas décrit")):null;items.forEach(it=>{if(it.recipe)addEntry({type:"recipe",ref:it.recipe,qty:it.portions||1,sides:false});else if(it.food)addEntry({type:"food",ref:it.food,qty:r0(it.g)});else{const m=aiItemMacros(it);dayLog(logDate).food.push({label:`${it.name} · ${r0(it.g)} g`,...m,veg:0,meal:mealNow(),at:mealAt||(logDate===today()?nowHM():""),est:{name:it.name,g:it.g},...(logGrp?{grp:logGrp.id,gn:logGrp.n}:{})})}});logGrp=null;
  const wasSheet=inAISheet();aiOpen=false;aiDraft=null;commitLog();if(wasSheet)aiSheetClose()}
 
 /* ---------- planned meals ↔ log ---------- */
@@ -5206,7 +5243,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.87a beta";
+const APP_VERSION="0.87b beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

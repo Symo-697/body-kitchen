@@ -2,6 +2,12 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.87b beta · 2026-11-26
+- Today › meals: foods logged together (a described meal, a saved meal, or a "Save as…" meal) are now grouped in a tinted block with one "🕐 time · Edit" for the whole group.
+- Each meal card has a "🕐 time · Edit" pill: one sheet changes the meal (Breakfast/Lunch/Dinner/Snack) and the time for every food at once, with tick-boxes to leave some out and "Keep them together as one meal" to group foods you logged one by one.
+- Describe your meal sheet (Kitchen and Today) now has an "Eaten at" time field; it starts at the current time each time you open it.
+- Meal rows: the amount moved to the small line (e.g. "80 g · P 18 · C 0 · F 1"), so names no longer get cut. Times show once per meal when all foods share it.
+
 ## 0.87a beta · 2026-11-26
 
 More today redesign, part 1 (Serena: no Figma screen for it, so in the style of the rest of the app; her asks on the nutrition score and the weekly budget).
