@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.87d beta · 2026-11-27
+- Supplements back to tiles (as before 0.87c), smaller: 4 per row.
+- Water − button in the quick-log card fixed: it stretched over the whole cell; now a small round − in the corner.
+- Crous counter moved inside the Log food card, under the five buttons: "🍽 Crous" on the left, this week and this month on the right.
+
 ## 0.87c beta · 2026-11-27
 - More today part 2. Log food is now a sheet: Today shows a small card with Search / Describe / Barcode / Saved meals / Crous; each opens the sheet on that tab (meal, "Eaten at" time, tabs, and a running total for the chosen meal). The ＋ menu's Log food / Describe open the same sheet. Adding stays in the sheet so you can log several foods in a row.
 - Habits are four tiles: Steps (📲 sync), Sleep (☀️ check-in), Energy 1–5 as buttons, Coffee −/+ (moved from Supplements). Water left Habits: it's in the quick-log card, with a small − to undo 250 ml.

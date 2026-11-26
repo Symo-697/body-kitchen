@@ -471,13 +471,12 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .hstep{display:flex;align-items:center;justify-content:space-between;gap:.4rem}
 .hstep b{font-size:1.45rem;font-variant-numeric:tabular-nums}
 .hstep button{min-width:40px;min-height:40px;padding:0;border-radius:999px}
-.supgrid{display:flex;flex-wrap:wrap;gap:.5rem .45rem}
-.suptile{flex-direction:column;align-items:flex-start;gap:.15rem;width:auto}
-.suptile button{width:auto;aspect-ratio:auto;flex-direction:row;gap:.35rem;border-radius:999px;padding:.4rem .8rem .4rem .55rem;min-height:40px}
-.suptile .se{font-size:1.05rem}
-.suptile .sn{font-size:.85rem}
-.suptile .sw{padding-left:.7rem;text-align:left}
-.suptile input{width:6.2rem;margin-left:.3rem}
+.supgrid{grid-template-columns:repeat(4,1fr);gap:.45rem}
+.suptile button{aspect-ratio:1;border-radius:var(--r-lg);gap:.1rem;padding:.25rem}
+.suptile .se{font-size:1.25rem}
+.suptile .sn{font-size:.72rem}
+.suptile .sw{font-size:.64rem}
+.suptile input{font-size:.72rem;padding:.15rem}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:0 0 1rem}
 .duo>.box{margin:0}
 .box.mt{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);padding:.75rem .85rem;display:flex;flex-direction:column;gap:.3rem;min-width:0;margin:0 0 1rem}
@@ -490,8 +489,10 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .tipline{display:flex;align-items:flex-start;gap:.4rem;padding:.55rem .4rem .55rem .85rem;margin:0 0 1rem;border-radius:var(--r-lg);background:color-mix(in oklch,var(--apricot) 9%,transparent);border:1px solid color-mix(in oklch,var(--apricot) 20%,transparent);font-size:.88rem;line-height:1.35}
 .tipline>span{flex:1;min-width:0;padding-top:.45rem}
 .tipline .x{min-width:36px;min-height:36px;flex:none}
-.crline{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-size:.85rem;color:var(--muted);padding:.1rem .2rem;margin:0 0 .7rem;font-variant-numeric:tabular-nums}
+.crline{display:flex;align-items:center;gap:.35rem .8rem;flex-wrap:wrap;font-size:.8rem;color:var(--muted);padding:.65rem .1rem 0;margin:.7rem 0 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
 .crline b{color:var(--ink)}
+.crline{justify-content:space-between;flex-wrap:nowrap;align-items:flex-start}
+.crline .crv{display:flex;flex-direction:column;align-items:flex-end;gap:.1rem;text-align:right}
 .lfacts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.4rem}
 .lfacts button{display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.55rem .15rem;min-height:64px;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:var(--r-md,12px);font-size:.72rem;font-weight:600;line-height:1.1}
 .lfacts button span{font-size:1.25rem;line-height:1}
@@ -508,8 +509,8 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .lflist .lfr .lfn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
 .lflist .lfr .lfi{width:1.6rem;text-align:center;flex:none}
 .qlw{position:relative;display:grid}
-.qlw>button{width:100%}
-.qlw .qlm{position:absolute;top:.25rem;right:.25rem;min-width:30px;min-height:30px;padding:0;border-radius:999px;background:transparent;border:1px solid var(--line);color:var(--muted);font-size:.95rem;line-height:1;box-shadow:none;flex-direction:row}
+.qlw>button:first-child{width:100%}
+.quicklog .qlw .qlm{position:absolute;width:34px;height:34px;top:.3rem;right:.3rem;min-width:34px;min-height:34px;justify-content:center;padding:0;border-radius:999px;background:transparent;border:1px solid var(--line);color:var(--muted);font-size:.95rem;line-height:1;box-shadow:none;flex-direction:row}
 .arl{display:flex;flex-direction:column;gap:.45rem;margin:.3rem 0 .2rem}
 .arr{display:flex;align-items:center;gap:.4rem;padding:.35rem .4rem .35rem .2rem;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);min-height:56px;touch-action:pan-y}
 .arr.off{opacity:.55}
@@ -1484,7 +1485,7 @@ function vToday(){
  const pick=(ic,l,on)=>`<button class="qpick" onclick="${on}"><span>${ic}</span>${esc(l)}</button>`;
  const picks=[...(S.core.meals||[]).map((m,i)=>pick("🍽",m.name,`addSavedMeal(${i})`)),...(S.core.favs||[]).map((sp,i)=>[specLabel(sp),i]).filter(x=>x[0]).map(([l,i])=>pick("★",l,`quickAdd('favs',${i})`)),...(S.core.recent||[]).map((sp,i)=>[specLabel(sp),i]).filter(x=>x[0]).slice(0,8).map(([l,i])=>pick("↺",l,`quickAdd('recent',${i})`))];
  const quick=mealChips+crousBtn+(repeat?`<div class="hscroll" style="margin-bottom:.6rem">${repeat}</div>`:"")+(false?`<div class="row" style="justify-content:space-between;margin-bottom:.25rem"><span class="muted" style="font-size:.8rem">${LL("Quick picks","Raccourcis")}</span>${(S.core.recent||[]).length>8||(S.core.meals||[]).length?`<button class="x" style="font-size:.8rem" onclick="recentAll()">${LL("See all","Tout voir")}</button>`:""}</div><div class="hscroll" style="margin-bottom:.8rem">${picks.join("")}</div>`:"");
- SEC.log=crousCounterHTML()+logCardHTML(L);
+ SEC.log=logCardHTML(L);
  if(L.food.length){const groups=MEALS.concat([["o","Other"]]).map(([k,l])=>[k,l,L.food.map((x,i)=>[x,i]).filter(([x])=>(x.meal||"o")===k)]).filter(g=>g[2].length);
   SEC.log+=groups.map(([k,l,items])=>{const kc=items.reduce((a,[x])=>a+(x.kcal||0),0),pp=items.reduce((a,[x])=>a+(x.p||0),0);
    const hk=(S.core.prefs||{}).hideKcal;return`<div class="box mealcard"><div class="mch"><h3>${l} <span class="muted">${hk?"":r0(kc)+" kcal · "}${r0(pp)} g protein</span></h3>${k!=="o"?`<button class="ghost small" onclick="saveMeal('${k}')">Save as…</button>`:""}</div>${(()=>{const bl=mealBlocks(items);const one=bl.length===1&&bl[0].g;return mealTimeBtn(k,items,one?bl[0].g:null).replace(' in"','"')+(one&&bl[0].n?`<div class="mgn" style="margin:-.1rem 0 .1rem">${esc(bl[0].n)}</div>`:"")})()}${mealBlocks(items).map(b=>b.g&&!(mealBlocks(items).length===1)?`<div class="mgrp"><div class="mgh"><span class="mgn">${esc(b.n||LL("Meal","Repas"))}</span>${mealTimeBtn(k,b.items,b.g)}</div>${b.items.map(rowF).join("")}</div>`:b.items.map(rowF).join("")).join("")}</div>`;function rowF([x,i]){const fav=x.spec&&(S.core.favs||[]).some(f=>specKey(f)===specKey(x.spec));const showAt=x.at&&!x.grp&&!items.every(([y])=>y.at===x.at);return`<div class="mrow"><button class="mtx" onclick="editLog(${i})" aria-label="Edit this entry">${(()=>{const j=String(x.label).lastIndexOf(" · ");const nm=j>0?x.label.slice(0,j):x.label,qt=j>0?x.label.slice(j+3):"";return`<span class="mn">${esc(nm)}</span><span class="mm">${qt?esc(qt)+" · ":""}P ${r0(x.p)} · C ${r0(x.c)} · F ${r0(x.f)}${showAt?` · ${esc(x.at)}`:""}</span>`})()}</button>${hk?"":`<span class="mk">${r0(x.kcal)}<small> kcal</small></span>`}${x.spec?`<button class="x mfav" aria-label="Favourite" aria-pressed="${!!fav}" title="Favourite" onclick="toggleFav(${i})" style="color:${fav?"var(--apricot)":"var(--muted)"}">★</button>`:`<span class="mfav" aria-hidden="true"></span>`}<button class="x" aria-label="Remove" onclick="rmLog(${i})">×</button></div>`}}).join("")}
@@ -1746,7 +1747,7 @@ function habitsHTML(L,T){const en=String(L.energy||"");
 let lfOn=false,lfTab="search";
 const LF_TABS=()=>[["search","🔎",LL("Search","Chercher")],["describe","✨",LL("Describe","Décrire")],["barcode","📷",LL("Barcode","Code-barres")],["saved","⭐",LL("Saved meals","Repas enregistrés")],["crous","🍽","Crous"]];
 function logCardHTML(L){const n=L.food.length,k=L.food.reduce((a,x)=>a+(x.kcal||0),0);const hk=(S.core.prefs||{}).hideKcal;
- return`<h2>${LL("Log food","Noter un repas")}${n?` <span class="muted" style="font-size:.9rem;font-weight:500">${n} ${LL(n>1?"foods":"food",n>1?"aliments":"aliment")}${hk?"":" · "+r0(k)+" kcal"}</span>`:""}</h2><div class="box"><div class="lfacts">${LF_TABS().map(([t,ic,l])=>`<button onclick="lfOpen('${t}')"><span aria-hidden="true">${ic}</span>${l}</button>`).join("")}</div></div>`}
+ return`<h2>${LL("Log food","Noter un repas")}${n?` <span class="muted" style="font-size:.9rem;font-weight:500">${n} ${LL(n>1?"foods":"food",n>1?"aliments":"aliment")}${hk?"":" · "+r0(k)+" kcal"}</span>`:""}</h2><div class="box"><div class="lfacts">${LF_TABS().map(([t,ic,l])=>`<button onclick="lfOpen('${t}')"><span aria-hidden="true">${ic}</span>${l}</button>`).join("")}</div>${crousCounterHTML()}</div>`}
 function lfOpen(t){lfTab=t||"search";if(lfTab==="describe"){aiOpen=true;crousOpen=false}else if(lfTab==="crous"){crousOpen=true;CR=null;aiOpen=false;curMeal=curMeal||mealNow()}else{aiOpen=false;crousOpen=false}if(lfTab==="barcode")offOpen=true;lfOn=true;
  openSheet(`<div class="wkbar"><button class="circbtn" aria-label="${LL("Close","Fermer")}" onclick="lfClose()">‹</button><b>${LL("Log food","Noter un repas")}</b><span></span></div><div id="lfbody"></div>`);const m=document.getElementById("sheetmodal");if(m)m.onclick=e=>{if(e.target===m)lfClose()};lfPaint();
  setTimeout(()=>{const e=document.getElementById(lfTab==="describe"?"aitext":lfTab==="barcode"?"offq":lfTab==="search"?"lf":"");if(e)e.focus()},90)}
@@ -2216,7 +2217,7 @@ async function editCrousPrices(){const pr=crousPrice();const m=await askText("Pr
  S.core.crousPrice={meal:+String(m).replace(",",".")||1,point:+String(pt).replace(",",".")||.55,drink:+String(dr).replace(",",".")||1};save("core");paintCrous()}
 function crousStats(from,to){let n=0,cost=0;for(const k of Object.keys(S.logs)){const days=(S.logs[k]||{}).days||{};for(const [d,L] of Object.entries(days)){if(d<from||d>to)continue;(L.food||[]).forEach(x=>{if(x.crous){n++;cost+=x.crous.cost||0}})}}return{n,cost}}
 function crousCounterHTML(){const mon=mondayOf(today());const w=crousStats(mon,today());const mo=crousStats(today().slice(0,8)+"01",today());if(!mo.n&&!w.n)return"";const mName=new Date(today()+"T12:00").toLocaleDateString(LOC(),{month:"long"});const split=mon.slice(0,7)!==today().slice(0,7);
- return`<div class="crline"><span>🍽 <b>Crous</b></span><span>${LL("This week","Cette semaine")}${split?` (${LL("since Mon","depuis lun.")} ${new Date(mon+"T12:00").getDate()} ${new Date(mon+"T12:00").toLocaleDateString(LOC(),{month:"short"})})`:""}: <b>${w.n}</b> · <b>${w.cost.toFixed(2)} €</b></span><span>${mName}: <b>${mo.n}</b> · <b>${mo.cost.toFixed(2)} €</b></span></div>`}
+ return`<div class="crline"><span>🍽 <b>Crous</b></span><span class="crv"><span>${LL("This week","Cette semaine")}${split?` (${LL("since Mon","depuis lun.")} ${new Date(mon+"T12:00").getDate()} ${new Date(mon+"T12:00").toLocaleDateString(LOC(),{month:"short"})})`:""}: <b>${w.n}</b> · <b>${w.cost.toFixed(2)} €</b></span><span>${mName}: <b>${mo.n}</b> · <b>${mo.cost.toFixed(2)} €</b></span></span></div>`}
 
 const shopsList=()=>{const a=(S.core.setup||{}).answers||{};const main=a.shop&&a.shop!=="other"?a.shop:"Intermarché";return S.core.shops&&S.core.shops.length?S.core.shops:[main]};
 const shopOf=id=>(S.core.foodShop||{})[id]||shopsList()[0];
@@ -5367,7 +5368,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.87c beta";
+const APP_VERSION="0.87d beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
