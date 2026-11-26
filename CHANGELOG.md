@@ -2,6 +2,14 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86f beta · 2026-11-26
+
+Focus mode fixes (Serena).
+
+- **Rest timer in view:** in Focus the rest timer (−15 / time / +15 / Skip) now sits right under "Exercise x / y", above the exercise card, and stays pinned under the top bar while you scroll. It is still there when Focus moves you on to the next exercise after the last set, or when you switch with ‹ ›. Before, it floated at the bottom of the screen and was easy to miss after the jump to a new exercise. List mode is unchanged.
+- **Long-press a set to change its type:** in Focus, hold a set button (W, 1, 2, …) for about half a second to open the Set type sheet (normal, warm-up, failure, drop set, sides), the same one as in the list. A short tap still selects the set.
+- Tested: rest across the last set and the move to the next exercise, long-press vs tap, every screen on a copy of Serena's real data, all earlier tests.
+
 ## 0.86e beta · 2026-11-26
 
 Fixes from Serena's screenshots (sheet headers, calendar, back-to-top button).

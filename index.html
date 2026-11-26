@@ -416,6 +416,11 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .trrow .tx span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trrow .go{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.trrow{transition:none}.trrow:active{transform:none}}
+
+/* 0.86f · Focus mode: rest timer in view, long-press set type */
+#restpill.inflow{position:sticky;top:calc(env(safe-area-inset-top,0px) + 5rem);left:auto;right:auto;bottom:auto;margin:0 0 .8rem;max-width:none;z-index:4}
+#restpill.inflow:empty{margin:0}
+.fsets button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 </style>
 </head>
 <body>
@@ -3794,7 +3799,7 @@ function vLive(){const a=A();if(!a){trainView="plan";return vTrain()}const st=li
  <div class="muted" style="text-align:center;margin-top:.4rem;font-size:.85rem">${a.day==="CARDIO"?"Cardio session":a.day==="FREE"?"Free workout":`Day ${esc(a.day)} · ${esc((S.core.workout[a.day]||{}).title||"")}`} · tap for live stats</div></div>`;
  if(a.notes)h+=`<div class="note" style="white-space:pre-wrap">📝 ${esc(a.notes)}</div>`;
  const ps=livePhotoSrc(a.photo);if(ps)h+=`<img src="${esc(ps)}" alt="Workout photo" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:.8rem">`;
- if(prefs().liveFocus&&a.ex.length)return h+focusHTML(a)+`<div style="height:7rem" aria-hidden="true"></div>`+restPillHTML();
+ if(prefs().liveFocus&&a.ex.length)return h+focusHTML(a)+`<div style="height:7rem" aria-hidden="true"></div>`;
  h+=strRowHTML("pre",a.day,true);
  a.ex.forEach((e,i)=>{const done=e.sets.filter(s=>s.done).length;const f=liveFields(e.name);const g=exMode(e.name)!=="w"&&exMode(e.name)!=="wt"&&exMode(e.name)!=="c"?"2.4rem minmax(0,1fr) minmax(0,1.4fr) 2.6rem":"2.4rem minmax(0,1fr) minmax(0,1.15fr) minmax(0,1.15fr) 2.6rem";
   const si=ssInfo(a.ex,i);h+=`<div class="box livecard" data-li="${i}" style="${si?`border-left:5px solid ${si.col};${si.last?"":"margin-bottom:.35rem;"}`:""}">${ssTag(a.ex,i)}<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div style="flex:1;min-width:0"><button class="exname" onclick="showEx(${esc(JSON.stringify(e.name))})">${esc(e.name)}</button>${impBadge(e.name,(S.core.workout[A().day]||{ex:[]}).ex.find(x=>x.name===e.name)||e)}
@@ -3854,11 +3859,17 @@ function focusDone(i,k){const a=A();const was=a.ex[i].sets[k]&&a.ex[i].sets[k].d
  const b=A();if(!b||was||!b.ex[i]||!b.ex[i].sets[k]||!b.ex[i].sets[k].done)return;
  const G=focusGroups(b);const f=focusIdx(b);if(grpDone(b,G[f])){const nx=G.findIndex((g,j)=>j>f&&!grpDone(b,g));if(nx>=0){b.fg=nx;liveSave();render();window.scrollTo(0,0);flash(LL("Next exercise ›","Exercice suivant ›"))}}}
 function focusSetLab(e,k){const s=e.sets[k];const ty=SET_TYPES.find(t=>t[0]===s.t);let n=0;if(isSideSet(s)){for(let j=0;j<=k;j++)if(e.sets[j].t===s.t)n++;return n+s.t}if(ty&&setCls(s)==="W")return"W";for(let j=0;j<=k;j++){const x=e.sets[j];if(setCls(x)==="W"||isSideSet(x))continue;n++}return ty?ty[0]+n:String(n)}
+/* long-press helper (0.86f): hold ~0.45 s to open, a short tap keeps its normal action */
+let _lp=null;
+function lpDown(ev,fn){if(_lp&&_lp.t)clearTimeout(_lp.t);_lp={x:ev.clientX,y:ev.clientY,fired:false,t:setTimeout(()=>{if(!_lp)return;_lp.fired=true;try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}fn()},450)}}
+function lpMove(ev){if(_lp&&!_lp.fired&&Math.hypot(ev.clientX-_lp.x,ev.clientY-_lp.y)>10){clearTimeout(_lp.t);_lp=null}}
+function lpUp(){if(_lp&&!_lp.fired)clearTimeout(_lp.t)}
+function lpClick(fn){if(_lp&&_lp.fired){_lp=null;return}_lp=null;fn()}
 function focusCardHTML(a,i){const e=a.ex[i];const md=exMode(e.name);const f=liveFields(e.name);const k=focusCur(e);const s=k>=0?e.sets[k]:null;
  const work=e.sets.filter(x=>setCls(x)!=="W").length,wd=e.sets.filter(x=>setCls(x)!=="W"&&x.done).length;
  let h=`<div class="box fcard">${ssTag(a.ex,i)}<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:flex-start"><button class="exname fname" onclick="showEx(${esc(JSON.stringify(e.name))})">${esc(e.name)}</button><button class="iconbtn" aria-label="${LL("Exercise options","Options de l'exercice")}" onclick="exMenu(${i})">•••</button></div>
  <div class="muted" style="font-size:.85rem">${wd} / ${work} ${LL("sets done","séries faites")}</div>
- <div class="fsets" role="group" aria-label="${LL("Sets","Séries")}">${e.sets.map((x,q)=>`<button class="${x.done?"done":""} ${q===k?"cur":""}" aria-label="${LL("Set","Série")} ${focusSetLab(e,q)}${x.done?" ✓":""}" onclick="focusPick(${i},${q})">${x.done?"✓":focusSetLab(e,q)}</button>`).join("")}<button class="add" aria-label="${LL("Add set","Ajouter une série")}" onclick="addLiveSet(${i})">＋</button></div>`;
+ <div class="fsets" role="group" aria-label="${LL("Sets","Séries")}">${e.sets.map((x,q)=>`<button class="${x.done?"done":""} ${q===k?"cur":""}" aria-label="${LL("Set","Série")} ${focusSetLab(e,q)}${x.done?" ✓":""}" onpointerdown="lpDown(event,()=>setTypeSheet(${i},${q}))" onpointermove="lpMove(event)" onpointerup="lpUp()" onpointercancel="lpUp()" oncontextmenu="event.preventDefault()" onclick="lpClick(()=>focusPick(${i},${q}))">${x.done?"✓":focusSetLab(e,q)}</button>`).join("")}<button class="add" aria-label="${LL("Add set","Ajouter une série")}" onclick="addLiveSet(${i})">＋</button></div>`;
  if(md==="c"){const el=cdElapsed(e);h+=`<div class="row" style="align-items:center;gap:.6rem;margin:.2rem 0 .6rem"><span class="bignum cdtime" data-i="${i}">${fmtClock(el/1000)}</span><span class="grow"></span>${e.cStart?`<button class="ghost small" onclick="cdPause(${i})">❚❚</button>`:`<button class="small" onclick="cdStart(${i})">▶ ${el?LL("Resume","Reprendre"):LL("Start","Démarrer")}</button>`}${el?`<button class="ghost small" onclick="cdStop(${i})">■</button>`:""}</div>`}
  if(!s){h+=`<div class="fset fall"><b>✓ ${LL("All sets done","Toutes les séries faites")}</b><button class="ghost small" style="margin-top:.5rem" onclick="addLiveSet(${i})">＋ ${LL("Add set","Ajouter une série")}</button></div></div>`;return h}
  const p=prevSetAt(e.name,e,k);let tg="";if(!e.plan&&md!=="c"){try{const t=nextTarget(liveDef(e),a.day);if(t.text)tg=t.text}catch(_){}}
@@ -3871,7 +3882,7 @@ function focusCardHTML(a,i){const e=a.ex[i];const md=exMode(e.name);const f=live
  return h}
 function focusHTML(a){const G=focusGroups(a);const f=focusIdx(a);const g=G[f];
  let h=`<div class="focusnav"><button class="circbtn" aria-label="${LL("Previous exercise","Exercice précédent")}" ${f===0?"disabled":""} onclick="focusGo(-1)">‹</button><div class="fpos"><b>${LL("Exercise","Exercice")} ${f+1} / ${G.length}</b><div class="fdots" aria-hidden="true">${G.map((x,j)=>`<i class="${j===f?"on":grpDone(a,x)?"done":""}"></i>`).join("")}</div></div><button class="circbtn" aria-label="${LL("Next exercise","Exercice suivant")}" ${f===G.length-1?"disabled":""} onclick="focusGo(1)">›</button></div>`;
- g.forEach(i=>h+=focusCardHTML(a,i));
+ h+=restPillHTML().replace('<div id="restpill">','<div id="restpill" class="inflow">');g.forEach(i=>h+=focusCardHTML(a,i));
  if(grpDone(a,g)){const nx=G.findIndex((x,j)=>j>f&&!grpDone(a,x));h+=nx>=0?`<button class="fnext" onclick="focusGo(${nx-f})">${LL("Next exercise","Exercice suivant")} ›</button>`:G.every(x=>grpDone(a,x))?`<button class="fnext" onclick="finishSheet()">${LL("Finish workout","Terminer la séance")}</button>`:""}
  h+=`<button class="ghost small" style="display:block;margin:1rem auto 0" onclick="focusToggle()">☰ ${LL("Show the full list","Voir toute la liste")}</button>`;
  return h}
@@ -5120,7 +5131,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.86e beta";
+const APP_VERSION="0.86f beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
