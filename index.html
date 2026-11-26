@@ -392,6 +392,30 @@ input.plain{border:0;background:transparent;padding:.2rem 0}
 .pslot+.pslot{border-top:1px solid var(--line)}
 .pslot .lab{flex:0 0 5.6rem;font-size:.85rem;font-weight:600;color:var(--muted)}
 .pslot select{flex:1;min-width:0;min-height:44px;padding:.45rem .6rem}
+
+/* 0.86d · Train redesign (segmented views, phase card + week strip, Up next, Find an exercise) */
+.trseg{margin:-.2rem 0 1rem}
+.trseg button{font-size:.85rem;padding:.45rem .3rem;white-space:nowrap}
+.phcard{padding:1rem}
+.phcard .eb{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--plum)}
+.trstrip{margin:.8rem 0 .2rem}
+.trstrip .wkd{min-height:64px;cursor:pointer}
+.trstrip .wkd .c{font-size:.85rem;font-weight:700;min-height:1.3rem;display:flex;align-items:center}
+.trstrip .wkd .c .dd{font-size:.72rem}
+.trstrip .wkd .c.r{font-weight:500;color:var(--muted);font-size:.72rem}
+.trstrip .wkd.cur{border-color:var(--plum)}
+.trstrip .wkd.wsel{background:var(--plum-soft);outline:none}
+.trcardio{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.3rem}
+.trcardio button{min-height:36px;padding:0;font-size:.78rem;background:transparent;border-radius:var(--r-md);position:relative}
+.trcardio button::after{content:"";position:absolute;inset:-4px 0}
+.trrow{display:flex;align-items:center;gap:.8rem;width:100%;min-height:60px;padding:.7rem 1rem;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);margin:0 0 .6rem;text-align:left;font-weight:600;transition:transform 150ms ease-out}
+.trrow:active{transform:scale(.98)}
+.trrow .ic{flex:none;width:2.4rem;height:2.4rem;border-radius:var(--r-md);display:grid;place-items:center;background:var(--plum-soft);font-size:1.1rem}
+.trrow .tx{flex:1;min-width:0}
+.trrow .tx small{display:block;font-size:.75rem;font-weight:500;color:var(--muted)}
+.trrow .tx span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trrow .go{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.trrow{transition:none}.trrow:active{transform:none}}
 </style>
 </head>
 <body>
@@ -2967,7 +2991,7 @@ function lrDetail(name){const ss=lrSess(name).slice(-6).reverse();const f=x=>`${
  <p class="muted" style="font-size:.75rem;margin:.6rem 0 0">${ss.some(x=>x.odd)?LL("⚠ Looks like a typo: not counted. ","⚠ Sans doute une faute de frappe : pas comptée. "):""}${LL("Tap a session to open it.","Touche une séance pour l'ouvrir.")}</p>
  <button class="x" style="width:100%;margin-top:.6rem" onclick="closeSheet()">OK</button>`)}
 function vTrain(){
- const tabsT=`<div class="chips" style="margin-bottom:.9rem">${[["plan","Plan & log"],["lib","Library"],["hist",LANG()==="fr"?"Historique":"History"],["progress","Progress"]].map(([k,l])=>`<button class="chip ${trainView===k?"on":""}" onclick="trainView='${k}';render()">${l}</button>`).join("")}</div>`;
+ const tabsT=`<div class="seg cmp trseg" role="tablist">${[["plan","Plan & log"],["lib","Library"],["hist",LANG()==="fr"?"Historique":"History"],["progress","Progress"]].map(([k,l])=>`<button role="tab" aria-selected="${trainView===k}" class="${trainView===k?"on":""}" onclick="trainView='${k}';render()">${l}</button>`).join("")}</div>`;
  if(trainView==="progress")return tabsT+lrHTML()+vProgress();
  if(trainView==="log")return tabsT+vLog();
  if(trainView==="lib")return tabsT+vLibrary();
@@ -2978,8 +3002,10 @@ function vTrain(){
  const sch=schedule();const idx=(new Date().getDay()+6)%7;gymDay=gymDay&&S.core.workout[gymDay]?gymDay:(sch[idx]!=="rest"&&S.core.workout[sch[idx]]?sch[idx]:(sch.find(x=>x!=="rest"&&S.core.workout[x])||Object.keys(S.core.workout)[0]));
  const ph=S.core.phase.name;const T=targets();
  const progBanner=S.core.setup&&S.core.programFor!==progKey()?`<div class="note good" style="margin-top:0"><b>Your program is ready</b> <button class="small" style="margin-left:.3rem" onclick="trainView='preview';render();window.scrollTo(0,0)">Preview</button></div>`:"";
- let h=tabsT+progBanner+`<div class="box"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${S.core.schedule?"Your week":"Days per week"} <button class="x" aria-label="Info" style="font-size:1rem;padding:0 .2rem;vertical-align:middle" onclick="weekInfo()">ⓘ</button></h3>${S.core.schedule?`<button class="ghost small" onclick="trainView='preview';render();window.scrollTo(0,0)">Program</button>`:`<div class="chips">${[4,5].map(n=>`<button class="chip ${S.core.days===n?"on":""}" onclick="S.core.days=${n};save('core');render()">${n}</button>`).join("")}</div>`}</div>
- <div class="scroll" style="margin-top:.7rem"><table><tr>${DAYS.map((d,i)=>`<th style="${i===idx?"color:var(--plum)":""}">${d}</th>`).join("")}</tr><tr>${sch.map((s,i)=>{const d=weekDate(i);const done=(S.core.sessions||[]).filter(x=>x.date===d&&x.day!=="CARDIO");return`<td data-wd="${i}" class="wcell${wkSel===i&&s===gymDay?" wsel":""}" onpointerdown="wdDown(event,${i})">${done.length?`<span class="dd" style="background:${DAYCOL[done[0].day]||"var(--plum)"}" title="Done: ${done.map(x=>x.day).join(", ")}">${done[0].day==="FREE"?"＋":done[0].day}${done.length>1?"+"+(done.length-1):""}✓</span>`:s==="rest"?`<span class="muted">Rest</span>`:`<b>${s}</b>`}</td>`}).join("")}</tr><tr>${DAYS.map((d,i)=>{const c=cardioFor(i);const did=(S.core.sessions||[]).some(x=>x.date===weekDate(i)&&x.day==="CARDIO");return`<td><button class="x" style="font-size:.78rem;padding:.1rem .2rem;color:${c?"#2BA3A3":"var(--muted)"}" onclick="cardioCell(${i})" aria-label="Cardio on ${d}${c?": "+esc(c.name||""):""}">${c?`🏃${c.mins}${did?"✓":""}`:"＋🏃"}</button></td>`}).join("")}</tr></table></div>${weekExtrasHTML(sch)}</div>`;
+ const fr=LANG()==="fr";const DN=fr?["L","M","M","J","V","S","D"]:["M","T","W","T","F","S","S"];const phw=S.core.phase.start?Math.max(1,Math.floor((new Date(today())-new Date(S.core.phase.start+"T12:00"))/6048e5)+1):0;
+ let h=tabsT+progBanner+`<div class="box phcard"><div class="eb">${esc(PHASES[ph].label)}${S.core.phase.name==="build"&&S.core.phase.miniCut?" · mini-cut":""}${phw?` · ${LL("Week","Semaine")} ${phw}`:""}</div><div class="row" style="justify-content:space-between;margin-top:.15rem"><h3 style="margin:0">${S.core.schedule?"Your week":"Days per week"} <button class="x" aria-label="Info" style="font-size:1rem;padding:0 .2rem;vertical-align:middle" onclick="weekInfo()">ⓘ</button></h3>${S.core.schedule?`<button class="ghost small" onclick="trainView='preview';render();window.scrollTo(0,0)">Program</button>`:`<div class="chips">${[4,5].map(n=>`<button class="chip ${S.core.days===n?"on":""}" onclick="S.core.days=${n};save('core');render()">${n}</button>`).join("")}</div>`}</div>
+ <div class="wkstrip trstrip">${sch.map((sx,i)=>{const d=weekDate(i);const dt=new Date(d+"T12:00");const done=(S.core.sessions||[]).filter(x=>x.date===d&&x.day!=="CARDIO");return`<div role="button" tabindex="0" data-wd="${i}" aria-label="${esc(dt.toLocaleDateString(LOC(),{weekday:"long",day:"numeric",month:"long"}))}" class="wkd wcell ${i===idx?"cur":""} ${wkSel===i&&sx===gymDay?"wsel":""}" onpointerdown="wdDown(event,${i})" onkeydown="if(event.key==='Enter'){wkSel=${i};${sx!=="rest"?`gymDay='${sx}';`:""}render()}"><span class="l">${DN[i]}</span><span class="n">${dt.getDate()}</span><span class="c ${!done.length&&sx==="rest"?"r":""}">${done.length?`<span class="dd" style="background:${DAYCOL[done[0].day]||"var(--plum)"}" title="Done: ${done.map(x=>x.day).join(", ")}">${done[0].day==="FREE"?"＋":done[0].day}${done.length>1?"+"+(done.length-1):""}✓</span>`:sx==="rest"?"Rest":`<span class="dd" style="background:${DAYCOL[sx]||"var(--plum)"}">${sx}</span>`}</span></div>`}).join("")}</div>
+ <div class="trcardio">${DAYS.map((d,i)=>{const c=cardioFor(i);const did=(S.core.sessions||[]).some(x=>x.date===weekDate(i)&&x.day==="CARDIO");return`<button class="x" style="color:${c?"#2BA3A3":"var(--muted)"}" onclick="cardioCell(${i})" aria-label="Cardio on ${d}${c?": "+esc(c.name||""):""}">${c?`🏃${c.mins}${did?"✓":""}`:"＋🏃"}</button>`}).join("")}</div>${weekExtrasHTML(sch)}</div>`;
  const dl=deloadInfo();if(dl)h+=`<div class="note ${dl.due?"warn":""}">${dl.text} <button class="x" aria-label="Info" style="font-size:1rem;padding:0 .2rem;vertical-align:middle" onclick="deloadHelp()">ⓘ</button>${dl.due?` <button class="small" style="margin-left:.4rem" onclick="S.core.lastDeload=today();save('core');render()">Deload done</button>`:""}</div>`;
   const day=S.core.workout[gymDay];
  const lastS=(S.core.sessions||[]).filter(x=>x.day===gymDay).map(x=>x.date).sort().pop();const lastTxt=lastS?wkAgo(gymDay):"";
@@ -2991,6 +3017,9 @@ function vTrain(){
  <div class="row" style="gap:.5rem;flex-wrap:nowrap;margin-top:.6rem"><button class="qpick" style="flex:1;justify-content:center;max-width:none" onclick="strOpen('pre','${gymDay}',0)"><span>🧘🏾‍♀️</span>${LL("Pre","Avant")} · ${strCur(gymDay,"pre").length}</button><button class="qpick" style="flex:1;justify-content:center;max-width:none" onclick="strOpen('post','${gymDay}',0)"><span>🧘🏾‍♀️</span>${LL("Post","Après")} · ${strCur(gymDay,"post").length}</button></div>
  ${A()?`<button style="width:100%;margin-top:.8rem" onclick="trainView='live';render();window.scrollTo(0,0)">▶ Resume workout ${esc(A().day)}</button>`:`<button style="width:100%;margin-top:.8rem" onclick="startWorkout('${gymDay}')">${LANG()==="fr"?"Démarrer la séance":"Start workout"}</button>`}
  </div>`;
+  {let nx=-1;for(let k=1;k<=7;k++){const j=(idx+k)%7;if(sch[j]!=="rest"&&S.core.workout[sch[j]]&&!(S.core.sessions||[]).some(x=>x.date===weekDate(j)&&x.day!=="CARDIO"&&k<7)){nx=j;break}}
+  if(nx>=0){const nk=sch[nx];const dn=new Date(weekDate(nx)+"T12:00");const dl=(nx>idx?dn:new Date(dn.getTime()+7*864e5)).toLocaleDateString(LOC(),{weekday:"long"});h+=`<button class="trrow" onclick="gymDay='${nk}';wkSel=${nx};render();(document.getElementById('daybox')||{}).scrollIntoView&&document.getElementById('daybox').scrollIntoView({block:'start'})"><span class="ic"><span class="dd" style="background:${DAYCOL[nk]||"var(--plum)"}">${nk}</span></span><span class="tx"><small>${LL("Up next","À suivre")} · ${esc(dl.charAt(0).toUpperCase()+dl.slice(1))}</small><span>${esc(S.core.workout[nk].title)}</span></span><span class="go" aria-hidden="true">›</span></button>`}
+  h+=`<button class="trrow" onclick="trainView='lib';render();window.scrollTo(0,0)"><span class="ic" aria-hidden="true">🔍</span><span class="tx"><span>${LL("Find an exercise","Trouver un exercice")}</span><small>${libNames().length} ${LL("exercises","exercices")}</small></span><span class="go" aria-hidden="true">›</span></button>`}
   h+=`<h2 id="allwk" style="margin-top:1.4rem">Workouts</h2>`+vWorkouts();
   return h;
 }
@@ -5091,7 +5120,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.86c beta";
+const APP_VERSION="0.86d beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

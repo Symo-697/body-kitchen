@@ -2,6 +2,17 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.86d beta · 2026-11-26
+
+Redesign, tab 3 of 4: **Train** (main screen; Library, exercise page and live workout come with the detail screens).
+
+- Plan & log / Library / History / Progress is a segmented control (same four views).
+- **Phase card** (A): small line "FAT LOSS · WEEK 9" (phase from the header pill, week counted from the phase start), then Your week ⓘ and Program as before.
+- **Week strip** (B): each day shows letter, date and its workout letter in its colour (✓ when done, Rest otherwise); today has a plum outline, the selected day is tinted. Tap selects the day's workout and long-press still drags it to another day. The cardio line (＋🏃 / 🏃 minutes) stays right under it.
+- Deload note, the day's workout card (sets / duration / exercises, full exercise list, Pre / Post stretches, Start / Resume) unchanged.
+- **Up next** row (next planned workout this week and its weekday; tap shows it in the card) and **Find an exercise** row (opens Library, shows the exercise count) before the Workouts list. New labels: "Up next" / "À suivre", "Find an exercise" / "Trouver un exercice" (asked for in the spec).
+- Tested: segmented views, phase line, strip tap, cardio cells, both rows; every screen on a copy of Serena's real data; all earlier tests.
+
 ## 0.86c beta · 2026-11-26
 
 Kitchen follow-up (Serena): no ingredients list, Open Food Facts in the recipe form, receipts filed by shop.
