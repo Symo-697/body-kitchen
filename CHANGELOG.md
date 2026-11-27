@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89e beta · 2026-11-28 · Animations wait until you're looking
+- Replayed entrances now start only when the chart or number is well in view (most of it on screen, above the tab bar and the workout banner), after a short beat, and run about 1.7× slower than in-page motion. Charts stay empty until then, so you never see them finished first. They re-arm once fully off screen. Reduced motion: none, charts shown directly.
+
 ## 0.89d beta · 2026-11-28 · Animations replay when they come on screen
 - Charts, big numbers, rings and fill bars now animate every time they appear: when you open a page, switch week or month (Stats included), scroll back to them, or come back to the app. Repaints of the same page (logging, ticking a set) don't replay; changed values still count from old to new. Reduced motion: none.
 
