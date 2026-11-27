@@ -4506,6 +4506,8 @@ const grpDone=(a,g)=>g.every(i=>a.ex[i].sets.every(x=>x.done));
 function focusIdx(a){const G=focusGroups(a);let f=a.fg;if(f==null||f<0||f>=G.length){f=G.findIndex(g=>!grpDone(a,g));if(f<0)f=0;a.fg=f}return f}
 function focusGo(d){const a=A();if(!a)return;const seq=fSeq(a);const p=fPos(a);const np=Math.max(0,Math.min(seq.length-1,p+d));if(np===p)return;const it=seq[np];focusMove(()=>{if(it.t==="ex"){a.fs=null;a.fg=it.j}else a.fs=it.t;a.ex.forEach(e=>delete e.fk);liveSave()},np>p?1:-1)}
 function focusPick(i,k){A().ex[i].fk=k;liveSave();render()}
+/* Focus: one tap on a set number selects it and opens its set type (0.89b, the long press was too long) */
+function focusTap(i,k){const a=A();if(!a||!a.ex[i])return;a.ex[i].fk=k;liveSave();setTypeSheet(i,k);requestAnimationFrame(()=>render())}
 function focusCur(e){if(e.fk!=null&&e.sets[e.fk])return e.fk;const k=e.sets.findIndex(x=>!x.done);return k}
 function focusDone(i,k){const a=A();const was=a.ex[i].sets[k]&&a.ex[i].sets[k].done;delete a.ex[i].fk;toggleSetDone(i,k);
  const b=A();if(!b||was||!b.ex[i]||!b.ex[i].sets[k]||!b.ex[i].sets[k].done)return;
@@ -4521,7 +4523,7 @@ function focusCardHTML(a,i){const e=a.ex[i];const md=exMode(e.name);const f=live
  const work=e.sets.filter(x=>setCls(x)!=="W").length,wd=e.sets.filter(x=>setCls(x)!=="W"&&x.done).length;
  let h=`<div class="box fcard">${ssTag(a.ex,i)}<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:flex-start"><button class="exname fname" onclick="showEx(${esc(JSON.stringify(e.name))})">${esc(e.name)}</button><button class="iconbtn" aria-label="${LL("Exercise options","Options de l'exercice")}" onclick="exMenu(${i})">•••</button></div>
  <div class="muted" style="font-size:.85rem">${wd} / ${work} ${LL("sets done","séries faites")}</div>
- <div class="fsets" role="group" aria-label="${LL("Sets","Séries")}">${e.sets.map((x,q)=>`<button class="${x.done?"done":""} ${q===k?"cur":""}" aria-label="${LL("Set","Série")} ${focusSetLab(e,q)}${x.done?" ✓":""}" onpointerdown="lpDown(event,()=>setTypeSheet(${i},${q}))" onpointermove="lpMove(event)" onpointerup="lpUp()" onpointercancel="lpUp()" oncontextmenu="event.preventDefault()" onclick="lpClick(()=>focusPick(${i},${q}))">${x.done?"✓":focusSetLab(e,q)}</button>`).join("")}<button class="add" aria-label="${LL("Add set","Ajouter une série")}" onclick="addLiveSet(${i})">＋</button></div>`;
+ <div class="fsets" role="group" aria-label="${LL("Sets","Séries")}">${e.sets.map((x,q)=>`<button class="${x.done?"done":""} ${q===k?"cur":""}" aria-label="${LL("Set","Série")} ${focusSetLab(e,q)}${x.done?" ✓":""}" aria-label="${LL("Set","Série")} ${q+1}: ${LL("set type","type de série")}" onclick="focusTap(${i},${q})">${x.done?"✓":focusSetLab(e,q)}</button>`).join("")}<button class="add" aria-label="${LL("Add set","Ajouter une série")}" onclick="addLiveSet(${i})">＋</button></div>`;
  if(md==="c"){const el=cdElapsed(e);h+=`<div class="row" style="align-items:center;gap:.6rem;margin:.2rem 0 .6rem"><span class="bignum cdtime" data-i="${i}">${fmtClock(el/1000)}</span><span class="grow"></span>${e.cStart?`<button class="ghost small" onclick="cdPause(${i})">❚❚</button>`:`<button class="small" onclick="cdStart(${i})">▶ ${el?LL("Resume","Reprendre"):LL("Start","Démarrer")}</button>`}${el?`<button class="ghost small" onclick="cdStop(${i})">■</button>`:""}</div>`}
  if(!s){h+=`<div class="fset fall"><b>✓ ${LL("All sets done","Toutes les séries faites")}</b><button class="ghost small" style="margin-top:.5rem" onclick="addLiveSet(${i})">＋ ${LL("Add set","Ajouter une série")}</button></div></div>`;return h}
  const p=prevSetAt(e.name,e,k);let tg="";if(!e.plan&&md!=="c"){try{const t=nextTarget(liveDef(e),a.day);if(t.text)tg=t.text}catch(_){}}
@@ -5823,7 +5825,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89a beta";
+const APP_VERSION="0.89b beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

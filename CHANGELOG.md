@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89b — Focus: tap a set number for its type
+- Focus mode: one tap on a set number selects that set and opens its set type sheet (the long press was too slow). The sheet grows from the number.
+
 ## 0.89a — Focus mode on one screen, do a workout again
 - Focus mode now fits one fixed screen: header, compact stats + body map, "Exercise x / n", and one card. Only the card scrolls inside if it's taller than the screen.
 - Pre-workout stretches are the first card and post-workout stretches the card after the last exercise (diamond dots in the progress dots). Focus opens on the pre-workout card until you start.
