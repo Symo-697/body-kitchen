@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.88f beta · 2026-11-27
+W6 · Kitchen & Progress moments (`claude/bk-craft-rules.md`, Serena's OK), existing data only, checked with charles-ux-animation + charles-polish.
+- Kitchen › Plan the week: a calm "Week" bar shows how much of 7 × the daily calorie target the planned meals cover (portion + sides), with a thin Protein bar under it against 7 × the daily protein. Planning a meal grows the bars from where they were and draws the pencil tick on the slot; removing it shrinks them back. Crous / eating out count as not planned. Over 100 % uses the "over" colour, never red. Cook days use the line icon instead of 🍳.
+- Progress › Stats opens on the real body map coloured by this week's sets per muscle (Mon → today; helper muscles count half), same `--bm0…4` scale as W3, legend with the numbers (0 · 1–3 · 4–6 · 7–10 · 11+), male / female from the profile. Tap a muscle: its sets this week vs last week and the exercises that hit it. The tiles and chips follow unchanged. Muscles fill in once the first time it's shown; instant with reduced motion.
+
 ## 0.88e beta · 2026-11-27
 W5 · ＋ menu + weight dial (`claude/bk-craft-rules.md`, Serena's OK), checked with charles-ux-animation + charles-polish.
 - ＋ shows only what the screen doesn't already have: one list of actions (`fabActs()`), each knows the button that would make it redundant (Log food / Describe / water / weight / Start or Resume workout / fasting card), checked against what's rendered and not folded away, so a card hidden with Arrange Today brings its action back. One action left = ＋ runs it; none = ＋ hidden. Photo and "I drank yesterday" always stay.

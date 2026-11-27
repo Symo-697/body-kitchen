@@ -701,6 +701,28 @@ input.bad,select.bad{border-color:var(--over)!important}
 .druler canvas{width:100%;height:100%;display:block}
 .dneedle{position:absolute;left:50%;top:.35rem;bottom:.6rem;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--plum);pointer-events:none}
 .dialrow .dial{margin-top:.2rem}
+
+/* W6 · Kitchen "the week fills up" + Progress body map hero */
+.pstrip .ck .i{width:13px;height:13px}
+.wkfill{padding:.2rem .1rem .9rem}
+.wkfill .wfr{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;margin-bottom:.3rem}
+.wkfill .wfr b{color:var(--ink);font-size:1.05rem}
+.wkfill .wtrack{height:8px;border-radius:999px;overflow:hidden}
+.wkfill .wtrack.thin{height:4px;margin-top:.15rem}
+.wkfill .wtrack i{display:block;height:100%;border-radius:999px;background:var(--plum)}
+.wkfill .wtrack.thin i{background:var(--p,var(--sage))}
+.wkfill .wtrack i.over{background:var(--over)}
+.wkfill .wfr.sm{margin:.55rem 0 .15rem;font-size:.78rem}
+.wkfill .wfr.sm b{font-size:.9rem}
+.bmhero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.4rem .9rem;align-items:center;margin:0 0 1.2rem}
+.bmhero .bmap{width:100%;max-width:230px;justify-self:center;cursor:pointer}
+.bmhero .bmap path[data-j]{cursor:pointer}
+.bmleg{display:flex;flex-direction:column;gap:.35rem;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.bmleg span{display:flex;align-items:center;gap:.45rem}
+.bmleg i{width:14px;height:14px;border-radius:4px;flex:none;border:1px solid var(--line)}
+.bmleg b{color:var(--ink);font-weight:600}
+.mrows{display:flex;flex-direction:column}
+.mrows .mr{display:flex;justify-content:space-between;gap:.8rem;padding:.55rem 0;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -1470,7 +1492,7 @@ function tickDraw(x,y){const d=document.createElement("div");d.className="tickfx
  d.animate([{opacity:1},{opacity:1,offset:.62},{opacity:0}],{duration:400+150,easing:"linear",fill:"forwards"}).onfinish=()=>d.remove()}
 function tickHere(){if(_pt&&Date.now()-_pt.t<5000)tickDraw(_pt.x,_pt.y)}
 function wrapTick(name,cond){const f=window[name];if(typeof f!=="function")return;window[name]=function(...a){const ok=!cond||cond(...a);const r=f.apply(this,a);if(ok)tickHere();return r}}
-wrapTick("commitLog");wrapTick("addWater",v=>v>0);wrapTick("toggleSupp",(id,on)=>on===true||on==="true");wrapTick("addCoffee",d=>d>0);
+wrapTick("commitLog");wrapTick("setSlot",(k,v)=>!!v&&v!=="__add");wrapTick("addWater",v=>v>0);wrapTick("toggleSupp",(id,on)=>on===true||on==="true");wrapTick("addCoffee",d=>d>0);
 wrapTick("toggleBought",(id,q,on)=>!!on);wrapTick("toggleSetDone",(i,k)=>{try{return!A().ex[i].sets[k].done}catch(e){return false}});
 {const f=window.setDay;window.setDay=function(k,v){const r=f.apply(this,arguments);if(v!==""&&v!=null&&["steps","sleep","energy"].includes(k))tickHere();return r}}
 /* values that animate between renders: keyed by tab + selector + index */
@@ -1619,6 +1641,27 @@ function askDial(title,o){return new Promise(res=>{const id="ask"+Date.now();con
  ov.innerHTML=`<div class="sheet" style="border-radius:18px;max-width:420px;margin:1rem;width:calc(100% - 2rem)"><p style="margin:0 0 .4rem;text-align:center">${esc(title)}</p>${dialHTML(id,o)}<div class="row" style="justify-content:flex-end;margin-top:.8rem">${o.clear?`<button class="ghost" data-v="clear">${LL("Clear","Effacer")}</button><span class="grow"></span>`:""}<button class="ghost" data-v="no">Cancel</button><button data-v="ok">OK</button></div></div>`;
  document.body.appendChild(ov);dialMount(ov);const el=ov.querySelector(".dial");setTimeout(()=>el&&el.focus({preventScroll:true,focusVisible:false}),30);
  const done=v=>{ov.remove();delete DIAL[id];res(v)};ov.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{const t=ov.querySelector(".dtype");if(t)t.blur();const d=DIAL[id];done(b.dataset.v==="ok"?(d.set?d.v:null):b.dataset.v==="clear"?"":null)})})}
+
+/* ---------- W6 · Kitchen: the week fills up ---------- */
+/* Planned meals' kcal and protein against 7 × the daily targets. Crous / eating out count as not planned. */
+function planFill(){const T=targets();const pl=S.core.plan;if(!T||!pl)return"";let k=0,p=0;Object.values(pl.slots||{}).forEach(id=>{const r=id&&id!=="crous"&&S.core.recipes.find(x=>x.id===id);if(!r)return;const m=portionWith(r,true);k+=m.kcal||0;p+=m.p||0});
+ const K=T.kcal*7,Pq=T.p*7;const pk=k/K*100,pp=p/Pq*100;
+ return`<div class="wkfill"><div class="wfr"><span>${LL("Week","Semaine")}</span><span><b>${r0(k).toLocaleString()}</b> / ${r0(K).toLocaleString()} kcal</span></div><div class="wtrack" role="img" aria-label="${r0(pk)} %"><i class="${pk>100?"over":""}" style="width:${Math.min(100,pk)}%"></i></div>
+ <div class="wfr sm"><span>${LL("Protein","Protéines")}</span><span><b>${r0(p)}</b> / ${r0(Pq)} g</span></div><div class="wtrack thin" role="img" aria-label="${r0(pp)} %"><i class="${pp>100?"over":""}" style="width:${Math.min(100,pp)}%"></i></div></div>`}
+/* ---------- W6 · Progress: body map hero, coloured by this week's sets per muscle ---------- */
+const BMS_STEPS=[[0,"0"],[1,"1–3"],[4,"4–6"],[7,"7–10"],[11,"11+"]];
+const bmsLevel=n=>n<=0?0:n<4?1:n<7?2:n<11?3:4;
+function setsByGroup(from,to){const G={},E={};(S.core.sessions||[]).filter(x=>x.date>=from&&x.date<=to&&x.day!=="CARDIO").forEach(sess=>{let lifts=[];try{lifts=sessionLifts(sess)}catch(e){}
+ lifts.forEach(({name,entry})=>{if(isCardio({name}))return;let n=0;try{n=sessionStats(name,entry).n||0}catch(e){}if(!n)return;let gp=[],gs=[];try{[gp,gs]=recMus(name)}catch(e){}
+  gp.forEach(g=>{G[g]=(G[g]||0)+n;(E[g]=E[g]||{})[name]=(E[g][name]||0)+n});gs.forEach(g=>{if(gp.includes(g))return;G[g]=(G[g]||0)+n/2;(E[g]=E[g]||{})[name]=(E[g][name]||0)+n/2})})});return{G,E}}
+function bmHeroHTML(){if(!hasTrain()||!(S.core.sessions||[]).length)return"";const mon=mondayOf(today());const {G}=setsByGroup(mon,today());const L={};Object.keys(G).forEach(g=>L[g]=bmsLevel(G[g]));const {key}=bmSVG(L,null);
+ return`<div class="bmhero"><div class="bmap" data-bm="hero" data-k="${esc(key)}" role="img" aria-label="${LL("Sets per muscle this week","Séries par muscle cette semaine")}" onclick="bmHeroTap(event)"></div><div class="bmleg" aria-hidden="true">${BMS_STEPS.slice().reverse().map(([_,l],i)=>`<span><i style="background:var(--bm${4-i})"></i><b>${l}</b></span>`).join("")}<span style="margin-top:.2rem">${LL("sets this week","séries cette semaine")}</span></div></div>`}
+function bmHeroTap(e){const p=e.target.closest&&e.target.closest("path[data-j]");if(!p)return;const sh=BODY.shapes[S.core.profile.sex==="f"?"f":"m"][+p.dataset.j]||[];let g=null;sh.some(k=>bmKeyGroups(k).some(x=>{g=x;return true}));if(!g)return;muscleWeekSheet(g)}
+function muscleWeekSheet(g){const mon=mondayOf(today());const pm=new Date(mon+"T12:00");pm.setDate(pm.getDate()-7);const pmon=pm.toLocaleDateString("sv-SE");const pe=new Date(mon+"T12:00");pe.setDate(pe.getDate()-1);
+ const a=setsByGroup(mon,today()),b=setsByGroup(pmon,pe.toLocaleDateString("sv-SE"));const ex=Object.entries(a.E[g]||{}).sort((x,y)=>y[1]-x[1]);const nm=typeof MUSL==="function"?MUSL(g):g;
+ openSheet(`<div class="wkbar"><button class="circbtn" aria-label="${LL("Close","Fermer")}" onclick="closeSheet()">‹</button><b>${esc(nm)}</b><span></span></div><div class="mrows"><div class="mr"><span>${LL("This week","Cette semaine")}</span><b>${r1(a.G[g]||0)} ${LL("sets","séries")}</b></div><div class="mr"><span>${LL("Last week","Semaine dernière")}</span><b>${r1(b.G[g]||0)} ${LL("sets","séries")}</b></div></div>${ex.length?`<label style="margin-top:.8rem">${LL("Exercises","Exercices")}</label><div class="mrows">${ex.map(([n,c])=>`<div class="mr"><span>${esc(n)}</span><span class="muted">${r1(c)}</span></div>`).join("")}</div>`:""}`)}
+/* Draw-in once: the hero's muscles fill from neutral the first time it's shown */
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{const m=document.querySelector('#app .bmap[data-bm="hero"]');if(m&&!_seen.has("bmhero")&&!RM()){_seen.add("bmhero");m.querySelectorAll("path[data-j]").forEach(p=>{const f=p.getAttribute("fill");if(f&&f!=="var(--bm0)")p.animate([{fill:"var(--bm0)"},{fill:f}],{duration:MT.large+120,easing:EZ.out})})}}catch(e){}return r}}
 /* ---------- personal setup questionnaire ---------- */
 let setupOn=false,setupStep=0,SD=null;
 const SO={
@@ -2815,7 +2858,7 @@ function vShop(){migrateShops();
  if(!R.length)return h+`<div class="box"><p style="margin:0 0 .6rem">No recipes yet.</p><div class="row"><button onclick="tab='kitchen';kView='discover';render();window.scrollTo(0,0)">Discover recipes</button><button class="ghost" onclick="tab='kitchen';kView='mine';render();window.scrollTo(0,0)">Log a new recipe</button></div></div>`;
  const ro=(sel,slot)=>`<option value="">—</option><option value="__add">＋ Add recipes…</option><option value="crous" ${sel==="crous"?"selected":""}>🍽 Crous</option>`+(slot?R.slice().sort((a,b)=>((b.meal||"").includes(slot))-((a.meal||"").includes(slot))):R).map(r=>`<option value="${r.id}" ${sel===r.id?"selected":""}>${recipeConflicts(r).length?"⚠ ":""}${slot&&(r.meal||"").includes(slot)?"★ ":""}${esc(r.name)}</option>`).join("");
  {const fr=LANG()==="fr";const DN=fr?["L","M","M","J","V","S","D"]:["M","T","W","T","F","S","S"];const ck=[6,(prefs().prepMode||"sunthu")==="sunwed"?2:3];if(planDay==null){const ti=Math.round((new Date(today()+"T12:00")-new Date(pl.week+"T12:00"))/864e5);planDay=ti>=0&&ti<7?ti:0}const pd=planDay;
- h+=`<h2>Plan the week</h2><div class="wkstrip pstrip" role="group" aria-label="Plan the week">${DAYS.map((d,i)=>{const dt=new Date(pl.week+"T12:00");dt.setDate(dt.getDate()+i);const ds=dt.toLocaleDateString("sv-SE");return`<button class="wkd ${i===pd?"on":""} ${ds===today()&&i!==pd?"sel":""}" aria-pressed="${i===pd}" aria-label="${esc(dt.toLocaleDateString(LOC(),{weekday:"long",day:"numeric",month:"long"}))}" onclick="planDay=${i};render()"><span class="l">${DN[i]}</span><span class="n">${dt.getDate()}</span><span class="pdots" aria-hidden="true">${SLOTS.map(sl=>`<i class="${pl.slots[i+"-"+sl[0]]?"f":""}"></i>`).join("")}</span><span class="ck" aria-hidden="true">${ck.includes(i)?"🍳":""}</span></button>`}).join("")}</div>
+ h+=`<h2>Plan the week</h2>${planFill()}<div class="wkstrip pstrip" role="group" aria-label="Plan the week">${DAYS.map((d,i)=>{const dt=new Date(pl.week+"T12:00");dt.setDate(dt.getDate()+i);const ds=dt.toLocaleDateString("sv-SE");return`<button class="wkd ${i===pd?"on":""} ${ds===today()&&i!==pd?"sel":""}" aria-pressed="${i===pd}" aria-label="${esc(dt.toLocaleDateString(LOC(),{weekday:"long",day:"numeric",month:"long"}))}" onclick="planDay=${i};render()"><span class="l">${DN[i]}</span><span class="n">${dt.getDate()}</span><span class="pdots" aria-hidden="true">${SLOTS.map(sl=>`<i class="${pl.slots[i+"-"+sl[0]]?"f":""}"></i>`).join("")}</span><span class="ck" aria-hidden="true">${ck.includes(i)?ic("kitchen"):""}</span></button>`}).join("")}</div>
  <div class="box pslots">${SLOTS.map(sl=>`<div class="pslot"><span class="lab">${sl[1]}</span><select aria-label="${DAYS[pd]} · ${sl[1]}" onchange="setSlot('${pd}-${sl[0]}',this.value)">${ro(pl.slots[pd+"-"+sl[0]],sl[0])}</select></div>`).join("")}</div>`}
  const counts=planCounts();const eaten=eatenCounts(),eS=eatenSlots();
  const slotC={};Object.values(pl.slots).forEach(id=>{if(id)slotC[id]=(slotC[id]||0)+1});
@@ -5597,7 +5640,7 @@ function vMe(){
  ${cell("Avg steps",I.steps!=null?r0(I.steps).toLocaleString():"—",T?"goal "+T.steps.toLocaleString():"")}${cell("Avg sleep",I.sleep!=null?r1(I.sleep)+" h":"—",LL("target","cible")+" "+sleepTarget()+" h")}${cell("Avg energy",I.energy!=null?r1(I.energy)+" / 5":"—")}
  ${cell("Nutrition score",(()=>{const sc=[];for(let i=0;i<7;i++){const d=daysAgo(i);const x=dayScore((S.logs[monthKey(d)]||{days:{}}).days?.[d],T,false,d);if(x)sc.push(x.score)}return sc.length?r0(sc.reduce((a,b)=>a+b,0)/sc.length)+" / 100":"—"})(),"7-day average")}${cell("Supplements",(()=>{let due=0,tk=0;for(let i=0;i<7;i++){const d=daysAgo(i);const L=(S.logs[monthKey(d)]||{days:{}}).days?.[d]||{};suppsDue(d).filter(x=>x.due).forEach(x=>{due++;if((L.supps||{})[x.s.id])tk++})}return due?`${tk}/${due}`:"—"})(),"doses taken")}${(()=>{const fs=(S.core.fasts||[]).filter(x=>x.end&&new Date(x.end).toLocaleDateString("sv-SE")>=mondayOf(today()));if(!fastOn()&&!fs.length)return"";const met=fs.filter(x=>x.met??((x.end-x.start)/36e5>=(x.goal||16))).length;const st=fastStreak();return cell(LL("Fasts","Jeûnes"),`${fs.length} · ${met} ✓`,st?`🔥 ${st} ${LL("goals met in a row","objectifs atteints d'affilée")}`:LL("goal met / done","objectif atteint / faits"))})()}${cell("Workouts",wkSessions)}${cell("Weight change",wChange!=null?(wChange>0?"+":"")+r1(wChange)+" kg":"—","vs last week's average")}</div>${meChipsHTML()}${meShow("nutrition")&&T&&hasFood()&&kcalByWeek()?`<div class="box">${weekBarHTML(today(),T,{head:1})}</div>`:""}`;
  const f=(k,lab,type="number",extra="")=>`<div><label>${lab}</label><input type="${type}" inputmode="decimal" value="${esc(p[k])}" onchange="setProf('${k}',this.value)" ${extra}></div>`;
- let h=(!S.core.setup?`<div class="note" style="margin-top:0"><b>Personal setup</b> <button class="small" style="margin-left:.3rem" onclick="startSetup()">Start</button></div>`:"")+summary+(meShow("body")?`<div class="box"><div class="row" style="justify-content:space-between"><div><b>My body & profile</b><div class="muted" style="font-size:.85rem">${p.age?`${p.age} y · ${p.height} cm · ${r1(latestWeight()||p.weight)} kg`:"Not filled in yet"}${T?` · target ${r0(T.kcal)} kcal`:""}</div></div><button class="ghost small" onclick="openSettings()">Edit in ${ic("gear")}</button></div></div>`:"");
+ let h=(!S.core.setup?`<div class="note" style="margin-top:0"><b>Personal setup</b> <button class="small" style="margin-left:.3rem" onclick="startSetup()">Start</button></div>`:"")+bmHeroHTML()+summary+(meShow("body")?`<div class="box"><div class="row" style="justify-content:space-between"><div><b>My body & profile</b><div class="muted" style="font-size:.85rem">${p.age?`${p.age} y · ${p.height} cm · ${r1(latestWeight()||p.weight)} kg`:"Not filled in yet"}${T?` · target ${r0(T.kcal)} kcal`:""}</div></div><button class="ghost small" onclick="openSettings()">Edit in ${ic("gear")}</button></div></div>`:"");
  // phase
  if(meShow("training")){const pn=S.core.phase.name;const pc=PHASE_COL[pn]||"var(--plum)";
  h+=`<h2>Phase</h2><div class="box"><div class="row" style="gap:.8rem;flex-wrap:nowrap;align-items:center"><div class="wkth" style="background:color-mix(in oklch,var(--ink) 6%,transparent);color:${pc};border:0;width:56px;height:56px;font-size:1.5rem">${ic(({cut:"flame",minicut:"scissors",recomp:"scale",maintain:"equal",build:"train",gain:"progress"})[pn]||"target","phi")}</div><div style="flex:1;min-width:0"><div class="wkn" style="font-size:1.15rem">${PHASES[pn].label} <button class="x" aria-label="Info" style="font-size:.95rem;padding:0 .2rem" onclick="stDlg('<p>'+${esc(JSON.stringify(PHASES[pn].info))}+'</p>')">ⓘ</button></div><div class="muted" style="font-size:.82rem">${LL("Week","Semaine")} ${ci.wk+1} · ${LL("since","depuis le")} ${new Date(S.core.phase.start+"T12:00").toLocaleDateString(LOC(),{day:"numeric",month:"short"})}</div></div></div>
@@ -5701,7 +5744,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.88e beta";
+const APP_VERSION="0.88f beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
