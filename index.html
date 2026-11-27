@@ -686,6 +686,21 @@ input.bad,select.bad{border-color:var(--over)!important}
 @media (prefers-reduced-motion:reduce){.shake{animation:none}}
 .libsearch .i{width:18px;height:18px;color:var(--muted)}
 .wkn .i,.wkro .i{width:14px;height:14px;vertical-align:-.15em;color:var(--muted)}
+
+/* W5 · ruler dial */
+.dial{position:relative;user-select:none;-webkit-user-select:none;touch-action:pan-y;outline:none;padding:.2rem 0 .4rem;border-radius:var(--r-md)}
+.dial:focus-visible{outline:2px solid var(--plum);outline-offset:2px}
+.dnum{all:unset;cursor:text;display:flex;flex-direction:column;align-items:center;margin:0 auto;min-height:44px;padding:.1rem .6rem;border-radius:var(--r-sm)}
+.dnum:focus-visible{outline:2px solid var(--plum)}
+.dv{font-family:var(--font-display,inherit);font-size:2.6rem;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums;display:flex;overflow:hidden;height:1.12em}
+.dv>span{display:inline-block;min-width:.1em}
+.dnum small{font-size:.8rem;color:var(--muted);margin-top:.1rem}
+.dial.unset .dv{color:var(--muted)}
+.dtype{display:block;margin:.2rem auto 0;width:7rem;text-align:center;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.druler{position:relative;height:56px;margin-top:.35rem;cursor:grab;touch-action:none;-webkit-mask:linear-gradient(90deg,transparent,#000 18% 82%,transparent);mask:linear-gradient(90deg,transparent,#000 18% 82%,transparent)}
+.druler canvas{width:100%;height:100%;display:block}
+.dneedle{position:absolute;left:50%;top:.35rem;bottom:.6rem;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--plum);pointer-events:none}
+.dialrow .dial{margin-top:.2rem}
 </style>
 </head>
 <body>
@@ -960,14 +975,14 @@ function fastCardHTML(){fastAutoCheck();const goal=fastGoal();const f=S.core.fas
   return`<div class="box"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><div class="muted">Fasting · goal ${goal} h</div><span class="left-num" style="font-size:2rem" id="fastel">${fmtHM2(el)}</span><div class="muted" style="font-size:.8rem">${pc>=100?"Goal reached ✓":"Ends at "+end.toTimeString().slice(0,5)}</div></div><button class="ghost" onclick="fastSheet()">End fast</button></div><div class="track" style="height:8px;margin-top:.5rem"><div class="fill" style="width:${pc}%;background:${pc>=100?"var(--sage)":"var(--plum)"}"></div></div></div>`}
  const last=(S.core.fasts||[]).slice(-1)[0];return`<div class="box"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><div class="muted">Fasting · goal ${goal} h</div><b>Eating window open</b><div class="muted" style="font-size:.8rem">${last?"Last fast: "+fmtHM2(last.end-last.start):"Start after your last meal."}</div></div><button onclick="fastSheet()">▶ Start fast</button></div></div>`}
 /* quick ＋ menu */
-function fabMenu(){const L=dayLog(today());const T=targets();let left="";if(T){const k=L.food.reduce((a,x)=>a+(x.kcal||0),0);left=` <span class="muted" style="font-weight:400;font-size:.85rem">· ${r0(T.kcal-k)} kcal left</span>`}
+function fabMenuOld(){const L=dayLog(today());const T=targets();let left="";if(T){const k=L.food.reduce((a,x)=>a+(x.kcal||0),0);left=` <span class="muted" style="font-weight:400;font-size:.85rem">· ${r0(T.kcal-k)} kcal left</span>`}
  const w=latestWeight();openSheet(`<div class="wkbar"><button class="circbtn" aria-label="${LL("Close","Fermer")}" onclick="closeSheet()">‹</button><b>${LL("A little check-in","Un petit point")}</b><span></span></div>${hasFood()?`${sheetBtn("🔎","Log food"+left,"fabFood('search')")}${sheetBtn("✨","Describe a meal","fabFood('ai')")}<label class="sheetbtn" style="cursor:pointer"><span class="sheeticon">📷</span>Photo of my meal<input type="file" accept="image/*" style="display:none" onchange="closeSheet();aiPhoto(this)"></label>`:""}
  ${sheetBtn("💧",`Water +250 ml <span class="muted" style="font-weight:400;font-size:.85rem">· ${(L.water||0)} ml</span>`,"fabWater()")}${sheetBtn("⚖️",`Weight <span class="muted" style="font-weight:400;font-size:.85rem">· ${w?r1(w)+" kg":"—"}</span>`,"closeSheet();fabWeight()")}${!hasTrain()?"":sheetBtn("🏋️",A()?"Resume workout":"Start a workout","fabWorkout()")}${sheetBtn("🍷",LL("I drank yesterday","J’ai bu hier")+(drinkLv()?` <span class="muted" style="font-weight:400;font-size:.85rem">· ${drinkLv()}/5</span>`:""),"drinkSheet()")}${fastOn()&&hasFood()?(fastAutoCheck(),sheetBtn("⏳",LL("Fasting","Jeûne")+` <span class="muted" style="font-weight:400;font-size:.85rem">· ${S.core.fast?fmtFast(Date.now()-S.core.fast.start)+" / "+fastGoal()+" h":LL("not fasting","pas en jeûne")}</span>`,"fastSheet()")):""}`)}
 function fabFood(m){closeSheet();logDate=today();tab="today";settingsOpen=false;statsOpen=false;render();lfOpen(m==="ai"?"describe":m==="barcode"?"barcode":"search")}
 function fabWater(){closeSheet();const L=dayLog(today());L.water=(L.water||0)+250;save(monthKey(today()));render();flash(`💧 ${L.water} ml today`)}
-async function fabWeight(){const v=await askText("Today's weight (kg)",latestWeight()||"");if(v==null||v===false)return;const n=parseFloat(String(v).replace(",","."));if(n>20&&n<400){addMeas("weight",n,today());flash(`⚖️ ${n} kg saved`)}}
+async function fabWeight(){const v=await askDial("Today's weight (kg)",{min:30,max:250,step:.1,unit:"kg",major:5,label:"Weight",val:latestWeight()||+S.core.profile.weight||null,dflt:70});if(v==null||v==="")return;const n=+v;if(n>20&&n<400){addMeas("weight",n,today());flash(`⚖️ ${n} kg saved`)}}
 function fabWorkout(){closeSheet();if(A()){tab="train";trainView="live";render();window.scrollTo(0,0);return}const di=(new Date().getDay()+6)%7;const dk=schedule()[di];if(dk&&dk!=="rest"&&S.core.workout[dk]){startWorkout(dk);return}tab="train";trainView="plan";render();window.scrollTo(0,0)}
-function fabPaint(){let b=document.getElementById("fab");if(!b){b=document.createElement("button");b.id="fab";b.setAttribute("aria-label","Quick add");b.textContent="＋";b.onclick=()=>fabMenu();document.body.appendChild(b)}b.style.display=(typeof setupOn!=="undefined"&&setupOn)||(tab==="train"&&trainView==="live")?"none":""}
+function fabPaintOld(){let b=document.getElementById("fab");if(!b){b=document.createElement("button");b.id="fab";b.setAttribute("aria-label","Quick add");b.textContent="＋";b.onclick=()=>fabMenu();document.body.appendChild(b)}b.style.display=(typeof setupOn!=="undefined"&&setupOn)||(tab==="train"&&trainView==="live")?"none":""}
 /* photo logging */
 async function aiPhoto(inp){const file=inp.files&&inp.files[0];inp.value="";if(!file)return;if(inAISheet()){logDate=today();aiOpen=true;aiDraft={text:""};paintAI()}else{tab="today";logDate=today();settingsOpen=false;aiOpen=true;crousOpen=false;qaOpen=false;aiDraft={text:""};render()}
  const eng=await aiEngine();if(eng==="local"){aiErr="Photos need Claude: open the app in claude.ai, or add an API key in Settings › AI.";paintAI();return}
@@ -1544,6 +1559,66 @@ function w4After(){const app=document.getElementById("app");if(!app)return;const
  if(first){const lists=[app.querySelectorAll(".mealcard"),app.querySelectorAll(".wkro"),app.querySelectorAll(".gitem")];lists.forEach(l=>l.length>1&&staggerIn(l))}
  _w4.nav=nv}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{w4After()}catch(e){}return r}}
+
+/* ---------- W5 · ＋ shows only what the screen doesn't already have ---------- */
+/* One list of actions; each says when the current screen already shows a button for it. A card hidden with
+   Arrange Today brings its action back. One action left = ＋ runs it; none = ＋ hidden. */
+function fabActs(){const app=document.getElementById("app");const vis=sel=>{if(!app)return false;return[...app.querySelectorAll(sel)].some(e=>{const d=e.closest("details");return!(d&&!d.open)&&e.getClientRects().length})};
+ const L=dayLog(today());const T=targets();const w=latestWeight();const mut=t=>` <span class="muted" style="font-weight:400;font-size:.85rem">· ${t}</span>`;
+ const left=T?mut(`${r0(T.kcal-L.food.reduce((a,x)=>a+(x.kcal||0),0))} kcal left`):"";
+ return[
+  {k:"food",on:hasFood(),shown:vis(`[onclick*="fabFood('search')"]`)||vis(".lfacts"),html:()=>sheetBtn("🔎","Log food"+left,"fabFood('search')"),run:()=>fabFood("search")},
+  {k:"describe",on:hasFood(),shown:vis(".kdesc")||vis(".lfacts"),html:()=>sheetBtn("✨","Describe a meal","fabFood('ai')"),run:()=>fabFood("ai")},
+  {k:"photo",on:hasFood(),shown:false,html:()=>`<label class="sheetbtn" style="cursor:pointer"><span class="sheeticon">📷</span>Photo of my meal<input type="file" accept="image/*" style="display:none" onchange="closeSheet();aiPhoto(this)"></label>`,run:null},
+  {k:"water",on:true,shown:vis(".qlw"),html:()=>sheetBtn("💧",`Water +250 ml`+mut(`${(L.water||0)} ml`),"fabWater()"),run:()=>fabWater()},
+  {k:"weight",on:true,shown:vis(`[onclick*="fabWeight"]`),html:()=>sheetBtn("⚖️",`Weight`+mut(w?r1(w)+" kg":"—"),"closeSheet();fabWeight()"),run:()=>fabWeight()},
+  {k:"workout",on:hasTrain(),shown:vis(`[onclick*="startWorkout"]`)||vis(`[onclick*="trainView='live'"]`),html:()=>sheetBtn("🏋️",A()?"Resume workout":"Start a workout","fabWorkout()"),run:()=>fabWorkout()},
+  {k:"drink",on:true,shown:false,html:()=>sheetBtn("🍷",LL("I drank yesterday","J’ai bu hier")+(drinkLv()?mut(`${drinkLv()}/5`):""),"drinkSheet()"),run:()=>drinkSheet()},
+  {k:"fast",on:fastOn()&&hasFood(),shown:vis(`[onclick*="fastSheet"]`),html:()=>(fastAutoCheck(),sheetBtn("⏳",LL("Fasting","Jeûne")+mut(S.core.fast?fmtFast(Date.now()-S.core.fast.start)+" / "+fastGoal()+" h":LL("not fasting","pas en jeûne")),"fastSheet()")),run:()=>fastSheet()}
+ ].filter(a=>a.on&&!a.shown)}
+function fabMenu(){const acts=fabActs();if(acts.length===1&&acts[0].run){acts[0].run();return}
+ openSheet(`<div class="wkbar"><button class="circbtn" aria-label="${LL("Close","Fermer")}" onclick="closeSheet()">‹</button><b>${LL("A little check-in","Un petit point")}</b><span></span></div>${acts.map(a=>a.html()).join("")}`)}
+function fabPaint(){let b=document.getElementById("fab");if(!b){b=document.createElement("button");b.id="fab";b.setAttribute("aria-label","Quick add");b.textContent="＋";b.onclick=()=>fabMenu();document.body.appendChild(b)}
+ const off=(typeof setupOn!=="undefined"&&setupOn)||(tab==="train"&&trainView==="live");let n=1;try{n=off?0:fabActs().length}catch(e){}b.style.display=off||!n?"none":""}
+/* ---------- W5 · ruler dial (weight, goal weight, setup age / height / weight) ----------
+   The value is the biggest thing; a ruler with a plum needle; drag anywhere, flick for inertia, snaps to the step.
+   Only the digit that changes rolls (up when the value goes up). Soft tick + vibration per step. role="slider",
+   arrows ±1 step, Page Up/Down ±1 unit (10 for cm and years), Home / End, tap the number to type it. */
+const DIAL={};
+function dialHTML(id,o){const v=o.val==null||o.val===""?null:+o.val;DIAL[id]=Object.assign({min:0,max:100,step:1,unit:"",major:5,label:"",cb:null},o,{v:v==null?(+o.dflt||o.min):v,set:v!=null});const d=DIAL[id];
+ return`<div class="dial${d.set?"":" unset"}" id="dial-${id}" data-dial="${id}" role="slider" tabindex="0" aria-label="${esc(d.label)}" aria-valuemin="${d.min}" aria-valuemax="${d.max}" aria-valuenow="${d.v}" aria-valuetext="${dialFmt(d,d.v)} ${esc(d.unit)}"><button type="button" class="dnum" tabindex="-1" aria-label="${LL("Type the value","Saisir la valeur")}"><span class="dv">${dialDigits(dialFmt(d,d.v))}</span><small>${esc(d.unit)}</small></button><div class="druler"><canvas></canvas><i class="dneedle"></i></div></div>`}
+const dialFmt=(d,v)=>d.step<1?(Math.round(v*10)/10).toFixed(1):String(Math.round(v));
+const dialDigits=t=>[...t].map(c=>`<span>${c}</span>`).join("");
+const dialSnap=(d,v)=>+Math.min(d.max,Math.max(d.min,Math.round(v/d.step)*d.step)).toFixed(d.step<1?1:0);
+function dialDraw(el,d){const c=el.querySelector("canvas");if(!c)return;const W=c.clientWidth,H=c.clientHeight;if(!W)return;const dpr=devicePixelRatio||1;if(c.width!==Math.round(W*dpr)){c.width=Math.round(W*dpr);c.height=Math.round(H*dpr)}const x=c.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,W,H);
+ const cs=getComputedStyle(el);const ink=cs.getPropertyValue("--muted").trim()||"#888";const pu=d.pu;const c0=W/2;const cv=d.raw!=null&&isFinite(d.raw)?d.raw:d.v;const first=Math.floor(cv-c0/pu),last=Math.ceil(cv+c0/pu);x.fillStyle=ink;x.font=`500 11px ${cs.fontFamily}`;x.textAlign="center";
+ for(let u=Math.max(d.min,first);u<=Math.min(d.max,last);u++){const px=c0+(u-cv)*pu;const maj=u%d.major===0;x.globalAlpha=maj?.85:.45;x.fillRect(Math.round(px)-.5,maj?6:14,1,maj?24:14);if(maj){x.globalAlpha=.8;x.fillText(String(u),px,H-6)}}x.globalAlpha=1}
+function dialShow(el,d,dir){const t=dialFmt(d,d.v);const dv=el.querySelector(".dv");const old=[...dv.children].map(s=>s.textContent).join("");if(old!==t){const ns=[...t];const os=[...old];
+ if(ns.length!==os.length){dv.innerHTML=dialDigits(t)}else ns.forEach((ch,i)=>{if(ch===os[i])return;const sp=dv.children[i];sp.textContent=ch;if(!RM()&&dir)sp.animate([{transform:`translateY(${dir>0?60:-60}%)`,filter:"blur(2px)",opacity:.2},{transform:"none",filter:"none",opacity:1}],{duration:160,easing:EZ.out})})}
+ el.setAttribute("aria-valuenow",d.v);el.setAttribute("aria-valuetext",t+" "+d.unit);dialDraw(el,d)}
+let _dialAC=0;function dialClick(){try{const now=performance.now();if(now-_dialAC<35)return;_dialAC=now;const c=audioCtx();if(c){const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=1800;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.035,c.currentTime);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.03);o.start();o.stop(c.currentTime+.035)}navigator.vibrate&&navigator.vibrate(4)}catch(e){}}
+function dialSet(el,d,v,quiet){const nv=dialSnap(d,v);const dir=Math.sign(nv-d.v);const changed=nv!==d.v;d.raw=v;if(!changed&&d.set){dialDraw(el,d);return}d.v=nv;if(!d.set){d.set=true;el.classList.remove("unset")}dialShow(el,d,dir);if(changed&&!quiet)dialClick();d.cb&&d.cb(d.v)}
+function dialMount(root){(root||document).querySelectorAll(".dial[data-dial]:not([data-m])").forEach(el=>{const d=DIAL[el.dataset.dial];if(!d)return;el.dataset.m=1;d.pu=d.step<1?16:9;d.raw=d.v;requestAnimationFrame(()=>dialDraw(el,d));
+ const ru=el.querySelector(".druler");let st=null,raf=0;
+ const stop=()=>{cancelAnimationFrame(raf);raf=0};
+ const onDown=e=>{if(e.target.closest(".dnum"))return;stop();st={x:e.clientX,v:d.raw!=null?d.raw:d.v,t:performance.now(),hist:[[performance.now(),e.clientX]]};try{el.setPointerCapture(e.pointerId)}catch(x){}el.focus({preventScroll:true})};
+ const onMove=e=>{if(!st)return;e.preventDefault();const v=st.v-(e.clientX-st.x)/d.pu;st.hist.push([performance.now(),e.clientX]);if(st.hist.length>6)st.hist.shift();
+  let vv=v;if(v<d.min)vv=d.min-Math.sqrt(d.min-v)*.6;else if(v>d.max)vv=d.max+Math.sqrt(v-d.max)*.6;const sn=dialSnap(d,vv);if(sn!==d.v||!d.set)dialSet(el,d,vv);else{d.raw=vv;dialDraw(el,d)}};
+ const onUp=e=>{if(!st)return;const h=st.hist;st=null;const a=h[0],b=h[h.length-1];const dt=b[0]-a[0];let vel=dt>0?-(b[1]-a[1])/dt/d.pu:0;
+  if(RM()||Math.abs(vel)<.002){dialSet(el,d,dialSnap(d,Math.min(d.max,Math.max(d.min,d.raw))));d.raw=d.v;dialDraw(el,d);return}
+  let x=d.raw,last=performance.now();const step=now=>{const k=now-last;last=now;x+=vel*k;vel*=Math.pow(.994,k);if(x<d.min){x=d.min;vel=0}if(x>d.max){x=d.max;vel=0}d.raw=x;dialSet(el,d,x);
+   if(Math.abs(vel)>.0008)raf=requestAnimationFrame(step);else{raf=0;dialSet(el,d,dialSnap(d,x));d.raw=d.v;dialDraw(el,d)}};raf=requestAnimationFrame(step)};
+ el.addEventListener("pointerdown",onDown);el.addEventListener("pointermove",onMove,{passive:false});el.addEventListener("pointerup",onUp);el.addEventListener("pointercancel",onUp);
+ el.addEventListener("keydown",e=>{const big=d.step<1?1:10;const m={ArrowRight:d.step,ArrowUp:d.step,ArrowLeft:-d.step,ArrowDown:-d.step,PageUp:big,PageDown:-big}[e.key];if(m!=null){e.preventDefault();d.raw=d.v;dialSet(el,d,d.v+m);return}if(e.key==="Home"){e.preventDefault();dialSet(el,d,d.min)}if(e.key==="End"){e.preventDefault();dialSet(el,d,d.max)}if(e.key==="Enter"&&e.target===el){e.preventDefault();dialType(el,d)}});
+ el.querySelector(".dnum").addEventListener("click",()=>dialType(el,d))})}
+function dialType(el,d){if(el.querySelector(".dtype"))return;const i=document.createElement("input");i.className="dtype";i.type="text";i.inputMode=d.step<1?"decimal":"numeric";i.value=d.set?dialFmt(d,d.v):"";i.setAttribute("aria-label",d.label);el.querySelector(".dnum").after(i);i.focus();i.select();
+ const fin=()=>{const n=parseFloat(String(i.value).replace(",","."));i.remove();if(isFinite(n)){if(n<d.min||n>d.max){shake(el);return}d.raw=n;dialSet(el,d,n,true)}el.focus({preventScroll:true})};i.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();fin()}if(e.key==="Escape"){i.remove();el.focus()}});i.addEventListener("blur",fin,{once:true})}
+try{new MutationObserver(()=>{if(document.querySelector(".dial[data-dial]:not([data-m])"))dialMount(document)}).observe(document.documentElement,{childList:true,subtree:true})}catch(e){}
+/* A dialog with the dial, used like askText(): resolves to the number, "" (Clear, when allowed) or null. */
+function askDial(title,o){return new Promise(res=>{const id="ask"+Date.now();const ov=document.createElement("div");ov.className="modal";ov.style.zIndex=40;ov.style.alignItems="center";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");
+ ov.innerHTML=`<div class="sheet" style="border-radius:18px;max-width:420px;margin:1rem;width:calc(100% - 2rem)"><p style="margin:0 0 .4rem;text-align:center">${esc(title)}</p>${dialHTML(id,o)}<div class="row" style="justify-content:flex-end;margin-top:.8rem">${o.clear?`<button class="ghost" data-v="clear">${LL("Clear","Effacer")}</button><span class="grow"></span>`:""}<button class="ghost" data-v="no">Cancel</button><button data-v="ok">OK</button></div></div>`;
+ document.body.appendChild(ov);dialMount(ov);const el=ov.querySelector(".dial");setTimeout(()=>el&&el.focus({preventScroll:true,focusVisible:false}),30);
+ const done=v=>{ov.remove();delete DIAL[id];res(v)};ov.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{const t=ov.querySelector(".dtype");if(t)t.blur();const d=DIAL[id];done(b.dataset.v==="ok"?(d.set?d.v:null):b.dataset.v==="clear"?"":null)})})}
 /* ---------- personal setup questionnaire ---------- */
 let setupOn=false,setupStep=0,SD=null;
 const SO={
@@ -1577,7 +1652,8 @@ function startSetup(){const p=S.core.profile,a=(S.core.setup||{}).answers||{};
  setupOn=true;setupStep=0;render();window.scrollTo(0,0)}
 const sdSet=(k,v)=>{SD[k]=v}
 function suggestGoal(){const h=+SD.height,w=+SD.weight;if(!h||!w||h<120||w<30)return null;const m2=(h/100)**2,b=w/m2;if(b>25)return Math.round(24.9*m2);if(b<18.5)return Math.ceil(20*m2);return Math.round(w)}
-function sdGoalPH(){const el=document.getElementById("sdgoal");if(!el)return;const g=suggestGoal();el.placeholder=g?`${g} kg`:"kg";const t=document.getElementById("sdgoalhint");if(t)t.textContent=g?`Suggested: ${g} kg, a healthy BMI for your height.`:""}
+function sdDial(k,o){return dialHTML("sd-"+k,Object.assign({label:k,val:SD[k]===""||SD[k]==null?null:+SD[k],cb:v=>{SD[k]=v;if(k==="height"||k==="weight")sdGoalPH()}},o))}
+function sdGoalPH(){const gd=DIAL["sd-goalWeight"],gel=document.getElementById("dial-sd-goalWeight");if(gd&&gel&&!gd.set){const g=+suggestGoal();if(g){gd.v=dialSnap(gd,g);dialShow(gel,gd,0)}}const el=document.getElementById("sdgoal");if(!el)return;const g=suggestGoal();el.placeholder=g?`${g} kg`:"kg";const t=document.getElementById("sdgoalhint");if(t)t.textContent=g?`Suggested: ${g} kg, a healthy BMI for your height.`:""}
 ;
 function sdPick(k,v){SD[k]=v;render()}
 function sdToggle(k,v){const a=SD[k];const i=a.indexOf(v);if(i>=0)a.splice(i,1);else{if(k==="health"){if(v==="none")a.length=0;else{const j=a.indexOf("none");if(j>=0)a.splice(j,1)}}a.push(v)}render()}
@@ -1587,8 +1663,8 @@ const q=(label,body,hint)=>`<div style="margin-top:1.1rem"><label style="color:v
 const inp=(k,type,ph,extra="")=>`<input data-sd="${k}" type="${type}" ${type==="number"?'inputmode="decimal"':""} value="${esc(SD[k])}" placeholder="${esc(ph)}" onchange='sdSet("${k}",this.type==="number"?(this.value===""?"":+this.value):this.value)' ${extra}>`;
 function vSetup(){const st=setupStep,last=SETUP_STEPS.length-1;let b="";
  if(st===0)b=q(LL("What will you use the app for?","Tu veux utiliser l'appli pour quoi ?"),`<div class="chips">${APP_MODES.map(([k,ic,l])=>`<button class="chip ${MODE()===k?"on":""}" onclick="prefs().mode='${k}';save('core');render()">${ic} ${LL(l[0],l[1])}</button>`).join("")}</div>`,"")+q("First name",inp("name","text","Your name"))+q("Sex",single("sex",[["f","Female"],["m","Male"]]),"")
-  +`<div class="grid3">${q("Age",inp("age","number","years"))}${q("Height (cm)",inp("height","number","cm",`oninput="SD.height=this.value===''?'':+this.value;sdGoalPH()"`))}${q("Weight (kg)",inp("weight","number","kg",`oninput="SD.weight=this.value===''?'':+this.value;sdGoalPH()"`))}</div>`
-  +q("Goal weight (optional)",inp("goalWeight","number",suggestGoal()?suggestGoal()+" kg":"kg",`id="sdgoal"`))+q("Daily activity outside the gym",single("activity",SO.activity));
+  +q("Age",sdDial("age",{min:14,max:90,step:1,unit:LL("years","ans"),major:5,dflt:25}))+q("Height (cm)",sdDial("height",{min:120,max:220,step:1,unit:"cm",major:5,dflt:165}))+q("Weight (kg)",sdDial("weight",{min:30,max:250,step:.1,unit:"kg",major:5,dflt:70}))
+  +q("Goal weight (optional)",sdDial("goalWeight",{min:30,max:250,step:.1,unit:"kg",major:5,dflt:+suggestGoal()||70}))+q("Daily activity outside the gym",single("activity",SO.activity));
  if(st===1)b=q("Main goal",single("goal",SO.goal))+q("Areas to prioritise",multi("areas",SO.areas,true),"Up to 3, in order")+q("Pace",single("pace",SO.pace),"")
   +q("Plan phases in a row?"+ib("e.g. fat loss, then muscle, then maintain.","ex. perte de gras, puis muscle, puis maintien."),single("planPhases",SO.yesno))
   +(+SD.weight&&+SD.height&&+SD.weight/((+SD.height/100)**2)<18.5?`<div class="note">Your BMI is under 18.5: the app will start with <b>Weight gain</b> rather than a calorie deficit.${+SD.weight/((+SD.height/100)**2)<17.5?" At this weight it's best to check with a doctor or dietitian first.":""}</div>`:"");
@@ -1617,7 +1693,7 @@ function vSetup(){const st=setupStep,last=SETUP_STEPS.length-1;let b="";
  <div class="box" style="margin-top:.8rem">${b}</div>
  <div class="row" style="margin:1rem 0 2rem"><button class="ghost" onclick="${st===0?"cancelSetup()":"setupStep--;while(setupSkip(setupStep))setupStep--;render();window.scrollTo(0,0)"}">${st===0?(S.core.setup||S.core.profile.age?"Cancel":"Skip for now"):"‹ Back"}</button><span class="grow"></span>
  <button onclick="${st===last?"finishSetup()":"nextSetup()"}">${st===last?"Finish":"Next ›"}</button></div></div>`}
-function nextSetup(){if(setupStep===0&&(!+SD.age||!+SD.height||!+SD.weight)){["age","height","weight"].filter(k=>!+SD[k]).forEach(k=>shake(document.querySelector(`[data-sd="${k}"]`)));toast("Enter age, height and weight.");return}setupStep++;while(setupSkip(setupStep))setupStep++;render();window.scrollTo(0,0)}
+function nextSetup(){if(setupStep===0&&(!+SD.age||!+SD.height||!+SD.weight)){["age","height","weight"].filter(k=>!+SD[k]).forEach(k=>shake(document.querySelector(`[data-sd="${k}"]`)||document.getElementById("dial-sd-"+k)));toast("Enter age, height and weight.");return}setupStep++;while(setupSkip(setupStep))setupStep++;render();window.scrollTo(0,0)}
 const setupSkip=i=>(MODE()==="food"&&i===2)||(MODE()==="train"&&(i===3||i===4));
 function cancelSetup(){setupOn=false;SD=null;render()}
 function finishSetup(){const d=SD,p=S.core.profile;
@@ -1827,7 +1903,7 @@ async function recalcPlan(){const old=targets();if(!old){toast(LL("Fill in age, 
  const l=(a,b,u)=>`${r0(a)} → ${r0(b)} ${u}`;const ok=await ask(`${LL("Recalculate from your profile, phase and pace?","Recalculer depuis ton profil, ta phase et ton rythme ?")}\n\n${LL("Calories","Calories")}: ${l(old.kcal,nw.kcal,"kcal")}\n${LL("Protein","Protéines")}: ${l(old.p,nw.p,"g")}\n${LL("Fat","Lipides")}: ${l(old.f,nw.f,"g")}\n${LL("Carbs","Glucides")}: ${l(old.c,nw.c,"g")}${sm?"\n\n"+LL("Your manual targets will be replaced.","Tes cibles manuelles seront remplacées."):""}`);
  if(!ok)return;ph.kcalAdjust=0;pf.manual=null;save("core");render();flash(LL("Plan recalculated","Plan recalculé"))}
 function waterSheet(){const g=waterGoal(),auto=!+prefs().waterGoal;openSheet(`<h3 style="margin:0 0 .6rem">💧 ${LL("Water goal","Objectif d'eau")}</h3><div class="chips">${[1500,1750,2000,2250,2500,2750,3000,3500].map(v=>`<button class="chip ${!auto&&g===v?"on":""}" onclick="prefs().waterGoal=${v};save('core');waterSheet();render()">${+(v/1000).toFixed(2)} L</button>`).join("")}<button class="chip ${auto?"on":""}" onclick="prefs().waterGoal=0;save('core');waterSheet();render()">${LL("Auto","Auto")} (${r1(waterGoal.call?((()=>{const s=prefs().waterGoal;prefs().waterGoal=0;const a=waterGoal();prefs().waterGoal=s;return a})()/1000):2)} L)</button></div><p class="muted" style="font-size:.8rem;margin:.6rem 0 0">${LL("Auto = about 33 ml per kg, starting lower if you drink little today and building up.","Auto = environ 33 ml par kg, en commençant plus bas si tu bois peu aujourd'hui.")}</p>`)}
-async function goalWeightSheet(){const v=await askText(LL("Goal weight (kg)","Poids objectif (kg)"),S.core.profile.goalWeight||"");if(v==null||v===false)return;const n=parseFloat(String(v).replace(",","."));if(v===""||n>30&&n<300){S.core.profile.goalWeight=v===""?"":n;save("core");render()}}
+async function goalWeightSheet(){const v=await askDial(LL("Goal weight (kg)","Poids objectif (kg)"),{min:30,max:250,step:.1,unit:"kg",major:5,label:LL("Goal weight","Poids objectif"),val:S.core.profile.goalWeight||null,dflt:+suggestGoal()||latestWeight()||70,clear:true});if(v==null)return;const n=+v;if(v===""||n>30&&n<300){S.core.profile.goalWeight=v===""?"":n;save("core");render()}}
 async function stepsSheet(){const P=prefs();const v=await askText(LL("Daily steps goal (0 = off)","Objectif de pas par jour (0 = désactivé)"),P.stepsOff?0:(+P.steps||(targets()||{}).steps||""));if(v==null||v===false)return;const n=parseInt(v)||0;P.stepsOff=n===0;if(n>0)P.steps=n;save("core");render()}
 function burnSheet(){const m=prefs().burnMode||"smart";openSheet(`<h3 style="margin:0 0 .3rem">🏃 ${LL("Burned calories","Calories brûlées")}</h3><p class="muted" style="font-size:.82rem;margin:0 0 .6rem">${LL("How workouts change that day's calories (estimated from each session).","Comment les séances changent les calories du jour (estimées pour chaque séance).")}${hasFood()&&kcalByWeek()?" "+LL("With the weekly budget, it's added to the week.","Avec le budget de la semaine, c'est ajouté à la semaine."):""}</p><div class="fcards one">${BURN_MODES().map(([k,t,d])=>`<button class="fcard ${m===k?"on":""}" onclick="prefs().burnMode='${k}';save('core');burnSheet();render()"><b>${t}</b><span class="muted">${d}</span></button>`).join("")}</div>${dayBurn(today())?`<p class="muted" style="font-size:.8rem;margin:.6rem 0 0">${LL("Today","Aujourd'hui")}: ${r0(dayBurn(today()))} kcal ${LL("burned","brûlées")} → +${burnBonus(today())} kcal</p>`:""}`)}
 function chipPick(key,val,multi,again){const P=prefs();const parts=key.split(".");let o=P;for(let i=0;i<parts.length-1;i++)o=o[parts[i]]=o[parts[i]]||{};const k=parts[parts.length-1];if(multi){const a=o[k]=o[k]||[];const i=a.indexOf(val);if(i>=0)a.splice(i,1);else a.push(val)}else o[k]=o[k]===val?null:val;save("core");window[again]();render()}
@@ -5625,7 +5701,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.88d beta";
+const APP_VERSION="0.88e beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

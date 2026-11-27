@@ -2,6 +2,11 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.88e beta · 2026-11-27
+W5 · ＋ menu + weight dial (`claude/bk-craft-rules.md`, Serena's OK), checked with charles-ux-animation + charles-polish.
+- ＋ shows only what the screen doesn't already have: one list of actions (`fabActs()`), each knows the button that would make it redundant (Log food / Describe / water / weight / Start or Resume workout / fasting card), checked against what's rendered and not folded away, so a card hidden with Arrange Today brings its action back. One action left = ＋ runs it; none = ＋ hidden. Photo and "I drank yesterday" always stay.
+- Ruler dial (`dialHTML`, `askDial`) for Today's weight, the goal weight and setup age / height / weight / goal weight: big number with its unit under it, ruler with ticks and labels every 5, one plum needle, faded ends. Drag anywhere across it, flick for inertia, snaps to 0.1 kg / 1 cm / 1 year, rubber band past the ends; only the changed digit rolls (up or down); soft tick + light vibration per step. `role="slider"` with value text, arrows ±1 step, Page Up / Down ±1 kg or ±10, Home / End, tap the number (or Enter) to type it. Reduced motion: no inertia or digit roll. Setup: untouched dials stay grey and count as empty (Next shakes them); goal weight follows the suggestion until touched. Saves exactly like before.
+
 ## 0.88d beta · 2026-11-27
 W4 · craft details (`claude/bk-craft-rules.md`), checked with charles-ux-animation + charles-polish. No logic or text changes.
 - Motion: sheets enter from scale .97 + fade; a sheet opened from a small button (⋯, ＋, ⓘ…) grows from that button at .95 and closes back into it; exits 20 % shorter (208 ms). Directional slides: Today day change, Kitchen plan day, Train week strip, calendar month, setup steps (Focus already). Rows stagger 30 ms when a list first appears (meals, exercises, groceries; max 8). Every `<details>` (More today, ⓘ details) opens and closes smoothly. Arrange Today drag: rubber band past the ends, spring back on release, no tween while held. No transitions during a theme switch.
