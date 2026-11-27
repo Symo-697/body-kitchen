@@ -2,6 +2,13 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.88d beta · 2026-11-27
+W4 · craft details (`claude/bk-craft-rules.md`), checked with charles-ux-animation + charles-polish. No logic or text changes.
+- Motion: sheets enter from scale .97 + fade; a sheet opened from a small button (⋯, ＋, ⓘ…) grows from that button at .95 and closes back into it; exits 20 % shorter (208 ms). Directional slides: Today day change, Kitchen plan day, Train week strip, calendar month, setup steps (Focus already). Rows stagger 30 ms when a list first appears (meals, exercises, groceries; max 8). Every `<details>` (More today, ⓘ details) opens and closes smoothly. Arrange Today drag: rubber band past the ends, spring back on release, no tween while held. No transitions during a theme switch.
+- Errors: a short shake + calm error colour on an empty quantity / unknown food (Log food) and on missing age / height / weight in setup, only when you press the button. Never for calories.
+- Typography: curly quotes and apostrophes in EN + FR (« » with narrow no-break spaces), applied after translation; card titles and exercise names max 2 lines; hyphenation on narrow text; tabular numbers; trimmed text box on chips / segments where supported. Selected tabs and segments don't change weight, so nothing shifts.
+- Audit leftovers (HQ): notes lose the coloured side stripe and get a small line icon in their colour; phase tile on a neutral surface with the phase colour on the icon; segmented controls on a neutral track with a raised thumb (plum only for the focus ring); selected chips are a soft plum tint with plum text; last emoji used as icons → line icons (note pins, library search, "Edit in" settings).
+
 ## 0.88c beta · 2026-11-27
 Woah pass W3, "your body is the dashboard". Uses the existing recovery data and the real male / female drawings; no new numbers or text.
 - Today's workout card (planned or in progress) and the Train day card show the small body map: muscles trained in the last days glow plum and cool to neutral as they recover (5 steps from `recovery()`), today's workout muscles outlined. Male / female follows the profile; dark mode has its own lighter steps.
