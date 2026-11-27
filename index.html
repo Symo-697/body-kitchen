@@ -1553,12 +1553,12 @@ function drawIn(el,k){k=k||1;if(el.classList&&el.classList.contains("wkbars")){[
  const ps=el.querySelectorAll("polyline,path");ps.forEach(p=>{if(!p.getTotalLength)return;const L=p.getTotalLength();if(!L||L<20)return;p.style.strokeDasharray=L;p.animate([{strokeDashoffset:L},{strokeDashoffset:0}],{duration:600*k,easing:EZ.out,fill:"backwards"}).onfinish=()=>{p.style.strokeDasharray=""}});
  const rs=[...el.querySelectorAll("rect")].filter(r=>!r.classList.contains("chit")&&+r.getAttribute("height")>0);rs.slice(0,40).forEach((r,j)=>{r.style.transformBox="fill-box";r.style.transformOrigin="bottom";r.animate([{transform:"scaleY(0)"},{transform:"none"}],{duration:MT.large*k,delay:Math.min(j,5)*40*k,easing:EZ.out,fill:"backwards"})})}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{mvAfter()}catch(e){}return r}}
-/* Replay on view (0.89c, Serena): entrance motion plays every time something comes on screen: when a page,
-   a week or a month appears, when you scroll back to it, when the app comes back to the front.
+/* Play on view (0.89c, once per page since 0.89f, Serena): entrance motion plays once per page visit (a page,
+   a week or a month appearing), the first time each element is well in view; scrolling back doesn't replay.
    Repaints of the same page (logging, ticking) don't replay; changed values still count from old to new. */
 const _rv={page:null,armed:new Map(),io:null,ioOut:null};
 const RV_SEL=".wkbars,.box svg:not(.i),.left-num,.wtrack i,.wkbud .fill,.nring svg circle:nth-of-type(2)";
-const RV_K=1.7,RV_WAIT=140;/* slower than the in-page motion so the eye has time to land (Serena, 28 Nov) */
+const RV_K=2.2,RV_WAIT=160;/* slower than the in-page motion so the eye has time to land (Serena, 28 Nov) */
 function rvPage(){return[tab,settingsOpen?1:0,typeof statsOpen!=="undefined"&&statsOpen?1:0,typeof statOff!=="undefined"?statOff:0,typeof calOff!=="undefined"?calOff:0,tab==="train"?trainView:"",typeof exRange!=="undefined"?exRange:""].join("|")}
 function rvPlay(el){if(RM())return;
  if(el.matches(".left-num")){const v=numOf(el.textContent);if(v)countUp(el,0,v,Math.round(MT.count*RV_K));return}
@@ -1574,12 +1574,12 @@ function rvAfter(){const app=document.getElementById("app");if(!app||!("Intersec
  if(_rv.io&&_rv.bot!==bot){_rv.io.disconnect();_rv.io=null}
  if(!_rv.io){_rv.bot=bot;
   _rv.io=new IntersectionObserver(es=>es.forEach(en=>{const el=en.target,k=el.dataset.rvk;if(!k)return;if(rvIn(en)&&_rv.armed.get(k)!==false){_rv.armed.set(k,false);rvGo(el)}}),{threshold:[0,.25,.5,.6,.85,.95,1],rootMargin:`0px 0px -${bot}px 0px`});
-  if(!_rv.ioOut)_rv.ioOut=new IntersectionObserver(es=>es.forEach(en=>{const k=en.target.dataset.rvk;if(k&&!en.isIntersecting)_rv.armed.set(k,true)}),{threshold:0})}
- _rv.io.disconnect();_rv.ioOut.disconnect();const n={};
+}
+ _rv.io.disconnect();const n={};
  app.querySelectorAll(RV_SEL).forEach(el=>{if(el.closest(".bmap,.fghost"))return;const t=el.matches(".left-num")?"n":el.tagName.toLowerCase()==="circle"?"c":el.matches(".wkbars")||el.tagName.toLowerCase()==="svg"?"g":"b";n[t]=(n[t]||0)+1;const k=pg+t+n[t];el.dataset.rvk=k;
-  if(_rv.armed.get(k)!==false&&!RM())rvHold(el);_rv.io.observe(el);_rv.ioOut.observe(el)})}
+  if(_rv.armed.get(k)===false)return;if(!RM())rvHold(el);_rv.io.observe(el)})}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{rvAfter()}catch(e){}return r}}
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){_rv.armed.clear();try{rvAfter()}catch(e){}}});
+
 /* Sheets: slide up; a sheet opened from a card grows out of that card (FLIP, synchronous so code that fills the
    sheet right after openSheet keeps working); repaints of an open sheet don't replay; closing slides down. */
 {const _o=openSheet;
@@ -5852,7 +5852,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89e beta";
+const APP_VERSION="0.89f beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

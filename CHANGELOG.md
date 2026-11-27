@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89f beta · 2026-11-28 · Animations once per page, slower
+- Entrance animations play once per page visit (opening a page, or a new week / month in Stats), the first time each chart or number is well in view while you scroll down. Scrolling back up doesn't replay them, nor does coming back to the app. About 2.2× slower than in-page motion.
+
 ## 0.89e beta · 2026-11-28 · Animations wait until you're looking
 - Replayed entrances now start only when the chart or number is well in view (most of it on screen, above the tab bar and the workout banner), after a short beat, and run about 1.7× slower than in-page motion. Charts stay empty until then, so you never see them finished first. They re-arm once fully off screen. Reduced motion: none, charts shown directly.
 
