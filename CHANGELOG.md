@@ -2,6 +2,14 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89a — Focus mode on one screen, do a workout again
+- Focus mode now fits one fixed screen: header, compact stats + body map, "Exercise x / n", and one card. Only the card scrolls inside if it's taller than the screen.
+- Pre-workout stretches are the first card and post-workout stretches the card after the last exercise (diamond dots in the progress dots). Focus opens on the pre-workout card until you start.
+- Card to card: the old card turns away and the new one swings in with a short motion trail (480 ms, interruptible). Reduced motion: instant.
+- History ⋯: "Do this workout again" starts the same exercises, order, set types and supersets, with last time's numbers as targets.
+- Strength level: the info sheet now lists every rated lift of the session (the card shows the best one).
+- Fixes: water − back in its corner; no weekday prefix in workout titles ("Upper B"); 🔒 → line icon; no dot chain under the live stats; focus buttons use the button radius.
+
 ## 0.88h beta · 2026-11-27
 W7 · text & button shape (Serena's answers to the W4 slop check). EN + FR, nothing else changes.
 - Today: the "Good morning" line is gone (date line and Today title stay).
