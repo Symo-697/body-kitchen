@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89c beta · 2026-11-28
+- Fix: in Focus mode the workout progress bar ran behind the ⌄ / timer / List / ⋯ / Finish buttons (header spacing was cut in 0.89a). The bar now sits under the buttons with space before the stats box
+- Fix: a double tap anywhere no longer zooms the page on iPhone (`touch-action: manipulation` everywhere; pinch zoom still works; drag handles, dials and swipe rows keep their own settings)
+
 ## 0.89b — Focus: tap a set number for its type
 - Focus mode: one tap on a set number selects that set and opens its set type sheet (the long press was too slow). The sheet grows from the number.
 

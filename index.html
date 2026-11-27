@@ -736,7 +736,10 @@ button.small,.ghost.small,.chip,.chips button,.seg,.seg button,.lftabs button,.s
 
 /* Focus mode on one fixed screen (0.88i): header, compact stats, Exercise x / n, one card; the card scrolls inside only if it must */
 body.focusfix #app{height:calc(100dvh - var(--navh,72px));display:flex;flex-direction:column;overflow:hidden;padding-bottom:.4rem!important}
-body.focusfix .livehead{padding-bottom:.6rem}
+body.focusfix .livehead{padding-bottom:1.15rem}
+body.focusfix .liveprog{bottom:.35rem}
+/* 0.89c · no double-tap zoom anywhere (pinch zoom still works); class rules above (none / pan-y) keep their value */
+*{touch-action:manipulation}
 body.focusfix .livestats{padding:.5rem .8rem;margin-bottom:.5rem}
 body.focusfix .livestats .livehint{display:none}
 body.focusfix .livebm>.bmap{width:52px}
@@ -5825,7 +5828,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89b beta";
+const APP_VERSION="0.89c beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
