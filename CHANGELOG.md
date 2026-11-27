@@ -2,6 +2,15 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.88b beta · 2026-11-27
+Woah pass W2 (motion & feel), following charles-ux-animation within the UI standards. No logic changes; everything is instant with reduced motion.
+- Shared helpers for later screens: tokens `--e-out / --e-io / --e-in`, `--t-press 120 / micro 180 / std 260 / large 380 ms` (JS `MT`, `EZ`, `RM()`), `countUp(el,from,to)`, `growFrom(el,ratio)`, `tickDraw(x,y)` / `tickHere()`, `drawIn(el)`.
+- Signature pencil tick (the celebration's stroke, 250 ms, where you tapped) on every log: food / meal / saved meal / Crous, water, supplement, coffee, steps / sleep / energy, set done, grocery tick.
+- Numbers count from the old value to the new one (kcal left, week eaten, nutrition rings, water) in 400 ms after a log, and from 0 when the app opens; rings and the week bar grow from their old value.
+- Press: buttons, chips, cards and sheet rows scale to 0.97 (120 ms).
+- Tab change: short fade + 8 px rise (180 ms). Sheets slide up and slide down when closed; a sheet opened from a card (recipe, tile, row) grows out of that card. Repainting an open sheet doesn't replay. Focus mode slides from the side of the next / previous exercise. Calendar month fades in week by week when the month changes. Progress charts and week bars draw in once when they come into view.
+- Kept the two pulses: both mark a running timer (stretch countdown end, cooking timer ringing). Week bar track made visible without the old box.
+
 ## 0.88a beta · 2026-11-27
 Woah pass W1 (subtract + line icons), no logic changes, every feature and text kept.
 - One line-icon set (inline SVG, `ic(name)`, `currentColor`): tab bar (Today = sun), Settings button, quick-log (food / water / weight), Log food card + sheet tabs, habit tiles, challenges / recovery / tip, Crous line, meal times, Plan my week, cardio (Today card, kcal card, Train strip), Statistics button, Training chart chips, phase tile. Every sheet / Settings row icon that was an emoji becomes a line icon automatically (`EMO_IC` + `iconizeAll`). Emoji people pick themselves (supplements, notes, occasions) stay.

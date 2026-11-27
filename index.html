@@ -610,6 +610,28 @@ h1{font-weight:700}
 .quicklog .qlw .qlm::after{content:"";position:absolute;inset:-5px}
 .mtime::after{content:"";position:absolute;inset:-8px -2px}
 .hdots button{min-height:42px}
+
+/* W2 · motion & feel. Tokens (charles-ux-animation + UI standards): press 120 ms, micro 180, standard 260, large 380.
+   Curves: out = entering / responding, io = moving in place, in = leaving. Transform + opacity only. */
+:root{--e-out:cubic-bezier(.32,.72,0,1);--e-io:cubic-bezier(.77,0,.175,1);--e-in:cubic-bezier(.55,0,1,.45);--t-press:120ms;--t-micro:180ms;--t-std:260ms;--t-large:380ms}
+.wtrack{background:color-mix(in oklch,var(--ink) 9%,transparent)}
+[data-theme="dark"] .wtrack{background:rgb(255 255 255 / 12%)}
+@media (prefers-reduced-motion:no-preference){
+ :where(button,[role=button],summary,.chip,.sheetbtn,.rtile,label.sheetbtn){transition:transform var(--t-press) var(--e-out)}
+ :where(button,[role=button],summary,.chip,.sheetbtn,.rtile,label.sheetbtn):active{transform:scale(.97)}
+ .modal{animation:mIn var(--t-std) var(--e-out)}
+ .modal>.sheet{animation:sheetIn var(--t-std) var(--e-out)}
+ .modal.noanim,.modal.noanim>.sheet{animation:none}
+ .modal.out{animation:mOut var(--t-micro) var(--e-in) forwards;pointer-events:none}
+ .modal.out>.sheet{animation:sheetOut var(--t-micro) var(--e-in) forwards}
+}
+@keyframes mIn{from{background:transparent}}
+@keyframes mOut{to{background:transparent}}
+@keyframes sheetIn{from{transform:translateY(28px);opacity:0}}
+@keyframes sheetOut{to{transform:translateY(20px);opacity:0}}
+.tickfx{position:fixed;z-index:60;width:34px;height:34px;margin:-17px 0 0 -17px;pointer-events:none;user-select:none}
+.tickfx path{fill:none;stroke:var(--sage);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:reduce){.modal,.modal>.sheet{animation:none}}
 </style>
 </head>
 <body>
@@ -1358,6 +1380,64 @@ function render(){modeFromUrl();if(S.core&&(S.core._migHS||0)<2){migHS();S.core.
  $("#app").innerHTML=liveBarHTML()+`<header class="top"><div>${nv==="today"&&!settingsOpen?todayDateLine():""}<h1>${settingsOpen?"Settings":(NAV().find(x=>x[0]===nv)||[0,""])[1]}</h1><div class="status" id="status">${esc(statusShown())}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">${gear}${S.core.setup||S.core.profile.age?"":`<button class="phase-pill" style="border:0" onclick="askSetup()">＋ Set up</button>`}</div></div></header>`+subTabsHTML()+v2;
 }
 
+
+/* ---------- W2 · motion helpers (shared by every screen) ----------
+   Storyboard of a log: 0 ms press scales to .97 · release · 0 ms pencil tick starts drawing at the finger (250 ms) ·
+   250 ms holds · 400 ms fades out (150 ms). Numbers count from the old value to the new one in 400 ms; rings and bars
+   grow from the old value. Everything is instant with prefers-reduced-motion. */
+const MT={press:120,micro:180,std:260,large:380,count:400,tick:250};
+const EZ={out:"cubic-bezier(.32,.72,0,1)",io:"cubic-bezier(.77,0,.175,1)",in:"cubic-bezier(.55,0,1,.45)"};
+const RM=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
+let _pt=null;document.addEventListener("pointerdown",e=>{_pt={x:e.clientX,y:e.clientY,t:Date.now(),el:e.target}},true);
+document.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){const r=document.activeElement&&document.activeElement.getBoundingClientRect&&document.activeElement.getBoundingClientRect();if(r&&r.width)_pt={x:r.left+r.width/2,y:r.top+r.height/2,t:Date.now(),el:document.activeElement}}},true);
+function numOf(t){const m=String(t).replace(/[  \s,]/g,"").match(/-?\d+(\.\d+)?/);return m?+m[0]:null}
+function countUp(el,from,to,ms){if(!el||RM()||from==null||to==null||from===to)return;const txt=el.textContent;const dec=(String(txt).match(/[.,](\d+)\D*$/)||[])[1];const nd=dec&&!/,\d{3}\b/.test(txt)?dec.length:0;const t0=performance.now(),D=ms||MT.count;const tn=el.firstChild&&el.firstChild.nodeType===3?el.firstChild:null;if(!tn)return;const fin=tn.data;if((fin.match(/\d[\d,.\u202f\u00a0]*/g)||[]).length!==1)return;
+ const fmt=v=>{const r=nd?v.toFixed(nd):String(Math.round(v));return /\d,\d{3}/.test(fin)||/\d[  ]\d{3}/.test(fin)?(+r).toLocaleString(/[  ]/.test(fin)?"fr-FR":"en-US",{minimumFractionDigits:nd,maximumFractionDigits:nd}):r};
+ const pre=fin.match(/^\D*/)[0],post=fin.match(/[^\d]*$/)[0];
+ const step=now=>{if(!tn.isConnected)return;const k=Math.min(1,(now-t0)/D),e=1-Math.pow(1-k,3);tn.data=k<1?pre+fmt(from+(to-from)*e)+post:fin;if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
+function growFrom(el,ratio,axis){if(!el||RM()||!isFinite(ratio)||Math.abs(ratio-1)<.01)return;el.animate([{transform:`scale${axis||"X"}(${Math.max(0,ratio)})`},{transform:"none"}],{duration:MT.std,easing:EZ.io});}
+function tickDraw(x,y){const d=document.createElement("div");d.className="tickfx";d.style.left=x+"px";d.style.top=y+"px";d.innerHTML='<svg viewBox="0 0 34 34" aria-hidden="true"><path d="M8 18.5c2.2 1.6 3.9 3.4 5.3 5.6C16.6 16.7 21 11.6 26.5 8"/></svg>';document.body.appendChild(d);
+ const p=d.querySelector("path");if(RM()){setTimeout(()=>d.remove(),450);return}const L=p.getTotalLength?p.getTotalLength():40;p.style.strokeDasharray=L;p.animate([{strokeDashoffset:L},{strokeDashoffset:0}],{duration:MT.tick,easing:EZ.out,fill:"both"});
+ d.animate([{opacity:1},{opacity:1,offset:.62},{opacity:0}],{duration:400+150,easing:"linear",fill:"forwards"}).onfinish=()=>d.remove()}
+function tickHere(){if(_pt&&Date.now()-_pt.t<5000)tickDraw(_pt.x,_pt.y)}
+function wrapTick(name,cond){const f=window[name];if(typeof f!=="function")return;window[name]=function(...a){const ok=!cond||cond(...a);const r=f.apply(this,a);if(ok)tickHere();return r}}
+wrapTick("commitLog");wrapTick("addWater",v=>v>0);wrapTick("toggleSupp",(id,on)=>on===true||on==="true");wrapTick("addCoffee",d=>d>0);
+wrapTick("toggleBought",(id,q,on)=>!!on);wrapTick("toggleSetDone",(i,k)=>{try{return!A().ex[i].sets[k].done}catch(e){return false}});
+{const f=window.setDay;window.setDay=function(k,v){const r=f.apply(this,arguments);if(v!==""&&v!=null&&["steps","sleep","energy"].includes(k))tickHere();return r}}
+/* values that animate between renders: keyed by tab + selector + index */
+const _mv={};let _mvFirst=true,_mvNav=null,_mvFocus=null,_mvCal=null;const _seen=new Set();
+const MV_SEL=[".left-num",".wkbh b",".nring b",".mtv",".quicklog small"];
+function mvAfter(){const app=document.getElementById("app");if(!app)return;const nv=navOf(tab)+(settingsOpen?"-s":"");const navChanged=_mvNav!==null&&_mvNav!==nv;
+ if(navChanged&&!RM())app.animate([{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:MT.micro,easing:EZ.out});
+ MV_SEL.forEach(sel=>app.querySelectorAll(sel).forEach((el,i)=>{const k=nv+sel+i;const v=numOf(el.textContent);const old=_mv[k];_mv[k]=v;if(navChanged&&!_mvFirst)return;
+  if(_mvFirst&&nv==="today"&&v!=null)countUp(el,0,v);else if(old!=null&&v!=null&&old!==v)countUp(el,old,v)}));
+ app.querySelectorAll(".nring svg circle:nth-of-type(2),.wtrack i,.wkbud .fill").forEach((el,i)=>{const k=nv+"arc"+i;const isC=el.tagName.toLowerCase()==="circle";const v=isC?parseFloat(el.getAttribute("stroke-dasharray")):el.getBoundingClientRect().width;const old=_mv[k];_mv[k]=v;if(RM()||(navChanged&&!_mvFirst))return;
+  const from=_mvFirst&&nv==="today"?0:old;if(from==null||Math.abs(from-v)<.5)return;
+  if(isC){const C=parseFloat(el.getAttribute("stroke-dasharray").split(" ")[1]);el.animate([{strokeDasharray:`${from} ${C}`},{strokeDasharray:`${v} ${C}`}],{duration:MT.large,easing:EZ.io})}
+  else{el.style.transformOrigin="left center";growFrom(el,v?from/v:0)}});
+ if(_mvFirst&&nv==="today")_mvFirst=false;else if(_mvFirst)_mvFirst=false;
+ /* Focus mode: slide set to set, from the side it came from */
+ const a=typeof A==="function"&&A();const fi=a&&a.focus!==false&&typeof focusIdx==="function"?focusIdx(a):null;const fc=app.querySelector(".fcard");
+ if(fc&&_mvFocus!=null&&fi!=null&&fi!==_mvFocus&&!RM()){const d=fi>_mvFocus?1:-1;fc.animate([{opacity:0,transform:`translateX(${28*d}px)`},{opacity:1,transform:"none"}],{duration:MT.std,easing:EZ.out})}_mvFocus=fc?fi:null;
+ /* Calendar: the month fades in week by week (only when the month changes) */
+ const cr=app.querySelectorAll(".calrow");const ck=cr.length?(cr[0].textContent||"").slice(0,12)+cr.length:null;if(ck&&_mvCal!==null&&ck!==_mvCal&&!RM())[...cr].slice(0,6).forEach((r,j)=>r.animate([{opacity:0,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:MT.std,delay:j*40,easing:EZ.out,fill:"backwards"}));if(cr.length)_mvCal=ck;
+ /* Progress: charts draw in once, when they come into view */
+ if(nv==="progress"&&!RM()&&"IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting)return;io.unobserve(en.target);drawIn(en.target)}),{threshold:.35});
+  app.querySelectorAll(".wkbars,.box svg").forEach((el,i)=>{const k=(statsOpen?"st":"")+(el.className.baseVal!=null?"svg":"wk")+i+(el.getAttribute("viewBox")||"");if(_seen.has(k))return;_seen.add(k);io.observe(el)})}
+ _mvNav=nv}
+function drawIn(el){if(el.classList&&el.classList.contains("wkbars")){[...el.children].slice(0,7).forEach((c,j)=>{const f=c.querySelector("i,.fill,b")||c;f.style.transformOrigin="bottom";f.animate([{transform:"scaleY(0)"},{transform:"none"}],{duration:MT.large,delay:Math.min(j,5)*40,easing:EZ.out,fill:"backwards"})});return}
+ const ps=el.querySelectorAll("polyline,path");ps.forEach(p=>{if(!p.getTotalLength)return;const L=p.getTotalLength();if(!L||L<20)return;p.style.strokeDasharray=L;p.animate([{strokeDashoffset:L},{strokeDashoffset:0}],{duration:600,easing:EZ.out,fill:"backwards"}).onfinish=()=>{p.style.strokeDasharray=""}});
+ const rs=[...el.querySelectorAll("rect")].filter(r=>!r.classList.contains("chit")&&+r.getAttribute("height")>0);rs.slice(0,40).forEach((r,j)=>{r.style.transformBox="fill-box";r.style.transformOrigin="bottom";r.animate([{transform:"scaleY(0)"},{transform:"none"}],{duration:MT.large,delay:Math.min(j,5)*40,easing:EZ.out,fill:"backwards"})})}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{mvAfter()}catch(e){}return r}}
+/* Sheets: slide up; a sheet opened from a card grows out of that card (FLIP, synchronous so code that fills the
+   sheet right after openSheet keeps working); repaints of an open sheet don't replay; closing slides down. */
+{const _o=openSheet;
+ window.closeSheet=closeSheet=function(){const m=document.getElementById("sheetmodal");if(m&&!RM()&&!m.classList.contains("out")){m.id="sheetmodal-out";m.classList.add("out");m.setAttribute("inert","");setTimeout(()=>m.remove(),MT.micro+40);return}if(m)m.remove()};
+ window.openSheet=openSheet=function(html){const had=!!document.getElementById("sheetmodal");const src=!had&&_pt&&Date.now()-_pt.t<700&&_pt.el&&_pt.el.closest?_pt.el.closest(".rtile,.trrow,.box.mt,.mtx,.ptile,.nextup,.kdesc,.htile,.wkex"):null;const sr=src&&src.isConnected?src.getBoundingClientRect():null;
+  const m0=document.getElementById("sheetmodal");if(m0)m0.remove();const r=_o(html);const m=document.getElementById("sheetmodal");if(!m)return r;if(had){m.classList.add("noanim");return r}
+  if(sr&&sr.width&&!RM()){const sh=m.querySelector(".sheet");m.classList.add("noanim");const tr=sh.getBoundingClientRect();if(tr.width&&tr.height){const sx=sr.width/tr.width,sy=Math.min(1,sr.height/tr.height),dx=sr.left+sr.width/2-(tr.left+tr.width/2),dy=sr.top-tr.top;
+   sh.style.transformOrigin="center top";sh.animate([{transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`,opacity:.4,borderRadius:"14px"},{transform:"none",opacity:1}],{duration:MT.large-40,easing:EZ.out});m.animate([{background:"transparent"},{}],{duration:MT.std,easing:EZ.out})}}
+  return r}}
 /* ---------- personal setup questionnaire ---------- */
 let setupOn=false,setupStep=0,SD=null;
 const SO={
@@ -5429,7 +5509,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.88a beta";
+const APP_VERSION="0.88b beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
