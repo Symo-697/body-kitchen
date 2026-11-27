@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89h beta · 2026-11-28 · Smooth entrance animations
+- Fix: entrance animations looked buggy because the finished chart / number / bar was painted first, then snapped back to zero when the animation started. Now everything waiting to play sits on its first frame from the very first paint (numbers at 0, bars and rings empty, charts hidden) and the animation takes over in the same frame. Elements at the very end of a page that can't get fully in view play after being on screen a moment. Reduced motion: unchanged (no animation, final values shown).
+
 ## 0.89g beta · 2026-11-28 · Recipe cards, name first
 - Kitchen › My recipes and Discover carousels, the Discover list and See all: the recipe name is now the card's title (top, biggest text, two lines max, never cut mid-word: whole words drop, then "…"; full name on long-press / screen readers). Under it one quiet line: kcal (or protein if calories are hidden) and the time. Macro bar + P / C / F grams at the bottom. No empty block in the middle; cards in a row share their height. "In my recipes" ✓ sits in the corner. The Discover list loses its big emoji tiles for the same card.
 

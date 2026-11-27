@@ -1574,7 +1574,7 @@ function drawIn(el,k){k=k||1;if(el.classList&&el.classList.contains("wkbars")){[
    Repaints of the same page (logging, ticking) don't replay; changed values still count from old to new. */
 const _rv={page:null,armed:new Map(),io:null,ioOut:null};
 const RV_SEL=".wkbars,.box svg:not(.i),.left-num,.wtrack i,.wkbud .fill,.nring svg circle:nth-of-type(2)";
-const RV_K=2.2,RV_WAIT=160;/* slower than the in-page motion so the eye has time to land (Serena, 28 Nov) */
+const RV_K=2.2,RV_WAIT=120;/* slower than the in-page motion so the eye has time to land (Serena, 28 Nov) */
 function rvPage(){return[tab,settingsOpen?1:0,typeof statsOpen!=="undefined"&&statsOpen?1:0,typeof statOff!=="undefined"?statOff:0,typeof calOff!=="undefined"?calOff:0,tab==="train"?trainView:"",typeof exRange!=="undefined"?exRange:""].join("|")}
 function rvPlay(el){if(RM())return;
  if(el.matches(".left-num")){const v=numOf(el.textContent);if(v)countUp(el,0,v,Math.round(MT.count*RV_K));return}
@@ -1583,16 +1583,28 @@ function rvPlay(el){if(RM())return;
  el.style.transformOrigin="left center";el.animate([{transform:"scaleX(0)"},{transform:"none"}],{duration:MT.large*RV_K,easing:EZ.out})}
 /* "well in view": most of it is on screen above the tab bar and the workout banner */
 function rvIn(en){const rb=en.rootBounds;const h=en.boundingClientRect.height||1;return en.isIntersecting&&(en.intersectionRatio>=.85||(rb&&en.intersectionRect.height>=rb.height*.6))}
-function rvHold(el){/* empty state until it plays, so nothing is seen finished first */if(el.matches(".wkbars")||el.tagName.toLowerCase()==="svg"){el.style.opacity="0"}}
-function rvGo(el){el.style.opacity="";setTimeout(()=>{if(el.isConnected)rvPlay(el)},RV_WAIT)}
+/* Hold = the element sits on its first frame from the very first paint (0, empty bar, empty ring, hidden chart),
+   and Go swaps that first frame for the running animation in the same frame, so nothing is ever seen finished
+   then restarted (0.89h: that jump was what looked buggy). */
+function rvType(el){return el.matches(".left-num")?"n":el.tagName.toLowerCase()==="circle"?"c":el.matches(".wkbars")||el.tagName.toLowerCase()==="svg"?"g":"b"}
+function rvHold(el){const t=rvType(el);el.dataset.rvh=t;
+ if(t==="n"){const tn=el.firstChild&&el.firstChild.nodeType===3?el.firstChild:null;if(!tn||!/\d/.test(tn.data)||(tn.data.match(/\d[\d,.  ]*/g)||[]).length!==1){delete el.dataset.rvh;return}el.dataset.rvfin=tn.data;tn.data=tn.data.replace(/\d[\d,.  ]*/,"0")}
+ else if(t==="c"){const d=String(el.getAttribute("stroke-dasharray")||"").split(" ");el.style.strokeDasharray=`0 ${d[1]||0}`}
+ else if(t==="g")el.style.opacity="0";
+ else{el.style.transformOrigin="left center";el.style.transform="scaleX(0)"}}
+function rvGo(el){setTimeout(()=>{if(!el.isConnected)return;const t=el.dataset.rvh;
+ if(t==="n"){const tn=el.firstChild;if(tn&&tn.nodeType===3&&el.dataset.rvfin)tn.data=el.dataset.rvfin}
+ else if(t==="c")el.style.strokeDasharray="";else if(t==="g")el.style.opacity="";else if(t==="b")el.style.transform="";
+ delete el.dataset.rvh;const z=t==="n"&&el.firstChild?el.firstChild.data.replace(/\d[\d,.\u202f\u00a0]*/,"0"):null;rvPlay(el);if(z!=null&&el.firstChild&&el.firstChild.data===el.dataset.rvfin)el.firstChild.data=z},RV_WAIT)}
 function rvAfter(){const app=document.getElementById("app");if(!app||!("IntersectionObserver" in window))return;const pg=rvPage();if(pg!==_rv.page){_rv.page=pg;_rv.armed.clear()}
  const bot=Math.round(((document.querySelector("nav.tabs")||{}).offsetHeight||70)+((document.querySelector(".livebar")||{}).offsetHeight||0)+12);
  if(_rv.io&&_rv.bot!==bot){_rv.io.disconnect();_rv.io=null}
  if(!_rv.io){_rv.bot=bot;
-  _rv.io=new IntersectionObserver(es=>es.forEach(en=>{const el=en.target,k=el.dataset.rvk;if(!k)return;if(rvIn(en)&&_rv.armed.get(k)!==false){_rv.armed.set(k,false);rvGo(el)}}),{threshold:[0,.25,.5,.6,.85,.95,1],rootMargin:`0px 0px -${bot}px 0px`});
+  _rv.io=new IntersectionObserver(es=>es.forEach(en=>{const el=en.target,k=el.dataset.rvk;if(!k)return;if(_rv.armed.get(k)===false)return;clearTimeout(_rv.tm&&_rv.tm[k]);
+   if(rvIn(en)){_rv.armed.set(k,false);rvGo(el)}else if(en.isIntersecting){/* can't get fully in view (end of page): play once it has been on screen a moment */(_rv.tm=_rv.tm||{})[k]=setTimeout(()=>{if(_rv.armed.get(k)!==false&&el.isConnected){_rv.armed.set(k,false);rvGo(el)}},700)}}),{threshold:[0,.25,.5,.6,.85,.95,1],rootMargin:`0px 0px -${bot}px 0px`});
 }
  _rv.io.disconnect();const n={};
- app.querySelectorAll(RV_SEL).forEach(el=>{if(el.closest(".bmap,.fghost"))return;const t=el.matches(".left-num")?"n":el.tagName.toLowerCase()==="circle"?"c":el.matches(".wkbars")||el.tagName.toLowerCase()==="svg"?"g":"b";n[t]=(n[t]||0)+1;const k=pg+t+n[t];el.dataset.rvk=k;
+ app.querySelectorAll(RV_SEL).forEach(el=>{if(el.closest(".bmap,.fghost"))return;const t=rvType(el);n[t]=(n[t]||0)+1;const k=pg+t+n[t];el.dataset.rvk=k;
   if(_rv.armed.get(k)===false)return;if(!RM())rvHold(el);_rv.io.observe(el)})}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{rvAfter()}catch(e){}return r}}
 /* Recipe names: never cut mid-word; drop whole words until the name fits its two lines, then "…" (0.89g) */
@@ -5878,7 +5890,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89g beta";
+const APP_VERSION="0.89h beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
