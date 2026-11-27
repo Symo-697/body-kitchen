@@ -632,6 +632,24 @@ h1{font-weight:700}
 .tickfx{position:fixed;z-index:60;width:34px;height:34px;margin:-17px 0 0 -17px;pointer-events:none;user-select:none}
 .tickfx path{fill:none;stroke:var(--sage);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
 @media (prefers-reduced-motion:reduce){.modal,.modal>.sheet{animation:none}}
+
+/* W3 · "your body is the dashboard": muscles glow plum after training and cool to neutral as they recover */
+:root{--bm0:oklch(88% .012 318);--bm1:oklch(80% .05 330);--bm2:oklch(68% .09 332);--bm3:oklch(55% .12 334);--bm4:oklch(44% .13 336)}
+[data-theme="dark"]{--bm0:oklch(40% .015 318);--bm1:oklch(48% .06 330);--bm2:oklch(57% .1 332);--bm3:oklch(66% .13 334);--bm4:oklch(76% .13 336)}
+.bmap{display:block;flex:none;line-height:0}
+.bmap svg{width:100%;height:auto;display:block}
+.bmap .bmo{stroke:var(--ink);stroke-width:9;stroke-linejoin:round;paint-order:stroke}
+.nextup.hasbm{display:grid;grid-template-columns:minmax(0,1fr) 96px;column-gap:.8rem;align-items:center}
+.nextup.hasbm>.bmap{grid-column:2;grid-row:1 / span 4;width:96px}
+.nextup.hasbm>:not(.bmap){grid-column:1}
+.daybm{display:flex;align-items:center;gap:.8rem}
+.daybm>.wksum{flex:1;min-width:0}
+.daybm>.bmap{width:92px}
+.livebm{display:flex;align-items:center;gap:.6rem}
+.livebm>.grid3{flex:1;min-width:0}
+.livebm>.bmap{width:64px}
+.celebrate .cbm{width:150px;margin:.8rem auto 0;line-height:0}
+.celebrate .cbm svg{width:100%;height:auto}
 </style>
 </head>
 <body>
@@ -1438,6 +1456,31 @@ function drawIn(el){if(el.classList&&el.classList.contains("wkbars")){[...el.chi
   if(sr&&sr.width&&!RM()){const sh=m.querySelector(".sheet");m.classList.add("noanim");const tr=sh.getBoundingClientRect();if(tr.width&&tr.height){const sx=sr.width/tr.width,sy=Math.min(1,sr.height/tr.height),dx=sr.left+sr.width/2-(tr.left+tr.width/2),dy=sr.top-tr.top;
    sh.style.transformOrigin="center top";sh.animate([{transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`,opacity:.4,borderRadius:"14px"},{transform:"none",opacity:1}],{duration:MT.large-40,easing:EZ.out});m.animate([{background:"transparent"},{}],{duration:MT.std,easing:EZ.out})}}
   return r}}
+
+/* ---------- W3 · body map that glows with trained muscles and cools as they recover ----------
+   Data: recovery() (no new numbers). Level 0–4 per muscle group = how far from 100 % recovered; a set done in the
+   live workout adds one step to its primary muscles. Outline = muscles of today's workout. Colours are never the only
+   signal: the Muscle recovery list stays as it is. */
+const BM_CACHE=new Map();let _bmPrev={};
+function bmLevel(r){const t=100-(r==null?100:r);return t<8?0:t<22?1:t<40?2:t<60?3:4}
+function bmGroups(live){let R={};try{R=recovery().R}catch(e){}const L={};Object.keys(R).forEach(g=>L[g]=bmLevel(R[g]));
+ const a=live&&typeof A==="function"&&A();if(a)a.ex.forEach(e=>{const n=e.sets.filter(q=>q.done&&q.t!=="W").length;if(!n)return;let gp=[];try{gp=recMus(e.name)[0]}catch(x){}gp.forEach(g=>L[g]=Math.min(4,(L[g]||0)+n))});return L}
+function bmKeyGroups(k){if(k==="pec_clavicular")return["chest_u"];if(k==="pec_sternal")return["chest_l"];if(k==="pectoralis_major")return["chest_u","chest_l"];const d=DMUS[k];return d?[d[1]]:[]}
+function bmOutline(names){const o=new Set();(names||[]).forEach(n=>{try{musclesD(n)[0].forEach(k=>o.add(k))}catch(e){}});return o}
+/* Builds the SVG for a level map + outline set, cached by its content so re-renders are cheap. */
+function bmSVG(L,out,lit){const sex=S.core.profile.sex==="f"?"f":"m";const sh=BODY.shapes[sex];const lv=j=>{let m=0;sh[j].forEach(k=>bmKeyGroups(k).forEach(g=>m=Math.max(m,lit?(lit.has(k)?4:0):(L[g]||0))));return m};
+ const key=sex+"|"+sh.map((_,j)=>lv(j)).join("")+"|"+[...(out||[])].sort().join(",")+(lit?"|L":"");if(BM_CACHE.has(key))return{key,svg:BM_CACHE.get(key)};
+ const isO=j=>out&&sh[j].some(k=>out.has(k));
+ const svg=BODY.svg[sex].replace(/fill="\{s:(\d+)\}"/g,(_,j)=>`fill="var(--bm${lv(+j)})" data-j="${j}"${isO(+j)?' class="bmo"':""}`).replace(/<title>\{t:\d+\}<\/title>/g,"").replace(/\{t:(\d+)\}/g,"").replace(/ role="img" aria-label="[^"]*"/,' aria-hidden="true"');
+ if(BM_CACHE.size>24)BM_CACHE.clear();BM_CACHE.set(key,svg);return{key,svg}}
+/* The page only gets a placeholder; bmAfter() moves in a parsed SVG kept per key, so re-renders don't re-parse ~100 KB. */
+const BM_NODE=new Map();
+function bmHTML(id,names,live){const L=bmGroups(live);const {key}=bmSVG(L,bmOutline(names));return`<div class="bmap" data-bm="${id}" data-k="${esc(key)}" role="img" aria-label="${LL("Body map: muscles trained recently in plum, today's workout outlined","Carte du corps : muscles entraînés récemment en prune, séance du jour entourée")}"></div>`}
+function bmNode(key){let n=BM_NODE.get(key);if(n&&!n.isConnected)return n;const svg=BM_CACHE.get(key);if(!svg)return null;if(n)return n.cloneNode(true);const t=document.createElement("template");t.innerHTML=svg;n=t.content.firstElementChild;if(BM_NODE.size>12)BM_NODE.clear();BM_NODE.set(key,n);return n}
+/* After a render: a muscle whose level changed fades from its old colour to the new one (one step up when a set is logged). */
+function bmAfter(){document.querySelectorAll("#app .bmap[data-bm]").forEach(m=>{if(!m.firstChild){const n=bmNode(m.dataset.k);if(n)m.appendChild(n)}const id=m.dataset.bm;const prev=_bmPrev[id]||{};const now={};
+ m.querySelectorAll("path[data-j]").forEach(p=>{const j=p.dataset.j;const f=p.getAttribute("fill");now[j]=f;if(prev[j]&&prev[j]!==f&&!RM())p.animate([{fill:prev[j]},{fill:f}],{duration:MT.large,easing:EZ.out})});_bmPrev[id]=now})}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{bmAfter()}catch(e){}return r}}
 /* ---------- personal setup questionnaire ---------- */
 let setupOn=false,setupStep=0,SD=null;
 const SO={
@@ -1597,8 +1640,8 @@ function vToday(){
  let h=(hasFood()?todayWeekStrip(T):"")+drinkCard();
  const hr=new Date().getHours();const isToday=logDate===today();const period=!isToday?"":hr>=5&&hr<11?"morning":hr<18&&hr>=11?"afternoon":"evening";
  const SEC={};if(period==="morning")h+=`<p class="muted" style="margin:-.3rem 0 .6rem">${LL("Good morning","Bonjour")}</p>`;SEC.supps=suppToday();
- SEC.work="";if(isToday&&hasTrain()){let h="";const di=(new Date().getDay()+6)%7;const dk=schedule()[di];const done=(S.core.sessions||[]).some(x=>x.date===today());if(A())h+=`<div class="box nextup"><div class="lab">Today's workout</div><div class="ttl">🏋️ Workout ${esc(A().day)} in progress.</div><div class="cta"><button onclick="tab='train';trainView='live';render()">Resume</button></div></div>`;{const cc=cardioFor(di);const cdone=(S.core.sessions||[]).some(x=>x.date===today()&&x.day==="CARDIO");if(cc&&!cdone&&!A())h+=`<div class="box nextup"><div class="lab">Cardio today</div><div class="ttl">${ic("cardio")} ${esc(cc.name)} · ${fmtMin(cc.mins)}</div><div class="cta"><button class="ghost" onclick="startCardio(${di})">▶ Start</button></div></div>`}
- if(A()){}else if(dk&&dk!=="rest"&&!done&&S.core.workout[dk])h+=`<div class="box nextup"><div class="lab">Today's workout</div><div class="ttl">Day ${dk} · ${esc(S.core.workout[dk].title)}</div><div class="meta">${S.core.workout[dk].ex.length} exercises</div><div class="cta"><button onclick="startWorkout('${dk}')">▶ Start</button></div></div>`;else if(!A()&&done)h+=`<div class="box nextup"><div class="lab">${LL("Today's workout","Séance du jour")}</div><div class="ttl">✓ ${LL("Done, well done!","Faite, bravo !")}</div><div class="cta"><button class="ghost" onclick="go('cal')">${LL("See it","Voir")}</button></div></div>`;else if(!A()&&(!dk||dk==="rest"))h+=`<div class="box nextup"><div class="lab">${LL("Today's workout","Séance du jour")}</div><div class="ttl">🌿 ${LL("Rest day: recovery is part of the plan","Jour de repos : la récupération fait partie du plan")}</div></div>`;SEC.work=h}
+ SEC.work="";if(isToday&&hasTrain()){let h="";const di=(new Date().getDay()+6)%7;const dk=schedule()[di];const done=(S.core.sessions||[]).some(x=>x.date===today());if(A())h+=`<div class="box nextup hasbm">${bmHTML("today",A().ex.map(e=>e.name),true)}<div class="lab">Today's workout</div><div class="ttl">${ic("train")} Workout ${esc(A().day)} in progress.</div><div class="cta"><button onclick="tab='train';trainView='live';render()">Resume</button></div></div>`;{const cc=cardioFor(di);const cdone=(S.core.sessions||[]).some(x=>x.date===today()&&x.day==="CARDIO");if(cc&&!cdone&&!A())h+=`<div class="box nextup"><div class="lab">Cardio today</div><div class="ttl">${ic("cardio")} ${esc(cc.name)} · ${fmtMin(cc.mins)}</div><div class="cta"><button class="ghost" onclick="startCardio(${di})">▶ Start</button></div></div>`}
+ if(A()){}else if(dk&&dk!=="rest"&&!done&&S.core.workout[dk])h+=`<div class="box nextup hasbm">${bmHTML("today",S.core.workout[dk].ex.map(e=>e.name))}<div class="lab">Today's workout</div><div class="ttl">Day ${dk} · ${esc(S.core.workout[dk].title)}</div><div class="meta">${S.core.workout[dk].ex.length} exercises</div><div class="cta"><button onclick="startWorkout('${dk}')">▶ Start</button></div></div>`;else if(!A()&&done)h+=`<div class="box nextup"><div class="lab">${LL("Today's workout","Séance du jour")}</div><div class="ttl">✓ ${LL("Done, well done!","Faite, bravo !")}</div><div class="cta"><button class="ghost" onclick="go('cal')">${LL("See it","Voir")}</button></div></div>`;else if(!A()&&(!dk||dk==="rest"))h+=`<div class="box nextup"><div class="lab">${LL("Today's workout","Séance du jour")}</div><div class="ttl">🌿 ${LL("Rest day: recovery is part of the plan","Jour de repos : la récupération fait partie du plan")}</div></div>`;SEC.work=h}
  if(!T)h+=`<div class="note">Fill in your age, height and weight in <b>Me</b> so your calories and macros can be calculated.</div>`;
  else{
   const left=T.kcal-tot.kcal;
@@ -3385,7 +3428,7 @@ function vTrain(){
  const lastS=(S.core.sessions||[]).filter(x=>x.day===gymDay).map(x=>x.date).sort().pop();const lastTxt=lastS?wkAgo(gymDay):"";
  const nSets=day.ex.reduce((a,e)=>a+setsFor(e),0);
  h+=`<div class="box" id="daybox"><div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:flex-start"><div style="min-width:0"><h3 style="margin:0"><span class="dd" style="background:${DAYCOL[gymDay]||"var(--plum)"}">${gymDay}</span> ${esc(day.title)}</h3>${lastTxt?`<div class="muted" style="font-size:.8rem;margin-top:.2rem">${LANG()==="fr"?"Dernière fois":"Last performed"} : ${lastTxt}</div>`:""}</div><button class="iconbtn" aria-label="Workout options" onclick="workoutMenu('${gymDay}')">•••</button></div>
- ${day.ex.length?`<div class="wksum"><div><span>${LANG()==="fr"?"Séries":"Sets"}</span><b>${nSets}</b></div><div><span>${LANG()==="fr"?"Durée":"Duration"}</span><b>${wkTimeTxt(day)}</b></div><div><span>${LANG()==="fr"?"Exercices":"Exercises"}</span><b>${day.ex.length}</b></div></div>`:""}
+ ${day.ex.length?`<div class="daybm">${bmHTML("train",day.ex.map(e=>e.name),!!A())}<div class="wksum"><div><span>${LANG()==="fr"?"Séries":"Sets"}</span><b>${nSets}</b></div><div><span>${LANG()==="fr"?"Durée":"Duration"}</span><b>${wkTimeTxt(day)}</b></div><div><span>${LANG()==="fr"?"Exercices":"Exercises"}</span><b>${day.ex.length}</b></div></div></div>`:""}
  ${day.ex.map((ex,i)=>{const n=setsFor(ex);const si=ssInfo(day.ex,i);const m=exMode(ex.name);const reps=isCardio(ex)?esc(ex.reps)+" min":isTimed(m)?esc(ex.reps)+" s":esc(String(ex.reps).replace("-","–"))+" reps";return`<div class="wkro" onclick="showEx(${esc(JSON.stringify(ex.name))},false,${i})" style="${si?`border-left:3px solid ${si.col};padding-left:.6rem`:""}"><span class="exnum">${i+1}</span>${exThumb(ex.name)}<div style="min-width:0"><div class="wkn">${esc(ex.name)}${ex.note?" 📌":""}</div><div class="muted" style="font-size:.85rem">${n} ${LANG()==="fr"?"séries":"sets"} • ${reps}</div></div></div>`}).join("")}
  ${day.ex.length?"":`<p class="muted" style="text-align:center">${LANG()==="fr"?"Aucun exercice. ••• → Modifier la séance.":"No exercises yet. ••• → Edit workout."}</p>`}
  <div class="row" style="gap:.5rem;flex-wrap:nowrap;margin-top:.6rem"><button class="qpick" style="flex:1;justify-content:center;max-width:none" onclick="strOpen('pre','${gymDay}',0)"><span>🧘🏾‍♀️</span>${LL("Pre","Avant")} · ${strCur(gymDay,"pre").length}</button><button class="qpick" style="flex:1;justify-content:center;max-width:none" onclick="strOpen('post','${gymDay}',0)"><span>🧘🏾‍♀️</span>${LL("Post","Après")} · ${strCur(gymDay,"post").length}</button></div>
@@ -4169,7 +4212,7 @@ async function startWorkout(day){if(A()&&!await ask("A workout is already in pro
 function liveStats(){const a=A();let sets=0,vol=0;a.ex.forEach(e=>e.sets.forEach(s=>{if(s.done){sets+=setRuleS(s)[0];if(exMode(e.name)==="w")vol+=setVol(e.name,s)}}));return{sets:Math.round(sets*2)/2,vol}}
 function vLive(){const a=A();if(!a){trainView="plan";return vTrain()}const st=liveStats();const dur=(Date.now()-a.start)/1000;
  let h=`<div class="livehead"><button class="iconbtn" aria-label="Minimise workout" onclick="trainView='plan';render()">⌄</button><button class="iconbtn" aria-label="Timer" onclick="openTimer()">⏱</button>${a.ex.length?`<button class="focustog ${prefs().liveFocus?"on":""}" aria-pressed="${!!prefs().liveFocus}" onclick="focusToggle()">${prefs().liveFocus?LL("☰ List","☰ Liste"):LL("◎ Focus","◎ Focus")}</button>`:""}<span class="grow"></span><button class="iconbtn" aria-label="Workout options" onclick="liveMenu()">•••</button>${(()=>{let t=0,d=0;a.ex.forEach(e=>e.sets.forEach(q=>{t++;if(q.done)d++}));const all=t>0&&d===t;return`<button class="${all?"finok":""}" onclick="finishSheet()">${LL("Finish","Terminer")}</button><div class="liveprog"><i style="width:${t?Math.round(d/t*100):0}%;${all?"background:#3FB950":""}"></i></div>`})()}</div>
- <div class="box" role="button" tabindex="0" style="cursor:pointer" onclick="liveStatsSheet()"><div class="grid3" style="text-align:center;grid-template-columns:repeat(3,1fr)"><div><div class="muted">Duration</div><b id="livedur" style="color:var(--plum)">${fmtClock(dur)}</b></div><div><div class="muted">Volume</div><b id="livevol">${r0(st.vol).toLocaleString()} kg</b></div><div><div class="muted">Sets</div><b id="livesets">${st.sets}</b></div></div>
+ <div class="box" role="button" tabindex="0" style="cursor:pointer" onclick="liveStatsSheet()"><div class="livebm"><div class="grid3" style="text-align:center;grid-template-columns:repeat(3,1fr)"><div><div class="muted">Duration</div><b id="livedur" style="color:var(--plum)">${fmtClock(dur)}</b></div><div><div class="muted">Volume</div><b id="livevol">${r0(st.vol).toLocaleString()} kg</b></div><div><div class="muted">Sets</div><b id="livesets">${st.sets}</b></div></div>${bmHTML("live",a.ex.map(e=>e.name),true)}</div>
  <div class="muted" style="text-align:center;margin-top:.4rem;font-size:.85rem">${a.day==="CARDIO"?"Cardio session":a.day==="FREE"?"Free workout":`Day ${esc(a.day)} · ${esc((S.core.workout[a.day]||{}).title||"")}`} · tap for live stats</div></div>`;
  if(a.notes)h+=`<div class="note" style="white-space:pre-wrap">📝 ${esc(a.notes)}</div>`;
  const ps=livePhotoSrc(a.photo);if(ps)h+=`<img src="${esc(ps)}" alt="Workout photo" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:.8rem">`;
@@ -4263,9 +4306,19 @@ function focusHTML(a){const G=focusGroups(a);const f=focusIdx(a);const g=G[f];
  h+=`<button class="ghost small" style="display:block;margin:1rem auto 0" onclick="focusToggle()">☰ ${LL("Show the full list","Voir toute la liste")}</button>`;
  return h}
 /* finished-workout celebration (0.84a) */
-function celebrate(){try{navigator.vibrate&&navigator.vibrate([40,60,40])}catch(_){}const old=document.getElementById("celebrate");if(old)old.remove();const d=document.createElement("div");d.id="celebrate";d.className="celebrate";d.setAttribute("role","status");
- d.innerHTML=`<div class="cbox"><svg viewBox="0 0 64 64" width="84" height="84" aria-hidden="true"><circle class="cring" cx="32" cy="32" r="28"/><path class="ccheck" d="M20 33 l8 8 l16 -18"/></svg><div class="ctitle">${LL("Workout logged!","Séance enregistrée !")}</div><div class="muted">${LL("Consistency beats perfection","La régularité bat la perfection")}</div></div>`;
- d.onclick=()=>d.remove();document.body.appendChild(d);setTimeout(()=>{d.classList.add("out");setTimeout(()=>d.remove(),400)},2200)}
+/* Storyboard: 0 ms overlay · 100 ms ring draws · 550 ms check · 900 ms body map rises · 950–1400 ms trained muscles
+   light up (primary, then helpers) · 2900 ms fades out (350 ms) · summary underneath. Reduced motion: same frames, no movement. */
+const CEL_T={map:900,lit:950,step:120,out:2900};
+function celebrate(names){try{navigator.vibrate&&navigator.vibrate([40,60,40])}catch(_){}const old=document.getElementById("celebrate");if(old)old.remove();const d=document.createElement("div");d.id="celebrate";d.className="celebrate";d.setAttribute("role","status");
+ let mp="";const P=new Set(),Sx=new Set();(names||[]).forEach(n=>{try{const [p,q]=musclesD(n);p.forEach(k=>P.add(k));q.forEach(k=>Sx.add(k))}catch(e){}});
+ if(P.size){const lit=new Set([...P,...Sx]);const {svg}=bmSVG({},null,lit);mp=`<div class="cbm" aria-hidden="true">${svg}</div>`}
+ d.innerHTML=`<div class="cbox"><svg viewBox="0 0 64 64" width="84" height="84" aria-hidden="true"><circle class="cring" cx="32" cy="32" r="28"/><path class="ccheck" d="M20 33 l8 8 l16 -18"/></svg><div class="ctitle">${LL("Workout logged!","Séance enregistrée !")}</div><div class="muted">${LL("Consistency beats perfection","La régularité bat la perfection")}</div>${mp}</div>`;
+ d.onclick=()=>d.remove();document.body.appendChild(d);
+ const m=d.querySelector(".cbm");if(m){const rm=RM();const sh=BODY.shapes[S.core.profile.sex==="f"?"f":"m"];
+  m.querySelectorAll("path[data-j]").forEach(p=>{const ks=sh[+p.dataset.j]||[];const isP=ks.some(k=>P.has(k)),isS=!isP&&ks.some(k=>Sx.has(k));if(!isP&&!isS){p.setAttribute("fill","var(--bm0)");return}
+   if(isS)p.setAttribute("fill","var(--bm2)");if(!rm)p.animate([{fill:"var(--bm0)"},{fill:p.getAttribute("fill")}],{duration:MT.large,delay:CEL_T.lit+(isS?CEL_T.step*2:0),easing:EZ.out,fill:"backwards"})});
+  if(!rm)m.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"none"}],{duration:MT.std,delay:CEL_T.map,easing:EZ.out,fill:"backwards"})}
+ setTimeout(()=>{d.classList.add("out");setTimeout(()=>d.remove(),400)},m?CEL_T.out:2200)}
 function liveSave(){save("core")}
 function updLive(){const st=liveStats();const v=document.getElementById("livevol"),n=document.getElementById("livesets");if(v)v.textContent=r0(st.vol).toLocaleString()+" kg";if(n)n.textContent=st.sets}
 function toggleSetDone(i,k){const e=A().ex[i],s=e.sets[k];if(!s.done&&isMachine(e.name)&&(S.core.baseW||{})[e.name]==null&&exMode(e.name)==="w"){baseSheet(e.name,()=>toggleSetDone(i,k));return}if(!s.done){liveFields(e.name).forEach(([fld])=>{if(s[fld]==null||s[fld]===""){const ph=phFor(e,k,fld);if(ph!=="")s[fld]=String(ph)}});
@@ -4528,7 +4581,7 @@ function saveLive(){const a=A();const anyDone=a.ex.some(e=>e.sets.some(s=>s.done
  const nx=done.map(e=>{const pe=(S.core.workout[a.day]||{ex:[]}).ex.find(x=>x.name===e.name)||{name:e.name,reps:e.reps,sets:e.sets.filter(x=>x.t!=="W").length};const t=nextTarget(pe,a.day);return t.text?nextRowHTML(e,t):""}).join("");
  window._nextHTML=nx?`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:center"><h3 style="margin:0">${LANG()==="fr"?"La prochaine fois":"Next time"}</h3><button class="circbtn" aria-label="Info" onclick="nextInfo()">ⓘ</button></div>${nx}<button style="width:100%;margin-top:.8rem" onclick="closeSheet()">Got it</button>`:"";
  window._free=a.day==="FREE"?done.map(e=>({name:e.name,sets:e.sets.filter(x=>x.done).length,reps:e.reps,types:e.sets.some(isSideSet)?e.sets.filter(x=>x.done).map(x=>x.t||""):null,ss:e.ss})):null;
- window._afterSum=()=>{if(window._free&&window._free.length)openSheet(freeSaveHTML());else if(upd&&upd.items.length){window._upd=upd;openSheet(wkDiffHTML(upd))}else if(window._nextHTML)openSheet(window._nextHTML)};celebrate();setTimeout(()=>{const h=sumHTML(sid);if(h)openSheet(h);else window._afterSum()},150)}
+ window._afterSum=()=>{if(window._free&&window._free.length)openSheet(freeSaveHTML());else if(upd&&upd.items.length){window._upd=upd;openSheet(wkDiffHTML(upd))}else if(window._nextHTML)openSheet(window._nextHTML)};celebrate(done.map(e=>e.name));setTimeout(()=>{const h=sumHTML(sid);if(h)openSheet(h);else window._afterSum()},150)}
 function nextRowHTML(e,t){const fr=LANG()==="fr";const md=exMode(e.name);const txt=String(t.text||"");
  let main="";const ps=t.perSet&&t.perSet.filter(p=>p.w!=null);
  if(ps&&ps.length){const ws=ps.map(p=>+p.w);const lo=Math.min(...ws),hi=Math.max(...ws);const rs=[...new Set(ps.map(p=>p.r))];main=`${lo===hi?lo:lo+"–"+hi} kg · ${ps.length} × ${rs.length===1?rs[0]:rs.join("/")}`}
@@ -5509,7 +5562,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.88b beta";
+const APP_VERSION="0.88c beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

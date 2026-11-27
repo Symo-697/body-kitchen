@@ -2,6 +2,14 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.88c beta · 2026-11-27
+Woah pass W3, "your body is the dashboard". Uses the existing recovery data and the real male / female drawings; no new numbers or text.
+- Today's workout card (planned or in progress) and the Train day card show the small body map: muscles trained in the last days glow plum and cool to neutral as they recover (5 steps from `recovery()`), today's workout muscles outlined. Male / female follows the profile; dark mode has its own lighter steps.
+- Live workout: the stats box shows the same map; logging a set lights its primary muscles one step up, with a short colour fade on the muscles that changed.
+- Finish: "Workout logged!" now ends on the body map lighting the muscles just trained (primary first, then helpers), then the summary as before (overlay 2.9 s instead of 2.2 s).
+- Helpers: `bmGroups`, `bmSVG` (cached by content), `bmHTML` (placeholder filled after render with a reused SVG node, so re-renders stay as fast as before), `bmAfter`. Reduced motion: same colours, no movement. The Muscle recovery list is unchanged, so colour is never the only signal.
+- Also: the in-progress workout card uses the line icon instead of 🏋️.
+
 ## 0.88b beta · 2026-11-27
 Woah pass W2 (motion & feel), following charles-ux-animation within the UI standards. No logic changes; everything is instant with reduced motion.
 - Shared helpers for later screens: tokens `--e-out / --e-io / --e-in`, `--t-press 120 / micro 180 / std 260 / large 380 ms` (JS `MT`, `EZ`, `RM()`), `countUp(el,from,to)`, `growFrom(el,ratio)`, `tickDraw(x,y)` / `tickHere()`, `drawIn(el)`.
