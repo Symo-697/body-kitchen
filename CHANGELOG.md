@@ -2,6 +2,14 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.88a beta · 2026-11-27
+Woah pass W1 (subtract + line icons), no logic changes, every feature and text kept.
+- One line-icon set (inline SVG, `ic(name)`, `currentColor`): tab bar (Today = sun), Settings button, quick-log (food / water / weight), Log food card + sheet tabs, habit tiles, challenges / recovery / tip, Crous line, meal times, Plan my week, cardio (Today card, kcal card, Train strip), Statistics button, Training chart chips, phase tile. Every sheet / Settings row icon that was an emoji becomes a line icon automatically (`EMO_IC` + `iconizeAll`). Emoji people pick themselves (supplements, notes, occasions) stay.
+- Phase pill ("Fat loss") removed from the tab headers, now next to Settings › Goals. Train phase line in sentence case.
+- Recipe cards: no emoji tile; the card shows the recipe's own data (kcal or protein, time, a P / C / F split bar). Cuisine chips are text only.
+- Cut: Week box in the kcal card, the Sets / Duration / Exercises box (plain row, no dividers), the box around meal groups, boxed buttons in the Log food card, dotted underlines on exercise names, the "Your program is ready" side stripe, the extra shadow on bordered surfaces. Sheet / Settings icon circles neutral (plum kept for main actions and selection). Titles and big numbers at weight 700.
+- Polish: bigger hit areas on the habit-tile buttons, energy buttons, water − and meal-time pills.
+
 ## 0.87e beta · 2026-11-27
 - Supplements: the tiles are centred in their card (up to 4 per row, same size), instead of sitting on the left.
 
