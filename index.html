@@ -759,6 +759,22 @@ body.focusfix .livenote{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-ori
 .fdots i.str{border-radius:2px;width:7px;height:7px;transform:rotate(45deg)}
 .fdots i.str.on{width:9px;height:9px;border-radius:2px}
 .fdone,.fnext{border-radius:var(--r-btn)}
+
+/* Recipe cards, name first (0.89g) */
+.rcar{align-items:stretch}
+.rcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-xl);padding:.8rem .85rem .75rem;gap:.3rem;position:relative}
+.rcard .rname{font-size:1.06rem;font-weight:600;line-height:1.25;letter-spacing:-.005em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;word-break:normal}
+.rcard .rmeta{display:flex;align-items:center;gap:.6rem;white-space:nowrap;font-size:.88rem;color:var(--muted);font-variant-numeric:tabular-nums;min-height:1.5rem}
+.rcard .rmeta .rt{display:inline-flex;align-items:center;gap:.2rem}
+.rcard .rmeta .rt .i{width:14px;height:14px}
+.rcard .radded{top:.55rem;right:.55rem;width:20px;height:20px;font-size:.7rem}
+.rcard.mine .rname{padding-right:1.5rem}
+.rcard .rfoot{margin-top:auto;padding-top:.5rem;display:flex;flex-direction:column;gap:.35rem}
+.rcard .rbar{display:flex;width:100%;height:6px;border-radius:999px;overflow:hidden;gap:2px}
+.rcard .rbar i{display:block;height:100%;border-radius:999px}
+.rcard .mac{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rcard .mac .msep{display:inline-block;width:.55em}
+.rcar .rcard .rname{font-size:1.06rem}
 </style>
 </head>
 <body>
@@ -1579,6 +1595,11 @@ function rvAfter(){const app=document.getElementById("app");if(!app||!("Intersec
  app.querySelectorAll(RV_SEL).forEach(el=>{if(el.closest(".bmap,.fghost"))return;const t=el.matches(".left-num")?"n":el.tagName.toLowerCase()==="circle"?"c":el.matches(".wkbars")||el.tagName.toLowerCase()==="svg"?"g":"b";n[t]=(n[t]||0)+1;const k=pg+t+n[t];el.dataset.rvk=k;
   if(_rv.armed.get(k)===false)return;if(!RM())rvHold(el);_rv.io.observe(el)})}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{rvAfter()}catch(e){}return r}}
+/* Recipe names: never cut mid-word; drop whole words until the name fits its two lines, then "…" (0.89g) */
+function recFit(root){(root||document).querySelectorAll(".rcard .rname").forEach(b=>{const full=b.getAttribute("title")||b.textContent;b.textContent=full;b.style.webkitLineClamp="unset";b.style.display="block";const lh=parseFloat(getComputedStyle(b).lineHeight)||20;const max=lh*2+2;
+  if(b.scrollHeight<=max){b.style.display="";b.style.webkitLineClamp="";return}let w=full.replace(/\s*\([^)]*\)\s*/g," ").replace(/\s+/g," ").trim().split(" ");b.textContent=w.join(" ");
+  while(w.length>1&&b.scrollHeight>max){w.pop();b.textContent=w.join(" ").replace(/[\s,;:&·–\-+]+$/,"")+"…"}b.style.display="";b.style.webkitLineClamp=""})}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{recFit(document.getElementById("app"))}catch(e){}return r}}
 
 /* Sheets: slide up; a sheet opened from a card grows out of that card (FLIP, synchronous so code that fills the
    sheet right after openSheet keeps working); repaints of an open sheet don't replay; closing slides down. */
@@ -2238,8 +2259,13 @@ function setDay(k,v){dayLog(logDate)[k]=v;save(monthKey(logDate))}
 let editing=null;
 function kFiltOK(r){const m=r.meal||"";const cui=r.cui||(BANK.find(x=>x.id===r.id)||{}).cui||"";return(discMeal==="all"||!m||m.includes(discMeal)||(discMeal==="ld"&&(m.includes("l")||m.includes("d"))))&&(discCui==="all"||cui===discCui)}
 function kFiltChips(after){return`<div class="hscroll kfilt">${[["all",LL("All","Tout")],["b",LL("Breakfast","Petit-déj")],["ld",LL("Lunch & dinner","Déj & dîner")],["s",LL("Snacks","Collations")]].map(([k,l])=>`<button class="chip ${discMeal===k?"on":""}" onclick="discMeal='${k}';${after}">${l}</button>`).join("")}</div><div class="hscroll kfilt" style="margin-bottom:.8rem">${[["all",LL("All","Toutes")],...SO_CUIS.map(([k,l])=>[k,l])].map(([k,l])=>`<button class="chip ${discCui===k?"on":""}" onclick="discCui='${k}';${after}">${l}</button>`).join("")}</div>`}
-function recCard(r,m,mine,on){const hk=(S.core.prefs||{}).hideKcal;const pk=(m.p||0)*4,ck=(m.c||0)*4,fk=(m.f||0)*9,tk=pk+ck+fk||1;
- return`<div class="rtile" role="button" tabindex="0" onclick="${on}" onkeydown="if(event.key==='Enter')this.click()"><div class="rimg rdata">${hk?`<span class="rk">${r0(m.p)}<small> g P</small></span>`:`<span class="rk">${r0(m.kcal)}<small> kcal</small></span>`}${r.time?`<span class="rt">${ic("clock")} ${r.time}′</span>`:"<span></span>"}<span class="rbar" aria-hidden="true"><i style="width:${pk/tk*100}%;background:var(--p)"></i><i style="width:${ck/tk*100}%;background:var(--c)"></i><i style="width:${fk/tk*100}%;background:var(--f)"></i></span>${mine?`<i class="radded">✓</i>`:""}</div><b>${esc(r.name)}</b><span class="mac">${r0(m.p)} g P · ${r0(m.c)} g C · ${r0(m.f)} g F</span></div>`}
+/* Recipe card, name first (0.89g, HQ To do 1): the meal's name is the title; kcal + time one quiet line;
+   macro bar + grams at the bottom; no empty middle. Used by the Kitchen carousels, Discover and See all. */
+function recName(n){n=String(n||"");const M=34;if(n.length<=M)return n;let t=n.replace(/\s*\([^)]*\)\s*/g," ").replace(/\s+/g," ").trim();if(t.length<=M)return t;const c=t.slice(0,M+1);const k=c.lastIndexOf(" ");return(k>14?c.slice(0,k):t.slice(0,M)).replace(/[\s,;:&·–\-+]+$/,"")+"…"}
+function recCard(r,m,mine,on,emo){const hk=(S.core.prefs||{}).hideKcal;const pk=(m.p||0)*4,ck=(m.c||0)*4,fk=(m.f||0)*9,tk=pk+ck+fk||1;
+ return`<div class="rtile rcard${mine?" mine":""}" role="button" tabindex="0" aria-label="${esc(r.name)}" onclick="${on}" onkeydown="if(event.key==='Enter')this.click()"><b class="rname" title="${esc(r.name)}">${esc(r.name)}</b>
+ <span class="rmeta">${hk?`<span>${r0(m.p)} g ${LL("protein","protéines")}</span>`:`<span>${r0(m.kcal)} kcal</span>`}${r.time?`<span class="rt">${ic("clock")}${r.time}′</span>`:""}</span>${mine?`<span class="radded" role="img" aria-label="${LL("In my recipes","Dans mes recettes")}">✓</span>`:""}
+ <span class="rfoot"><span class="rbar" aria-hidden="true"><i style="width:${pk/tk*100}%;background:var(--p)"></i><i style="width:${ck/tk*100}%;background:var(--c)"></i><i style="width:${fk/tk*100}%;background:var(--f)"></i></span><span class="mac">${r0(m.p)} g P<span class="msep"> </span>${r0(m.c)} g C<span class="msep"> </span>${r0(m.f)} g F</span></span></div>`}
 function vKitchen(){migrateShops();
  if(kView==="discover")return`<button class="chip" style="margin-bottom:.8rem" onclick="kView='home';render();window.scrollTo(0,0)">‹ ${LL("Recipes","Recettes")}</button>`+vDiscover();
  let h=kitchenForm();const a=(S.core.setup||{}).answers;
@@ -2363,7 +2389,7 @@ const REC_EMOS=["🍲","🍛","🍝","🍜","🍚","🥘","🥣","🍳","🥚","
 const emoSplit=t=>{try{if(window.Intl&&Intl.Segmenter)return[...new Intl.Segmenter().segment(t)].map(x=>x.segment)}catch(e){}return Array.from(t)};
 const emoSz=e=>{const n=emoSplit(e||"").length;return n>2?"font-size:.55em;letter-spacing:-.05em":n>1?"font-size:.75em;letter-spacing:-.05em":""};
 function recEmo(r){if(r.emo)return r.emo;const n=norm(r.name);return /omelette|egg|oeuf|muffin/.test(n)?"🍳":/salmon|saumon|cod|fish|tilapia|thon|tuna|shrimp|crevette/.test(n)?"🐟":/chili|bean/.test(n)?"🌶":/wrap|burger/.test(n)?"🌯":/skyr|yog|oat|porridge|compote/.test(n)?"🥣":/quiche|toast/.test(n)?"🥪":/tofu|veg/.test(n)?"🥦":/rice|riz|jollof|fried rice/.test(n)?"🍚":/dal|curry/.test(n)?"🍛":CUI_EMO[r.cui]||"🍽"}
-function recTile(r,m,mine,on){return`<div class="rtile" onclick="${on}"><div class="rimg" style="background:${CUI_BG[r.cui]||CUI_BG[""]}"><span style="${emoSz(recEmo(r))}">${recEmo(r)}</span>${mine?`<i class="radded">✓</i>`:""}</div><b>${esc(r.name)}</b><span class="muted">${(S.core.prefs||{}).hideKcal?"":r0(m.kcal)+" kcal · "}${r0(m.p)} g P${r.time?` · ${r.time}′`:""}</span></div>`}
+function recTile(r,m,mine,on){return recCard(r,m,mine,on)}
 function discListHTML(){const a=(S.core.setup||{}).answers;const q=norm(discQuery).trim();const words=q.split(/\s+/).filter(Boolean);
  let list=BANK.filter(r=>bankFits(r,a)).filter(r=>discMeal==="all"||r.meal.includes(discMeal)||(discMeal==="ld"&&(r.meal.includes("l")||r.meal.includes("d")))).filter(r=>discCui==="all"||r.cui===discCui);
  if(words.length)list=list.filter(r=>{const hay=norm([r.name,CUI_LABEL[r.cui]||"",...r.items.concat(r.sides||[]).map(it=>(food(it.food)||{}).name||"")].join(" "));return words.every(w=>hay.includes(w))});
@@ -5852,7 +5878,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89f beta";
+const APP_VERSION="0.89g beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89g beta · 2026-11-28 · Recipe cards, name first
+- Kitchen › My recipes and Discover carousels, the Discover list and See all: the recipe name is now the card's title (top, biggest text, two lines max, never cut mid-word: whole words drop, then "…"; full name on long-press / screen readers). Under it one quiet line: kcal (or protein if calories are hidden) and the time. Macro bar + P / C / F grams at the bottom. No empty block in the middle; cards in a row share their height. "In my recipes" ✓ sits in the corner. The Discover list loses its big emoji tiles for the same card.
+
 ## 0.89f beta · 2026-11-28 · Animations once per page, slower
 - Entrance animations play once per page visit (opening a page, or a new week / month in Stats), the first time each chart or number is well in view while you scroll down. Scrolling back up doesn't replay them, nor does coming back to the app. About 2.2× slower than in-page motion.
 
