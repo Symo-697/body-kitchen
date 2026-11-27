@@ -2,6 +2,14 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.88h beta · 2026-11-27
+W7 · text & button shape (Serena's answers to the W4 slop check). EN + FR, nothing else changes.
+- Today: the "Good morning" line is gone (date line and Today title stay).
+- Emoji inside sentences, labels and settings rows become line icons (Phase plan, Rest day, Arrange Today, Settings rows and options, Crous, stretches…); emoji people pick themselves (supplements, recipe emoji, occasions) stay. Inside dropdown options the emoji is simply dropped.
+- Meta lines: no more chains of " · ". Any line with two or more dots gets spacing instead (e.g. "21 y  177 cm  113.4 kg  target 2165 kcal", "P 164  F 63  C 236 g", recipe macros). Today's workout card: title = the workout ("Upper B (…)"), meta "Day O · 7 exercises". Phase plan note: one fact per line. A single dot between two bits stays.
+- Exclamation marks kept (Serena's choice).
+- Buttons by size: big buttons (Start, Complete set, sheet actions, Shopping mode) are rounded rectangles concentric with their card (`--r-btn` = card radius − 4 px); small buttons, chips, filters and the segmented thumb are pills.
+
 ## 0.88f beta · 2026-11-27
 W6 · Kitchen & Progress moments (`claude/bk-craft-rules.md`, Serena's OK), existing data only, checked with charles-ux-animation + charles-polish.
 - Kitchen › Plan the week: a calm "Week" bar shows how much of 7 × the daily calorie target the planned meals cover (portion + sides), with a thin Protein bar under it against 7 × the daily protein. Planning a meal grows the bars from where they were and draws the pencil tick on the slot; removing it shrinks them back. Crous / eating out count as not planned. Over 100 % uses the "over" colour, never red. Cook days use the line icon instead of 🍳.
