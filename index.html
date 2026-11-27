@@ -775,6 +775,17 @@ body.focusfix .livenote{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-ori
 .rcard .mac{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rcard .mac .msep{display:inline-block;width:.55em}
 .rcar .rcard .rname{font-size:1.06rem}
+
+/* Body map light-up (0.89i) */
+:root{--bmglow:oklch(68% .19 335)}
+[data-theme="dark"]{--bmglow:oklch(74% .17 335)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bmglow:oklch(74% .17 335)}}
+.bmap,.cbm{position:relative}
+.bmap>svg,.cbm>svg{position:relative;z-index:1}
+.bmglow{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transform:scale(1.04);transform-origin:50% 50%}
+.bmglow svg{width:100%;height:auto;display:block}
+.bmhold>svg path[data-j]{fill:var(--bm0)}
+@media (prefers-reduced-motion:reduce){.bmglow{display:none}}
 </style>
 </head>
 <body>
@@ -1573,11 +1584,12 @@ function drawIn(el,k){k=k||1;if(el.classList&&el.classList.contains("wkbars")){[
    a week or a month appearing), the first time each element is well in view; scrolling back doesn't replay.
    Repaints of the same page (logging, ticking) don't replay; changed values still count from old to new. */
 const _rv={page:null,armed:new Map(),io:null,ioOut:null};
-const RV_SEL=".wkbars,.box svg:not(.i),.left-num,.wtrack i,.wkbud .fill,.nring svg circle:nth-of-type(2)";
+const RV_SEL=".bmap[data-bm],.wkbars,.box svg:not(.i),.left-num,.rvnum,.wtrack i,.wkbud .fill,.nring svg circle:nth-of-type(2)";
 const RV_K=2.2,RV_WAIT=120;/* slower than the in-page motion so the eye has time to land (Serena, 28 Nov) */
-function rvPage(){return[tab,settingsOpen?1:0,typeof statsOpen!=="undefined"&&statsOpen?1:0,typeof statOff!=="undefined"?statOff:0,typeof calOff!=="undefined"?calOff:0,tab==="train"?trainView:"",typeof exRange!=="undefined"?exRange:""].join("|")}
+function rvPage(){return[tab,settingsOpen?1:0,typeof statsOpen!=="undefined"&&statsOpen?1:0,typeof statOff!=="undefined"?statOff:0,typeof calOff!=="undefined"?calOff:0,tab==="train"?trainView:"",typeof exRange!=="undefined"?exRange:"",typeof meView!=="undefined"?JSON.stringify(meView||null):"",typeof mRange!=="undefined"?mRange:""].join("|")}
 function rvPlay(el){if(RM())return;
- if(el.matches(".left-num")){const v=numOf(el.textContent);if(v)countUp(el,0,v,Math.round(MT.count*RV_K));return}
+ if(el.matches(".bmap")){bmLight(el);return}
+  if(el.matches(".left-num,.rvnum")){const v=numOf(el.textContent);if(v)countUp(el,0,v,Math.round(MT.count*RV_K));return}
  if(el.tagName.toLowerCase()==="circle"){const d=String(el.getAttribute("stroke-dasharray")||"").split(" ");const v=parseFloat(d[0]),C=parseFloat(d[1]);if(v>0&&C)el.animate([{strokeDasharray:`0 ${C}`},{strokeDasharray:`${v} ${C}`}],{duration:MT.large*RV_K,easing:EZ.out});return}
  if(el.matches(".wkbars")||el.tagName.toLowerCase()==="svg"){drawIn(el,RV_K);return}
  el.style.transformOrigin="left center";el.animate([{transform:"scaleX(0)"},{transform:"none"}],{duration:MT.large*RV_K,easing:EZ.out})}
@@ -1586,15 +1598,16 @@ function rvIn(en){const rb=en.rootBounds;const h=en.boundingClientRect.height||1
 /* Hold = the element sits on its first frame from the very first paint (0, empty bar, empty ring, hidden chart),
    and Go swaps that first frame for the running animation in the same frame, so nothing is ever seen finished
    then restarted (0.89h: that jump was what looked buggy). */
-function rvType(el){return el.matches(".left-num")?"n":el.tagName.toLowerCase()==="circle"?"c":el.matches(".wkbars")||el.tagName.toLowerCase()==="svg"?"g":"b"}
+function rvType(el){return el.matches(".bmap")?"m":el.matches(".left-num,.rvnum")?"n":el.tagName.toLowerCase()==="circle"?"c":el.matches(".wkbars")||el.tagName.toLowerCase()==="svg"?"g":"b"}
 function rvHold(el){const t=rvType(el);el.dataset.rvh=t;
  if(t==="n"){const tn=el.firstChild&&el.firstChild.nodeType===3?el.firstChild:null;if(!tn||!/\d/.test(tn.data)||(tn.data.match(/\d[\d,.  ]*/g)||[]).length!==1){delete el.dataset.rvh;return}el.dataset.rvfin=tn.data;tn.data=tn.data.replace(/\d[\d,.  ]*/,"0")}
  else if(t==="c"){const d=String(el.getAttribute("stroke-dasharray")||"").split(" ");el.style.strokeDasharray=`0 ${d[1]||0}`}
  else if(t==="g")el.style.opacity="0";
+ else if(t==="m")el.classList.add("bmhold");
  else{el.style.transformOrigin="left center";el.style.transform="scaleX(0)"}}
 function rvGo(el){setTimeout(()=>{if(!el.isConnected)return;const t=el.dataset.rvh;
  if(t==="n"){const tn=el.firstChild;if(tn&&tn.nodeType===3&&el.dataset.rvfin)tn.data=el.dataset.rvfin}
- else if(t==="c")el.style.strokeDasharray="";else if(t==="g")el.style.opacity="";else if(t==="b")el.style.transform="";
+ else if(t==="c")el.style.strokeDasharray="";else if(t==="g")el.style.opacity="";else if(t==="m")el.classList.remove("bmhold");else if(t==="b")el.style.transform="";
  delete el.dataset.rvh;const z=t==="n"&&el.firstChild?el.firstChild.data.replace(/\d[\d,.\u202f\u00a0]*/,"0"):null;rvPlay(el);if(z!=null&&el.firstChild&&el.firstChild.data===el.dataset.rvfin)el.firstChild.data=z},RV_WAIT)}
 function rvAfter(){const app=document.getElementById("app");if(!app||!("IntersectionObserver" in window))return;const pg=rvPage();if(pg!==_rv.page){_rv.page=pg;_rv.armed.clear()}
  const bot=Math.round(((document.querySelector("nav.tabs")||{}).offsetHeight||70)+((document.querySelector(".livebar")||{}).offsetHeight||0)+12);
@@ -1604,7 +1617,7 @@ function rvAfter(){const app=document.getElementById("app");if(!app||!("Intersec
    if(rvIn(en)){_rv.armed.set(k,false);rvGo(el)}else if(en.isIntersecting){/* can't get fully in view (end of page): play once it has been on screen a moment */(_rv.tm=_rv.tm||{})[k]=setTimeout(()=>{if(_rv.armed.get(k)!==false&&el.isConnected){_rv.armed.set(k,false);rvGo(el)}},700)}}),{threshold:[0,.25,.5,.6,.85,.95,1],rootMargin:`0px 0px -${bot}px 0px`});
 }
  _rv.io.disconnect();const n={};
- app.querySelectorAll(RV_SEL).forEach(el=>{if(el.closest(".bmap,.fghost"))return;const t=rvType(el);n[t]=(n[t]||0)+1;const k=pg+t+n[t];el.dataset.rvk=k;
+ app.querySelectorAll(RV_SEL).forEach(el=>{if((el.parentElement&&el.parentElement.closest(".bmap"))||el.closest(".fghost"))return;const t=rvType(el);n[t]=(n[t]||0)+1;const k=pg+t+n[t];el.dataset.rvk=k;
   if(_rv.armed.get(k)===false)return;if(!RM())rvHold(el);_rv.io.observe(el)})}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{rvAfter()}catch(e){}return r}}
 /* Recipe names: never cut mid-word; drop whole words until the name fits its two lines, then "…" (0.89g) */
@@ -1647,7 +1660,20 @@ function bmHTML(id,names,live){const L=bmGroups(live);const {key}=bmSVG(L,bmOutl
 function bmNode(key){let n=BM_NODE.get(key);if(n&&!n.isConnected)return n;const svg=BM_CACHE.get(key);if(!svg)return null;if(n)return n.cloneNode(true);const t=document.createElement("template");t.innerHTML=svg;n=t.content.firstElementChild;if(BM_NODE.size>12)BM_NODE.clear();BM_NODE.set(key,n);return n}
 /* After a render: a muscle whose level changed fades from its old colour to the new one (one step up when a set is logged). */
 function bmAfter(){document.querySelectorAll("#app .bmap[data-bm]").forEach(m=>{if(!m.firstChild){const n=bmNode(m.dataset.k);if(n)m.appendChild(n)}const id=m.dataset.bm;const prev=_bmPrev[id]||{};const now={};
- m.querySelectorAll("path[data-j]").forEach(p=>{const j=p.dataset.j;const f=p.getAttribute("fill");now[j]=f;if(prev[j]&&prev[j]!==f&&!RM())p.animate([{fill:prev[j]},{fill:f}],{duration:MT.large,easing:EZ.out})});_bmPrev[id]=now})}
+ const up=[];m.querySelectorAll(":scope>svg path[data-j]").forEach(p=>{const j=p.dataset.j;const f=p.getAttribute("fill");now[j]=f;if(prev[j]&&prev[j]!==f&&!RM()&&!m.classList.contains("bmhold")){up.push(p);p.animate([{fill:prev[j]},{fill:`color-mix(in oklch,${f},white 38%)`,offset:.38},{fill:f}],{duration:650,easing:EZ.out})}});if(up.length)bmGlow(m,new Set(up.map(p=>p.dataset.j)),{peak:1,inMs:250,outMs:400});_bmPrev[id]=now})}
+/* Body map light-up (0.89i, Serena: "really light up"). A blurred copy of the lit muscles sits behind the map as a
+   soft plum light: it swells and settles. Opacity / filter / fill only; nothing at all with reduced motion. */
+function bmLevelOf(p){const m=/--bm(\d)/.exec(p.getAttribute("fill")||"");return m?+m[1]:0}
+function bmGlow(m,js,o){if(RM()||!m)return;const svg=m.querySelector(":scope>svg");if(!svg)return;o=o||{};m.querySelectorAll(":scope>.bmglow").forEach(x=>x.remove());
+ const g=document.createElement("div");g.className="bmglow";g.setAttribute("aria-hidden","true");const c=svg.cloneNode(true);c.removeAttribute("id");
+ c.querySelectorAll("path,rect,circle,ellipse,polygon,polyline,line").forEach(e=>{const j=e.dataset&&e.dataset.j;const lv=j!=null?bmLevelOf(e):0;const on=j!=null&&(js?js.has(j):lv>=2);
+  if(on){e.setAttribute("fill","var(--bmglow)");e.setAttribute("opacity",js?1:lv>=3?1:.55);e.removeAttribute("class")}else{e.setAttribute("fill","none")}e.setAttribute("stroke","none")});
+ g.appendChild(c);const w=m.getBoundingClientRect().width||80;g.style.filter=`blur(${Math.max(3,Math.round(w*.05))}px)`;m.prepend(g);
+ const pk=o.peak!=null?o.peak:.95,rest=o.rest||0,a=o.inMs||380,b=o.outMs||900,d=o.delay||0;
+ const an=g.animate([{opacity:0},{opacity:pk,offset:a/(a+b)},{opacity:rest}],{duration:a+b,delay:d,easing:"ease-out",fill:"both"});an.onfinish=()=>{if(!rest)g.remove()}}
+function bmLight(m){if(RM()||!m)return;const ps=[...m.querySelectorAll(":scope>svg path[data-j]")];
+ ps.forEach(p=>{const lv=bmLevelOf(p);if(!lv)return;p.animate([{fill:"var(--bm0)"},{fill:`color-mix(in oklch,${p.getAttribute("fill")},white 30%)`,offset:.6},{fill:p.getAttribute("fill")}],{duration:Math.round(MT.large*RV_K*.9),delay:(4-lv)*60,easing:EZ.out,fill:"backwards"})});
+ bmGlow(m,null,{delay:120,inMs:520,outMs:1100})}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{bmAfter()}catch(e){}return r}}
 
 /* ---------- W4 · craft helpers ---------- */
@@ -1764,7 +1790,6 @@ function muscleWeekSheet(g){const mon=mondayOf(today());const pm=new Date(mon+"T
  const a=setsByGroup(mon,today()),b=setsByGroup(pmon,pe.toLocaleDateString("sv-SE"));const ex=Object.entries(a.E[g]||{}).sort((x,y)=>y[1]-x[1]);const nm=typeof MUSL==="function"?MUSL(g):g;
  openSheet(`<div class="wkbar"><button class="circbtn" aria-label="${LL("Close","Fermer")}" onclick="closeSheet()">‹</button><b>${esc(nm)}</b><span></span></div><div class="mrows"><div class="mr"><span>${LL("This week","Cette semaine")}</span><b>${r1(a.G[g]||0)} ${LL("sets","séries")}</b></div><div class="mr"><span>${LL("Last week","Semaine dernière")}</span><b>${r1(b.G[g]||0)} ${LL("sets","séries")}</b></div></div>${ex.length?`<label style="margin-top:.8rem">${LL("Exercises","Exercices")}</label><div class="mrows">${ex.map(([n,c])=>`<div class="mr"><span>${esc(n)}</span><span class="muted">${r1(c)}</span></div>`).join("")}</div>`:""}`)}
 /* Draw-in once: the hero's muscles fill from neutral the first time it's shown */
-{const _r=render;render=function(){const r=_r.apply(this,arguments);try{const m=document.querySelector('#app .bmap[data-bm="hero"]');if(m&&!_seen.has("bmhero")&&!RM()){_seen.add("bmhero");m.querySelectorAll("path[data-j]").forEach(p=>{const f=p.getAttribute("fill");if(f&&f!=="var(--bm0)")p.animate([{fill:"var(--bm0)"},{fill:f}],{duration:MT.large+120,easing:EZ.out})})}}catch(e){}return r}}
 
 /* Focus mode: fixed screen flag + measured tab bar height */
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{const on=tab==="train"&&trainView==="live"&&!!A()&&prefs().liveFocus&&A().ex.length>0;document.body.classList.toggle("focusfix",!!on);if(on){const n=document.querySelector("nav.tabs");if(n)document.documentElement.style.setProperty("--navh",Math.round(n.getBoundingClientRect().height)+"px")}}catch(e){}return r}}
@@ -4642,7 +4667,8 @@ function celebrate(names){try{navigator.vibrate&&navigator.vibrate([40,60,40])}c
  d.onclick=()=>d.remove();document.body.appendChild(d);
  const m=d.querySelector(".cbm");if(m){const rm=RM();const sh=BODY.shapes[S.core.profile.sex==="f"?"f":"m"];
   m.querySelectorAll("path[data-j]").forEach(p=>{const ks=sh[+p.dataset.j]||[];const isP=ks.some(k=>P.has(k)),isS=!isP&&ks.some(k=>Sx.has(k));if(!isP&&!isS){p.setAttribute("fill","var(--bm0)");return}
-   if(isS)p.setAttribute("fill","var(--bm2)");if(!rm)p.animate([{fill:"var(--bm0)"},{fill:p.getAttribute("fill")}],{duration:MT.large,delay:CEL_T.lit+(isS?CEL_T.step*2:0),easing:EZ.out,fill:"backwards"})});
+   if(isS)p.setAttribute("fill","var(--bm2)");if(!rm){const n=(m._n=(m._n||0)+1)-1;p.animate([{fill:"var(--bm0)"},{fill:`color-mix(in oklch,${p.getAttribute("fill")},white 40%)`,offset:.5},{fill:p.getAttribute("fill")}],{duration:MT.large+80,delay:CEL_T.lit+(isS?CEL_T.step*2:0)+Math.min(n,14)*70,easing:EZ.out,fill:"backwards"})}});
+  if(!rm){m.style.position="relative";setTimeout(()=>{if(m.isConnected)bmGlow(m,null,{inMs:420,outMs:900})},CEL_T.lit+Math.min(m._n||0,14)*70+260)}
   if(!rm)m.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"none"}],{duration:MT.std,delay:CEL_T.map,easing:EZ.out,fill:"backwards"})}
  setTimeout(()=>{d.classList.add("out");setTimeout(()=>d.remove(),400)},m?CEL_T.out:2200)}
 function liveSave(){save("core")}
@@ -5890,7 +5916,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89h beta";
+const APP_VERSION="0.89i beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
@@ -5956,7 +5982,7 @@ function vSettings(){const m=prefs().theme||"system",pal=prefs().palette||"plum"
 function measPage(){const v=meView;if(v.page==="plan")return planPage();if(v.page==="scan")return scanPage(v.i);if(v.page==="supps")return suppPage();const back=(to,label)=>`<button class="ghost small" onclick="meView=${to};render();window.scrollTo(0,0)">‹ ${label}</button>`;
  if(v.page==="list"){const defs=measDefs(v.group);const title={body:"Body measurements",other:"Other measurements",custom:"Custom measurements"}[v.group];
   return back("null","Me")+`<h2>${title}</h2><div class="box" style="padding:.2rem 1rem">${defs.map(d=>{const ser=mSeries(d.key);const last=ser[ser.length-1];
-   return`<button onclick="meView={page:'detail',key:'${d.key}'};render();window.scrollTo(0,0)" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:.7rem;width:100%;box-sizing:border-box;padding:.8rem 0;border-bottom:1px solid var(--line)"><span style="flex:1"><b>${esc(d.name)}</b><br>${last?`<b>${fmtV(last.v)}</b> <span class="muted">${esc(d.unit)}</span> ${mChange(ser)}`:`<span class="muted">No data yet</span>`}</span>${sparkMini(ser.slice(-12).map(x=>x.v))}<span class="muted" aria-hidden="true">›</span></button>`}).join("")||`<p class="muted">Nothing here yet.</p>`}</div>
+   return`<button onclick="meView={page:'detail',key:'${d.key}'};render();window.scrollTo(0,0)" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:.7rem;width:100%;box-sizing:border-box;padding:.8rem 0;border-bottom:1px solid var(--line)"><span style="flex:1"><b>${esc(d.name)}</b><br>${last?`<b class="rvnum">${fmtV(last.v)}</b> <span class="muted">${esc(d.unit)}</span> ${mChange(ser)}`:`<span class="muted">No data yet</span>`}</span>${sparkMini(ser.slice(-12).map(x=>x.v))}<span class="muted" aria-hidden="true">›</span></button>`}).join("")||`<p class="muted">Nothing here yet.</p>`}</div>
   ${v.group==="custom"?`<button onclick="meView={page:'newcustom'};render()">+ Add measurement</button>`:""}`}
  if(v.page==="newcustom"){return back("null","Me")+`<h2>New measurement</h2><div class="box"><label>Name</label><input id="cm-name" placeholder="e.g. Upper thigh, Wrist, Resting heart rate">
   <label style="margin-top:.7rem">Unit</label><select id="cm-unit" onchange="document.getElementById('cm-other').style.display=this.value==='other'?'block':'none'"><option value="cm">Length (cm)</option><option value="kg">Weight (kg)</option><option value="%">Percentage (%)</option><option value="kcal">Calories (kcal)</option><option value="other">Other (custom)</option></select>

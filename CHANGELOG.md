@@ -2,6 +2,10 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89i beta · 2026-11-28 · Body map light-up, measurement animations
+- Body map (Today card, Train day card, live stats box, Progress, celebration): when the map comes into view (once per page visit) the muscles light up from neutral to their level, strongest first, with a soft plum light behind them that swells and settles. Logging a set: the muscles it works flash brighter with the same light as they go up a level. Celebration: the trained muscles light up one by one, then the whole map glows once. Nothing with reduced motion.
+- Measurements (body, other and custom): list values count up and the sparklines draw in; each measurement page plays its number and chart when opened or when the range changes (3M / 6M / 1Y / All). Same play-once rules as the rest.
+
 ## 0.89h beta · 2026-11-28 · Smooth entrance animations
 - Fix: entrance animations looked buggy because the finished chart / number / bar was painted first, then snapped back to zero when the animation started. Now everything waiting to play sits on its first frame from the very first paint (numbers at 0, bars and rings empty, charts hidden) and the animation takes over in the same frame. Elements at the very end of a page that can't get fully in view play after being on screen a moment. Reduced motion: unchanged (no animation, final values shown).
 
