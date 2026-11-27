@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89d beta · 2026-11-28 · Animations replay when they come on screen
+- Charts, big numbers, rings and fill bars now animate every time they appear: when you open a page, switch week or month (Stats included), scroll back to them, or come back to the app. Repaints of the same page (logging, ticking a set) don't replay; changed values still count from old to new. Reduced motion: none.
+
 ## 0.89c beta · 2026-11-28
 - Fix: in Focus mode the workout progress bar ran behind the ⌄ / timer / List / ⋯ / Finish buttons (header spacing was cut in 0.89a). The bar now sits under the buttons with space before the stats box
 - Fix: a double tap anywhere no longer zooms the page on iPhone (`touch-action: manipulation` everywhere; pinch zoom still works; drag handles, dials and swipe rows keep their own settings)

@@ -1537,9 +1537,9 @@ const MV_SEL=[".left-num",".wkbh b",".nring b",".mtv",".quicklog small"];
 function mvAfter(){const app=document.getElementById("app");if(!app)return;const nv=navOf(tab)+(settingsOpen?"-s":"");const navChanged=_mvNav!==null&&_mvNav!==nv;
  if(navChanged&&!RM())app.animate([{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:MT.micro,easing:EZ.out});
  MV_SEL.forEach(sel=>app.querySelectorAll(sel).forEach((el,i)=>{const k=nv+sel+i;const v=numOf(el.textContent);const old=_mv[k];_mv[k]=v;if(navChanged&&!_mvFirst)return;
-  if(_mvFirst&&nv==="today"&&v!=null)countUp(el,0,v);else if(old!=null&&v!=null&&old!==v)countUp(el,old,v)}));
+  if(old!=null&&v!=null&&old!==v)countUp(el,old,v)}));
  app.querySelectorAll(".nring svg circle:nth-of-type(2),.wtrack i,.wkbud .fill").forEach((el,i)=>{const k=nv+"arc"+i;const isC=el.tagName.toLowerCase()==="circle";const v=isC?parseFloat(el.getAttribute("stroke-dasharray")):el.getBoundingClientRect().width;const old=_mv[k];_mv[k]=v;if(RM()||(navChanged&&!_mvFirst))return;
-  const from=_mvFirst&&nv==="today"?0:old;if(from==null||Math.abs(from-v)<.5)return;
+  const from=old;if(from==null||Math.abs(from-v)<.5)return;
   if(isC){const C=parseFloat(el.getAttribute("stroke-dasharray").split(" ")[1]);el.animate([{strokeDasharray:`${from} ${C}`},{strokeDasharray:`${v} ${C}`}],{duration:MT.large,easing:EZ.io})}
   else{el.style.transformOrigin="left center";growFrom(el,v?from/v:0)}});
  if(_mvFirst&&nv==="today")_mvFirst=false;else if(_mvFirst)_mvFirst=false;
@@ -1548,14 +1548,28 @@ function mvAfter(){const app=document.getElementById("app");if(!app)return;const
  if(fc&&_mvFocus!=null&&fi!=null&&fi!==_mvFocus&&!RM()){const d=fi>_mvFocus?1:-1;fc.animate([{opacity:0,transform:`translateX(${28*d}px)`},{opacity:1,transform:"none"}],{duration:MT.std,easing:EZ.out})}_mvFocus=fc?fi:null;
  /* Calendar: the month fades in week by week (only when the month changes) */
  const cr=app.querySelectorAll(".calrow");const ck=cr.length?(cr[0].textContent||"").slice(0,12)+cr.length:null;if(cr.length)_mvCal=ck;
- /* Progress: charts draw in once, when they come into view */
- if(nv==="progress"&&!RM()&&"IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting)return;io.unobserve(en.target);drawIn(en.target)}),{threshold:.35});
-  app.querySelectorAll(".wkbars,.box svg").forEach((el,i)=>{const k=(statsOpen?"st":"")+(el.className.baseVal!=null?"svg":"wk")+i+(el.getAttribute("viewBox")||"");if(_seen.has(k))return;_seen.add(k);io.observe(el)})}
  _mvNav=nv}
 function drawIn(el){if(el.classList&&el.classList.contains("wkbars")){[...el.children].slice(0,7).forEach((c,j)=>{const f=c.querySelector("i,.fill,b")||c;f.style.transformOrigin="bottom";f.animate([{transform:"scaleY(0)"},{transform:"none"}],{duration:MT.large,delay:Math.min(j,5)*40,easing:EZ.out,fill:"backwards"})});return}
  const ps=el.querySelectorAll("polyline,path");ps.forEach(p=>{if(!p.getTotalLength)return;const L=p.getTotalLength();if(!L||L<20)return;p.style.strokeDasharray=L;p.animate([{strokeDashoffset:L},{strokeDashoffset:0}],{duration:600,easing:EZ.out,fill:"backwards"}).onfinish=()=>{p.style.strokeDasharray=""}});
  const rs=[...el.querySelectorAll("rect")].filter(r=>!r.classList.contains("chit")&&+r.getAttribute("height")>0);rs.slice(0,40).forEach((r,j)=>{r.style.transformBox="fill-box";r.style.transformOrigin="bottom";r.animate([{transform:"scaleY(0)"},{transform:"none"}],{duration:MT.large,delay:Math.min(j,5)*40,easing:EZ.out,fill:"backwards"})})}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{mvAfter()}catch(e){}return r}}
+/* Replay on view (0.89c, Serena): entrance motion plays every time something comes on screen: when a page,
+   a week or a month appears, when you scroll back to it, when the app comes back to the front.
+   Repaints of the same page (logging, ticking) don't replay; changed values still count from old to new. */
+const _rv={page:null,vis:new Map(),io:null};
+const RV_SEL=".wkbars,.box svg:not(.i),.left-num,.wtrack i,.wkbud .fill,.nring svg circle:nth-of-type(2)";
+function rvPage(){return[tab,settingsOpen?1:0,typeof statsOpen!=="undefined"&&statsOpen?1:0,typeof statOff!=="undefined"?statOff:0,typeof calOff!=="undefined"?calOff:0,tab==="train"?trainView:"",typeof exRange!=="undefined"?exRange:""].join("|")}
+function rvPlay(el){if(RM())return;
+ if(el.matches(".left-num")){const v=numOf(el.textContent);if(v)countUp(el,0,v);return}
+ if(el.tagName.toLowerCase()==="circle"){const d=String(el.getAttribute("stroke-dasharray")||"").split(" ");const v=parseFloat(d[0]),C=parseFloat(d[1]);if(v>0&&C)el.animate([{strokeDasharray:`0 ${C}`},{strokeDasharray:`${v} ${C}`}],{duration:MT.large,easing:EZ.out});return}
+ if(el.matches(".wkbars")||el.tagName.toLowerCase()==="svg"){drawIn(el);return}
+ el.style.transformOrigin="left center";el.animate([{transform:"scaleX(0)"},{transform:"none"}],{duration:MT.large,easing:EZ.out})}
+function rvAfter(){const app=document.getElementById("app");if(!app||!("IntersectionObserver" in window))return;const pg=rvPage();if(pg!==_rv.page){_rv.page=pg;_rv.vis.clear()}
+ if(!_rv.io)_rv.io=new IntersectionObserver(es=>es.forEach(en=>{const k=en.target.dataset.rvk;if(!k)return;const was=_rv.vis.get(k);if(en.isIntersecting&&!was)rvPlay(en.target);_rv.vis.set(k,en.isIntersecting)}),{threshold:.3});
+ _rv.io.disconnect();const n={};
+ app.querySelectorAll(RV_SEL).forEach(el=>{if(el.closest(".bmap,.fghost"))return;const t=el.matches(".left-num")?"n":el.tagName.toLowerCase()==="circle"?"c":el.matches(".wkbars")||el.tagName.toLowerCase()==="svg"?"g":"b";n[t]=(n[t]||0)+1;el.dataset.rvk=pg+t+n[t];_rv.io.observe(el)})}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{rvAfter()}catch(e){}return r}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){_rv.vis.clear();try{rvAfter()}catch(e){}}});
 /* Sheets: slide up; a sheet opened from a card grows out of that card (FLIP, synchronous so code that fills the
    sheet right after openSheet keeps working); repaints of an open sheet don't replay; closing slides down. */
 {const _o=openSheet;
@@ -5828,7 +5842,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89c beta";
+const APP_VERSION="0.89d beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
