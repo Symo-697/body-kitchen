@@ -786,6 +786,12 @@ body.focusfix .livenote{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-ori
 .bmglow svg{width:100%;height:auto;display:block}
 .bmhold>svg path[data-j]{fill:var(--bm0)}
 @media (prefers-reduced-motion:reduce){.bmglow{display:none}}
+
+/* Changed-workout question (0.89j) */
+.wkchl{margin:.2rem 0 .9rem;padding-left:1.1rem;display:grid;gap:.3rem}
+.wkchb{display:grid;gap:.5rem}
+.snack{position:fixed;left:50%;bottom:calc(var(--navh,72px) + 14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:10050;display:flex;align-items:center;gap:1rem;padding:.6rem .6rem .6rem 1rem;border-radius:var(--r-lg);background:var(--ink);color:var(--bg);box-shadow:0 6px 24px rgb(0 0 0 / 22%);font-size:.92rem;max-width:calc(100vw - 2rem)}
+.snack button{background:transparent;color:inherit;border:1px solid color-mix(in oklch,var(--bg) 40%,transparent);min-height:36px;padding:.3rem .9rem;border-radius:var(--r-pill);font-weight:700}
 </style>
 </head>
 <body>
@@ -4933,7 +4939,10 @@ function saveLive(){const a=A();const anyDone=a.ex.some(e=>e.sets.some(s=>s.done
  const nx=done.map(e=>{const pe=(S.core.workout[a.day]||{ex:[]}).ex.find(x=>x.name===e.name)||{name:e.name,reps:e.reps,sets:e.sets.filter(x=>x.t!=="W").length};const t=nextTarget(pe,a.day);return t.text?nextRowHTML(e,t):""}).join("");
  window._nextHTML=nx?`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:center"><h3 style="margin:0">${LANG()==="fr"?"La prochaine fois":"Next time"}</h3><button class="circbtn" aria-label="Info" onclick="nextInfo()">ⓘ</button></div>${nx}<button style="width:100%;margin-top:.8rem" onclick="closeSheet()">Got it</button>`:"";
  window._free=a.day==="FREE"?done.map(e=>({name:e.name,sets:e.sets.filter(x=>x.done).length,reps:e.reps,types:e.sets.some(isSideSet)?e.sets.filter(x=>x.done).map(x=>x.t||""):null,ss:e.ss})):null;
- window._afterSum=()=>{if(window._free&&window._free.length)openSheet(freeSaveHTML());else if(upd&&upd.items.length){window._upd=upd;openSheet(wkDiffHTML(upd))}else if(window._nextHTML)openSheet(window._nextHTML)};celebrate(done.map(e=>e.name));setTimeout(()=>{const h=sumHTML(sid);if(h)openSheet(h);else window._afterSum()},150)}
+ window._afterSum=()=>{if(window._free&&window._free.length)openSheet(freeSaveHTML());else if(window._nextHTML)openSheet(window._nextHTML)};
+ const go=()=>{celebrate(done.map(e=>e.name));setTimeout(()=>{const h=sumHTML(sid);if(h)openSheet(h);else window._afterSum()},150)};
+ const ch=a.day!=="FREE"&&a.day!=="CARDIO"&&S.core.workout[a.day]?wkChanges(a):null;
+ if(ch&&ch.lines.length){window._wkCh={...ch,go,done:false};setTimeout(()=>{openSheet(wkAskHTML(ch));window._wkAsk=true},120)}else go()}
 function nextRowHTML(e,t){const fr=LANG()==="fr";const md=exMode(e.name);const txt=String(t.text||"");
  let main="";const ps=t.perSet&&t.perSet.filter(p=>p.w!=null);
  if(ps&&ps.length){const ws=ps.map(p=>+p.w);const lo=Math.min(...ws),hi=Math.max(...ws);const rs=[...new Set(ps.map(p=>p.r))];main=`${lo===hi?lo:lo+"–"+hi} kg · ${ps.length} × ${rs.length===1?rs[0]:rs.join("/")}`}
@@ -5916,7 +5925,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89i beta";
+const APP_VERSION="0.89j beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
@@ -6071,6 +6080,72 @@ let autoSetup=false;localLoad();try{if(S.core&&S.core.workout&&S.core._relab!==1
  Object.values(S.core.workout||{}).forEach(d=>(d&&d.ex||[]).forEach(ex=>{if(isUniEx(ex.name))return;["setTypes","rows"].forEach(k=>{if(Array.isArray(ex[k])&&ex[k].some(side)){ex[k]=col(ex[k]);ch=1}})}));if(ch)save("core")}catch(e){console.warn(e)}
  try{const a=S.core&&S.core.active;if(a&&a.ex){let ch=0;a.ex.forEach(le=>{if(["w","r"].includes(exMode(le.name))&&!isUniEx(le.name)&&le.sets.some(x=>x.t==="L"||x.t==="R")&&!le.sets.some(x=>x.done)){uniCollapse(le);delete le.plan;ch=1}});if(ch)save("core")}}catch(e){console.warn(e)}try{if(S.core&&S.core._gbBase!==1){const N="Weighted Back Extension (Glute Focus)";S.core.baseW=S.core.baseW||{};if(S.core.baseW[N]==null)S.core.baseW[N]=11;S.core._gbBase=1;save("core")}}catch(_){}try{if(S.core&&S.core._gymRen===1&&S.core._gymUn!==1){gymUnrename();S.core._gymUn=1;save("core")}}catch(e){console.warn(e)}try{exIdMigrate("local")}catch(e){console.warn(e)}try{poFix1()}catch(e){console.warn(e)}seedRecipes();if(!S.core.setup&&!S.core.profile.age){autoSetup=true;startSetup()}render();connect();loadPhotos();
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));
+
+/* ---------- After a planned workout that changed (0.89j, HQ To do 0) ----------
+   On Finish: if the structure differs from the saved workout (exercises added / removed / swapped, order, number of
+   sets, set types, supersets; never weights or reps), ask Keep the plan / Match what I did / Change something before
+   the celebration. Only the saved workout changes, never past sessions. */
+/* One "slot" per set; left / right sides count once (the L row, or R if no L); kind "W" = warm-up */
+function wkSlots(e){const L=e.sets.filter(x=>x.t==="L"),R=e.sets.filter(x=>x.t==="R");
+ if(L.length||R.length){const n=Math.max(L.length,R.length);return Array.from({length:n},(_,j)=>{const x=L[j]||R[j];return{k:kindOf(x),done:!!((L[j]&&L[j].done)||(R[j]&&R[j].done))}})}
+ return e.sets.map(x=>({k:kindOf(x),done:!!x.done}))}
+const wkNorm=k=>(k==="N"?"":k||"");
+function wkPlanOf(a){if(a.plan0)return a.plan0;const w=S.core.workout[a.day];if(!w)return[];
+ return w.ex.map(pe=>({name:pe.name,ss:pe.ss||null,kinds:(pe.rows?pe.rows.map(r=>kindOf(r)):pe.setTypes?pe.setTypes.map(t=>kindOf(decT(t,{}))):Array(setsFor(pe)).fill("")).filter(k=>k!=="W").map(wkNorm)}))}
+{const _sw=startWorkout;startWorkout=async function(day){const r=await _sw.apply(this,arguments);try{const a=A();if(a&&a.day===day&&!a.plan0){a.plan0=a.ex.map(e=>({name:e.name,ss:e.ss||null,kinds:wkSlots(e).map(x=>x.k).filter(k=>k!=="W"&&k!=="FE").map(wkNorm)}));liveSave()}}catch(e){}return r}}
+function wkStruct(a){const plan=wkPlanOf(a);const live=a.ex.map(e=>({name:e.name,ss:e.ss||null,reps:e.reps,prog:e.prog,kinds:wkSlots(e).filter(x=>x.done&&x.k!=="W"&&x.k!=="FE").map(x=>wkNorm(x.k))})).filter(e=>e.kinds.length);
+ const ssMap=L=>{const g={};L.forEach(e=>{if(e.ss)(g[e.ss]=g[e.ss]||[]).push(e.name)});return Object.values(g).filter(x=>x.length>1).map(x=>x.slice().sort().join(" + ")).sort()};
+ return{w:S.core.workout[a.day],plan,live,ssMap}}
+function wkChanges(a){const {w,plan,live,ssMap}=wkStruct(a);const fr=LANG()==="fr";const lines=[];
+ const planNames=plan.map(e=>e.name),liveNames=live.map(e=>e.name);
+ const added=liveNames.filter(n=>!planNames.includes(n)),removed=planNames.filter(n=>!liveNames.includes(n));
+ if(added.length&&removed.length===added.length&&added.length<=2)added.forEach((n,j)=>lines.push(fr?`${removed[j]} remplacé par ${n}`:`${removed[j]} swapped for ${n}`));
+ else{added.forEach(n=>lines.push(fr?`${n} ajouté`:`${n} added`));removed.forEach(n=>lines.push(fr?`${n} pas fait`:`${n} not done`))}
+ const common=liveNames.filter(n=>planNames.includes(n));const po=planNames.filter(n=>common.includes(n));
+ if(common.join("|")!==po.join("|"))lines.push(fr?"Ordre des exercices changé":"Exercise order changed");
+ live.forEach(e=>{const p=plan.find(x=>x.name===e.name);if(!p)return;
+  if(e.kinds.length!==p.kinds.length)lines.push(fr?`${e.name} : ${e.kinds.length} séries au lieu de ${p.kinds.length}`:`${e.name}: ${e.kinds.length} sets instead of ${p.kinds.length}`);
+  else if(e.kinds.join(",")!==p.kinds.join(","))lines.push(fr?`${e.name} : types de séries changés`:`${e.name}: set types changed`)});
+ const ssP=ssMap(plan.filter(e=>common.includes(e.name))),ssL=ssMap(live);if(ssP.join("|")!==ssL.join("|"))lines.push(fr?"Supersets changés":"Supersets changed");
+ let prog=[];try{prog=((wkDiff(a)||{}).items||[]).filter(x=>x.kind==="prog")}catch(e){}prog.forEach(x=>lines.push(fr?`${x.name} : méthode « ${progLabel(x.prog)} »`:`${x.name}: “${progLabel(x.prog)}” method`));
+ return{day:a.day,lines,prog,a:JSON.parse(JSON.stringify(a))}}
+function wkAskHTML(ch){const fr=LANG()==="fr";const L=ch.lines,more=L.length-4;
+ return`<div class="sheethead"><span class="sheeticon">✏️</span><h3 style="margin:0">${fr?"Tu as modifié cette séance":"You changed this workout"}</h3></div>
+ <p class="muted" style="margin:.2rem 0 .5rem">${esc(wTitle((S.core.workout[ch.day]||{}).title||ch.day))}</p>
+ <ul class="wkchl">${L.slice(0,4).map(x=>`<li>${esc(x)}</li>`).join("")}${more>0?`<li class="muted">${fr?`et ${more} de plus`:`and ${more} more`}</li>`:""}</ul>
+ <div class="wkchb"><button onclick="wkAnswer('match')">${fr?"Garder ce que j'ai fait":"Match what I did"}</button>
+ <button class="ghost" onclick="wkAnswer('edit')">${fr?"Modifier quelque chose":"Change something"}</button>
+ <button class="ghost" onclick="wkAnswer('keep')">${fr?"Garder le plan":"Keep the plan"}</button></div>
+ <p class="muted" style="font-size:.8rem;margin:.6rem 0 0">${fr?"Seule la séance enregistrée change, jamais l'historique.":"Only the saved workout changes, never your history."}</p>`}
+/* Today's structure written into the saved workout (exercises, order, sets, set types, supersets); targets keep working */
+function wkMatchApply(ch){const {w,live}=wkStruct(ch.a);const out=[];
+ live.forEach(e=>{const old=w.ex.find(x=>x.name===e.name);const n=e.kinds.length;const special=e.kinds.some(k=>k);let pe;
+  const base=(o)=>{const d=setsFor(o)-o.sets;return Math.max(1,n-d)};/* the phase may add / remove a set at start: store the base count */
+  if(!old){pe=EX(e.name,n,e.reps||DEF_REPS[exMode(e.name)]);pe.sets=base(pe);if(special)pe.setTypes=e.kinds.slice()}
+  else{pe=JSON.parse(JSON.stringify(old));
+   if(pe.rows){const R=pe.rows;pe.rows=e.kinds.map((k,j)=>{const src=R[j]||R[R.length-1]||{};const o=decT(k,{});o.w=src.w??"";o.r=src.r??"";return o});try{rowsSync(pe)}catch(x){}}
+   else{const mm=pe.prog||methodFor(pe,ch.day);if(!["topback","pyramid","rpyramid","dup"].includes(mm))pe.sets=base(pe);if(special)pe.setTypes=e.kinds.slice();else delete pe.setTypes}}
+  const pr=(ch.prog||[]).find(x=>x.name===e.name);if(pr)pe.prog=pr.prog;
+  delete pe.ss;out.push(pe)});
+ const ids={};live.forEach((e,j)=>{if(!e.ss||live.filter(x=>x.ss===e.ss).length<2)return;ids[e.ss]=ids[e.ss]||("ss"+Date.now().toString(36)+j);out[j].ss=ids[e.ss]});
+ w.ex=out}
+let _wkUndo=null;
+function wkAnswer(m){const ch=window._wkCh;if(!ch)return;window._wkAsk=false;const k=ch.day;const orig=JSON.stringify(S.core.workout[k]);
+ if(m==="keep"){closeSheet();wkGoOnce();return}
+ if(m==="match"){wkMatchApply(ch);save("core");closeSheet();render();_wkUndo={k,orig};wkGoOnce();
+  setTimeout(()=>snackUndo(LL("Workout updated","Séance mise à jour"),()=>{if(_wkUndo&&_wkUndo.k===k){S.core.workout[k]=JSON.parse(_wkUndo.orig);_wkUndo=null;save("core");render();flash(LL("Back to the old plan","Ancien plan remis"))}}),300);return}
+ if(m==="edit"){wkMatchApply(ch);closeSheet();window._wkPending={k,orig};setTimeout(()=>{wkEdit(k);window._wkSnap={k,j:orig}},MT.exit+40)}}
+function wkGoOnce(){const ch=window._wkCh;if(!ch||ch.done)return;ch.done=true;setTimeout(()=>ch.go(),MT.exit+60)}
+/* A small "Undo" bar at the bottom, 5 s (no blocking dialog) */
+function snackUndo(msg,fn){document.querySelectorAll(".snack").forEach(x=>x.remove());const d=document.createElement("div");d.className="snack";d.setAttribute("role","status");
+ d.innerHTML=`<span>${esc(msg)}</span><button>${LL("Undo","Annuler")}</button>`;d.querySelector("button").onclick=()=>{d.remove();fn()};document.body.appendChild(d);
+ if(!RM())d.animate([{opacity:0,transform:"translate(-50%,12px)"},{opacity:1,transform:"translate(-50%,0)"}],{duration:MT.std,easing:EZ.out});
+ setTimeout(()=>{if(!d.isConnected)return;if(RM()){d.remove();return}d.animate([{opacity:1},{opacity:0}],{duration:MT.exit,easing:EZ.in}).onfinish=()=>d.remove()},5000)}
+/* Sheet closes: the question closed = Keep the plan; the edit sheet closed without Save = nothing kept */
+{const _cs=closeSheet;closeSheet=function(){const m=document.getElementById("sheetmodal");const wasEdit=m&&m.querySelector(".wkbar");const r=_cs.apply(this,arguments);
+ try{if(window._wkAsk&&m){window._wkAsk=false;wkGoOnce()}
+  if(window._wkPending&&wasEdit){const p=window._wkPending;window._wkPending=null;if(!window._wkSaved){S.core.workout[p.k]=JSON.parse(p.orig);save("core");render()}window._wkSaved=false;wkGoOnce()}}catch(e){}return r}}
+{const _ws=wkSave;wkSave=function(){if(window._wkPending){window._wkSaved=true;save("core")}return _ws.apply(this,arguments)}}
 </script>
 
 <div id="gate" style="position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:1.5rem">
