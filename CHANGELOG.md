@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89m beta · 2026-11-28 · Today's body map comes into focus
+- Today's workout card: the body map no longer lights up and flashes; it starts out of focus and becomes sharp (once per visit, when it's in view). Train, live workout, Progress and the celebration keep the light-up. Reduced motion: shown directly.
+
 ## 0.89l beta · 2026-11-28 · New recipe: ingredients from Home stock and Open Food Facts
 - New / Edit recipe: each ingredient and side is a button that opens one picker: **Home stock** first (with what's at home), then other ingredients, then **Open Food Facts** products. The old all-ingredients list and the separate "Add a supermarket product" panel are gone from the form.
 - Picking a branded product: AI finds the plain ingredient (organic eggs of any brand → Eggs) and links the product to that Home stock item. If the item isn't in your Home stock yet, the app asks first (name editable); say no and the product stays its own ingredient. The recipe keeps the product's own nutrition values.
