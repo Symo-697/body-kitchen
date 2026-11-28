@@ -1617,7 +1617,7 @@ function rvHold(el){const t=rvType(el);el.dataset.rvh=t;
  if(t==="n"){const tn=el.firstChild&&el.firstChild.nodeType===3?el.firstChild:null;if(!tn||!/\d/.test(tn.data)||(tn.data.match(/\d[\d,.  ]*/g)||[]).length!==1){delete el.dataset.rvh;return}el.dataset.rvfin=tn.data;tn.data=tn.data.replace(/\d[\d,.  ]*/,"0")}
  else if(t==="c"){const d=String(el.getAttribute("stroke-dasharray")||"").split(" ");el.style.strokeDasharray=`0 ${d[1]||0}`}
  else if(t==="g")el.style.opacity="0";
- else if(t==="m"){if(el.dataset.bm==="today"){el.style.filter="blur(8px)";el.style.opacity=".35"}else el.classList.add("bmhold")}
+ else if(t==="m"){if(el.dataset.bm==="today"){el.style.opacity="0"}else el.classList.add("bmhold")}
  else{el.style.transformOrigin="left center";el.style.transform="scaleX(0)"}}
 function rvGo(el){setTimeout(()=>{if(!el.isConnected)return;const t=el.dataset.rvh;
  if(t==="n"){const tn=el.firstChild;if(tn&&tn.nodeType===3&&el.dataset.rvfin)tn.data=el.dataset.rvfin}
@@ -1685,9 +1685,28 @@ function bmGlow(m,js,o){if(RM()||!m)return;const svg=m.querySelector(":scope>svg
  g.appendChild(c);const w=m.getBoundingClientRect().width||80;g.style.filter=`blur(${Math.max(3,Math.round(w*.05))}px)`;m.prepend(g);
  const pk=o.peak!=null?o.peak:.95,rest=o.rest||0,a=o.inMs||380,b=o.outMs||900,d=o.delay||0;
  const an=g.animate([{opacity:0},{opacity:pk,offset:a/(a+b)},{opacity:rest}],{duration:a+b,delay:d,easing:"ease-out",fill:"both"});an.onfinish=()=>{if(!rest)g.remove()}}
+const BM_TODAY_MS=2400;/* Today map: pixels come together, then a blur that sharpens; slow on purpose (Serena, 28 Nov) */
+function bmPixelIn(m){const svg=m.querySelector(":scope>svg");if(!svg){m.style.opacity="";return}m.style.opacity="0";
+ const W=Math.max(1,Math.round(m.clientWidth)),H=Math.max(1,Math.round(svg.getBoundingClientRect().height||m.clientHeight));
+ /* a copy with the real colours written in (an image can't read CSS variables) */
+ const c=svg.cloneNode(true);const src=svg.querySelectorAll("*"),dst=c.querySelectorAll("*");
+ src.forEach((e,i)=>{const cs=getComputedStyle(e),d=dst[i];if(!d||!d.setAttribute)return;["fill","stroke","stroke-width","opacity"].forEach(p=>{const v=cs.getPropertyValue(p);if(v)d.setAttribute(p,v)})});
+ c.setAttribute("width",W);c.setAttribute("height",H);c.removeAttribute("class");
+ const img=new Image();const PIX=Math.round(BM_TODAY_MS*.45),BLUR=BM_TODAY_MS-PIX;
+ const fallback=()=>{m.style.opacity="";m.animate([{filter:"blur(10px)",opacity:.3},{filter:"blur(0)",opacity:1}],{duration:BM_TODAY_MS,easing:"ease-out"})};
+ img.onerror=fallback;
+ img.onload=()=>{if(!m.isConnected)return;const cv=document.createElement("canvas");const dpr=Math.min(2,window.devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;cv.className="bmpix";cv.setAttribute("aria-hidden","true");
+  cv.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;z-index:2;pointer-events:none;image-rendering:pixelated`;const x=cv.getContext("2d");x.imageSmoothingEnabled=false;
+  const tmp=document.createElement("canvas"),tx=tmp.getContext("2d");
+  const draw=n=>{/* n = blocks across the width */const bw=Math.max(1,Math.round(n)),bh=Math.max(1,Math.round(n*H/W));tmp.width=bw;tmp.height=bh;tx.clearRect(0,0,bw,bh);tx.drawImage(img,0,0,bw,bh);x.clearRect(0,0,cv.width,cv.height);x.drawImage(tmp,0,0,bw,bh,0,0,cv.width,cv.height)};
+  svg.style.opacity="0";m.style.opacity="";m.appendChild(cv);const steps=[3,5,8,12,18,26,38];const t0=performance.now();let k=-1;
+  const tick=now=>{if(!cv.isConnected)return;const p=(now-t0)/PIX;if(p<1){const j=Math.min(steps.length-1,Math.floor(p*steps.length));if(j!==k){k=j;draw(steps[j])}cv.style.opacity=String(Math.min(1,.25+p*1.5));requestAnimationFrame(tick);return}
+   svg.style.opacity="";svg.animate([{filter:"blur(7px)"},{filter:"blur(0)"}],{duration:BLUR,easing:"cubic-bezier(.25,.1,.25,1)"});cv.animate([{opacity:1},{opacity:0}],{duration:Math.round(BLUR*.35),easing:"ease-out"}).onfinish=()=>cv.remove()};
+  requestAnimationFrame(tick)};
+ img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(new XMLSerializer().serializeToString(c))}
 function bmLight(m){if(RM()||!m)return;
  /* Today (Serena, 28 Nov): no flash, just out of focus → sharp */
- if(m.dataset.bm==="today"){m.animate([{filter:"blur(8px)",opacity:.35},{filter:"blur(0)",opacity:1}],{duration:Math.round(MT.large*RV_K),easing:EZ.out});return}const ps=[...m.querySelectorAll(":scope>svg path[data-j]")];
+ if(m.dataset.bm==="today"){bmPixelIn(m);return}const ps=[...m.querySelectorAll(":scope>svg path[data-j]")];
  ps.forEach(p=>{const lv=bmLevelOf(p);if(!lv)return;p.animate([{fill:"var(--bm0)"},{fill:`color-mix(in oklch,${p.getAttribute("fill")},white 30%)`,offset:.6},{fill:p.getAttribute("fill")}],{duration:Math.round(MT.large*RV_K*.9),delay:(4-lv)*60,easing:EZ.out,fill:"backwards"})});
  bmGlow(m,null,{delay:120,inMs:520,outMs:1100})}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{bmAfter()}catch(e){}return r}}
@@ -5933,7 +5952,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89m beta";
+const APP_VERSION="0.89n beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},

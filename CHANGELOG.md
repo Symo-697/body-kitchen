@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89n beta · 2026-11-28 · Today's body map: pixels, then focus
+- Today's workout card: the body map now builds up from big pixels that get finer, then turns into a soft blur that sharpens: about 2.4 s in all, slow on purpose. Once per visit, when it's in view. Reduced motion: shown directly.
+
 ## 0.89m beta · 2026-11-28 · Today's body map comes into focus
 - Today's workout card: the body map no longer lights up and flashes; it starts out of focus and becomes sharp (once per visit, when it's in view). Train, live workout, Progress and the celebration keep the light-up. Reduced motion: shown directly.
 
