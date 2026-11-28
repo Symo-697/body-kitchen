@@ -794,6 +794,12 @@ body.focusfix .livenote{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-ori
 .snack button{background:transparent;color:inherit;border:1px solid color-mix(in oklch,var(--bg) 40%,transparent);min-height:36px;padding:.3rem .9rem;border-radius:var(--r-pill);font-weight:700}
 
 .fview{touch-action:pan-y}
+
+/* Recipe ingredient picker (0.89l) */
+.ingbtn{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.05rem;min-height:44px;padding:.35rem .8rem;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-btn);font:inherit;font-weight:600;min-width:0}
+.ingbtn .ingn{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ingbtn small{font-weight:400;color:var(--muted);font-size:.75rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.iphead{font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:.8rem 0 .3rem}
 </style>
 </head>
 <body>
@@ -2902,16 +2908,14 @@ let KF={},newRecOpen=false,cfOpen=false;
 function kitchenForm(){KF={edit:"",off:"",ing:"",shops:""};let h="";
  const r=editing||{id:null,name:"",portions:4,items:[{food:"",g:""}],sides:[],keeps:3};r.sides=r.sides||[];if(r.keeps===undefined)r.keeps=3;
  editing=r;
- const opts=allFoods().map(f=>`<option value="${esc(f.name)}">`).join("");
  KF.edit=`<details class="box" id="recedit" ${r.id||newRecOpen?"open":""} ontoggle="newRecOpen=this.open"><summary style="font-weight:700;padding:.2rem 0">${r.id?"✎ Edit recipe":"＋ New recipe"}</summary><div style="margin-top:.5rem"><button class="sheetbtn" style="margin-bottom:.5rem" onclick="emoPick('__edit')"><span class="sheeticon" style="${emoSz(recEmo(r))};width:auto;min-width:44px;padding:0 .3rem">${recEmo(r)}</span>${LL("Picture","Image")} <span class="muted" style="margin-left:auto">›</span></button><div class="row"><div class="grow" style="flex-basis:200px"><label>Name</label><input value="${esc(r.name)}" onchange="editing.name=this.value"></div><div style="width:7rem"><label>Portions</label><input type="number" min="1" value="${esc(r.portions)}" onchange="editing.portions=+this.value"></div></div>
  <label style="margin-top:.6rem">For which meal?</label><div class="chips">${MEALS.map(([k,l])=>`<button class="chip ${(r.meal||"").includes(k)?"on":""}" onclick="editing.meal=((editing.meal||'').includes('${k}')?(editing.meal||'').replace('${k}',''):(editing.meal||'')+'${k}');render()">${l}</button>`).join("")}</div>
  <div style="margin-top:.7rem;padding:.6rem;border:1px dashed var(--line);border-radius:10px"><label style="margin:0 0 .3rem">✨ Estimate from a description</label><textarea id="recai" rows="2" placeholder="e.g. chicken curry for 4: 600 g chicken, 1 onion, a can of tomatoes, 200 ml light coconut milk, curry, rice on the side">${esc(r.aiText||"")}</textarea><button class="ghost small" style="margin-top:.4rem" ${recBusy?"disabled":""} onclick="recipeAI()">${recBusy?"Thinking…":"Estimate ingredients"}</button>${recErr?`<p class="muted" style="margin:.3rem 0 0;font-size:.85rem">${esc(recErr)}</p>`:""}</div>
- <datalist id="fl2">${opts}</datalist>
- ${r.items.map((it,i)=>`<div class="row" style="margin-top:.5rem"><input class="grow" style="flex-basis:200px" list="fl2" placeholder="Ingredient" value="${esc(food(it.food)?.name||it.raw||"")}" onchange="setItem(${i},'food',this.value)"><input style="width:5rem" type="text" inputmode="decimal" placeholder="qty" value="${esc(it.qty??it.g)}" onchange="setItem(${i},'qty',this.value)"><select style="width:5.2rem" onchange="setItem(${i},'unit',this.value)" aria-label="Unit">${UNITS.map(([u,l])=>`<option value="${u}" ${(it.unit||"g")===u?"selected":""}>${l}</option>`).join("")}</select><button class="x" aria-label="Remove ingredient" onclick="editing.items.splice(${i},1);render()">×</button></div>`).join("")}
- <div class="row" style="margin-top:.8rem"><button class="ghost small" onclick="editing.items.push({food:'',g:''});render()">+ Ingredient</button></div>${offPanelHTML(true)}
+ ${r.items.map((it,i)=>`<div class="row" style="margin-top:.5rem">${ingBtnHTML(it,"items",i)}<input style="width:5rem" type="text" inputmode="decimal" placeholder="qty" value="${esc(it.qty??it.g)}" onchange="setItem(${i},'qty',this.value)"><select style="width:5.2rem" onchange="setItem(${i},'unit',this.value)" aria-label="Unit">${UNITS.map(([u,l])=>`<option value="${u}" ${(it.unit||"g")===u?"selected":""}>${l}</option>`).join("")}</select><button class="x" aria-label="Remove ingredient" onclick="editing.items.splice(${i},1);render()">×</button></div>`).join("")}
+ <div class="row" style="margin-top:.8rem"><button class="ghost small" onclick="editing.items.push({food:'',g:''});render();ingPick('items',editing.items.length-1)">+ ${LL("Ingredient","Ingrédient")}</button></div>
  <h3 style="margin-top:1.1rem">Served with (per portion)</h3>
- ${r.sides.map((it,i)=>`<div class="row" style="margin-top:.5rem"><input class="grow" style="flex-basis:200px" list="fl2" placeholder="Side, e.g. Riz basmati" value="${esc(food(it.food)?.name||it.raw||"")}" onchange="setSide(${i},'food',this.value)"><input style="width:5rem" type="text" inputmode="decimal" placeholder="qty" value="${esc(it.qty??it.g)}" onchange="setSide(${i},'qty',this.value)"><select style="width:5.2rem" onchange="setSide(${i},'unit',this.value)" aria-label="Unit">${UNITS.map(([u,l])=>`<option value="${u}" ${(it.unit||"g")===u?"selected":""}>${l}</option>`).join("")}</select><button class="x" aria-label="Remove side" onclick="editing.sides.splice(${i},1);render()">×</button></div>`).join("")}
- <div class="row" style="margin-top:.5rem"><button class="ghost small" onclick="editing.sides.push({food:'',g:''});render()">+ Side</button></div>
+ ${r.sides.map((it,i)=>`<div class="row" style="margin-top:.5rem">${ingBtnHTML(it,"sides",i)}<input style="width:5rem" type="text" inputmode="decimal" placeholder="qty" value="${esc(it.qty??it.g)}" onchange="setSide(${i},'qty',this.value)"><select style="width:5.2rem" onchange="setSide(${i},'unit',this.value)" aria-label="Unit">${UNITS.map(([u,l])=>`<option value="${u}" ${(it.unit||"g")===u?"selected":""}>${l}</option>`).join("")}</select><button class="x" aria-label="Remove side" onclick="editing.sides.splice(${i},1);render()">×</button></div>`).join("")}
+ <div class="row" style="margin-top:.5rem"><button class="ghost small" onclick="editing.sides.push({food:'',g:''});render();ingPick('sides',editing.sides.length-1)">+ ${LL("Side","Accompagnement")}</button></div>
  <h3 style="margin-top:1.1rem">Instructions</h3><textarea rows="${Math.max(4,(r.stepsText!=null?r.stepsText.split("\n").length:(r.steps||[]).length)+1)}" placeholder="One step per line" style="width:100%" oninput="editing.stepsText=this.value">${esc(r.stepsText!=null?r.stepsText:(r.steps||[]).join("\n"))}</textarea><p class="muted" style="margin:.3rem 0 0;font-size:.8rem">One step per line. Start a line with a short name and a colon (<i>Make the sauce: …</i>) to title the step in cooking mode. Times like <i>20 min</i> become a timer button.</p>
  <label style="margin-top:.6rem">Note</label><textarea rows="2" style="width:100%" placeholder="Optional" oninput="editing.note=this.value">${esc(r.note||"")}</textarea>
  <div style="margin-top:1rem;max-width:16rem"><label>Keeps in the fridge (days, 0 = eat fresh)</label><input type="number" min="0" max="7" value="${esc(r.keeps)}" onchange="editing.keeps=Math.max(0,+this.value||0)"></div>
@@ -3020,7 +3024,7 @@ function vShop(){migrateShops();
  if(pm==="sunthu"){const sun=SLOTS.map(sl=>pl.slots["6-"+sl[0]]).filter(id=>id&&id!=="crous").map(id=>R.find(x=>x.id===id)).filter(Boolean);if(sun.length)h+=`<div class="box"><h3>Sunday (prep day)</h3>${[...new Set(sun.map(r=>r.id))].map(id=>{const r=R.find(x=>x.id===id);const n=sun.filter(x=>x.id===id).length;return`<div>${esc(r.name)}: <b>${n}</b> portion${n>1?"s":""}</div>`}).join("")}</div>`}
  const fk=Object.keys(fresh);if(fk.length)h+=`<div class="box"><h3>Make fresh on the day</h3>${fk.map(id=>{const r=R.find(x=>x.id===id);return`<div>${esc(r.name)} <span class="muted">(${fresh[id].join(", ")})</span></div>`}).join("")}</div>`;
  // grocery list (stock-aware)
- const need={};for(const id in counts){const r=R.find(x=>x.id===id);if(!r)continue;const ate=eaten[id]||0;const toMake=Math.max(0,counts[id]-ate-(+(pl.have||{})[id]||0));const k=toMake/r.portions;r.items.forEach(it=>{need[it.food]=(need[it.food]||0)+it.g*k});(r.sides||[]).forEach(it=>{need[it.food]=(need[it.food]||0)+it.g*Math.max(0,counts[id]-ate)})}
+ const need={};for(const id in counts){const r=R.find(x=>x.id===id);if(!r)continue;const ate=eaten[id]||0;const toMake=Math.max(0,counts[id]-ate-(+(pl.have||{})[id]||0));const k=toMake/r.portions;r.items.forEach(it=>{const b=stockBase(it.food);need[b]=(need[b]||0)+it.g*k});(r.sides||[]).forEach(it=>{const b=stockBase(it.food);need[b]=(need[b]||0)+it.g*Math.max(0,counts[id]-ate)})}
  const st=S.core.stock||{};const lowIds=Object.keys(st).filter(id=>food(id)&&st[id].track!==false&&stockQty(id)<lowOf(id));
  const ids=[...new Set([...Object.keys(need),...lowIds])];let total=0;
  const rows=ids.map(id=>{const f=food(id);if(!f)return null;const g=need[id]||0;const tracked=!!st[id];const have=stockQty(id);const pack=packOf(id);
@@ -3391,7 +3395,7 @@ function eatenSlots(){const pl=S.core.plan,out={};for(let i=0;i<7;i++){const d=w
 function eatenCounts(){const pl=S.core.plan,c={};Object.keys(eatenSlots()).forEach(k=>{const id=pl.slots[k];c[id]=(c[id]||0)+1});return c}
 function remainingNeed(){const out={};const mon=mondayOf(today());if(S.core.plan.week!==mon)return out;const t=today();const eS=eatenSlots();
  for(let i=0;i<7;i++){const d=weekDate(i,mon);if(d<t)continue;const L=((S.logs[monthKey(d)]||{}).days||{})[d]||{};const done=L.slotsDone||{};
-  SLOTS.forEach(([k])=>{const id=S.core.plan.slots[i+"-"+k];if(!id||id==="crous"||done[k]||eS[i+"-"+k])return;const r=S.core.recipes.find(x=>x.id===id);if(!r)return;Object.entries(recipeUse(r,1,hasSides(r))).forEach(([f,g])=>out[f]=(out[f]||0)+g)})}
+  SLOTS.forEach(([k])=>{const id=S.core.plan.slots[i+"-"+k];if(!id||id==="crous"||done[k]||eS[i+"-"+k])return;const r=S.core.recipes.find(x=>x.id===id);if(!r)return;Object.entries(recipeUse(r,1,hasSides(r))).forEach(([f,g])=>{const b=stockBase(f);out[b]=(out[b]||0)+g})})}
  return out}
 let stkNeed={},stkQ="";
 function stockRowHTML(id,need,rem){const st=S.core.stock||{};const u=unitKind(id),ul=uLabel(u),cv=x=>Math.round(gToU(id,x,u)*10)/10;const stp=u==="pc"?pwOf(id):packOf(id);const q=stockQty(id),n=(need||{})[id]||0,pk=packOf(id),max=buyMode(id)==="pc"?Math.max(n,q,pwOf(id)):Math.max(n,pk,q);const low=q<lowOf(id);const rn=rem[id]||0;const end=q-rn;const endLow=rn>0&&end<lowOf(id);
@@ -5927,7 +5931,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89k beta";
+const APP_VERSION="0.89l beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
@@ -6169,6 +6173,66 @@ function snackUndo(msg,fn){document.querySelectorAll(".snack").forEach(x=>x.remo
   if(dir&&ev.type!=="pointercancel"){window._fDragX=RM()?0:G.dx;G.sl.style.transform="";G.sl.style.opacity="";focusGo(dir);return}
   const from=G.sl.style.transform;G.sl.style.transform="";G.sl.style.opacity="";if(!RM()&&from)G.sl.animate([{transform:from},{transform:"none"}],{duration:MT.large,easing:"cubic-bezier(.2,.9,.25,1.15)"})};
  document.addEventListener("pointerup",end,{passive:true});document.addEventListener("pointercancel",end,{passive:true})})();
+
+/* ---------- New recipe ingredients (0.89l, HQ To do 0c) ----------
+   One picker for ingredients and sides: Home stock first, then other ingredients, then Open Food Facts.
+   A branded product is mapped by AI to a generic Home stock item (organic eggs of any brand → Eggs); the recipe keeps
+   the product's own nutrition (its own food entry, linked with `of`), cooking / planning use and update the stock item.
+   A missing stock item is only created after asking (name editable). */
+const stockBase=id=>{const f=food(id);return f&&f.of&&food(f.of)?f.of:id};
+let ipk=null,ipOff=[],ipBusy=false;
+function ingBtnHTML(it,list,i){const f=food(it.food);const base=f?stockBase(f.id):null;const prod=f&&f.of?f.name:"";const nm=f?(f.of&&food(f.of)?food(f.of).name:f.name).split(" (")[0]:(it.raw||"");
+ const inStock=base&&stockRec(base);
+ return`<button class="ingbtn grow" style="flex-basis:200px" onclick="ingPick('${list}',${i})" aria-label="${LL("Choose the ingredient","Choisir l'ingrédient")}${nm?": "+esc(nm):""}"><span class="ingn ${nm?"":"muted"}">${esc(nm||(list==="sides"?LL("Side","Accompagnement"):LL("Ingredient","Ingrédient")))}</span>${prod?`<small>${esc(prod)}</small>`:inStock?`<small>${LL("Home stock","Stock maison")}</small>`:it.raw&&!f?`<small>${LL("New ingredient","Nouvel ingrédient")}</small>`:""}</button>`}
+function ingPick(list,i){const row=(editing&&editing[list]||[])[i];if(!row)return;ipk={list,i};ipOff=[];const f=food(row.food);
+ openSheet(`<h3 style="margin:0 0 .6rem">${list==="sides"?LL("Choose a side","Choisir un accompagnement"):LL("Choose an ingredient","Choisir un ingrédient")}</h3>
+ <input id="ipq" type="search" placeholder="${LL("Search your stock or a product","Chercher dans ton stock ou un produit")}" value="${esc(f?f.name.split(" (")[0]:row.raw||"")}" oninput="ipPaint()" onkeydown="if(event.key==='Enter')ipOffGo()" style="width:100%">
+ <div id="ipres" style="margin-top:.6rem">${ipResHTML()}</div>`);setTimeout(()=>{const q=document.getElementById("ipq");if(q){q.focus();q.select()}},60)}
+function ipQ(){return((document.getElementById("ipq")||{}).value||"").trim()}
+function ipPaint(){const r=document.getElementById("ipres");if(r)r.innerHTML=ipResHTML()}
+const nrm=t=>norm(t).replace(/œ/g,"oe").replace(/æ/g,"ae");
+function ipResHTML(){const q=ipQ(),nq=nrm(q);const st=S.core.stock||{};const hit=f=>!nq||nq.split(/\s+/).every(w=>nrm(f.name).includes(w));
+ const stock=Object.keys(st).map(food).filter(f=>f&&!f.of&&hit(f)).sort((a,b)=>a.name.localeCompare(b.name)).slice(0,nq?12:40);
+ const other=nq?allFoods().filter(f=>!st[f.id]&&!f.of&&hit(f)).slice(0,8):[];
+ const row=(f,sub)=>`<button class="sheetbtn" onclick="ipSet('${f.id}')"><span style="min-width:0;flex:1;text-align:left">${esc(f.name.split(" (")[0])}${sub?`<br><span class="muted" style="font-size:.8rem">${sub}</span>`:""}</span></button>`;
+ let h="";
+ h+=`<div class="iphead">${LL("Home stock","Stock maison")}</div>`+(stock.length?stock.map(f=>row(f,stockQty(f.id)>0?`${fmtQ(f.id,stockQty(f.id))} ${LL("at home","à la maison")}`:LL("none at home","rien à la maison"))).join(""):`<p class="muted" style="margin:.2rem 0 .6rem">${nq?LL("Not in your Home stock.","Pas dans ton stock maison."):LL("Your Home stock is empty.","Ton stock maison est vide.")}</p>`);
+ if(other.length)h+=`<div class="iphead">${LL("Other ingredients","Autres ingrédients")}</div>`+other.map(f=>row(f,"")).join("");
+ h+=`<div class="iphead">Open Food Facts</div>`;
+ if(ipBusy)h+=`<p class="muted" style="margin:.2rem 0">${LL("Searching…","Recherche…")}</p>`;
+ else if(ipOff.length)h+=ipOff.map((x,k)=>`<button class="sheetbtn" onclick="ipOffPick(${k})"><span style="min-width:0;flex:1;text-align:left">${esc(x.name)}${x.brand?` <span class="muted">${esc(x.brand)}</span>`:""}<br><span class="muted" style="font-size:.8rem">${r0(x.kcal)} kcal  ${x.p} g P  ${x.c} g C  ${x.f} g F ${LL("per 100 g","pour 100 g")}</span></span></button>`).join("");
+ h+=q?`<button class="ghost small" style="margin-top:.4rem" onclick="ipOffGo()">${ipOff.length?LL("Search again","Chercher à nouveau"):LL("Search products for","Chercher des produits pour")} “${esc(q)}”</button>`:`<p class="muted" style="margin:.2rem 0">${LL("Type a product name to search supermarket products.","Tape le nom d'un produit pour chercher dans les produits du supermarché.")}</p>`;
+ if(q&&!stock.some(f=>nrm(f.name.split(" (")[0])===nq)&&!other.some(f=>nrm(f.name.split(" (")[0])===nq))h+=`<button class="linkbtn" style="display:block;margin-top:.6rem" onclick="ipRaw()">${LL("Use","Utiliser")} “${esc(q)}” ${LL("as a new ingredient","comme nouvel ingrédient")}</button>`;
+ return h}
+function ipRow(){return ipk&&editing&&editing[ipk.list]?editing[ipk.list][ipk.i]:null}
+function ipSet(id){const it=ipRow();const f=food(id);if(!it||!f)return;it.food=id;it.raw=f.name;
+ if(ipk.list==="items"&&buyMode(stockBase(id))==="pc"&&(!it.unit||it.unit==="g")){it.unit="pc";if(it.g)it.qty=Math.max(.5,Math.round(it.g/pwOf(stockBase(id))*2)/2)}
+ if(it.qty)it.g=r1(toGrams(id,it.qty,it.unit||"g"));ipk=null;closeSheet();render()}
+function ipRaw(){const it=ipRow();const q=ipQ();if(!it||!q)return;const f=foodByName(q);if(f)return ipSet(f.id);it.food="";it.raw=q;ipk=null;closeSheet();render()}
+async function ipOffGo(){const q=ipQ();if(!q)return;ipBusy=true;ipPaint();
+ try{const r=await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=20&sort_by=unique_scans_n&tagtype_0=countries&tag_contains_0=contains&tag_0=france&fields=${OFF_FIELDS}`);const j=await r.json();ipOff=(j.products||[]).map(offParse).filter(Boolean).slice(0,10);if(!ipOff.length)toast(LL("No product found. Try another name.","Aucun produit trouvé. Essaie un autre nom."))}catch(e){toast(LL("Open Food Facts can't be reached right now.","Open Food Facts est injoignable pour le moment."))}
+ ipBusy=false;ipPaint()}
+/* AI: the plain generic name + the Home stock item it is, if any */
+async function offGeneric(x){const st=Object.keys(S.core.stock||{}).filter(id=>food(id)&&!food(id).of);const fr=LANG()==="fr";
+ const local=()=>{let id=linkCandidate(x.name);if(id){const cw=nrm(food(id).name.split(" (")[0]).split(/\s+/)[0].replace(/s$/,"");if(!nrm(x.name).includes(cw))id=null}return{generic:id?food(id).name.split(" (")[0]:x.name.replace(/\b(bio|organic|biologique|plein air|free[- ]range|label rouge|x?\d+\s*(g|kg|ml|cl|l|pcs?)\b)/gi,"").replace(/\s+/g," ").trim(),id:id&&st.includes(id)?id:null,cat:id}};
+ const eng=await aiEngine();if(eng==="local")return local();
+ const prompt=`A shopper picked this supermarket product for a recipe: "${x.name}"${x.brand?` (brand ${x.brand})`:""}${x.qty?`, ${x.qty}`:""}.
+Give the plain generic ingredient a cook would write in a recipe, in ${fr?"French":"English"}, without brand, label (organic, free-range…), flavour marketing or pack size. Examples: "Œufs frais bio plein air x6 – Lustucru" → "${fr?"Œufs":"Eggs"}"; "Filets de tilapia surgelés" → "${fr?"Tilapia":"Tilapia"}".
+If one of these Home stock items is the same ingredient, give its id, else null: ${st.map(id=>id+"="+food(id).name.split(" (")[0]).join("; ")||"(none)"}
+Reply with ONLY JSON like {"generic":"Eggs","id":null}`;
+ try{const sample=await getSample();let out;if(eng==="claude")out=await sample.json(prompt,{modelTier:"quick"});else{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":apiKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:200,messages:[{role:"user",content:prompt}]})});if(!r.ok)throw 0;const j=await r.json();const t=(j.content||[]).map(c=>c.text||"").join("");out=JSON.parse(t.slice(t.indexOf("{"),t.lastIndexOf("}")+1))}
+  const id=out&&out.id&&st.includes(String(out.id))?String(out.id):null;const g=String(out&&out.generic||"").trim();return g?{generic:g,id,cat:id||((foodByName(g)||{}).id)||linkCandidate(g)}:local()}catch(e){return local()}}
+async function ipOffPick(k){const x=ipOff[k];if(!x)return;const it=ipRow();if(!it)return;const keep=ipk;closeSheet();status=LL("Matching the product to your stock…","Association du produit à ton stock…");paintStatus();
+ const m=await offGeneric(x);status="";paintStatus();let base=m.id;
+ if(!base){const cand=m.cat&&food(m.cat)&&!food(m.cat).of?m.cat:null;const nm=await askText(LL(`“${m.generic}” isn't in your Home stock yet. Add it? You can change the name.`,`« ${m.generic} » n'est pas encore dans ton stock maison. L'ajouter ? Tu peux changer le nom.`),cand?food(cand).name.split(" (")[0]:m.generic);
+  if(nm&&nm.trim()){const ex=foodByName(nm.trim())||(cand&&norm(food(cand).name.split(" (")[0])===norm(nm.trim())?food(cand):null);
+   if(ex&&!ex.of)base=ex.id;else{base="c"+uidGen();S.core.customFoods.push({id:base,name:nm.trim(),kcal:x.kcal,p:x.p,c:x.c,f:x.f,fib:x.fib||0,price:0,aisle:x.aisle,pw:x.pw&&x.pw<1000?x.pw:0,est:true})}
+   setStock(base,{qty:stockQty(base)})}}
+ const pid="off_"+x.code;const pname=`${x.name}${x.brand?" – "+x.brand:""}`.replace(/[()]/g,"");
+ if(!food(pid))S.core.customFoods.push({id:pid,name:pname,kcal:x.kcal,p:x.p,c:x.c,f:x.f,fib:x.fib||0,price:0,aisle:x.aisle,pw:x.pw&&x.pw<1000?x.pw:0,src:"off",...(base?{of:base}:{})});
+ else if(base&&!food(pid).of)food(pid).of=base;
+ ipk=keep;const row=ipRow();if(row){row.food=pid;row.raw=pname;if(!row.qty&&!row.g){const g=x.pw&&x.pw<1000?x.pw:100;row.g=g;row.qty=g;row.unit="g"}else if(row.qty)row.g=r1(toGrams(pid,row.qty,row.unit||"g"))}ipk=null;
+ save("core");render();flash(base?LL(`Linked to ${food(base).name.split(" (")[0]} in your Home stock`,`Lié à ${food(base).name.split(" (")[0]} dans ton stock maison`):LL("Added as its own ingredient","Ajouté comme ingrédient à part"))}
 </script>
 
 <div id="gate" style="position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:1.5rem">
