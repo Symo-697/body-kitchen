@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89k beta · 2026-11-28 · Swipe between Focus cards
+- Focus mode: swipe the card sideways to go to the previous / next card (pre stretches, exercises, post stretches), with the same transition as ‹ ›. The card follows your finger; past 30 % of the width or a quick flick it moves on, otherwise it springs back; a soft rubber band at the first and last card. Vertical scrolling, typing in the boxes, the set-type tap and the dial work as before. Reduced motion: the card just changes. ‹ › stay.
+
 ## 0.89j beta · 2026-11-28 · "You changed this workout"
 - On Finish of a saved / scheduled workout whose structure changed (exercises added, not done or swapped, order, number of sets, set types, supersets, progression method; never weights or reps alone), a sheet lists the differences (max 4 + "and N more") and asks: **Match what I did** (the saved workout takes today's structure; targets keep working; Undo bar for 5 s), **Change something** (Edit workout opens prefilled with today's structure; nothing is kept unless you tap Save), **Keep the plan**. Closing the sheet = Keep the plan. The celebration plays after the answer. Past sessions never change. Left / right sets count once; the phase's extra set isn't stored twice. EN + FR. Replaces the old tick-list "Update workout?" sheet.
 
