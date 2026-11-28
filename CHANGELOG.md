@@ -2,6 +2,9 @@
 
 Newest first. Each version = one upload of `index.html` + `sw.js` to GitHub.
 
+## 0.89o beta · 2026-11-28 · Today's body map: random little pixels
+- Today's workout card: the body map now appears as little pixels popping in at random (slow at first, faster in the middle) until the whole map is there, then it sharpens from a light blur. About 2.4 s in all, once per visit. Reduced motion: shown directly.
+
 ## 0.89n beta · 2026-11-28 · Today's body map: pixels, then focus
 - Today's workout card: the body map now builds up from big pixels that get finer, then turns into a soft blur that sharpens: about 2.4 s in all, slow on purpose. Once per visit, when it's in view. Reduced motion: shown directly.
 

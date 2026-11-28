@@ -1692,16 +1692,21 @@ function bmPixelIn(m){const svg=m.querySelector(":scope>svg");if(!svg){m.style.o
  const c=svg.cloneNode(true);const src=svg.querySelectorAll("*"),dst=c.querySelectorAll("*");
  src.forEach((e,i)=>{const cs=getComputedStyle(e),d=dst[i];if(!d||!d.setAttribute)return;["fill","stroke","stroke-width","opacity"].forEach(p=>{const v=cs.getPropertyValue(p);if(v)d.setAttribute(p,v)})});
  c.setAttribute("width",W);c.setAttribute("height",H);c.removeAttribute("class");
- const img=new Image();const PIX=Math.round(BM_TODAY_MS*.45),BLUR=BM_TODAY_MS-PIX;
+ const img=new Image();const PIX=Math.round(BM_TODAY_MS*.65),BLUR=BM_TODAY_MS-PIX;
  const fallback=()=>{m.style.opacity="";m.animate([{filter:"blur(10px)",opacity:.3},{filter:"blur(0)",opacity:1}],{duration:BM_TODAY_MS,easing:"ease-out"})};
  img.onerror=fallback;
  img.onload=()=>{if(!m.isConnected)return;const cv=document.createElement("canvas");const dpr=Math.min(2,window.devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;cv.className="bmpix";cv.setAttribute("aria-hidden","true");
   cv.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;z-index:2;pointer-events:none;image-rendering:pixelated`;const x=cv.getContext("2d");x.imageSmoothingEnabled=false;
-  const tmp=document.createElement("canvas"),tx=tmp.getContext("2d");
-  const draw=n=>{/* n = blocks across the width */const bw=Math.max(1,Math.round(n)),bh=Math.max(1,Math.round(n*H/W));tmp.width=bw;tmp.height=bh;tx.clearRect(0,0,bw,bh);tx.drawImage(img,0,0,bw,bh);x.clearRect(0,0,cv.width,cv.height);x.drawImage(tmp,0,0,bw,bh,0,0,cv.width,cv.height)};
-  svg.style.opacity="0";m.style.opacity="";m.appendChild(cv);const steps=[3,5,8,12,18,26,38];const t0=performance.now();let k=-1;
-  const tick=now=>{if(!cv.isConnected)return;const p=(now-t0)/PIX;if(p<1){const j=Math.min(steps.length-1,Math.floor(p*steps.length));if(j!==k){k=j;draw(steps[j])}cv.style.opacity=String(Math.min(1,.25+p*1.5));requestAnimationFrame(tick);return}
-   svg.style.opacity="";svg.animate([{filter:"blur(7px)"},{filter:"blur(0)"}],{duration:BLUR,easing:"cubic-bezier(.25,.1,.25,1)"});cv.animate([{opacity:1},{opacity:0}],{duration:Math.round(BLUR*.35),easing:"ease-out"}).onfinish=()=>cv.remove()};
+  /* little pixels of the finished map appear in random order (dissolve), then the real map sharpens from a light blur */
+  const full=document.createElement("canvas");full.width=cv.width;full.height=cv.height;full.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+  const cs=Math.max(2,Math.round(3*dpr)),cols=Math.ceil(cv.width/cs),rows=Math.ceil(cv.height/cs);const fx=full.getContext("2d");let data=null;try{data=fx.getImageData(0,0,cv.width,cv.height).data}catch(e){}
+  let cells=[];for(let r=0;r<rows;r++)for(let q=0;q<cols;q++){if(data){/* skip empty cells so the time goes to the body */const px=((Math.min(cv.height-1,r*cs+(cs>>1)))*cv.width+Math.min(cv.width-1,q*cs+(cs>>1)))*4+3;if(!data[px])continue}cells.push(r*cols+q)}
+  for(let i=cells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cells[i],cells[j]]=[cells[j],cells[i]]}
+  svg.style.opacity="0";m.style.opacity="";m.appendChild(cv);const t0=performance.now();let done=0;
+  const tick=now=>{if(!cv.isConnected)return;const p=Math.min(1,(now-t0)/PIX);const e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;const goal=Math.round(cells.length*e);
+   for(;done<goal;done++){const c=cells[done];const r=Math.floor(c/cols),q=c%cols;x.drawImage(full,q*cs,r*cs,cs,cs,q*cs,r*cs,cs,cs)}
+   if(p<1){requestAnimationFrame(tick);return}
+   svg.style.opacity="";svg.animate([{filter:"blur(3px)",opacity:.6},{filter:"blur(0)",opacity:1}],{duration:BLUR,easing:"cubic-bezier(.25,.1,.25,1)"});cv.animate([{opacity:1},{opacity:0}],{duration:Math.round(BLUR*.5),easing:"ease-out"}).onfinish=()=>cv.remove()};
   requestAnimationFrame(tick)};
  img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(new XMLSerializer().serializeToString(c))}
 function bmLight(m){if(RM()||!m)return;
@@ -5952,7 +5957,7 @@ function setupBackupHTML(){let h="";
  return h}
 
 /* ---------- settings, appearance & palettes ---------- */
-const APP_VERSION="0.89n beta";
+const APP_VERSION="0.89o beta";
 const PALETTES={plum:{l:"Plum (default)",light:["#6B2D5C","#F1E4EE","#E0793A"],dark:["#D08BBE","#3A2536","#F0A56E"]},
  ocean:{l:"Ocean",light:["#1F5A85","#E3EEF6","#E07A5F"],dark:["#7FB7E6","#1E3243","#F2A08A"]},
  forest:{l:"Forest",light:["#2F6B4F","#E4F0E9","#D9893B"],dark:["#8CCBA8","#203329","#F0B070"]},
